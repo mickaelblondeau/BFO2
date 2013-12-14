@@ -39,3 +39,6 @@ game.update = (frameTime) ->
   players.draw()
   player.update(frameTime)
   cubeManager.update(frameTime)
+
+  cubes = fallingCubes.find('Rect')
+  HTML.query('#cc').textContent = cubes.length

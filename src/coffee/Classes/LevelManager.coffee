@@ -46,6 +46,14 @@ class LevelManager
     return Math.floor((Math.random()*3)+4)
 
   nextLevel: ->
+    @clearLevel()
     @lastHeight = @randomizeHeight()
     cubeManager.start(@lastHeight, @speed)
     HTML.query('#lml').textContent = @level
+
+  clearLevel: ->
+    height = @lastHeight * 32
+    cubes = fallingCubes.find('Rect')
+    cubes.each (cube) ->
+      if cube.getY() > stage.getY()*-1 + stage.getHeight()
+        cube.destroy()

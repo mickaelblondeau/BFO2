@@ -766,9 +766,21 @@
     };
 
     LevelManager.prototype.nextLevel = function() {
+      this.clearLevel();
       this.lastHeight = this.randomizeHeight();
       cubeManager.start(this.lastHeight, this.speed);
       return HTML.query('#lml').textContent = this.level;
+    };
+
+    LevelManager.prototype.clearLevel = function() {
+      var cubes, height;
+      height = this.lastHeight * 32;
+      cubes = fallingCubes.find('Rect');
+      return cubes.each(function(cube) {
+        if (cube.getY() > stage.getY() * -1 + stage.getHeight()) {
+          return cube.destroy();
+        }
+      });
     };
 
     return LevelManager;
@@ -862,9 +874,12 @@
   levelManager = new LevelManager();
 
   game.update = function(frameTime) {
+    var cubes;
     players.draw();
     player.update(frameTime);
-    return cubeManager.update(frameTime);
+    cubeManager.update(frameTime);
+    cubes = fallingCubes.find('Rect');
+    return HTML.query('#cc').textContent = cubes.length;
   };
 
   window.onresize = function() {
