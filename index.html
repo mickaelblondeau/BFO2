@@ -1,0 +1,30 @@
+<html>
+<head>
+    <title>BFO</title>
+    <style>
+        body { overflow: hidden; margin: 0; }
+        #debug { position: absolute; left: 90px; }
+        #container { margin: auto; display: block !important; }
+        #stats { position: absolute; top: 0; left: 0; }
+    </style>
+</head>
+<body>
+    <div id="debug">
+        Player jumping : <span id="jump"></span><br>
+        Player jumps : <span id="jumps"></span><br>
+        Player falling : <span id="falling"></span><br>
+        Player alive : <span id="alive"></span><br>
+        CM Running : <span id="cmr"></span><br>
+        CM Level : <span id="cml"></span><br>
+        CM Cols : <span id="cmc"></span><br>
+        CM Speed : <span id="cms"></span><br>
+        LM Level : <span id="lml"></span><br>
+    </div>
+    <div id="container"></div>
+    <script src="https://raw.github.com/nbubna/HTML/master/dist/HTML.min.js"></script>
+    <script src="https://raw.github.com/dmauro/Keypress/master/keypress-1.0.9.min.js"></script>
+    <script src="http://d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v4.7.4.min.js"></script>
+    <script src="https://raw.github.com/mrdoob/stats.js/master/build/stats.min.js"></script>
+	<script src="js/app.js"></script>
+</body>
+</html>

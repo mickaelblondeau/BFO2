@@ -1,0 +1,11 @@
+{
+  "name": "chy-bfo",
+  "version": "0.0.1",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-uglify": "~0.2.2",
+    "grunt-contrib-coffee": "*",
+    "grunt-contrib-watch": "*",
+    "grunt-contrib-concat": "~0.3.0"
+  }
+}
