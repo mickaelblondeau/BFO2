@@ -9,6 +9,7 @@ class FallingCube extends Cube
     @shape.draw()
 
     @destination = 880 - destination * 32 - size
+    @diffY = @destination - y
     @speed = 600
     @fall()
 
@@ -16,7 +17,7 @@ class FallingCube extends Cube
     self = @
     tween = new Kinetic.Tween
       node: @shape
-      duration: @destination/@speed
+      duration: @diffY/@speed
       y: @destination
       onFinish: ->
         self.shape.setName(null)

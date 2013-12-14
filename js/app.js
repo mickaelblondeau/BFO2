@@ -478,6 +478,7 @@
       this.shape.setName('falling');
       this.shape.draw();
       this.destination = 880 - destination * 32 - size;
+      this.diffY = this.destination - y;
       this.speed = 600;
       this.fall();
     }
@@ -487,7 +488,7 @@
       self = this;
       tween = new Kinetic.Tween({
         node: this.shape,
-        duration: this.destination / this.speed,
+        duration: this.diffY / this.speed,
         y: this.destination,
         onFinish: function() {
           return self.shape.setName(null);
