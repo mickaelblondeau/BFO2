@@ -5,11 +5,10 @@ SquareEnum = {
 }
 
 class Cube
-  constructor: (x, y, size, type) ->
+  constructor: (x, y, size) ->
     @x = x
     @y = y
     @size = size
-    @type = type
     @draw()
 
   draw: ->
@@ -21,11 +20,3 @@ class Cube
       fill: 'red'
       stroke: 'black'
       strokeWidth: 1
-
-    if @type is 'static'
-      staticCubes.add @shape
-    else if @type is 'falling'
-      @shape.setFill('lightgrey')
-      @shape.setName('falling')
-      fallingCubes.add @shape
-    @shape.draw()

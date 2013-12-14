@@ -5,10 +5,10 @@ class Arena
 
   draw: ->
     for i in [0..13]
-      new Cube(i*32 + 128, @y, 32, 'static')
+      new StaticCube(i*32 + 128, @y, 32)
     for i in [0..80]
-      new Cube(128, @y-i*32, 32, 'static')
-      new Cube(13*32 + 128, @y-i*32, 32, 'static')
+      new StaticCube(128, @y-i*32, 32)
+      new StaticCube(13*32 + 128, @y-i*32, 32)
 
   reset: ->
     @clear()

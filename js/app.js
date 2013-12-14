@@ -1,5 +1,5 @@
 (function() {
-  var Arena, CollisionManager, ControllablePlayer, Cube, CubeManager, FallingCube, Game, Keyboard, LevelManager, Player, SquareEnum, animFrame, arena, bg, collisionManager, config, cubeManager, fallingCubes, game, keyboard, levelManager, player, players, stage, staticBg, staticCubes,
+  var Arena, CollisionManager, ControllablePlayer, Cube, CubeManager, FallingCube, Game, Keyboard, LevelManager, Player, SquareEnum, StaticCube, animFrame, arena, bg, collisionManager, config, cubeManager, fallingCubes, game, keyboard, levelManager, player, players, stage, staticBg, staticCubes,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -442,16 +442,15 @@
   };
 
   Cube = (function() {
-    function Cube(x, y, size, type) {
+    function Cube(x, y, size) {
       this.x = x;
       this.y = y;
       this.size = size;
-      this.type = type;
       this.draw();
     }
 
     Cube.prototype.draw = function() {
-      this.shape = new Kinetic.Rect({
+      return this.shape = new Kinetic.Rect({
         x: this.x,
         y: this.y,
         width: this.size,
@@ -460,14 +459,6 @@
         stroke: 'black',
         strokeWidth: 1
       });
-      if (this.type === 'static') {
-        staticCubes.add(this.shape);
-      } else if (this.type === 'falling') {
-        this.shape.setFill('lightgrey');
-        this.shape.setName('falling');
-        fallingCubes.add(this.shape);
-      }
-      return this.shape.draw();
     };
 
     return Cube;
@@ -481,7 +472,11 @@
       var x, y;
       x = col * 32 + 160;
       y = stage.getY() * -1;
-      FallingCube.__super__.constructor.call(this, x, y, size, 'falling');
+      FallingCube.__super__.constructor.call(this, x, y, size);
+      fallingCubes.add(this.shape);
+      this.shape.setFill('lightgrey');
+      this.shape.setName('falling');
+      this.shape.draw();
       this.destination = 880 - destination * 32 - size;
       this.speed = 600;
       this.fall();
@@ -502,6 +497,19 @@
     };
 
     return FallingCube;
+
+  })(Cube);
+
+  StaticCube = (function(_super) {
+    __extends(StaticCube, _super);
+
+    function StaticCube(x, y, size) {
+      StaticCube.__super__.constructor.call(this, x, y, size);
+      staticCubes.add(this.shape);
+      this.shape.draw();
+    }
+
+    return StaticCube;
 
   })(Cube);
 
@@ -769,12 +777,12 @@
     Arena.prototype.draw = function() {
       var i, _i, _j, _results;
       for (i = _i = 0; _i <= 13; i = ++_i) {
-        new Cube(i * 32 + 128, this.y, 32, 'static');
+        new StaticCube(i * 32 + 128, this.y, 32);
       }
       _results = [];
       for (i = _j = 0; _j <= 80; i = ++_j) {
-        new Cube(128, this.y - i * 32, 32, 'static');
-        _results.push(new Cube(13 * 32 + 128, this.y - i * 32, 32, 'static'));
+        new StaticCube(128, this.y - i * 32, 32);
+        _results.push(new StaticCube(13 * 32 + 128, this.y - i * 32, 32));
       }
       return _results;
     };

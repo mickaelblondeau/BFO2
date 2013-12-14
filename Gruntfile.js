@@ -16,6 +16,7 @@ module.exports = function(grunt) {
                     'src/coffee/Classes/ControllablePlayer.coffee',
                     'src/coffee/Classes/Cube.coffee',
                     'src/coffee/Classes/FallingCube.coffee',
+                    'src/coffee/Classes/StaticCube.coffee',
                     'src/coffee/Classes/CubeManager.coffee',
                     'src/coffee/Classes/LevelManager.coffee',
                     'src/coffee/Classes/Arena.coffee',
