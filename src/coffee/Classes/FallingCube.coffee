@@ -2,9 +2,8 @@ class FallingCube extends Cube
   constructor: (col, size, destination) ->
     x = col * 32 + 160
     y = stage.getY() * -1
-    super(x, y, size)
+    super(x, y, size, @getColor())
     fallingCubes.add @shape
-    @shape.setFill('lightgrey')
     @shape.setName('falling')
     @shape.draw()
 
@@ -22,3 +21,7 @@ class FallingCube extends Cube
       onFinish: ->
         self.shape.setName(null)
     tween.play()
+
+  getColor: ->
+    colors = ["red", "orange", "yellow", "green", "blue", "cyan", "purple"]
+    return colors[Math.floor((Math.random()*colors.length))]

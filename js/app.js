@@ -442,10 +442,11 @@
   };
 
   Cube = (function() {
-    function Cube(x, y, size) {
+    function Cube(x, y, size, color) {
       this.x = x;
       this.y = y;
       this.size = size;
+      this.color = color;
       this.draw();
     }
 
@@ -455,7 +456,7 @@
         y: this.y,
         width: this.size,
         height: this.size,
-        fill: 'red',
+        fill: this.color,
         stroke: 'black',
         strokeWidth: 1
       });
@@ -472,9 +473,8 @@
       var x, y;
       x = col * 32 + 160;
       y = stage.getY() * -1;
-      FallingCube.__super__.constructor.call(this, x, y, size);
+      FallingCube.__super__.constructor.call(this, x, y, size, this.getColor());
       fallingCubes.add(this.shape);
-      this.shape.setFill('lightgrey');
       this.shape.setName('falling');
       this.shape.draw();
       this.destination = 880 - destination * 32 - size;
@@ -497,6 +497,12 @@
       return tween.play();
     };
 
+    FallingCube.prototype.getColor = function() {
+      var colors;
+      colors = ["red", "orange", "yellow", "green", "blue", "cyan", "purple"];
+      return colors[Math.floor(Math.random() * colors.length)];
+    };
+
     return FallingCube;
 
   })(Cube);
@@ -505,7 +511,7 @@
     __extends(StaticCube, _super);
 
     function StaticCube(x, y, size) {
-      StaticCube.__super__.constructor.call(this, x, y, size);
+      StaticCube.__super__.constructor.call(this, x, y, size, 'white');
       staticCubes.add(this.shape);
       this.shape.draw();
     }

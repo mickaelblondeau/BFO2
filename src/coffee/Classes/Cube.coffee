@@ -5,10 +5,11 @@ SquareEnum = {
 }
 
 class Cube
-  constructor: (x, y, size) ->
+  constructor: (x, y, size, color) ->
     @x = x
     @y = y
     @size = size
+    @color = color
     @draw()
 
   draw: ->
@@ -17,6 +18,6 @@ class Cube
       y: @y
       width: @size
       height: @size
-      fill: 'red'
+      fill: @color
       stroke: 'black'
       strokeWidth: 1
