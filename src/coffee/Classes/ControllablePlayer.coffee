@@ -75,17 +75,17 @@ class ControllablePlayer extends Player
 
   couch: ->
     if @couched is false
-      @shape.setHeight(26)
-      @shape.setY(player.shape.getY() + 38)
+      @shape.setHeight(@heightCouched)
+      @shape.setY(player.shape.getY() + (@height - @heightCouched))
       @couched = true
 
   wake: ->
-    @shape.setHeight(64)
-    @shape.setY(player.shape.getY() - 38)
+    @shape.setHeight(@height)
+    @shape.setY(player.shape.getY() - (@height - @heightCouched))
     @couched = false
-    if @countCollisions < @getCountCollisions()
-      @shape.setHeight(26)
-      @shape.setY(player.shape.getY() + 38)
+    if @getCountCollisions() > @countCollisions
+      @shape.setHeight(@heightCouched)
+      @shape.setY(player.shape.getY() + (@height - @heightCouched))
       @couched = true
     else
       @stopCouch = false

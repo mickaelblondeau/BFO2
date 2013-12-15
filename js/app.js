@@ -165,7 +165,7 @@
 
     CollisionManager.prototype.getSide = function(a, b) {
       var margin, sides;
-      margin = 16;
+      margin = b.height / 2;
       sides = {
         top: false,
         bot: false,
@@ -194,6 +194,8 @@
       this.x = x;
       this.y = y;
       this.draw();
+      this.heightCouched = 30;
+      this.height = 62;
     }
 
     Player.prototype.draw = function() {
@@ -201,7 +203,7 @@
         x: this.x,
         y: this.y,
         width: 32,
-        height: 64,
+        height: 62,
         stroke: 'black',
         strokeWidth: 1
       });
@@ -311,19 +313,19 @@
 
     ControllablePlayer.prototype.couch = function() {
       if (this.couched === false) {
-        this.shape.setHeight(26);
-        this.shape.setY(player.shape.getY() + 38);
+        this.shape.setHeight(this.heightCouched);
+        this.shape.setY(player.shape.getY() + (this.height - this.heightCouched));
         return this.couched = true;
       }
     };
 
     ControllablePlayer.prototype.wake = function() {
-      this.shape.setHeight(64);
-      this.shape.setY(player.shape.getY() - 38);
+      this.shape.setHeight(this.height);
+      this.shape.setY(player.shape.getY() - (this.height - this.heightCouched));
       this.couched = false;
-      if (this.countCollisions < this.getCountCollisions()) {
-        this.shape.setHeight(26);
-        this.shape.setY(player.shape.getY() + 38);
+      if (this.getCountCollisions() > this.countCollisions) {
+        this.shape.setHeight(this.heightCouched);
+        this.shape.setY(player.shape.getY() + (this.height - this.heightCouched));
         return this.couched = true;
       } else {
         return this.stopCouch = false;
@@ -867,11 +869,21 @@
 
   keyboard = new Keyboard();
 
-  player = new ControllablePlayer(200, 256);
+  player = new ControllablePlayer(500, 256);
 
   cubeManager = new CubeManager();
 
   levelManager = new LevelManager();
+
+  new FallingCube(0, SquareEnum.MEDIUM, 1);
+
+  new FallingCube(3, SquareEnum.SMALL, 0);
+
+  new FallingCube(5, SquareEnum.MEDIUM, 2);
+
+  new FallingCube(7, SquareEnum.SMALL, 0);
+
+  new FallingCube(7, SquareEnum.SMALL, 1);
 
   game.update = function(frameTime) {
     var cubes;

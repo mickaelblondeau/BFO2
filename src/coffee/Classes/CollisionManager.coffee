@@ -17,7 +17,7 @@ class CollisionManager
     return (Math.abs(a.x - b.x) * 2 <= (a.width + b.width)) and (Math.abs(a.y - b.y) * 2 <= (a.height + b.height))
 
   getSide: (a, b) ->
-    margin = 16
+    margin = b.height / 2
     sides =
       top: false
       bot: false
