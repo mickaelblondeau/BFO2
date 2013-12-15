@@ -160,27 +160,28 @@
     };
 
     CollisionManager.prototype.colliding = function(a, b) {
-      return (Math.abs(a.x - b.x) * 2 <= (a.width + b.width)) && (Math.abs(a.y - b.y) * 2 <= (a.height + b.height));
+      return !((a.left > b.right) || (a.right < b.left) || (a.top > b.bottom) || (a.bottom < b.top));
     };
 
     CollisionManager.prototype.getSide = function(a, b) {
       var margin, sides;
-      margin = b.height / 2;
+      margin = 2;
       sides = {
         top: false,
         bot: false,
         left: false,
         right: false
       };
-      if (a.bottom >= b.top && a.bottom <= b.top + margin && a.left < b.right - 1 && a.right > b.left + 1) {
+      if (a.bottom <= b.top + b.height / 2 && a.left < b.right - margin && a.right > b.left + margin) {
         sides.top = true;
-      } else if (a.top <= b.bottom && a.top >= b.bottom - margin && a.left < b.right - 1 && a.right > b.left + 1) {
+      } else if (a.top >= b.bottom - b.height / 2 && a.left < b.right - margin && a.right > b.left + margin) {
         sides.bot = true;
-      }
-      if (a.left <= b.right && a.left >= b.right - margin && a.bottom >= b.top + 1) {
-        sides.left = true;
-      } else if (a.right >= b.left && a.right <= b.left + margin && a.bottom >= b.top + 1) {
-        sides.right = true;
+      } else {
+        if (a.left >= b.right - b.width / 2 && a.bottom >= b.top + margin) {
+          sides.left = true;
+        } else if (a.right <= b.left + b.width / 2 && a.bottom >= b.top + margin) {
+          sides.right = true;
+        }
       }
       return sides;
     };
@@ -231,7 +232,6 @@
       this.jump = false;
       this.jumpLaunched = false;
       this.canJump = true;
-      this.countCollisions = 0;
       this.falling = true;
       this.couched = false;
       this.stopCouch = false;
@@ -320,10 +320,12 @@
     };
 
     ControllablePlayer.prototype.wake = function() {
+      var tmpCount;
+      tmpCount = this.getCountCollisions();
       this.shape.setHeight(this.height);
       this.shape.setY(player.shape.getY() - (this.height - this.heightCouched));
       this.couched = false;
-      if (this.getCountCollisions() > this.countCollisions) {
+      if (this.getCountCollisions() > tmpCount) {
         this.shape.setHeight(this.heightCouched);
         this.shape.setY(player.shape.getY() + (this.height - this.heightCouched));
         return this.couched = true;
@@ -377,7 +379,6 @@
       this.lockDirection.left = false;
       this.lockDirection.right = false;
       collisions = this.getCollisions();
-      this.countCollisions = collisions.length;
       _results = [];
       for (_i = 0, _len = collisions.length; _i < _len; _i++) {
         collision = collisions[_i];
@@ -432,7 +433,16 @@
     };
 
     ControllablePlayer.prototype.getCountCollisions = function() {
-      return this.getCollisions().length;
+      var collision, collisions, count, _i, _len;
+      collisions = this.getCollisions();
+      count = 0;
+      for (_i = 0, _len = collisions.length; _i < _len; _i++) {
+        collision = collisions[_i];
+        if (collision.sides.bot) {
+          count++;
+        }
+      }
+      return count;
     };
 
     return ControllablePlayer;

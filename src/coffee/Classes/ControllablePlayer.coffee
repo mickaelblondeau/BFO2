@@ -12,7 +12,6 @@ class ControllablePlayer extends Player
     @jumpLaunched = false
     @canJump = true
 
-    @countCollisions = 0
     @falling = true
     @couched = false
     @stopCouch = false
@@ -80,10 +79,11 @@ class ControllablePlayer extends Player
       @couched = true
 
   wake: ->
+    tmpCount = @getCountCollisions()
     @shape.setHeight(@height)
     @shape.setY(player.shape.getY() - (@height - @heightCouched))
     @couched = false
-    if @getCountCollisions() > @countCollisions
+    if @getCountCollisions() > tmpCount
       @shape.setHeight(@heightCouched)
       @shape.setY(player.shape.getY() + (@height - @heightCouched))
       @couched = true
@@ -126,7 +126,6 @@ class ControllablePlayer extends Player
     @lockDirection.left = false
     @lockDirection.right = false
     collisions = @getCollisions()
-    @countCollisions = collisions.length
     for collision in collisions
       if collision.sides.top
         player.stopFall(collision.cube.getY())
@@ -160,4 +159,9 @@ class ControllablePlayer extends Player
     return result
 
   getCountCollisions: ->
-    return @getCollisions().length
+    collisions = @getCollisions()
+    count = 0
+    for collision in collisions
+      if collision.sides.bot
+        count++
+    return count

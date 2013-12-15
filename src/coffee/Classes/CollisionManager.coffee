@@ -14,23 +14,24 @@ class CollisionManager
     }
 
   colliding: (a, b) ->
-    return (Math.abs(a.x - b.x) * 2 <= (a.width + b.width)) and (Math.abs(a.y - b.y) * 2 <= (a.height + b.height))
+    return !((a.left > b.right) || (a.right < b.left) || (a.top > b.bottom) || (a.bottom < b.top))
 
   getSide: (a, b) ->
-    margin = b.height / 2
+    margin = 2
     sides =
       top: false
       bot: false
       left: false
       right: false
-    if a.bottom >= b.top and a.bottom <= b.top + margin and a.left < b.right - 1 and a.right > b.left + 1
-      sides.top = true
-    else if a.top <= b.bottom and a.top >= b.bottom - margin and a.left < b.right - 1 and a.right > b.left + 1
-      sides.bot = true
 
-    if a.left <= b.right and a.left >= b.right - margin and a.bottom >= b.top + 1
-      sides.left = true
-    else if a.right >= b.left and a.right <= b.left + margin and a.bottom >= b.top + 1
-      sides.right = true
+    if a.bottom <= b.top + b.height/2 and a.left < b.right - margin and a.right > b.left + margin
+      sides.top = true
+    else if a.top >= b.bottom - b.height/2 and a.left < b.right - margin and a.right > b.left + margin
+      sides.bot = true
+    else
+      if a.left >= b.right - b.width/2 and a.bottom >= b.top + margin
+        sides.left = true
+      else if a.right <= b.left + b.width/2 and a.bottom >= b.top + margin
+        sides.right = true
 
     return sides
