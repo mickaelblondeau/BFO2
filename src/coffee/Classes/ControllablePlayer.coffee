@@ -46,7 +46,7 @@ class ControllablePlayer extends Player
         @couch()
       else if !keyboard.keys.down and @couched
         @wake()
-      if keyboard.keys.up and !@jump and !@falling and @canJump and !@couched
+      if keyboard.keys.up and !@jump and @canJump and !@couched
         @startJump()
       if @couched and @stopCouch
         @wake()

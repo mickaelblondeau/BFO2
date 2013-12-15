@@ -275,7 +275,7 @@
         } else if (!keyboard.keys.down && this.couched) {
           this.wake();
         }
-        if (keyboard.keys.up && !this.jump && !this.falling && this.canJump && !this.couched) {
+        if (keyboard.keys.up && !this.jump && this.canJump && !this.couched) {
           this.startJump();
         }
         if (this.couched && this.stopCouch) {
