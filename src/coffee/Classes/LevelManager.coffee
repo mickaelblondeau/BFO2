@@ -1,7 +1,7 @@
 class LevelManager
   constructor: ->
     @level = 0
-    @speed = 1000
+    @speed = config.levelSpeed
     @tween = []
     @lastHeight = 0
 
@@ -19,7 +19,7 @@ class LevelManager
     stage.draw()
     cubeManager.reset()
     @level = 0
-    @speed = 1000
+    @speed = config.levelSpeed
 
   moveStage: ->
     self = @

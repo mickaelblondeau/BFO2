@@ -8,7 +8,8 @@
     fpsSkip: 10,
     test: 100,
     levelHeight: 976,
-    levelWidth: 704
+    levelWidth: 704,
+    levelSpeed: 1000
   };
 
   Keyboard = (function() {
@@ -722,7 +723,7 @@
   LevelManager = (function() {
     function LevelManager() {
       this.level = 0;
-      this.speed = 1000;
+      this.speed = config.levelSpeed;
       this.tween = [];
       this.lastHeight = 0;
     }
@@ -744,7 +745,7 @@
       stage.draw();
       cubeManager.reset();
       this.level = 0;
-      return this.speed = 1000;
+      return this.speed = config.levelSpeed;
     };
 
     LevelManager.prototype.moveStage = function() {
