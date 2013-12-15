@@ -743,7 +743,8 @@
       fallingCubes.destroyChildren();
       stage.draw();
       cubeManager.reset();
-      return this.level = 0;
+      this.level = 0;
+      return this.speed = 1000;
     };
 
     LevelManager.prototype.moveStage = function() {

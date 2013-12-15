@@ -19,6 +19,7 @@ class LevelManager
     stage.draw()
     cubeManager.reset()
     @level = 0
+    @speed = 1000
 
   moveStage: ->
     self = @
