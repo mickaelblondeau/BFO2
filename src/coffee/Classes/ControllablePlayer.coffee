@@ -46,7 +46,7 @@ class ControllablePlayer extends Player
         @couch()
       else if !keyboard.keys.down and @couched
         @wake()
-      if keyboard.keys.up and !@jump and @canJump and !@couched
+      if keyboard.keys.up and !@jump and @canJump and !@couched and @numJump < @maxJump
         @startJump()
       if @couched and @stopCouch
         @wake()
@@ -91,12 +91,12 @@ class ControllablePlayer extends Player
       @stopCouch = false
 
   startJump: ->
+    @numJump++
     @canJump = false
     @jump = true
     @doJump()
 
   stopJump: ->
-    @numJump++
     @jump = false
     @jumpLaunched = false
 
@@ -106,10 +106,11 @@ class ControllablePlayer extends Player
       @tween.pause()
 
   stopFall: (y) ->
-    @falling = false
-    @canJump = true
-    @numJump = 0
-    @shape.setY(y - @shape.getHeight())
+    if !@jump
+      @falling = false
+      @canJump = true
+      @numJump = 0
+      @shape.setY(y - @shape.getHeight())
 
   stopDirection: (way, x) ->
     if way is 'left'

@@ -275,7 +275,7 @@
         } else if (!keyboard.keys.down && this.couched) {
           this.wake();
         }
-        if (keyboard.keys.up && !this.jump && this.canJump && !this.couched) {
+        if (keyboard.keys.up && !this.jump && this.canJump && !this.couched && this.numJump < this.maxJump) {
           this.startJump();
         }
         if (this.couched && this.stopCouch) {
@@ -333,13 +333,13 @@
     };
 
     ControllablePlayer.prototype.startJump = function() {
+      this.numJump++;
       this.canJump = false;
       this.jump = true;
       return this.doJump();
     };
 
     ControllablePlayer.prototype.stopJump = function() {
-      this.numJump++;
       this.jump = false;
       return this.jumpLaunched = false;
     };
@@ -352,10 +352,12 @@
     };
 
     ControllablePlayer.prototype.stopFall = function(y) {
-      this.falling = false;
-      this.canJump = true;
-      this.numJump = 0;
-      return this.shape.setY(y - this.shape.getHeight());
+      if (!this.jump) {
+        this.falling = false;
+        this.canJump = true;
+        this.numJump = 0;
+        return this.shape.setY(y - this.shape.getHeight());
+      }
     };
 
     ControllablePlayer.prototype.stopDirection = function(way, x) {
