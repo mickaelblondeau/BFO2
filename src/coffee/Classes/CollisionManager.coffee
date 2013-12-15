@@ -28,10 +28,10 @@ class CollisionManager
       sides.top = true
     else if a.top >= b.bottom - b.height/2 and a.left < b.right - margin and a.right > b.left + margin
       sides.bot = true
-    else
-      if a.left >= b.right - b.width/2 and a.bottom >= b.top + margin
-        sides.left = true
-      else if a.right <= b.left + b.width/2 and a.bottom >= b.top + margin
-        sides.right = true
+
+    if a.left >= b.right - b.width/2 and a.bottom >= b.top + margin
+      sides.left = true
+    else if a.right <= b.left + b.width/2 and a.bottom >= b.top + margin
+      sides.right = true
 
     return sides
