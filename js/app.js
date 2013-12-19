@@ -237,7 +237,7 @@
         if (collide && collide.getName() === 'falling') {
           this.kill();
         }
-        if (keyboard.keys.left || keyboard.keys.right || keyboard.keys.up || keyboard.keys.down || this.falling || this.jump) {
+        if (this.jump || this.falling || keyboard.keys.left || keyboard.keys.right || keyboard.keys.up || keyboard.keys.down) {
           if (!this.jump) {
             this.doFall(frameTime);
           } else {
@@ -272,12 +272,14 @@
           } else {
             this.stopCouch();
           }
+        } else if (this.couched) {
+          this.stopCouch();
           HTML.query('#jump').textContent = this.jump;
           HTML.query('#jumps').textContent = this.jumpCount + '/' + this.jumpMax;
           HTML.query('#falling').textContent = this.falling;
           HTML.query('#alive').textContent = this.alive;
         }
-        return HTML.query('#ppc').textContent = !(keyboard.keys.left || keyboard.keys.right || keyboard.keys.up || keyboard.keys.down || this.falling || this.jump);
+        return HTML.query('#ppc').textContent = !(this.jump || this.falling || keyboard.keys.left || keyboard.keys.right || keyboard.keys.up || keyboard.keys.down);
       }
     };
 

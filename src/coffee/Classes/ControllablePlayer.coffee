@@ -28,7 +28,7 @@ class ControllablePlayer extends Player
       if collide and collide.getName() is 'falling'
         @kill()
 
-      if keyboard.keys.left or keyboard.keys.right or keyboard.keys.up or keyboard.keys.down or @falling or @jump
+      if @jump or @falling or keyboard.keys.left or keyboard.keys.right or keyboard.keys.up or keyboard.keys.down
         if !@jump
           @doFall(frameTime)
         else
@@ -56,12 +56,14 @@ class ControllablePlayer extends Player
           @startCouch()
         else
           @stopCouch()
+      else if @couched
+        @stopCouch()
 
         HTML.query('#jump').textContent = @jump
         HTML.query('#jumps').textContent = @jumpCount + '/' + @jumpMax
         HTML.query('#falling').textContent = @falling
         HTML.query('#alive').textContent = @alive
-      HTML.query('#ppc').textContent = !(keyboard.keys.left or keyboard.keys.right or keyboard.keys.up or keyboard.keys.down or @falling or @jump)
+      HTML.query('#ppc').textContent = !(@jump or @falling or keyboard.keys.left or keyboard.keys.right or keyboard.keys.up or keyboard.keys.down)
 
   doFall: (frameTime) ->
     if @jumpCount is 0
