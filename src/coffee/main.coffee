@@ -35,11 +35,9 @@ player = new ControllablePlayer(500, 256)
 cubeManager = new CubeManager()
 levelManager = new LevelManager()
 
-new FallingCube(0, SquareEnum.MEDIUM, 1)
-new FallingCube(3, SquareEnum.SMALL, 0)
-new FallingCube(5, SquareEnum.MEDIUM, 2)
-new FallingCube(7, SquareEnum.SMALL, 0)
-new FallingCube(7, SquareEnum.SMALL, 1)
+new FallingCube(0, SquareEnum.LARGE, 2)
+new FallingCube(4, SquareEnum.MEDIUM, 2)
+new FallingCube(8, SquareEnum.SMALL, 1)
 
 game.update = (frameTime) ->
   players.draw()

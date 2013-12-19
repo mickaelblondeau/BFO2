@@ -1,12 +1,12 @@
 (function() {
   var Arena, CollisionManager, ControllablePlayer, Cube, CubeManager, FallingCube, Game, Keyboard, LevelManager, Player, SquareEnum, StaticCube, animFrame, arena, bg, collisionManager, config, cubeManager, fallingCubes, game, keyboard, levelManager, player, players, stage, staticBg, staticCubes,
     __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   config = {
     FPS: 60,
     fpsSkip: 10,
-    test: 100,
     levelHeight: 976,
     levelWidth: 704,
     levelSpeed: 1000
@@ -152,38 +152,12 @@
         top: shape.getY(),
         bottom: shape.getY() + shape.getHeight(),
         left: shape.getX(),
-        right: shape.getX() + shape.getWidth(),
-        x: shape.getX() + shape.getWidth() / 2,
-        y: shape.getY() + shape.getHeight() / 2,
-        width: shape.getWidth(),
-        height: shape.getHeight()
+        right: shape.getX() + shape.getWidth()
       };
     };
 
     CollisionManager.prototype.colliding = function(a, b) {
-      return !((a.left > b.right) || (a.right < b.left) || (a.top > b.bottom) || (a.bottom < b.top));
-    };
-
-    CollisionManager.prototype.getSide = function(a, b) {
-      var margin, sides;
-      margin = 2;
-      sides = {
-        top: false,
-        bot: false,
-        left: false,
-        right: false
-      };
-      if (a.bottom <= b.top + b.height / 2 && a.left < b.right - margin && a.right > b.left + margin) {
-        sides.top = true;
-      } else if (a.top >= b.bottom - b.height / 2 && a.left < b.right - margin && a.right > b.left + margin) {
-        sides.bot = true;
-      }
-      if (a.left >= b.right - b.width / 2 && a.bottom >= b.top + margin) {
-        sides.left = true;
-      } else if (a.right <= b.left + b.width / 2 && a.bottom >= b.top + margin) {
-        sides.right = true;
-      }
-      return sides;
+      return !((a.left >= b.right) || (a.right <= b.left) || (a.top >= b.bottom) || (a.bottom <= b.top));
     };
 
     return CollisionManager;
@@ -220,27 +194,19 @@
 
     function ControllablePlayer(x, y) {
       ControllablePlayer.__super__.constructor.call(this, x, y);
-      this.speed = 0.25;
-      this.couchSpeed = 0.1;
-      this.move = {
-        left: false,
-        right: false
-      };
+      this.speed = 0.3;
       this.fallingSpeed = 6;
-      this.maxJump = 1;
-      this.numJump = 1;
-      this.jump = false;
-      this.jumpLaunched = false;
-      this.canJump = true;
       this.falling = true;
-      this.couched = false;
-      this.stopCouch = false;
-      this.tween = null;
-      this.lockDirection = {
-        left: false,
-        right: false
-      };
       this.alive = true;
+      this.jumpSpeed = 0.3;
+      this.jumpHeight = 80;
+      this.jumpMax = 1;
+      this.jump = false;
+      this.canJump = true;
+      this.jumpStart = 0;
+      this.jumpCount = 0;
+      this.couched = false;
+      this.actualCollisions = [];
     }
 
     ControllablePlayer.prototype.reset = function() {
@@ -256,151 +222,110 @@
     };
 
     ControllablePlayer.prototype.update = function(frameTime) {
-      var moveSpeed;
+      var collide, moveSpeed;
       if (this.alive) {
-        if (this.couched && !this.falling) {
-          moveSpeed = this.couchSpeed * frameTime;
-        } else {
-          moveSpeed = this.speed * frameTime;
+        collide = this.testDiff();
+        if (collide && collide.getName() === 'falling') {
+          this.kill();
         }
-        this.checkCollisions();
-        if (keyboard.keys.left && !this.lockDirection.left) {
-          this.shape.setX(this.shape.getX() - moveSpeed);
-        }
-        if (keyboard.keys.right && !this.lockDirection.right) {
-          this.shape.setX(this.shape.getX() + moveSpeed);
-        }
-        if (keyboard.keys.down && !this.couched) {
-          this.couch();
-        } else if (!keyboard.keys.down && this.couched) {
-          this.wake();
-        }
-        if (keyboard.keys.up && !this.jump && this.canJump && !this.couched && this.numJump < this.maxJump) {
-          this.startJump();
-        }
-        if (this.couched && this.stopCouch) {
-          this.wake();
-        }
-        if (!this.jump && this.falling) {
+        if (!this.jump) {
           this.doFall();
+        } else {
+          this.doJump(frameTime);
+        }
+        moveSpeed = this.speed * frameTime;
+        if (keyboard.keys.left) {
+          collide = this.testMove(this.shape.getX() - moveSpeed, 0);
+          if (collide) {
+            this.shape.setX(collide.getX() + collide.getWidth());
+          }
+        }
+        if (keyboard.keys.right) {
+          collide = this.testMove(this.shape.getX() + moveSpeed, 0);
+          if (collide) {
+            this.shape.setX(collide.getX() - this.shape.getWidth());
+          }
+        }
+        if (keyboard.keys.up) {
+          if (this.canJump) {
+            this.startJump();
+          }
+        } else {
+          this.canJump = true;
+        }
+        if (keyboard.keys.down) {
+          this.startCouch();
+        } else {
+          this.stopCouch();
         }
         HTML.query('#jump').textContent = this.jump;
-        HTML.query('#jumps').textContent = this.numJump + "/" + this.maxJump;
-        HTML.query('#falling').textContent = !this.jump && this.falling;
+        HTML.query('#jumps').textContent = this.jumpCount + '/' + this.jumpMax;
+        HTML.query('#falling').textContent = this.falling;
         return HTML.query('#alive').textContent = this.alive;
       }
     };
 
-    ControllablePlayer.prototype.doJump = function() {
-      var player;
-      player = this;
-      this.jumpLaunched = true;
-      this.tween = new Kinetic.Tween({
-        node: this.shape,
-        duration: 0.3,
-        easing: Kinetic.Easings.EaseOut,
-        y: this.shape.getY() - 84,
-        onFinish: function() {
-          return player.stopJump();
-        }
-      });
-      return this.tween.play();
-    };
-
     ControllablePlayer.prototype.doFall = function() {
-      return this.shape.setY(this.shape.getY() + this.fallingSpeed);
-    };
-
-    ControllablePlayer.prototype.couch = function() {
-      if (this.couched === false) {
-        this.shape.setHeight(this.heightCouched);
-        this.shape.setY(player.shape.getY() + (this.height - this.heightCouched));
-        return this.couched = true;
+      var collide;
+      if (this.jumpCount === 0) {
+        this.jumpCount = 1;
       }
-    };
-
-    ControllablePlayer.prototype.wake = function() {
-      var tmpCount;
-      tmpCount = this.getCountCollisions();
-      this.shape.setHeight(this.height);
-      this.shape.setY(player.shape.getY() - (this.height - this.heightCouched));
-      this.couched = false;
-      if (this.getCountCollisions() > tmpCount) {
-        this.shape.setHeight(this.heightCouched);
-        this.shape.setY(player.shape.getY() + (this.height - this.heightCouched));
-        return this.couched = true;
-      } else {
-        return this.stopCouch = false;
-      }
-    };
-
-    ControllablePlayer.prototype.startJump = function() {
-      this.numJump++;
-      this.canJump = false;
-      this.jump = true;
-      return this.doJump();
-    };
-
-    ControllablePlayer.prototype.stopJump = function() {
-      this.jump = false;
-      return this.jumpLaunched = false;
-    };
-
-    ControllablePlayer.prototype.cancelJump = function() {
-      this.stopJump();
-      if (this.tween !== null) {
-        return this.tween.pause();
+      collide = this.testMove(0, this.shape.getY() + this.fallingSpeed);
+      if (collide) {
+        return this.stopFall(collide.getY());
       }
     };
 
     ControllablePlayer.prototype.stopFall = function(y) {
-      if (!this.jump) {
-        this.falling = false;
-        this.canJump = true;
-        this.numJump = 0;
-        return this.shape.setY(y - this.shape.getHeight());
+      this.shape.setY(y - this.shape.getHeight());
+      return this.jumpCount = 0;
+    };
+
+    ControllablePlayer.prototype.startJump = function() {
+      this.canJump = false;
+      if (this.jumpCount < this.jumpMax && !this.couched) {
+        this.jumpCount++;
+        this.jump = true;
+        return this.jumpStart = this.shape.getY();
       }
     };
 
-    ControllablePlayer.prototype.stopDirection = function(way, x) {
-      if (way === 'left') {
-        this.lockDirection.left = true;
-        return this.shape.setX(x);
+    ControllablePlayer.prototype.doJump = function(frameTime) {
+      var collide;
+      if (this.jumpStart - this.shape.getY() < this.jumpHeight) {
+        collide = this.testMove(0, this.shape.getY() - this.jumpSpeed * frameTime);
+        if (collide) {
+          this.shape.setY(collide.getY() + collide.getHeight());
+          this.stopJump();
+        }
+        return this.jumpTime += frameTime;
       } else {
-        this.lockDirection.right = true;
-        return this.shape.setX(x - this.shape.getWidth());
+        return this.stopJump();
       }
     };
 
-    ControllablePlayer.prototype.checkCollisions = function() {
-      var collision, collisions, player, _i, _len, _results;
-      player = this;
-      this.falling = true;
-      this.lockDirection.left = false;
-      this.lockDirection.right = false;
-      collisions = this.getCollisions();
-      _results = [];
-      for (_i = 0, _len = collisions.length; _i < _len; _i++) {
-        collision = collisions[_i];
-        if (collision.sides.top) {
-          _results.push(player.stopFall(collision.cube.getY()));
-        } else {
-          if (collision.sides.bot) {
-            if (collision.cube.getName() === 'falling') {
-              player.kill();
-            }
-            player.cancelJump();
-          }
-          if (collision.sides.left) {
-            _results.push(player.stopDirection('left', collision.cube.getX() + collision.cube.getWidth()));
-          } else if (collision.sides.right) {
-            _results.push(player.stopDirection('right', collision.cube.getX()));
-          } else {
-            _results.push(void 0);
-          }
+    ControllablePlayer.prototype.stopJump = function() {
+      return this.jump = false;
+    };
+
+    ControllablePlayer.prototype.startCouch = function() {
+      if (!this.couched) {
+        this.couched = true;
+        this.shape.setHeight(this.heightCouched);
+        return this.shape.setY(this.shape.getY() + this.height - this.heightCouched);
+      }
+    };
+
+    ControllablePlayer.prototype.stopCouch = function() {
+      var collide;
+      if (this.couched) {
+        this.couched = false;
+        this.shape.setHeight(this.height);
+        collide = this.testMove(0, this.shape.getY() - this.height + this.heightCouched);
+        if (collide) {
+          return this.startCouch();
         }
       }
-      return _results;
     };
 
     ControllablePlayer.prototype.getCollisions = function() {
@@ -412,10 +337,7 @@
         var cubeBoundBox;
         cubeBoundBox = collisionManager.getBoundBox(cube);
         if (collisionManager.colliding(playerBoundBox, cubeBoundBox)) {
-          return result.push({
-            cube: cube,
-            sides: collisionManager.getSide(playerBoundBox, cubeBoundBox)
-          });
+          return result.push(cube);
         }
       });
       cubes = fallingCubes.find('Rect');
@@ -423,26 +345,48 @@
         var cubeBoundBox;
         cubeBoundBox = collisionManager.getBoundBox(cube);
         if (collisionManager.colliding(playerBoundBox, cubeBoundBox)) {
-          return result.push({
-            cube: cube,
-            sides: collisionManager.getSide(playerBoundBox, cubeBoundBox)
-          });
+          return result.push(cube);
         }
       });
       return result;
     };
 
-    ControllablePlayer.prototype.getCountCollisions = function() {
-      var collision, collisions, count, _i, _len;
+    ControllablePlayer.prototype.testMove = function(x, y) {
+      var collision, collisions, list, _i, _len;
+      list = this.getCollisions();
+      if (x !== 0) {
+        this.shape.setX(x);
+      }
+      if (y !== 0) {
+        this.shape.setY(y);
+      }
       collisions = this.getCollisions();
-      count = 0;
       for (_i = 0, _len = collisions.length; _i < _len; _i++) {
         collision = collisions[_i];
-        if (collision.sides.bot) {
-          count++;
+        if (__indexOf.call(list, collision) < 0) {
+          if (x !== 0 && collision.getY() !== this.shape.getY() + this.shape.getHeight()) {
+            return collision;
+          }
+          if (y !== 0 && collision.getX() !== this.shape.getX() + this.shape.getWidth() && collision.getX() + collision.getWidth() !== this.shape.getX()) {
+            return collision;
+          }
         }
       }
-      return count;
+      return false;
+    };
+
+    ControllablePlayer.prototype.testDiff = function() {
+      var collision, collisions, _i, _len;
+      collisions = this.getCollisions();
+      for (_i = 0, _len = collisions.length; _i < _len; _i++) {
+        collision = collisions[_i];
+        if (__indexOf.call(this.actualCollisions, collision) < 0) {
+          this.actualCollisions = collisions;
+          return collision;
+        }
+      }
+      this.actualCollisions = collisions;
+      return false;
     };
 
     return ControllablePlayer;
@@ -888,15 +832,11 @@
 
   levelManager = new LevelManager();
 
-  new FallingCube(0, SquareEnum.MEDIUM, 1);
+  new FallingCube(0, SquareEnum.LARGE, 2);
 
-  new FallingCube(3, SquareEnum.SMALL, 0);
+  new FallingCube(4, SquareEnum.MEDIUM, 2);
 
-  new FallingCube(5, SquareEnum.MEDIUM, 2);
-
-  new FallingCube(7, SquareEnum.SMALL, 0);
-
-  new FallingCube(7, SquareEnum.SMALL, 1);
+  new FallingCube(8, SquareEnum.SMALL, 1);
 
   game.update = function(frameTime) {
     var cubes;

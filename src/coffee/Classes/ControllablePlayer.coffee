@@ -1,24 +1,21 @@
 class ControllablePlayer extends Player
   constructor: (x, y) ->
     super(x, y)
-    @speed = 0.25
-    @couchSpeed = 0.1
-    @move = { left: false, right: false }
-
+    @speed = 0.3
     @fallingSpeed = 6
-    @maxJump = 1
-    @numJump = 1
-    @jump = false
-    @jumpLaunched = false
-    @canJump = true
-
     @falling = true
-    @couched = false
-    @stopCouch = false
-    @tween = null
-    @lockDirection = { left: false, right: false }
-
     @alive = true
+    @jumpSpeed = 0.3
+    @jumpHeight = 80
+    @jumpMax = 1
+    @jump = false
+    @canJump = true
+    @jumpStart = 0
+    @jumpCount = 0
+
+    @couched = false
+
+    @actualCollisions = []
 
   reset: ->
     @shape.setX(200)
@@ -32,112 +29,87 @@ class ControllablePlayer extends Player
 
   update: (frameTime) ->
     if @alive
-      if @couched and !@falling
-        moveSpeed = @couchSpeed*frameTime
-      else
-        moveSpeed = @speed*frameTime
-      @checkCollisions()
-      if keyboard.keys.left and !@lockDirection.left
-        @shape.setX(@shape.getX() - moveSpeed)
-      if keyboard.keys.right and !@lockDirection.right
-        @shape.setX(@shape.getX() + moveSpeed)
-      if keyboard.keys.down and !@couched
-        @couch()
-      else if !keyboard.keys.down and @couched
-        @wake()
-      if keyboard.keys.up and !@jump and @canJump and !@couched and @numJump < @maxJump
-        @startJump()
-      if @couched and @stopCouch
-        @wake()
-      if !@jump and @falling
+      collide = @testDiff()
+      if collide and collide.getName() is 'falling'
+        @kill()
+
+      if !@jump
         @doFall()
+      else
+        @doJump(frameTime)
+
+      moveSpeed = @speed*frameTime
+
+      if keyboard.keys.left
+        collide = @testMove(@shape.getX() - moveSpeed, 0)
+        if collide
+          @shape.setX(collide.getX() + collide.getWidth())
+
+      if keyboard.keys.right
+        collide = @testMove(@shape.getX() + moveSpeed, 0)
+        if collide
+          @shape.setX(collide.getX() - @shape.getWidth())
+
+      if keyboard.keys.up
+        if @canJump
+          @startJump()
+      else
+        @canJump = true
+
+      if keyboard.keys.down
+        @startCouch()
+      else
+        @stopCouch()
 
       HTML.query('#jump').textContent = @jump
-      HTML.query('#jumps').textContent = @numJump + "/" + @maxJump
-      HTML.query('#falling').textContent = !@jump and @falling
+      HTML.query('#jumps').textContent = @jumpCount + '/' + @jumpMax
+      HTML.query('#falling').textContent = @falling
       HTML.query('#alive').textContent = @alive
 
-  doJump: ->
-    player = @
-    @jumpLaunched = true
-    @tween = new Kinetic.Tween
-      node: @shape
-      duration: 0.3
-      easing: Kinetic.Easings.EaseOut
-      y: @shape.getY() - 84
-      onFinish: ->
-        player.stopJump()
-    @tween.play()
-
   doFall: ->
-    @shape.setY(@shape.getY() + @fallingSpeed)
+    if @jumpCount is 0
+      @jumpCount = 1
+    collide = @testMove(0, @shape.getY() + @fallingSpeed)
+    if collide
+      @stopFall(collide.getY())
 
-  couch: ->
-    if @couched is false
-      @shape.setHeight(@heightCouched)
-      @shape.setY(player.shape.getY() + (@height - @heightCouched))
-      @couched = true
-
-  wake: ->
-    tmpCount = @getCountCollisions()
-    @shape.setHeight(@height)
-    @shape.setY(player.shape.getY() - (@height - @heightCouched))
-    @couched = false
-    if @getCountCollisions() > tmpCount
-      @shape.setHeight(@heightCouched)
-      @shape.setY(player.shape.getY() + (@height - @heightCouched))
-      @couched = true
-    else
-      @stopCouch = false
+  stopFall: (y) ->
+    @shape.setY(y - @shape.getHeight())
+    @jumpCount = 0
 
   startJump: ->
-    @numJump++
     @canJump = false
-    @jump = true
-    @doJump()
+    if @jumpCount < @jumpMax and !@couched
+      @jumpCount++
+      @jump = true
+      @jumpStart = @shape.getY()
+
+  doJump: (frameTime) ->
+    if(@jumpStart - @shape.getY() < @jumpHeight)
+      collide = @testMove(0, @shape.getY() - @jumpSpeed*frameTime)
+      if collide
+        @shape.setY(collide.getY() + collide.getHeight())
+        @stopJump()
+      @jumpTime += frameTime
+    else
+      @stopJump()
 
   stopJump: ->
     @jump = false
-    @jumpLaunched = false
 
-  cancelJump: ->
-    @stopJump()
-    if @tween isnt null
-      @tween.pause()
+  startCouch: ->
+    if !@couched
+      @couched = true
+      @shape.setHeight(@heightCouched)
+      @shape.setY(@shape.getY() + @height - @heightCouched)
 
-  stopFall: (y) ->
-    if !@jump
-      @falling = false
-      @canJump = true
-      @numJump = 0
-      @shape.setY(y - @shape.getHeight())
-
-  stopDirection: (way, x) ->
-    if way is 'left'
-      @lockDirection.left = true
-      @shape.setX(x)
-    else
-      @lockDirection.right = true
-      @shape.setX(x - @shape.getWidth())
-
-  checkCollisions: ->
-    player = @
-    @falling = true
-    @lockDirection.left = false
-    @lockDirection.right = false
-    collisions = @getCollisions()
-    for collision in collisions
-      if collision.sides.top
-        player.stopFall(collision.cube.getY())
-      else
-        if collision.sides.bot
-          if collision.cube.getName() is 'falling'
-            player.kill()
-          player.cancelJump()
-        if collision.sides.left
-          player.stopDirection('left', collision.cube.getX() + collision.cube.getWidth())
-        else if collision.sides.right
-          player.stopDirection('right', collision.cube.getX())
+  stopCouch: ->
+    if @couched
+      @couched = false
+      @shape.setHeight(@height)
+      collide = @testMove(0, @shape.getY() - @height + @heightCouched)
+      if collide
+        @startCouch()
 
   getCollisions: ->
     result = []
@@ -146,22 +118,34 @@ class ControllablePlayer extends Player
     cubes.each (cube) ->
       cubeBoundBox = collisionManager.getBoundBox(cube)
       if collisionManager.colliding(playerBoundBox, cubeBoundBox)
-        result.push
-          cube: cube
-          sides: collisionManager.getSide(playerBoundBox, cubeBoundBox)
+        result.push(cube)
     cubes = fallingCubes.find('Rect')
     cubes.each (cube) ->
       cubeBoundBox = collisionManager.getBoundBox(cube)
       if collisionManager.colliding(playerBoundBox, cubeBoundBox)
-        result.push
-          cube: cube
-          sides: collisionManager.getSide(playerBoundBox, cubeBoundBox)
+        result.push(cube)
     return result
 
-  getCountCollisions: ->
+  testMove: (x, y) ->
+    list = @getCollisions()
+    if x isnt 0
+      @shape.setX(x)
+    if y isnt 0
+      @shape.setY(y)
     collisions = @getCollisions()
-    count = 0
     for collision in collisions
-      if collision.sides.bot
-        count++
-    return count
+      if collision not in list
+        if x isnt 0 and collision.getY() isnt @shape.getY() + @shape.getHeight()
+          return collision
+        if y isnt 0 and collision.getX() isnt @shape.getX() + @shape.getWidth() and collision.getX() + collision.getWidth() isnt @shape.getX()
+          return collision
+    return false
+
+  testDiff: ->
+    collisions = @getCollisions()
+    for collision in collisions
+      if collision not in @actualCollisions
+        @actualCollisions = collisions
+        return collision
+    @actualCollisions = collisions
+    return false
