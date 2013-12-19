@@ -30,14 +30,10 @@ arena = new Arena()
 
 keyboard = new Keyboard()
 
-player = new ControllablePlayer(500, 256)
+player = new ControllablePlayer()
 
 cubeManager = new CubeManager()
 levelManager = new LevelManager()
-
-new FallingCube(0, SquareEnum.LARGE, 2)
-new FallingCube(4, SquareEnum.MEDIUM, 2)
-new FallingCube(8, SquareEnum.SMALL, 1)
 
 game.update = (frameTime) ->
   players.draw()

@@ -165,24 +165,38 @@
   })();
 
   Player = (function() {
-    function Player(x, y) {
-      this.x = x;
-      this.y = y;
-      this.draw();
+    function Player() {
       this.heightCouched = 30;
       this.height = 62;
+      this.draw();
+      this.spawn();
     }
 
     Player.prototype.draw = function() {
       this.shape = new Kinetic.Rect({
-        x: this.x,
-        y: this.y,
         width: 32,
-        height: 62,
+        height: this.height,
         stroke: 'black',
         strokeWidth: 1
       });
       return players.add(this.shape);
+    };
+
+    Player.prototype.spawn = function() {
+      this.shape.setX(336);
+      return this.shape.setY(stage.getY() * -1);
+    };
+
+    Player.prototype.reset = function() {
+      this.spawn();
+      this.alive = true;
+      return this.falling = true;
+    };
+
+    Player.prototype.kill = function() {
+      this.shape.setX(32);
+      this.shape.setY(32);
+      return this.alive = false;
     };
 
     return Player;
@@ -195,10 +209,15 @@
     function ControllablePlayer(x, y) {
       ControllablePlayer.__super__.constructor.call(this, x, y);
       this.speed = 0.3;
-      this.fallingSpeed = 6;
-      this.falling = true;
-      this.alive = true;
-      this.jumpSpeed = 0.3;
+      this.couchedSpeedRatio = 0.5;
+      this.fallMinAcceleration = 0.2;
+      this.fallMaxAcceleration = 0.6;
+      this.fallAcceleration = 1.05;
+      this.fallCurrentAcceleration = this.fallMinAcceleration;
+      this.jumpMinAcceleration = 0.1;
+      this.jumpMaxAcceleration = 0.6;
+      this.jumpDeceleration = 0.95;
+      this.jumpCurrentAcceleration = 0;
       this.jumpHeight = 80;
       this.jumpMax = 1;
       this.jump = false;
@@ -206,20 +225,10 @@
       this.jumpStart = 0;
       this.jumpCount = 0;
       this.couched = false;
+      this.falling = true;
+      this.alive = true;
       this.actualCollisions = [];
     }
-
-    ControllablePlayer.prototype.reset = function() {
-      this.shape.setX(200);
-      this.shape.setY(256);
-      return this.alive = true;
-    };
-
-    ControllablePlayer.prototype.kill = function() {
-      this.shape.setX(32);
-      this.shape.setY(32);
-      return this.alive = false;
-    };
 
     ControllablePlayer.prototype.update = function(frameTime) {
       var collide, moveSpeed;
@@ -228,49 +237,62 @@
         if (collide && collide.getName() === 'falling') {
           this.kill();
         }
-        if (!this.jump) {
-          this.doFall();
-        } else {
-          this.doJump(frameTime);
-        }
-        moveSpeed = this.speed * frameTime;
-        if (keyboard.keys.left) {
-          collide = this.testMove(this.shape.getX() - moveSpeed, 0);
-          if (collide) {
-            this.shape.setX(collide.getX() + collide.getWidth());
+        if (keyboard.keys.left || keyboard.keys.right || keyboard.keys.up || keyboard.keys.down || this.falling || this.jump) {
+          if (!this.jump) {
+            this.doFall(frameTime);
+          } else {
+            this.doJump(frameTime);
           }
-        }
-        if (keyboard.keys.right) {
-          collide = this.testMove(this.shape.getX() + moveSpeed, 0);
-          if (collide) {
-            this.shape.setX(collide.getX() - this.shape.getWidth());
+          if (this.couched && !this.jump) {
+            moveSpeed = this.speed * frameTime * this.couchedSpeedRatio;
+          } else {
+            moveSpeed = this.speed * frameTime;
           }
-        }
-        if (keyboard.keys.up) {
-          if (this.canJump) {
-            this.startJump();
+          if (keyboard.keys.left) {
+            collide = this.testMove(this.shape.getX() - moveSpeed, 0);
+            if (collide) {
+              this.shape.setX(collide.getX() + collide.getWidth());
+            }
           }
-        } else {
-          this.canJump = true;
+          if (keyboard.keys.right) {
+            collide = this.testMove(this.shape.getX() + moveSpeed, 0);
+            if (collide) {
+              this.shape.setX(collide.getX() - this.shape.getWidth());
+            }
+          }
+          if (keyboard.keys.up) {
+            if (this.canJump) {
+              this.startJump();
+            }
+          } else {
+            this.canJump = true;
+          }
+          if (keyboard.keys.down) {
+            this.startCouch();
+          } else {
+            this.stopCouch();
+          }
+          HTML.query('#jump').textContent = this.jump;
+          HTML.query('#jumps').textContent = this.jumpCount + '/' + this.jumpMax;
+          HTML.query('#falling').textContent = this.falling;
+          HTML.query('#alive').textContent = this.alive;
         }
-        if (keyboard.keys.down) {
-          this.startCouch();
-        } else {
-          this.stopCouch();
-        }
-        HTML.query('#jump').textContent = this.jump;
-        HTML.query('#jumps').textContent = this.jumpCount + '/' + this.jumpMax;
-        HTML.query('#falling').textContent = this.falling;
-        return HTML.query('#alive').textContent = this.alive;
+        return HTML.query('#ppc').textContent = !(keyboard.keys.left || keyboard.keys.right || keyboard.keys.up || keyboard.keys.down || this.falling || this.jump);
       }
     };
 
-    ControllablePlayer.prototype.doFall = function() {
-      var collide;
+    ControllablePlayer.prototype.doFall = function(frameTime) {
+      var collide, tmpAcceleration;
       if (this.jumpCount === 0) {
         this.jumpCount = 1;
       }
-      collide = this.testMove(0, this.shape.getY() + this.fallingSpeed);
+      collide = this.testMove(0, this.shape.getY() + this.fallCurrentAcceleration * frameTime);
+      tmpAcceleration = this.fallCurrentAcceleration * this.fallAcceleration;
+      if (tmpAcceleration <= this.fallMaxAcceleration) {
+        this.fallCurrentAcceleration = tmpAcceleration;
+      } else {
+        this.fallCurrentAcceleration = this.fallMaxAcceleration;
+      }
       if (collide) {
         return this.stopFall(collide.getY());
       }
@@ -278,7 +300,9 @@
 
     ControllablePlayer.prototype.stopFall = function(y) {
       this.shape.setY(y - this.shape.getHeight());
-      return this.jumpCount = 0;
+      this.jumpCount = 0;
+      this.fallCurrentAcceleration = this.fallMinAcceleration;
+      return this.falling = false;
     };
 
     ControllablePlayer.prototype.startJump = function() {
@@ -286,14 +310,21 @@
       if (this.jumpCount < this.jumpMax && !this.couched) {
         this.jumpCount++;
         this.jump = true;
+        this.jumpCurrentAcceleration = this.jumpMaxAcceleration;
         return this.jumpStart = this.shape.getY();
       }
     };
 
     ControllablePlayer.prototype.doJump = function(frameTime) {
-      var collide;
+      var collide, tmpAcceleration;
       if (this.jumpStart - this.shape.getY() < this.jumpHeight) {
-        collide = this.testMove(0, this.shape.getY() - this.jumpSpeed * frameTime);
+        collide = this.testMove(0, this.shape.getY() - this.jumpCurrentAcceleration * frameTime);
+        tmpAcceleration = this.jumpCurrentAcceleration * this.jumpDeceleration;
+        if (tmpAcceleration >= this.jumpMinAcceleration) {
+          this.jumpCurrentAcceleration = tmpAcceleration;
+        } else {
+          this.jumpCurrentAcceleration = this.jumpMinAcceleration;
+        }
         if (collide) {
           this.shape.setY(collide.getY() + collide.getHeight());
           this.stopJump();
@@ -305,7 +336,8 @@
     };
 
     ControllablePlayer.prototype.stopJump = function() {
-      return this.jump = false;
+      this.jump = false;
+      return this.falling = true;
     };
 
     ControllablePlayer.prototype.startCouch = function() {
@@ -826,17 +858,11 @@
 
   keyboard = new Keyboard();
 
-  player = new ControllablePlayer(500, 256);
+  player = new ControllablePlayer();
 
   cubeManager = new CubeManager();
 
   levelManager = new LevelManager();
-
-  new FallingCube(0, SquareEnum.LARGE, 2);
-
-  new FallingCube(4, SquareEnum.MEDIUM, 2);
-
-  new FallingCube(8, SquareEnum.SMALL, 1);
 
   game.update = function(frameTime) {
     var cubes;

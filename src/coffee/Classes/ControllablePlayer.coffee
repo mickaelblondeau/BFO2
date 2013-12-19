@@ -2,30 +2,25 @@ class ControllablePlayer extends Player
   constructor: (x, y) ->
     super(x, y)
     @speed = 0.3
-    @fallingSpeed = 6
-    @falling = true
-    @alive = true
-    @jumpSpeed = 0.3
+    @couchedSpeedRatio = 0.5
+    @fallMinAcceleration = 0.2
+    @fallMaxAcceleration = 0.6
+    @fallAcceleration = 1.05
+    @fallCurrentAcceleration = @fallMinAcceleration
+    @jumpMinAcceleration = 0.1
+    @jumpMaxAcceleration = 0.6
+    @jumpDeceleration = 0.95
+    @jumpCurrentAcceleration = 0
     @jumpHeight = 80
     @jumpMax = 1
     @jump = false
     @canJump = true
     @jumpStart = 0
     @jumpCount = 0
-
     @couched = false
-
-    @actualCollisions = []
-
-  reset: ->
-    @shape.setX(200)
-    @shape.setY(256)
+    @falling = true
     @alive = true
-
-  kill: ->
-    @shape.setX(32)
-    @shape.setY(32)
-    @alive = false
+    @actualCollisions = []
 
   update: (frameTime) ->
     if @alive
@@ -33,60 +28,75 @@ class ControllablePlayer extends Player
       if collide and collide.getName() is 'falling'
         @kill()
 
-      if !@jump
-        @doFall()
-      else
-        @doJump(frameTime)
+      if keyboard.keys.left or keyboard.keys.right or keyboard.keys.up or keyboard.keys.down or @falling or @jump
+        if !@jump
+          @doFall(frameTime)
+        else
+          @doJump(frameTime)
 
-      moveSpeed = @speed*frameTime
+        if @couched and !@jump
+          moveSpeed = @speed*frameTime*@couchedSpeedRatio
+        else
+          moveSpeed = @speed*frameTime
 
-      if keyboard.keys.left
-        collide = @testMove(@shape.getX() - moveSpeed, 0)
-        if collide
-          @shape.setX(collide.getX() + collide.getWidth())
+        if keyboard.keys.left
+          collide = @testMove(@shape.getX() - moveSpeed, 0)
+          if collide
+            @shape.setX(collide.getX() + collide.getWidth())
+        if keyboard.keys.right
+          collide = @testMove(@shape.getX() + moveSpeed, 0)
+          if collide
+            @shape.setX(collide.getX() - @shape.getWidth())
+        if keyboard.keys.up
+          if @canJump
+            @startJump()
+        else
+          @canJump = true
+        if keyboard.keys.down
+          @startCouch()
+        else
+          @stopCouch()
 
-      if keyboard.keys.right
-        collide = @testMove(@shape.getX() + moveSpeed, 0)
-        if collide
-          @shape.setX(collide.getX() - @shape.getWidth())
+        HTML.query('#jump').textContent = @jump
+        HTML.query('#jumps').textContent = @jumpCount + '/' + @jumpMax
+        HTML.query('#falling').textContent = @falling
+        HTML.query('#alive').textContent = @alive
+      HTML.query('#ppc').textContent = !(keyboard.keys.left or keyboard.keys.right or keyboard.keys.up or keyboard.keys.down or @falling or @jump)
 
-      if keyboard.keys.up
-        if @canJump
-          @startJump()
-      else
-        @canJump = true
-
-      if keyboard.keys.down
-        @startCouch()
-      else
-        @stopCouch()
-
-      HTML.query('#jump').textContent = @jump
-      HTML.query('#jumps').textContent = @jumpCount + '/' + @jumpMax
-      HTML.query('#falling').textContent = @falling
-      HTML.query('#alive').textContent = @alive
-
-  doFall: ->
+  doFall: (frameTime) ->
     if @jumpCount is 0
       @jumpCount = 1
-    collide = @testMove(0, @shape.getY() + @fallingSpeed)
+    collide = @testMove(0, @shape.getY() + @fallCurrentAcceleration*frameTime)
+    tmpAcceleration = @fallCurrentAcceleration*@fallAcceleration
+    if tmpAcceleration <= @fallMaxAcceleration
+      @fallCurrentAcceleration = tmpAcceleration
+    else
+      @fallCurrentAcceleration = @fallMaxAcceleration
     if collide
       @stopFall(collide.getY())
 
   stopFall: (y) ->
     @shape.setY(y - @shape.getHeight())
     @jumpCount = 0
+    @fallCurrentAcceleration = @fallMinAcceleration
+    @falling = false
 
   startJump: ->
     @canJump = false
     if @jumpCount < @jumpMax and !@couched
       @jumpCount++
       @jump = true
+      @jumpCurrentAcceleration = @jumpMaxAcceleration
       @jumpStart = @shape.getY()
 
   doJump: (frameTime) ->
     if(@jumpStart - @shape.getY() < @jumpHeight)
-      collide = @testMove(0, @shape.getY() - @jumpSpeed*frameTime)
+      collide = @testMove(0, @shape.getY() - @jumpCurrentAcceleration*frameTime)
+      tmpAcceleration = @jumpCurrentAcceleration*@jumpDeceleration
+      if tmpAcceleration >= @jumpMinAcceleration
+        @jumpCurrentAcceleration = tmpAcceleration
+      else
+        @jumpCurrentAcceleration = @jumpMinAcceleration
       if collide
         @shape.setY(collide.getY() + collide.getHeight())
         @stopJump()
@@ -96,6 +106,7 @@ class ControllablePlayer extends Player
 
   stopJump: ->
     @jump = false
+    @falling = true
 
   startCouch: ->
     if !@couched
