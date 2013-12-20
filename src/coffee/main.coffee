@@ -4,34 +4,30 @@ stage = new Kinetic.Stage
   height: config.levelHeight
 
 fallingCubes = new Kinetic.Layer()
-staticCubes = new Kinetic.Layer()
 players = new Kinetic.Layer()
-staticBg = new Kinetic.Layer()
-
-stage.add staticBg
+staticLayer = new Kinetic.Layer()
+stage.add staticLayer
 stage.add players
-stage.add staticCubes
 stage.add fallingCubes
+
+staticCubes = new Kinetic.Group()
+staticLayer.add staticCubes
 
 bg = new Kinetic.Rect
   width: stage.getWidth()
   height: stage.getHeight()
   fill: "grey"
   stroke: "black"
-staticBg.add bg
+staticLayer.add bg
+bg.setZIndex(-1)
 bg.draw()
 
 game = new Game()
 game.start()
-
 collisionManager = new CollisionManager()
-
 arena = new Arena()
-
 keyboard = new Keyboard()
-
 player = new ControllablePlayer()
-
 cubeManager = new CubeManager()
 levelManager = new LevelManager()
 

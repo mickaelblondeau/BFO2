@@ -47,22 +47,28 @@ class ControllablePlayer extends Player
           collide = @testMove(@shape.getX() + moveSpeed, 0)
           if collide
             @shape.setX(collide.getX() - @shape.getWidth())
+
         if keyboard.keys.up
           if @canJump
             @startJump()
         else
           @canJump = true
+
         if keyboard.keys.down
           @startCouch()
         else
           @stopCouch()
+
       else if @couched
         @stopCouch()
 
-        HTML.query('#jump').textContent = @jump
-        HTML.query('#jumps').textContent = @jumpCount + '/' + @jumpMax
-        HTML.query('#falling').textContent = @falling
-        HTML.query('#alive').textContent = @alive
+      else if !keyboard.keys.up
+        @canJump = true
+
+      HTML.query('#jump').textContent = @jump
+      HTML.query('#jumps').textContent = @jumpCount + '/' + @jumpMax
+      HTML.query('#falling').textContent = @falling
+      HTML.query('#alive').textContent = @alive
       HTML.query('#ppc').textContent = !(@jump or @falling or keyboard.keys.left or keyboard.keys.right or keyboard.keys.up or keyboard.keys.down)
 
   doFall: (frameTime) ->

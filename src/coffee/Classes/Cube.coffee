@@ -1,7 +1,10 @@
 SquareEnum = {
-  SMALL : 32
-  MEDIUM : 64
-  LARGE : 128
+  SMALL : { x: 32, y: 32 }
+  MEDIUM : { x: 64, y: 64 }
+  LARGE : { x: 128, y: 128 }
+  MEDIUM_RECT : { x: 64, y: 32 }
+  LARGE_RECT : { x: 128, y: 64 }
+  LONG_RECT : { x: 32, y: 128 }
 }
 
 class Cube
@@ -16,8 +19,8 @@ class Cube
     @shape = new Kinetic.Rect
       x: @x
       y: @y
-      width: @size
-      height: @size
+      width: @size.x
+      height: @size.y
       fill: @color
       stroke: 'black'
       strokeWidth: 1

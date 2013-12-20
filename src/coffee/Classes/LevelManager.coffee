@@ -2,20 +2,19 @@ class LevelManager
   constructor: ->
     @level = 0
     @speed = config.levelSpeed
-    @tween = []
+    @tweens = []
     @lastHeight = 0
 
   launch: ->
     @nextLevel()
 
   reset: ->
-    if @tween[0] isnt undefined
-      @tween[0].pause()
-    if @tween[1] isnt undefined
-      @tween[1].pause()
-    stage.setY(0)
-    staticBg.setY(0)
+    for tween in @tweens
+      if tween isnt undefined
+        tween.pause()
+    fallingCubes.setY(0)
     fallingCubes.destroyChildren()
+    players.setY(0)
     stage.draw()
     cubeManager.reset()
     @level = 0
@@ -24,19 +23,19 @@ class LevelManager
   moveStage: ->
     self = @
     height = @lastHeight * 32
-    @tween[0] = new Kinetic.Tween
-      node: stage
+    @tweens[0] = new Kinetic.Tween
+      node: fallingCubes
       duration: 2
-      y: stage.getY() + height
+      y: fallingCubes.getY() + height
       onFinish: ->
         cubeManager.waiting = false
         self.nextLevel()
-    @tween[0].play()
-    @tween[1] = new Kinetic.Tween
-      node: staticBg
+    @tweens[0].play()
+    @tweens[1] = new Kinetic.Tween
+      node: players
       duration: 2
-      y: staticBg.getY() - height
-    @tween[1].play()
+      y: players.getY() + height
+    @tweens[1].play()
 
   update: ->
     @level++
@@ -53,8 +52,4 @@ class LevelManager
     HTML.query('#lml').textContent = @level
 
   clearLevel: ->
-    height = @lastHeight * 32
-    cubes = fallingCubes.find('Rect')
-    cubes.each (cube) ->
-      if cube.getY() > stage.getY()*-1 + stage.getHeight()
-        cube.destroy()
+    fallingCubes.destroyChildren()

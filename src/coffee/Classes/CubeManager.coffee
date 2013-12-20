@@ -8,6 +8,45 @@ class CubeManager
     @running = false
     @waiting = false
 
+    @types = [
+      {
+        proba: 8
+        size: SquareEnum.LARGE
+        width: SquareEnum.LARGE.x/32
+        height: SquareEnum.LARGE.y/32
+      },
+      {
+        proba: 26
+        size: SquareEnum.MEDIUM
+        width: SquareEnum.MEDIUM.x/32
+        height: SquareEnum.MEDIUM.y/32
+      },
+      {
+        proba: 26
+        size: SquareEnum.SMALL
+        width: SquareEnum.SMALL.x/32
+        height: SquareEnum.SMALL.y/32
+      },
+      {
+        proba: 16
+        size: SquareEnum.MEDIUM_RECT
+        width: SquareEnum.MEDIUM_RECT.x/32
+        height: SquareEnum.MEDIUM_RECT.y/32
+      },
+      {
+        proba: 8
+        size: SquareEnum.LARGE_RECT
+        width: SquareEnum.LARGE_RECT.x/32
+        height: SquareEnum.LARGE_RECT.y/32
+      },
+      {
+        proba: 16
+        size: SquareEnum.LONG_RECT
+        width: SquareEnum.LONG_RECT.x/32
+        height: SquareEnum.LONG_RECT.y/32
+      }
+    ]
+
   start: (level, rate) ->
     if !@running and !@waiting
       @updateRate = rate
@@ -38,77 +77,40 @@ class CubeManager
      @map[i] = 0
 
   sendCube: ->
-    cols = @checkCols()
-    bigLen = cols.big.length
-    midLen = cols.mid.length
-    smallLen = cols.small.length
-
-    if smallLen is 0
-      return false
-    else
-      if bigLen is 0
-        if midLen is 0
-          size = SquareEnum.SMALL
-          @updateRate = 500
-        else
-          size = @randSize(2)
-      else
-        size = @randSize(3)
-      col = @randCol(size, cols)
-      new FallingCube(col, size, @findHeight(size, col))
-      @fillMap(size, col)
+    choices = @checkCols()
+    if choices.length > 0
+      tmp = @randomizeType(choices)
+      type = tmp.type
+      typeIndex = tmp.index
+      count = choices[typeIndex].length
+      rand = Math.floor(Math.random()*count)
+      choice = choices[typeIndex][rand]
+      new FallingCube(choice.column, type.size, choice.height)
+      for columnPosition in [1..type.width]
+        @map[choice.column + columnPosition - 1] = choice.height + type.height
       return true
-
-  randSize: (max) ->
-    size = Math.floor(Math.random()*100)
-    if max is 2
-      size -= 25
-    if max is 1
-      return SquareEnum.SMALL
-    if size > 75
-      return SquareEnum.LARGE
-    else if size > 40 and size <= 75
-      return SquareEnum.MEDIUM
     else
-      return SquareEnum.SMALL
+      return false
 
-  randCol: (size, cols) ->
-    if size is SquareEnum.LARGE
-      return cols.big[Math.floor(Math.random()*cols.big.length)]
-    else if size is SquareEnum.MEDIUM
-      return cols.mid[Math.floor(Math.random()*cols.mid.length)]
-    else
-      return cols.small[Math.floor(Math.random()*cols.small.length)]
-
-  fillMap: (size, col) ->
-    heightest = @findHeight(size, col)
-    if size is SquareEnum.LARGE
-      @map[col] = heightest + 4
-      @map[col+1] = heightest + 4
-      @map[col+2] = heightest + 4
-      @map[col+3] = heightest + 4
-    else if size is SquareEnum.MEDIUM
-      @map[col] = heightest + 2
-      @map[col+1] = heightest + 2
-    else
-      @map[col] += 1
-
-  findHeight: (size, col) ->
-    heightest = 0
-    if size is SquareEnum.LARGE
-      heightest = @map[col]
-      if @map[col+1] > heightest
-        heightest = @map[col+1]
-      if @map[col+2] > heightest
-        heightest = @map[col+2]
-      return heightest
-    else if size is SquareEnum.MEDIUM
-      heightest = @map[col]
-      if @map[col+1] > heightest
-        heightest = @map[col+1]
-      return heightest
-    else
-      return @map[col]
+  randomizeType: (choices) ->
+    possibleTypes = []
+    for type, typeIndex in @types
+      if choices[typeIndex] isnt undefined and choices[typeIndex].length > 0
+        possibleTypes.push { type: type, index: typeIndex, proba: type.proba }
+    if possibleTypes.length != @types.length
+      ratio = @types.length / possibleTypes.length
+      for possibleType in possibleTypes
+        possibleType.proba *= ratio
+    randomMap = []
+    randomCount = 0
+    for possibleType, index in possibleTypes
+      randomCount += possibleType.proba
+      randomMap.push { index: index, percent: randomCount }
+    rand = Math.floor(Math.random()*100)+1
+    for item in randomMap
+      if rand <= item.percent
+        return possibleTypes[item.index]
+    return possibleTypes[randomMap.length - 1]
 
   update: (frameTime) ->
     if @running
@@ -120,15 +122,23 @@ class CubeManager
     HTML.query('#cmc').textContent = @map
 
   checkCols: ->
-    availableSmall = []
-    availableMid = []
-    availableBig = []
-    for col, i in @map
-      space = @levelHeight - col
-      if space > 0
-        availableSmall.push(i)
-      if space > 1 and @levelHeight - @map[i+1] > 1
-        availableMid.push(i)
-      if space > 3 and @levelHeight - @map[i+1] > 3 and @levelHeight - @map[i+2] > 3 and @levelHeight - @map[i+3] > 3
-        availableBig.push(i)
-    return { small: availableSmall, mid: availableMid, big: availableBig }
+    available = []
+    for column, columnIndex in @map
+      for type, typeIndex in @types
+        placeForType = true
+        height = 0
+        for columnPosition in [1..type.width]
+          tmp = @map[columnIndex + columnPosition - 1]
+          if !(tmp + type.height <= @levelHeight)
+            placeForType = false
+            break
+          else if tmp > height
+            height = tmp
+        if placeForType
+          if available[typeIndex] is undefined
+            available[typeIndex] = []
+          available[typeIndex].push {
+            column: columnIndex
+            height: height
+          }
+    return available

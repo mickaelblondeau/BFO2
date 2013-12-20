@@ -1,13 +1,13 @@
 class FallingCube extends Cube
   constructor: (col, size, destination) ->
     x = col * 32 + 160
-    y = stage.getY() * -1
+    y = fallingCubes.getY() * -1
     super(x, y, size, @getColor())
     fallingCubes.add @shape
     @shape.setName('falling')
     @shape.draw()
 
-    @destination = 880 - destination * 32 - size
+    @destination = arena.y - destination * 32 - size.y
     @diffY = @destination - y
     @speed = 600
     @fall()

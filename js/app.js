@@ -1,5 +1,5 @@
 (function() {
-  var Arena, CollisionManager, ControllablePlayer, Cube, CubeManager, FallingCube, Game, Keyboard, LevelManager, Player, SquareEnum, StaticCube, animFrame, arena, bg, collisionManager, config, cubeManager, fallingCubes, game, keyboard, levelManager, player, players, stage, staticBg, staticCubes,
+  var Arena, CollisionManager, ControllablePlayer, Cube, CubeManager, FallingCube, Game, Keyboard, LevelManager, Player, SquareEnum, StaticCube, animFrame, arena, bg, collisionManager, config, cubeManager, fallingCubes, game, keyboard, levelManager, player, players, stage, staticCubes, staticLayer,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -274,11 +274,13 @@
           }
         } else if (this.couched) {
           this.stopCouch();
-          HTML.query('#jump').textContent = this.jump;
-          HTML.query('#jumps').textContent = this.jumpCount + '/' + this.jumpMax;
-          HTML.query('#falling').textContent = this.falling;
-          HTML.query('#alive').textContent = this.alive;
+        } else if (!keyboard.keys.up) {
+          this.canJump = true;
         }
+        HTML.query('#jump').textContent = this.jump;
+        HTML.query('#jumps').textContent = this.jumpCount + '/' + this.jumpMax;
+        HTML.query('#falling').textContent = this.falling;
+        HTML.query('#alive').textContent = this.alive;
         return HTML.query('#ppc').textContent = !(this.jump || this.falling || keyboard.keys.left || keyboard.keys.right || keyboard.keys.up || keyboard.keys.down);
       }
     };
@@ -428,9 +430,30 @@
   })(Player);
 
   SquareEnum = {
-    SMALL: 32,
-    MEDIUM: 64,
-    LARGE: 128
+    SMALL: {
+      x: 32,
+      y: 32
+    },
+    MEDIUM: {
+      x: 64,
+      y: 64
+    },
+    LARGE: {
+      x: 128,
+      y: 128
+    },
+    MEDIUM_RECT: {
+      x: 64,
+      y: 32
+    },
+    LARGE_RECT: {
+      x: 128,
+      y: 64
+    },
+    LONG_RECT: {
+      x: 32,
+      y: 128
+    }
   };
 
   Cube = (function() {
@@ -446,8 +469,8 @@
       return this.shape = new Kinetic.Rect({
         x: this.x,
         y: this.y,
-        width: this.size,
-        height: this.size,
+        width: this.size.x,
+        height: this.size.y,
         fill: this.color,
         stroke: 'black',
         strokeWidth: 1
@@ -464,12 +487,12 @@
     function FallingCube(col, size, destination) {
       var x, y;
       x = col * 32 + 160;
-      y = stage.getY() * -1;
+      y = fallingCubes.getY() * -1;
       FallingCube.__super__.constructor.call(this, x, y, size, this.getColor());
       fallingCubes.add(this.shape);
       this.shape.setName('falling');
       this.shape.draw();
-      this.destination = 880 - destination * 32 - size;
+      this.destination = arena.y - destination * 32 - size.y;
       this.diffY = this.destination - y;
       this.speed = 600;
       this.fall();
@@ -521,6 +544,39 @@
       this.levelHeight = 0;
       this.running = false;
       this.waiting = false;
+      this.types = [
+        {
+          proba: 8,
+          size: SquareEnum.LARGE,
+          width: SquareEnum.LARGE.x / 32,
+          height: SquareEnum.LARGE.y / 32
+        }, {
+          proba: 26,
+          size: SquareEnum.MEDIUM,
+          width: SquareEnum.MEDIUM.x / 32,
+          height: SquareEnum.MEDIUM.y / 32
+        }, {
+          proba: 26,
+          size: SquareEnum.SMALL,
+          width: SquareEnum.SMALL.x / 32,
+          height: SquareEnum.SMALL.y / 32
+        }, {
+          proba: 16,
+          size: SquareEnum.MEDIUM_RECT,
+          width: SquareEnum.MEDIUM_RECT.x / 32,
+          height: SquareEnum.MEDIUM_RECT.y / 32
+        }, {
+          proba: 8,
+          size: SquareEnum.LARGE_RECT,
+          width: SquareEnum.LARGE_RECT.x / 32,
+          height: SquareEnum.LARGE_RECT.y / 32
+        }, {
+          proba: 16,
+          size: SquareEnum.LONG_RECT,
+          width: SquareEnum.LONG_RECT.x / 32,
+          height: SquareEnum.LONG_RECT.y / 32
+        }
+      ];
     }
 
     CubeManager.prototype.start = function(level, rate) {
@@ -563,96 +619,64 @@
     };
 
     CubeManager.prototype.sendCube = function() {
-      var bigLen, col, cols, midLen, size, smallLen;
-      cols = this.checkCols();
-      bigLen = cols.big.length;
-      midLen = cols.mid.length;
-      smallLen = cols.small.length;
-      if (smallLen === 0) {
-        return false;
-      } else {
-        if (bigLen === 0) {
-          if (midLen === 0) {
-            size = SquareEnum.SMALL;
-            this.updateRate = 500;
-          } else {
-            size = this.randSize(2);
-          }
-        } else {
-          size = this.randSize(3);
+      var choice, choices, columnPosition, count, rand, tmp, type, typeIndex, _i, _ref;
+      choices = this.checkCols();
+      if (choices.length > 0) {
+        tmp = this.randomizeType(choices);
+        type = tmp.type;
+        typeIndex = tmp.index;
+        count = choices[typeIndex].length;
+        rand = Math.floor(Math.random() * count);
+        choice = choices[typeIndex][rand];
+        new FallingCube(choice.column, type.size, choice.height);
+        for (columnPosition = _i = 1, _ref = type.width; 1 <= _ref ? _i <= _ref : _i >= _ref; columnPosition = 1 <= _ref ? ++_i : --_i) {
+          this.map[choice.column + columnPosition - 1] = choice.height + type.height;
         }
-        col = this.randCol(size, cols);
-        new FallingCube(col, size, this.findHeight(size, col));
-        this.fillMap(size, col);
         return true;
-      }
-    };
-
-    CubeManager.prototype.randSize = function(max) {
-      var size;
-      size = Math.floor(Math.random() * 100);
-      if (max === 2) {
-        size -= 25;
-      }
-      if (max === 1) {
-        return SquareEnum.SMALL;
-      }
-      if (size > 75) {
-        return SquareEnum.LARGE;
-      } else if (size > 40 && size <= 75) {
-        return SquareEnum.MEDIUM;
       } else {
-        return SquareEnum.SMALL;
+        return false;
       }
     };
 
-    CubeManager.prototype.randCol = function(size, cols) {
-      if (size === SquareEnum.LARGE) {
-        return cols.big[Math.floor(Math.random() * cols.big.length)];
-      } else if (size === SquareEnum.MEDIUM) {
-        return cols.mid[Math.floor(Math.random() * cols.mid.length)];
-      } else {
-        return cols.small[Math.floor(Math.random() * cols.small.length)];
-      }
-    };
-
-    CubeManager.prototype.fillMap = function(size, col) {
-      var heightest;
-      heightest = this.findHeight(size, col);
-      if (size === SquareEnum.LARGE) {
-        this.map[col] = heightest + 4;
-        this.map[col + 1] = heightest + 4;
-        this.map[col + 2] = heightest + 4;
-        return this.map[col + 3] = heightest + 4;
-      } else if (size === SquareEnum.MEDIUM) {
-        this.map[col] = heightest + 2;
-        return this.map[col + 1] = heightest + 2;
-      } else {
-        return this.map[col] += 1;
-      }
-    };
-
-    CubeManager.prototype.findHeight = function(size, col) {
-      var heightest;
-      heightest = 0;
-      if (size === SquareEnum.LARGE) {
-        heightest = this.map[col];
-        if (this.map[col + 1] > heightest) {
-          heightest = this.map[col + 1];
+    CubeManager.prototype.randomizeType = function(choices) {
+      var index, item, possibleType, possibleTypes, rand, randomCount, randomMap, ratio, type, typeIndex, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref;
+      possibleTypes = [];
+      _ref = this.types;
+      for (typeIndex = _i = 0, _len = _ref.length; _i < _len; typeIndex = ++_i) {
+        type = _ref[typeIndex];
+        if (choices[typeIndex] !== void 0 && choices[typeIndex].length > 0) {
+          possibleTypes.push({
+            type: type,
+            index: typeIndex,
+            proba: type.proba
+          });
         }
-        if (this.map[col + 2] > heightest) {
-          heightest = this.map[col + 2];
-        }
-        return heightest;
-      } else if (size === SquareEnum.MEDIUM) {
-        heightest = this.map[col];
-        if (this.map[col + 1] > heightest) {
-          heightest = this.map[col + 1];
-        }
-        return heightest;
-      } else {
-        return this.map[col];
       }
+      if (possibleTypes.length !== this.types.length) {
+        ratio = this.types.length / possibleTypes.length;
+        for (_j = 0, _len1 = possibleTypes.length; _j < _len1; _j++) {
+          possibleType = possibleTypes[_j];
+          possibleType.proba *= ratio;
+        }
+      }
+      randomMap = [];
+      randomCount = 0;
+      for (index = _k = 0, _len2 = possibleTypes.length; _k < _len2; index = ++_k) {
+        possibleType = possibleTypes[index];
+        randomCount += possibleType.proba;
+        randomMap.push({
+          index: index,
+          percent: randomCount
+        });
+      }
+      rand = Math.floor(Math.random() * 100) + 1;
+      for (_l = 0, _len3 = randomMap.length; _l < _len3; _l++) {
+        item = randomMap[_l];
+        if (rand <= item.percent) {
+          return possibleTypes[item.index];
+        }
+      }
+      return possibleTypes[randomMap.length - 1];
     };
 
     CubeManager.prototype.update = function(frameTime) {
@@ -669,29 +693,37 @@
     };
 
     CubeManager.prototype.checkCols = function() {
-      var availableBig, availableMid, availableSmall, col, i, space, _i, _len, _ref;
-      availableSmall = [];
-      availableMid = [];
-      availableBig = [];
+      var available, column, columnIndex, columnPosition, height, placeForType, tmp, type, typeIndex, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2;
+      available = [];
       _ref = this.map;
-      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-        col = _ref[i];
-        space = this.levelHeight - col;
-        if (space > 0) {
-          availableSmall.push(i);
-        }
-        if (space > 1 && this.levelHeight - this.map[i + 1] > 1) {
-          availableMid.push(i);
-        }
-        if (space > 3 && this.levelHeight - this.map[i + 1] > 3 && this.levelHeight - this.map[i + 2] > 3 && this.levelHeight - this.map[i + 3] > 3) {
-          availableBig.push(i);
+      for (columnIndex = _i = 0, _len = _ref.length; _i < _len; columnIndex = ++_i) {
+        column = _ref[columnIndex];
+        _ref1 = this.types;
+        for (typeIndex = _j = 0, _len1 = _ref1.length; _j < _len1; typeIndex = ++_j) {
+          type = _ref1[typeIndex];
+          placeForType = true;
+          height = 0;
+          for (columnPosition = _k = 1, _ref2 = type.width; 1 <= _ref2 ? _k <= _ref2 : _k >= _ref2; columnPosition = 1 <= _ref2 ? ++_k : --_k) {
+            tmp = this.map[columnIndex + columnPosition - 1];
+            if (!(tmp + type.height <= this.levelHeight)) {
+              placeForType = false;
+              break;
+            } else if (tmp > height) {
+              height = tmp;
+            }
+          }
+          if (placeForType) {
+            if (available[typeIndex] === void 0) {
+              available[typeIndex] = [];
+            }
+            available[typeIndex].push({
+              column: columnIndex,
+              height: height
+            });
+          }
         }
       }
-      return {
-        small: availableSmall,
-        mid: availableMid,
-        big: availableBig
-      };
+      return available;
     };
 
     return CubeManager;
@@ -702,7 +734,7 @@
     function LevelManager() {
       this.level = 0;
       this.speed = config.levelSpeed;
-      this.tween = [];
+      this.tweens = [];
       this.lastHeight = 0;
     }
 
@@ -711,15 +743,17 @@
     };
 
     LevelManager.prototype.reset = function() {
-      if (this.tween[0] !== void 0) {
-        this.tween[0].pause();
+      var tween, _i, _len, _ref;
+      _ref = this.tweens;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        tween = _ref[_i];
+        if (tween !== void 0) {
+          tween.pause();
+        }
       }
-      if (this.tween[1] !== void 0) {
-        this.tween[1].pause();
-      }
-      stage.setY(0);
-      staticBg.setY(0);
+      fallingCubes.setY(0);
       fallingCubes.destroyChildren();
+      players.setY(0);
       stage.draw();
       cubeManager.reset();
       this.level = 0;
@@ -730,22 +764,22 @@
       var height, self;
       self = this;
       height = this.lastHeight * 32;
-      this.tween[0] = new Kinetic.Tween({
-        node: stage,
+      this.tweens[0] = new Kinetic.Tween({
+        node: fallingCubes,
         duration: 2,
-        y: stage.getY() + height,
+        y: fallingCubes.getY() + height,
         onFinish: function() {
           cubeManager.waiting = false;
           return self.nextLevel();
         }
       });
-      this.tween[0].play();
-      this.tween[1] = new Kinetic.Tween({
-        node: staticBg,
+      this.tweens[0].play();
+      this.tweens[1] = new Kinetic.Tween({
+        node: players,
         duration: 2,
-        y: staticBg.getY() - height
+        y: players.getY() + height
       });
-      return this.tween[1].play();
+      return this.tweens[1].play();
     };
 
     LevelManager.prototype.update = function() {
@@ -766,14 +800,7 @@
     };
 
     LevelManager.prototype.clearLevel = function() {
-      var cubes, height;
-      height = this.lastHeight * 32;
-      cubes = fallingCubes.find('Rect');
-      return cubes.each(function(cube) {
-        if (cube.getY() > stage.getY() * -1 + stage.getHeight()) {
-          return cube.destroy();
-        }
-      });
+      return fallingCubes.destroyChildren();
     };
 
     return LevelManager;
@@ -782,19 +809,19 @@
 
   Arena = (function() {
     function Arena() {
-      this.y = stage.getHeight() - 96;
+      this.y = stage.getHeight();
       this.draw();
     }
 
     Arena.prototype.draw = function() {
       var i, _i, _j, _results;
       for (i = _i = 0; _i <= 13; i = ++_i) {
-        new StaticCube(i * 32 + 128, this.y, 32);
+        new StaticCube(i * 32 + 128, this.y, SquareEnum.SMALL);
       }
       _results = [];
-      for (i = _j = 0; _j <= 80; i = ++_j) {
-        new StaticCube(128, this.y - i * 32, 32);
-        _results.push(new StaticCube(13 * 32 + 128, this.y - i * 32, 32));
+      for (i = _j = 0; _j <= 32; i = ++_j) {
+        new StaticCube(128, this.y - i * 32, SquareEnum.SMALL);
+        _results.push(new StaticCube(13 * 32 + 128, this.y - i * 32, SquareEnum.SMALL));
       }
       return _results;
     };
@@ -825,19 +852,19 @@
 
   fallingCubes = new Kinetic.Layer();
 
-  staticCubes = new Kinetic.Layer();
-
   players = new Kinetic.Layer();
 
-  staticBg = new Kinetic.Layer();
+  staticLayer = new Kinetic.Layer();
 
-  stage.add(staticBg);
+  stage.add(staticLayer);
 
   stage.add(players);
 
-  stage.add(staticCubes);
-
   stage.add(fallingCubes);
+
+  staticCubes = new Kinetic.Group();
+
+  staticLayer.add(staticCubes);
 
   bg = new Kinetic.Rect({
     width: stage.getWidth(),
@@ -846,7 +873,9 @@
     stroke: "black"
   });
 
-  staticBg.add(bg);
+  staticLayer.add(bg);
+
+  bg.setZIndex(-1);
 
   bg.draw();
 
