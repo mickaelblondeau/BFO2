@@ -1,7 +1,7 @@
 class FallingCube extends Cube
   constructor: (col, size, destination) ->
     x = col * 32 + 160
-    y = fallingCubes.getY() * -1
+    y = stage.getY() * -1
     super(x, y, size, @getColor())
     fallingCubes.add @shape
     @shape.setName('falling')

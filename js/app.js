@@ -489,7 +489,7 @@
     function FallingCube(col, size, destination) {
       var x, y;
       x = col * 32 + 160;
-      y = fallingCubes.getY() * -1;
+      y = stage.getY() * -1;
       FallingCube.__super__.constructor.call(this, x, y, size, this.getColor());
       fallingCubes.add(this.shape);
       this.shape.setName('falling');
@@ -755,6 +755,7 @@
       }
       stage.setY(0);
       staticBg.setY(0);
+      arena.reset();
       fallingCubes.destroyChildren();
       stage.draw();
       cubeManager.reset();
@@ -766,6 +767,7 @@
       var height, self;
       self = this;
       height = this.lastHeight * 32;
+      arena.add(this.lastHeight);
       this.tweens[0] = new Kinetic.Tween({
         node: stage,
         duration: 2,
@@ -803,6 +805,7 @@
 
     LevelManager.prototype.clearLevel = function() {
       var cubes;
+      arena.clearOutOfScreen();
       cubes = fallingCubes.find('Rect');
       return cubes.each(function(cube) {
         if (cube.getY() > stage.getY() * -1 + stage.getHeight()) {
@@ -818,23 +821,26 @@
   Arena = (function() {
     function Arena() {
       this.y = stage.getHeight();
+      this.initHeight = 31;
+      this.height = this.initHeight;
       this.draw();
     }
 
     Arena.prototype.draw = function() {
-      var i, _i, _j, _results;
+      var i, _i, _j, _ref, _results;
       for (i = _i = 0; _i <= 13; i = ++_i) {
         new StaticCube(i * 32 + 128, this.y, SquareEnum.SMALL);
       }
       _results = [];
-      for (i = _j = 0; _j <= 32; i = ++_j) {
+      for (i = _j = 0, _ref = this.height; 0 <= _ref ? _j <= _ref : _j >= _ref; i = 0 <= _ref ? ++_j : --_j) {
         new StaticCube(128, this.y - i * 32, SquareEnum.SMALL);
-        _results.push(new StaticCube(13 * 32 + 128, this.y - i * 32, SquareEnum.SMALL));
+        _results.push(new StaticCube(544, this.y - i * 32, SquareEnum.SMALL));
       }
       return _results;
     };
 
     Arena.prototype.reset = function() {
+      this.height = this.initHeight;
       this.clear();
       return this.draw();
     };
@@ -846,6 +852,25 @@
         return shape.remove();
       });
       return staticCubes.draw();
+    };
+
+    Arena.prototype.add = function(level) {
+      var i, _i, _ref, _ref1;
+      for (i = _i = _ref = this.height, _ref1 = this.height + level; _ref <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = _ref <= _ref1 ? ++_i : --_i) {
+        new StaticCube(128, this.y - i * 32, SquareEnum.SMALL);
+        new StaticCube(544, this.y - i * 32, SquareEnum.SMALL);
+      }
+      return this.height += level;
+    };
+
+    Arena.prototype.clearOutOfScreen = function() {
+      var cubes;
+      cubes = staticCubes.find('Rect');
+      return cubes.each(function(cube) {
+        if (cube.getY() > stage.getY() * -1 + stage.getHeight()) {
+          return cube.destroy();
+        }
+      });
     };
 
     return Arena;
@@ -909,7 +934,9 @@
     player.update(frameTime);
     cubeManager.update(frameTime);
     cubes = fallingCubes.find('Rect');
-    return HTML.query('#cc').textContent = cubes.length;
+    HTML.query('#cc').textContent = cubes.length;
+    cubes = staticCubes.find('Rect');
+    return HTML.query('#sc').textContent = cubes.length;
   };
 
   window.onresize = function() {

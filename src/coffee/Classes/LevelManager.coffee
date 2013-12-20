@@ -14,6 +14,7 @@ class LevelManager
         tween.pause()
     stage.setY(0)
     staticBg.setY(0)
+    arena.reset()
     fallingCubes.destroyChildren()
     stage.draw()
     cubeManager.reset()
@@ -23,6 +24,7 @@ class LevelManager
   moveStage: ->
     self = @
     height = @lastHeight * 32
+    arena.add(@lastHeight)
     @tweens[0] = new Kinetic.Tween
       node: stage
       duration: 2
@@ -52,6 +54,7 @@ class LevelManager
     HTML.query('#lml').textContent = @level
 
   clearLevel: ->
+    arena.clearOutOfScreen()
     cubes = fallingCubes.find('Rect')
     cubes.each (cube) ->
       if cube.getY() > stage.getY()*-1 + stage.getHeight()
