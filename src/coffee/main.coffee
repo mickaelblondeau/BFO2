@@ -5,20 +5,20 @@ stage = new Kinetic.Stage
 
 fallingCubes = new Kinetic.Layer()
 players = new Kinetic.Layer()
-staticLayer = new Kinetic.Layer()
-stage.add staticLayer
+staticCubes = new Kinetic.Layer()
+staticBg = new Kinetic.Layer()
+
+stage.add staticBg
+stage.add staticCubes
 stage.add players
 stage.add fallingCubes
-
-staticCubes = new Kinetic.Group()
-staticLayer.add staticCubes
 
 bg = new Kinetic.Rect
   width: stage.getWidth()
   height: stage.getHeight()
   fill: "grey"
   stroke: "black"
-staticLayer.add bg
+staticBg.add bg
 bg.setZIndex(-1)
 bg.draw()
 
@@ -38,4 +38,3 @@ game.update = (frameTime) ->
 
   cubes = fallingCubes.find('Rect')
   HTML.query('#cc').textContent = cubes.length
-  HTML.query('#tt').textContent = stage.getY()

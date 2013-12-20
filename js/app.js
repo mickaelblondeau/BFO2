@@ -1,5 +1,5 @@
 (function() {
-  var Arena, CollisionManager, ControllablePlayer, Cube, CubeManager, FallingCube, Game, Keyboard, LevelManager, Player, SquareEnum, StaticCube, animFrame, arena, bg, collisionManager, config, cubeManager, fallingCubes, game, keyboard, levelManager, player, players, stage, staticCubes, staticLayer,
+  var Arena, CollisionManager, ControllablePlayer, Cube, CubeManager, FallingCube, Game, Keyboard, LevelManager, Player, SquareEnum, StaticCube, animFrame, arena, bg, collisionManager, config, cubeManager, fallingCubes, game, keyboard, levelManager, player, players, stage, staticBg, staticCubes,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -753,9 +753,9 @@
           tween.pause();
         }
       }
-      fallingCubes.setY(0);
+      stage.setY(0);
+      staticBg.setY(0);
       fallingCubes.destroyChildren();
-      players.setY(0);
       stage.draw();
       cubeManager.reset();
       this.level = 0;
@@ -777,9 +777,9 @@
       });
       this.tweens[0].play();
       this.tweens[1] = new Kinetic.Tween({
-        node: staticLayer,
+        node: staticBg,
         duration: 2,
-        y: staticLayer.getY() - height
+        y: staticBg.getY() - height
       });
       return this.tweens[1].play();
     };
@@ -802,7 +802,13 @@
     };
 
     LevelManager.prototype.clearLevel = function() {
-      return fallingCubes.destroyChildren();
+      var cubes;
+      cubes = fallingCubes.find('Rect');
+      return cubes.each(function(cube) {
+        if (cube.getY() > stage.getY() * -1 + stage.getHeight()) {
+          return cube.destroy();
+        }
+      });
     };
 
     return LevelManager;
@@ -856,17 +862,17 @@
 
   players = new Kinetic.Layer();
 
-  staticLayer = new Kinetic.Layer();
+  staticCubes = new Kinetic.Layer();
 
-  stage.add(staticLayer);
+  staticBg = new Kinetic.Layer();
+
+  stage.add(staticBg);
+
+  stage.add(staticCubes);
 
   stage.add(players);
 
   stage.add(fallingCubes);
-
-  staticCubes = new Kinetic.Group();
-
-  staticLayer.add(staticCubes);
 
   bg = new Kinetic.Rect({
     width: stage.getWidth(),
@@ -875,7 +881,7 @@
     stroke: "black"
   });
 
-  staticLayer.add(bg);
+  staticBg.add(bg);
 
   bg.setZIndex(-1);
 
@@ -903,8 +909,7 @@
     player.update(frameTime);
     cubeManager.update(frameTime);
     cubes = fallingCubes.find('Rect');
-    HTML.query('#cc').textContent = cubes.length;
-    return HTML.query('#tt').textContent = stage.getY();
+    return HTML.query('#cc').textContent = cubes.length;
   };
 
   window.onresize = function() {
