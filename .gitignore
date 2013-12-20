@@ -1,2 +1,4 @@
+/.idea
 /node_modules
 /src/coffee/tmp
+/src/tmp

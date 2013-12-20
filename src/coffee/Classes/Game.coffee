@@ -44,8 +44,7 @@ class Game
     @fps.end()
 
   reset: ->
-    levelManager.reset()
-    player.reset()
+    networkManager.sendReset()
 
   launch: ->
-    levelManager.launch()
+    networkManager.sendLaunch()

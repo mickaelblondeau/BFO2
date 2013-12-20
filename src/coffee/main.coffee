@@ -22,19 +22,19 @@ staticBg.add bg
 bg.setZIndex(-1)
 bg.draw()
 
+networkManager = new NetworkManager()
+
 game = new Game()
 game.start()
 collisionManager = new CollisionManager()
 arena = new Arena()
 keyboard = new Keyboard()
 player = new ControllablePlayer()
-cubeManager = new CubeManager()
 levelManager = new LevelManager()
 
 game.update = (frameTime) ->
   players.draw()
   player.update(frameTime)
-  cubeManager.update(frameTime)
 
   cubes = fallingCubes.find('Rect')
   HTML.query('#cc').textContent = cubes.length

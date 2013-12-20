@@ -1,6 +1,6 @@
 class ControllablePlayer extends Player
-  constructor: (x, y) ->
-    super(x, y)
+  constructor: () ->
+    super()
     @speed = 0.3
     @couchedSpeedRatio = 0.5
     @fallMinAcceleration = 0.2
@@ -27,6 +27,7 @@ class ControllablePlayer extends Player
       collide = @testDiff()
       if collide and collide.getName() is 'falling'
         @kill()
+        networkManager.sendDie()
 
       if @jump or @falling or keyboard.keys.left or keyboard.keys.right or keyboard.keys.up or keyboard.keys.down
         if !@jump
@@ -58,6 +59,8 @@ class ControllablePlayer extends Player
           @startCouch()
         else
           @stopCouch()
+
+        networkManager.sendMove(@shape.getX(), @shape.getY())
 
       else if @couched
         @stopCouch()

@@ -1,5 +1,5 @@
 (function() {
-  var Arena, CollisionManager, ControllablePlayer, Cube, CubeManager, FallingCube, Game, Keyboard, LevelManager, Player, SquareEnum, StaticCube, animFrame, arena, bg, collisionManager, config, cubeManager, fallingCubes, game, keyboard, levelManager, player, players, stage, staticBg, staticCubes,
+  var Arena, CollisionManager, ControllablePlayer, Cube, FallingCube, Game, Keyboard, LevelManager, NetworkManager, Player, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bg, collisionManager, config, fallingCubes, game, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -132,12 +132,11 @@
     };
 
     Game.prototype.reset = function() {
-      levelManager.reset();
-      return player.reset();
+      return networkManager.sendReset();
     };
 
     Game.prototype.launch = function() {
-      return levelManager.launch();
+      return networkManager.sendLaunch();
     };
 
     return Game;
@@ -206,8 +205,8 @@
   ControllablePlayer = (function(_super) {
     __extends(ControllablePlayer, _super);
 
-    function ControllablePlayer(x, y) {
-      ControllablePlayer.__super__.constructor.call(this, x, y);
+    function ControllablePlayer() {
+      ControllablePlayer.__super__.constructor.call(this);
       this.speed = 0.3;
       this.couchedSpeedRatio = 0.5;
       this.fallMinAcceleration = 0.2;
@@ -236,6 +235,7 @@
         collide = this.testDiff();
         if (collide && collide.getName() === 'falling') {
           this.kill();
+          networkManager.sendDie();
         }
         if (this.jump || this.falling || keyboard.keys.left || keyboard.keys.right || keyboard.keys.up || keyboard.keys.down) {
           if (!this.jump) {
@@ -272,6 +272,7 @@
           } else {
             this.stopCouch();
           }
+          networkManager.sendMove(this.shape.getX(), this.shape.getY());
         } else if (this.couched) {
           this.stopCouch();
         } else if (!keyboard.keys.up) {
@@ -431,6 +432,28 @@
 
   })(Player);
 
+  VirtualPlayer = (function(_super) {
+    __extends(VirtualPlayer, _super);
+
+    function VirtualPlayer(name) {
+      VirtualPlayer.__super__.constructor.call(this);
+      this.name = name;
+    }
+
+    VirtualPlayer.prototype.move = function(x, y) {
+      this.shape.setX(x);
+      return this.shape.setY(y);
+    };
+
+    VirtualPlayer.prototype.remove = function() {
+      this.shape.destroy();
+      return delete this;
+    };
+
+    return VirtualPlayer;
+
+  })(Player);
+
   SquareEnum = {
     SMALL: {
       x: 32,
@@ -537,212 +560,10 @@
 
   })(Cube);
 
-  CubeManager = (function() {
-    function CubeManager() {
-      this.map = [];
-      this.resetMap();
-      this.updateRate = 0;
-      this.current = 0;
-      this.levelHeight = 0;
-      this.running = false;
-      this.waiting = false;
-      this.types = [
-        {
-          proba: 8,
-          size: SquareEnum.LARGE,
-          width: SquareEnum.LARGE.x / 32,
-          height: SquareEnum.LARGE.y / 32
-        }, {
-          proba: 26,
-          size: SquareEnum.MEDIUM,
-          width: SquareEnum.MEDIUM.x / 32,
-          height: SquareEnum.MEDIUM.y / 32
-        }, {
-          proba: 26,
-          size: SquareEnum.SMALL,
-          width: SquareEnum.SMALL.x / 32,
-          height: SquareEnum.SMALL.y / 32
-        }, {
-          proba: 16,
-          size: SquareEnum.MEDIUM_RECT,
-          width: SquareEnum.MEDIUM_RECT.x / 32,
-          height: SquareEnum.MEDIUM_RECT.y / 32
-        }, {
-          proba: 8,
-          size: SquareEnum.LARGE_RECT,
-          width: SquareEnum.LARGE_RECT.x / 32,
-          height: SquareEnum.LARGE_RECT.y / 32
-        }, {
-          proba: 16,
-          size: SquareEnum.LONG_RECT,
-          width: SquareEnum.LONG_RECT.x / 32,
-          height: SquareEnum.LONG_RECT.y / 32
-        }
-      ];
-    }
-
-    CubeManager.prototype.start = function(level, rate) {
-      if (!this.running && !this.waiting) {
-        this.updateRate = rate;
-        this.current = 0;
-        this.levelHeight += level;
-        this.running = true;
-        HTML.query('#cmr').textContent = true;
-        HTML.query('#cml').textContent = level;
-        return HTML.query('#cms').textContent = rate;
-      }
-    };
-
-    CubeManager.prototype.reset = function() {
-      this.levelHeight = 0;
-      this.stop();
-      this.waiting = false;
-      return this.resetMap();
-    };
-
-    CubeManager.prototype.stop = function() {
-      this.running = false;
-      return HTML.query('#cmr').textContent = false;
-    };
-
-    CubeManager.prototype.wait = function() {
-      this.stop();
-      this.waiting = true;
-      return levelManager.update();
-    };
-
-    CubeManager.prototype.resetMap = function() {
-      var i, _i, _results;
-      _results = [];
-      for (i = _i = 0; _i <= 11; i = ++_i) {
-        _results.push(this.map[i] = 0);
-      }
-      return _results;
-    };
-
-    CubeManager.prototype.sendCube = function() {
-      var choice, choices, columnPosition, count, rand, tmp, type, typeIndex, _i, _ref;
-      choices = this.checkCols();
-      if (choices.length > 0) {
-        tmp = this.randomizeType(choices);
-        type = tmp.type;
-        typeIndex = tmp.index;
-        count = choices[typeIndex].length;
-        rand = Math.floor(Math.random() * count);
-        choice = choices[typeIndex][rand];
-        new FallingCube(choice.column, type.size, choice.height);
-        for (columnPosition = _i = 1, _ref = type.width; 1 <= _ref ? _i <= _ref : _i >= _ref; columnPosition = 1 <= _ref ? ++_i : --_i) {
-          this.map[choice.column + columnPosition - 1] = choice.height + type.height;
-        }
-        return true;
-      } else {
-        return false;
-      }
-    };
-
-    CubeManager.prototype.randomizeType = function(choices) {
-      var index, item, possibleType, possibleTypes, rand, randomCount, randomMap, ratio, type, typeIndex, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref;
-      possibleTypes = [];
-      _ref = this.types;
-      for (typeIndex = _i = 0, _len = _ref.length; _i < _len; typeIndex = ++_i) {
-        type = _ref[typeIndex];
-        if (choices[typeIndex] !== void 0 && choices[typeIndex].length > 0) {
-          possibleTypes.push({
-            type: type,
-            index: typeIndex,
-            proba: type.proba
-          });
-        }
-      }
-      if (possibleTypes.length !== this.types.length) {
-        ratio = this.types.length / possibleTypes.length;
-        for (_j = 0, _len1 = possibleTypes.length; _j < _len1; _j++) {
-          possibleType = possibleTypes[_j];
-          possibleType.proba *= ratio;
-        }
-      }
-      randomMap = [];
-      randomCount = 0;
-      for (index = _k = 0, _len2 = possibleTypes.length; _k < _len2; index = ++_k) {
-        possibleType = possibleTypes[index];
-        randomCount += possibleType.proba;
-        randomMap.push({
-          index: index,
-          percent: randomCount
-        });
-      }
-      rand = Math.floor(Math.random() * 100) + 1;
-      for (_l = 0, _len3 = randomMap.length; _l < _len3; _l++) {
-        item = randomMap[_l];
-        if (rand <= item.percent) {
-          return possibleTypes[item.index];
-        }
-      }
-      return possibleTypes[randomMap.length - 1];
-    };
-
-    CubeManager.prototype.update = function(frameTime) {
-      if (this.running) {
-        this.current += frameTime;
-        if (this.current >= this.updateRate) {
-          this.current = 0;
-          if (!this.sendCube()) {
-            this.wait();
-          }
-        }
-      }
-      return HTML.query('#cmc').textContent = this.map;
-    };
-
-    CubeManager.prototype.checkCols = function() {
-      var available, column, columnIndex, columnPosition, height, placeForType, tmp, type, typeIndex, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2;
-      available = [];
-      _ref = this.map;
-      for (columnIndex = _i = 0, _len = _ref.length; _i < _len; columnIndex = ++_i) {
-        column = _ref[columnIndex];
-        _ref1 = this.types;
-        for (typeIndex = _j = 0, _len1 = _ref1.length; _j < _len1; typeIndex = ++_j) {
-          type = _ref1[typeIndex];
-          placeForType = true;
-          height = 0;
-          for (columnPosition = _k = 1, _ref2 = type.width; 1 <= _ref2 ? _k <= _ref2 : _k >= _ref2; columnPosition = 1 <= _ref2 ? ++_k : --_k) {
-            tmp = this.map[columnIndex + columnPosition - 1];
-            if (!(tmp + type.height <= this.levelHeight)) {
-              placeForType = false;
-              break;
-            } else if (tmp > height) {
-              height = tmp;
-            }
-          }
-          if (placeForType) {
-            if (available[typeIndex] === void 0) {
-              available[typeIndex] = [];
-            }
-            available[typeIndex].push({
-              column: columnIndex,
-              height: height
-            });
-          }
-        }
-      }
-      return available;
-    };
-
-    return CubeManager;
-
-  })();
-
   LevelManager = (function() {
     function LevelManager() {
-      this.level = 0;
-      this.speed = config.levelSpeed;
       this.tweens = [];
-      this.lastHeight = 0;
     }
-
-    LevelManager.prototype.launch = function() {
-      return this.nextLevel();
-    };
 
     LevelManager.prototype.reset = function() {
       var tween, _i, _len, _ref;
@@ -757,25 +578,15 @@
       staticBg.setY(0);
       arena.reset();
       fallingCubes.destroyChildren();
-      stage.draw();
-      cubeManager.reset();
-      this.level = 0;
-      return this.speed = config.levelSpeed;
+      return stage.draw();
     };
 
-    LevelManager.prototype.moveStage = function() {
-      var height, self;
-      self = this;
-      height = this.lastHeight * 32;
-      arena.add(this.lastHeight);
+    LevelManager.prototype.moveLevel = function(height) {
+      arena.add(height / 32);
       this.tweens[0] = new Kinetic.Tween({
         node: stage,
         duration: 2,
-        y: stage.getY() + height,
-        onFinish: function() {
-          cubeManager.waiting = false;
-          return self.nextLevel();
-        }
+        y: stage.getY() + height
       });
       this.tweens[0].play();
       this.tweens[1] = new Kinetic.Tween({
@@ -784,23 +595,6 @@
         y: staticBg.getY() - height
       });
       return this.tweens[1].play();
-    };
-
-    LevelManager.prototype.update = function() {
-      this.level++;
-      this.speed -= 50;
-      return this.moveStage();
-    };
-
-    LevelManager.prototype.randomizeHeight = function() {
-      return Math.floor((Math.random() * 3) + 4);
-    };
-
-    LevelManager.prototype.nextLevel = function() {
-      this.clearLevel();
-      this.lastHeight = this.randomizeHeight();
-      cubeManager.start(this.lastHeight, this.speed);
-      return HTML.query('#lml').textContent = this.level;
     };
 
     LevelManager.prototype.clearLevel = function() {
@@ -815,6 +609,63 @@
     };
 
     return LevelManager;
+
+  })();
+
+  NetworkManager = (function() {
+    function NetworkManager() {
+      this.socket = io.connect('http://localhost:8080');
+      this.players = [];
+      this.listener();
+    }
+
+    NetworkManager.prototype.listener = function() {
+      var self;
+      self = this;
+      this.socket.on('fallingCube', function(data) {
+        return new FallingCube(data[0], data[1], data[2]);
+      });
+      this.socket.on('resetLevel', function() {
+        levelManager.reset();
+        return player.reset();
+      });
+      this.socket.on('clearLevel', function() {
+        return levelManager.clearLevel();
+      });
+      this.socket.on('moveLevel', function(height) {
+        return levelManager.moveLevel(height);
+      });
+      this.socket.on('connection', function(arr) {
+        return self.players[arr[0]] = new VirtualPlayer(arr[1]);
+      });
+      this.socket.on('disconnect', function(id) {
+        return self.players[id].remove();
+      });
+      this.socket.on('move', function(arr) {
+        return self.players[arr[0]].move(arr[1], arr[2]);
+      });
+      return this.socket.on('kill', function(id) {
+        return self.players[id].kill();
+      });
+    };
+
+    NetworkManager.prototype.sendLaunch = function() {
+      return this.socket.emit('launch');
+    };
+
+    NetworkManager.prototype.sendReset = function() {
+      return this.socket.emit('reset');
+    };
+
+    NetworkManager.prototype.sendMove = function(x, y) {
+      return this.socket.emit('move', [parseInt(x), parseInt(y)]);
+    };
+
+    NetworkManager.prototype.sendDie = function() {
+      return this.socket.emit('die');
+    };
+
+    return NetworkManager;
 
   })();
 
@@ -912,6 +763,8 @@
 
   bg.draw();
 
+  networkManager = new NetworkManager();
+
   game = new Game();
 
   game.start();
@@ -924,15 +777,12 @@
 
   player = new ControllablePlayer();
 
-  cubeManager = new CubeManager();
-
   levelManager = new LevelManager();
 
   game.update = function(frameTime) {
     var cubes;
     players.draw();
     player.update(frameTime);
-    cubeManager.update(frameTime);
     cubes = fallingCubes.find('Rect');
     HTML.query('#cc').textContent = cubes.length;
     cubes = staticCubes.find('Rect');
