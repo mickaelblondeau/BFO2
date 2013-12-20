@@ -82,6 +82,8 @@ class ControllablePlayer extends Player
       @fallCurrentAcceleration = @fallMaxAcceleration
     if collide
       @stopFall(collide.getY())
+    else
+      @falling = true
 
   stopFall: (y) ->
     @shape.setY(y - @shape.getHeight())

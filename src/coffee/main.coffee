@@ -38,3 +38,4 @@ game.update = (frameTime) ->
 
   cubes = fallingCubes.find('Rect')
   HTML.query('#cc').textContent = cubes.length
+  HTML.query('#tt').textContent = stage.getY()

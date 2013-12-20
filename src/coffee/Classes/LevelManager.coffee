@@ -24,17 +24,17 @@ class LevelManager
     self = @
     height = @lastHeight * 32
     @tweens[0] = new Kinetic.Tween
-      node: fallingCubes
+      node: stage
       duration: 2
-      y: fallingCubes.getY() + height
+      y: stage.getY() + height
       onFinish: ->
         cubeManager.waiting = false
         self.nextLevel()
     @tweens[0].play()
     @tweens[1] = new Kinetic.Tween
-      node: players
+      node: staticLayer
       duration: 2
-      y: players.getY() + height
+      y: staticLayer.getY() - height
     @tweens[1].play()
 
   update: ->

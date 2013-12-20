@@ -299,6 +299,8 @@
       }
       if (collide) {
         return this.stopFall(collide.getY());
+      } else {
+        return this.falling = true;
       }
     };
 
@@ -765,9 +767,9 @@
       self = this;
       height = this.lastHeight * 32;
       this.tweens[0] = new Kinetic.Tween({
-        node: fallingCubes,
+        node: stage,
         duration: 2,
-        y: fallingCubes.getY() + height,
+        y: stage.getY() + height,
         onFinish: function() {
           cubeManager.waiting = false;
           return self.nextLevel();
@@ -775,9 +777,9 @@
       });
       this.tweens[0].play();
       this.tweens[1] = new Kinetic.Tween({
-        node: players,
+        node: staticLayer,
         duration: 2,
-        y: players.getY() + height
+        y: staticLayer.getY() - height
       });
       return this.tweens[1].play();
     };
@@ -901,7 +903,8 @@
     player.update(frameTime);
     cubeManager.update(frameTime);
     cubes = fallingCubes.find('Rect');
-    return HTML.query('#cc').textContent = cubes.length;
+    HTML.query('#cc').textContent = cubes.length;
+    return HTML.query('#tt').textContent = stage.getY();
   };
 
   window.onresize = function() {
