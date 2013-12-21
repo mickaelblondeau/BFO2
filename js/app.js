@@ -175,10 +175,23 @@
       this.shape = new Kinetic.Rect({
         width: 32,
         height: this.height,
-        stroke: 'black',
-        strokeWidth: 1
+        stroke: null
       });
-      return players.add(this.shape);
+      players.add(this.shape);
+      this.skin = new Kinetic.Shape({
+        drawFunc: function(context) {
+          context.beginPath();
+          context.arc(16, 10, 10, 0, 180, false);
+          context.moveTo(0, 62);
+          context.lineTo(32, 62);
+          context.lineTo(16, 22);
+          context.closePath();
+          return context.fillStrokeShape(this);
+        },
+        fill: 'red',
+        stroke: 'black'
+      });
+      return players.add(this.skin);
     };
 
     Player.prototype.spawn = function() {
@@ -195,6 +208,8 @@
     Player.prototype.kill = function() {
       this.shape.setX(32);
       this.shape.setY(32);
+      this.skin.setX(32);
+      this.skin.setY(32);
       return this.alive = false;
     };
 
@@ -273,8 +288,16 @@
             this.stopCouch();
           }
           networkManager.sendMove(this.shape.getX(), this.shape.getY());
+          this.skin.setX(this.shape.getX());
+          this.skin.setY(this.shape.getY());
+          this.skin.setWidth(this.shape.getWidth());
+          this.skin.setHeight(this.shape.getHeight());
         } else if (this.couched) {
           this.stopCouch();
+          this.skin.setX(this.shape.getX());
+          this.skin.setY(this.shape.getY());
+          this.skin.setWidth(this.shape.getWidth());
+          this.skin.setHeight(this.shape.getHeight());
         } else if (!keyboard.keys.up) {
           this.canJump = true;
         }
@@ -438,15 +461,19 @@
     function VirtualPlayer(name) {
       VirtualPlayer.__super__.constructor.call(this);
       this.name = name;
+      this.skin.setFill('white');
     }
 
     VirtualPlayer.prototype.move = function(x, y) {
       this.shape.setX(x);
-      return this.shape.setY(y);
+      this.shape.setY(y);
+      this.skin.setX(x);
+      return this.skin.setY(y);
     };
 
     VirtualPlayer.prototype.remove = function() {
       this.shape.destroy();
+      this.skin.destroy();
       return delete this;
     };
 
@@ -586,7 +613,10 @@
       this.tweens[0] = new Kinetic.Tween({
         node: stage,
         duration: 2,
-        y: stage.getY() + height
+        y: stage.getY() + height,
+        onFinish: function() {
+          return networkManager.sendMoveLevelOk();
+        }
       });
       this.tweens[0].play();
       this.tweens[1] = new Kinetic.Tween({
@@ -663,6 +693,10 @@
 
     NetworkManager.prototype.sendDie = function() {
       return this.socket.emit('die');
+    };
+
+    NetworkManager.prototype.sendMoveLevelOk = function() {
+      return this.socket.emit('moveLevelOk');
     };
 
     return NetworkManager;

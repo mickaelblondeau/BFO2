@@ -18,6 +18,8 @@ class LevelManager
       node: stage
       duration: 2
       y: stage.getY() + height
+      onFinish: ->
+        networkManager.sendMoveLevelOk()
     @tweens[0].play()
     @tweens[1] = new Kinetic.Tween
       node: staticBg

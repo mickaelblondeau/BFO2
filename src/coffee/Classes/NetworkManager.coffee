@@ -35,3 +35,6 @@ class NetworkManager
 
   sendDie: ->
     @socket.emit 'die'
+
+  sendMoveLevelOk: ->
+    @socket.emit 'moveLevelOk'

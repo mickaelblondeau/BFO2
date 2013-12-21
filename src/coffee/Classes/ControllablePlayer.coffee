@@ -61,9 +61,17 @@ class ControllablePlayer extends Player
           @stopCouch()
 
         networkManager.sendMove(@shape.getX(), @shape.getY())
+        @skin.setX(@shape.getX())
+        @skin.setY(@shape.getY())
+        @skin.setWidth(@shape.getWidth())
+        @skin.setHeight(@shape.getHeight())
 
       else if @couched
         @stopCouch()
+        @skin.setX(@shape.getX())
+        @skin.setY(@shape.getY())
+        @skin.setWidth(@shape.getWidth())
+        @skin.setHeight(@shape.getHeight())
 
       else if !keyboard.keys.up
         @canJump = true
