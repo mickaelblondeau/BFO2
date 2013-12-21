@@ -460,20 +460,29 @@
 
     function VirtualPlayer(name) {
       VirtualPlayer.__super__.constructor.call(this);
-      this.name = name;
       this.skin.setFill('white');
+      this.name = new Kinetic.Text({
+        text: name,
+        fill: 'black',
+        fontFamily: 'Calibri',
+        fontSize: 18
+      });
+      players.add(this.name);
     }
 
     VirtualPlayer.prototype.move = function(x, y) {
       this.shape.setX(x);
       this.shape.setY(y);
       this.skin.setX(x);
-      return this.skin.setY(y);
+      this.skin.setY(y);
+      this.name.setX(x);
+      return this.name.setY(y - 20);
     };
 
     VirtualPlayer.prototype.remove = function() {
       this.shape.destroy();
       this.skin.destroy();
+      this.name.destroy();
       return delete this;
     };
 
