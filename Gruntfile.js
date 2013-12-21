@@ -2,42 +2,62 @@ module.exports = function(grunt) {
 
     grunt.initConfig({
         watch: {
-            files: ['src/coffee/*.coffee', 'src/coffee/Classes/*.coffee'],
+            files: ['src/coffee/app/*.coffee', 'src/coffee/app/Classes/*.coffee', 'src/coffee/server/*.coffee', 'src/coffee/server/Classes/*.coffee'],
             tasks: ['concat', 'coffee', 'uglify']
         },
         concat: {
-            dist: {
+            app: {
                 src: [
-                    'src/coffee/config.coffee',
-                    'src/coffee/Classes/Keyboard.coffee',
-                    'src/coffee/Classes/Game.coffee',
-                    'src/coffee/Classes/CollisionManager.coffee',
-                    'src/coffee/Classes/Player.coffee',
-                    'src/coffee/Classes/ControllablePlayer.coffee',
-                    'src/coffee/Classes/VirtualPlayer.coffee',
-                    'src/coffee/Classes/Cube.coffee',
-                    'src/coffee/Classes/FallingCube.coffee',
-                    'src/coffee/Classes/StaticCube.coffee',
-                    'src/coffee/Classes/LevelManager.coffee',
-					'src/coffee/Classes/NetworkManager.coffee',
-                    'src/coffee/Classes/Arena.coffee',
-                    'src/coffee/main.coffee',
-                    'src/coffee/events.coffee'
+                    'src/coffee/app/config.coffee',
+                    'src/coffee/app/Classes/Keyboard.coffee',
+                    'src/coffee/app/Classes/Game.coffee',
+                    'src/coffee/app/Classes/CollisionManager.coffee',
+                    'src/coffee/app/Classes/Player.coffee',
+                    'src/coffee/app/Classes/ControllablePlayer.coffee',
+                    'src/coffee/app/Classes/VirtualPlayer.coffee',
+                    'src/coffee/app/Classes/Cube.coffee',
+                    'src/coffee/app/Classes/FallingCube.coffee',
+                    'src/coffee/app/Classes/StaticCube.coffee',
+                    'src/coffee/app/Classes/LevelManager.coffee',
+                    'src/coffee/app/Classes/NetworkManager.coffee',
+                    'src/coffee/app/Classes/Arena.coffee',
+                    'src/coffee/app/main.coffee',
+                    'src/coffee/app/events.coffee'
                 ],
                 dest: 'src/tmp/app.coffee'
+            },
+            server: {
+                src: [
+                    'src/coffee/server/config.coffee',
+                    'src/coffee/server/Classes/Game.coffee',
+                    'src/coffee/server/Classes/CubeManager.coffee',
+                    'src/coffee/server/Classes/LevelManager.coffee',
+                    'src/coffee/server/Classes/NetworkManager.coffee',
+                    'src/coffee/server/main.coffee'
+                ],
+                dest: 'src/tmp/server.coffee'
             }
         },
         coffee: {
-            compile: {
+            app: {
                 files: {
                     'js/app.js': ['src/tmp/app.coffee']
+                }
+            },
+            server: {
+                files: {
+                    'js/server.js': ['src/tmp/server.coffee']
                 }
             }
         },
         uglify: {
-            build: {
+            app: {
                 src: 'js/app.js',
                 dest: 'js/app.min.js'
+            },
+            server: {
+                src: 'js/server.js',
+                dest: 'js/server.min.js'
             }
         }
     });
