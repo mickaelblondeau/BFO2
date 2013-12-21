@@ -36,7 +36,6 @@ class NetworkManager
       socket.on 'move', (arr) ->
         self.players[id].x = parseInt(arr[0])
         self.players[id].y = parseInt(arr[1])
-        socket.broadcast.emit 'move', [id, self.players[id].x, self.players[id].y]
 
       socket.on 'die', ->
         socket.broadcast.emit 'kill', id
@@ -60,3 +59,8 @@ class NetworkManager
 
   moveLevel: (height) ->
     @io.sockets.emit 'moveLevel', height
+
+  sendPositions: ->
+    for id in @playersIds
+      if @players[id] isnt undefined
+        @io.sockets.emit 'move', [id, @players[id].x, @players[id].y]

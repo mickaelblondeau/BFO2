@@ -1,6 +1,7 @@
 class LevelManager
   constructor: ->
     @tweens = []
+    @level = 0
 
   reset: ->
     for tween in @tweens
@@ -11,6 +12,7 @@ class LevelManager
     arena.reset()
     fallingCubes.destroyChildren()
     stage.draw()
+    @level = 0
 
   moveLevel: (height) ->
     arena.add(height/32)
@@ -28,6 +30,8 @@ class LevelManager
     @tweens[1].play()
 
   clearLevel: ->
+    @level++
+    HTML.query('#lml').textContent = @level
     arena.clearOutOfScreen()
     cubes = fallingCubes.find('Rect')
     cubes.each (cube) ->

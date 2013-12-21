@@ -12,3 +12,4 @@ setInterval(
 
 game.update = (frameTime) ->
   cubeManager.update(frameTime)
+  networkManager.sendPositions()

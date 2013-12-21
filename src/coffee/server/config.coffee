@@ -1,4 +1,4 @@
 config = {
-  FPS: 30
+  FPS: 60
   levelSpeed: 1000
 }

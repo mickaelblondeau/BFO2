@@ -5,8 +5,6 @@
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   config = {
-    FPS: 60,
-    fpsSkip: 10,
     levelHeight: 976,
     levelWidth: 704,
     levelSpeed: 1000
@@ -599,6 +597,7 @@
   LevelManager = (function() {
     function LevelManager() {
       this.tweens = [];
+      this.level = 0;
     }
 
     LevelManager.prototype.reset = function() {
@@ -614,7 +613,8 @@
       staticBg.setY(0);
       arena.reset();
       fallingCubes.destroyChildren();
-      return stage.draw();
+      stage.draw();
+      return this.level = 0;
     };
 
     LevelManager.prototype.moveLevel = function(height) {
@@ -638,6 +638,8 @@
 
     LevelManager.prototype.clearLevel = function() {
       var cubes;
+      this.level++;
+      HTML.query('#lml').textContent = this.level;
       arena.clearOutOfScreen();
       cubes = fallingCubes.find('Rect');
       return cubes.each(function(cube) {

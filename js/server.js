@@ -2,7 +2,7 @@
   var CubeManager, Game, LevelManager, NetworkManager, SquareEnum, config, cubeManager, game, levelManager, networkManager;
 
   config = {
-    FPS: 30,
+    FPS: 60,
     levelSpeed: 1000
   };
 
@@ -342,8 +342,7 @@
         });
         socket.on('move', function(arr) {
           self.players[id].x = parseInt(arr[0]);
-          self.players[id].y = parseInt(arr[1]);
-          return socket.broadcast.emit('move', [id, self.players[id].x, self.players[id].y]);
+          return self.players[id].y = parseInt(arr[1]);
         });
         socket.on('die', function() {
           return socket.broadcast.emit('kill', id);
@@ -375,6 +374,21 @@
       return this.io.sockets.emit('moveLevel', height);
     };
 
+    NetworkManager.prototype.sendPositions = function() {
+      var id, _i, _len, _ref, _results;
+      _ref = this.playersIds;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        id = _ref[_i];
+        if (this.players[id] !== void 0) {
+          _results.push(this.io.sockets.emit('move', [id, this.players[id].x, this.players[id].y]));
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
     return NetworkManager;
 
   })();
@@ -392,7 +406,8 @@
   }, 1000 / config.FPS);
 
   game.update = function(frameTime) {
-    return cubeManager.update(frameTime);
+    cubeManager.update(frameTime);
+    return networkManager.sendPositions();
   };
 
 }).call(this);
