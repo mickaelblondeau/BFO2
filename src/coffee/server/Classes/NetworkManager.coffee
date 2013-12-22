@@ -51,6 +51,9 @@ class NetworkManager
   sendCube: (col, size, dest) ->
     @io.sockets.emit('fallingCube', [col, size, dest])
 
+  sendBonus: (col, bonus, dest) ->
+    @io.sockets.emit('fallingBonus', [col, dest, bonus])
+
   sendResetLevel: ->
     @io.sockets.emit 'resetLevel'
 

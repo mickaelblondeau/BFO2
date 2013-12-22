@@ -8,6 +8,8 @@ class NetworkManager
     self = @
     @socket.on 'fallingCube', (data) ->
       new FallingCube(data[0], data[1], data[2])
+    @socket.on 'fallingBonus', (data) ->
+      new Bonus(data[0], data[1], data[2])
     @socket.on 'resetLevel', ->
       levelManager.reset()
       player.reset()

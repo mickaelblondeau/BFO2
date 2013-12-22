@@ -33,8 +33,8 @@ class Player
     @spawn()
     @alive = true
     @falling = true
-    @jumpMax = config.jumpMax
-    @speed = config.playerJumpMax
+    @jumpMax = config.playerJumpMax
+    @speed = config.playerSpeed
     @jumpHeight = config.playerJumpHeight
 
   kill: ->

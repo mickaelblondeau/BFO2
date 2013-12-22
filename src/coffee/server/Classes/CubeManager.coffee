@@ -19,6 +19,13 @@ class CubeManager
 
     @types = [
       {
+        proba: 50
+        size: SquareEnum.SMALL
+        width: SquareEnum.SMALL.x/32
+        height: SquareEnum.SMALL.y/32
+        bonus: 'doubleJump'
+      },
+      {
         proba: 8
         size: SquareEnum.LARGE
         width: SquareEnum.LARGE.x/32
@@ -90,9 +97,12 @@ class CubeManager
       count = choices[typeIndex].length
       rand = Math.floor(Math.random()*count)
       choice = choices[typeIndex][rand]
-      networkManager.sendCube(choice.column, type.size, choice.height)
-      for columnPosition in [1..type.width]
-        @map[choice.column + columnPosition - 1] = choice.height + type.height
+      if type.bonus isnt undefined
+        networkManager.sendBonus(choice.column, type.bonus, choice.height)
+      else
+        networkManager.sendCube(choice.column, type.size, choice.height)
+        for columnPosition in [1..type.width]
+          @map[choice.column + columnPosition - 1] = choice.height + type.height
       return true
     else
       return false

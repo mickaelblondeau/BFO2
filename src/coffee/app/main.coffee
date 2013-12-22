@@ -33,8 +33,6 @@ player = new ControllablePlayer()
 levelManager = new LevelManager()
 bonusManager = new BonusManager()
 
-new Bonus(0, 0, 'doubleJump')
-
 game.update = (frameTime) ->
   players.draw()
   player.update(frameTime)

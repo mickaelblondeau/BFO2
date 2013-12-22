@@ -204,8 +204,8 @@
       this.spawn();
       this.alive = true;
       this.falling = true;
-      this.jumpMax = config.jumpMax;
-      this.speed = config.playerJumpMax;
+      this.jumpMax = config.playerJumpMax;
+      this.speed = config.playerSpeed;
       return this.jumpHeight = config.playerJumpHeight;
     };
 
@@ -255,6 +255,8 @@
         if (collide && collide.getName() === 'falling') {
           this.kill();
           networkManager.sendDie();
+        } else if (collide && collide.getName().split(' ')[0] === 'bonus') {
+          this.takeBonus(collide);
         }
         if (this.jump || this.falling || keyboard.keys.left || keyboard.keys.right || keyboard.keys.up || keyboard.keys.down) {
           if (!this.jump) {
@@ -430,16 +432,8 @@
       for (_i = 0, _len = collisions.length; _i < _len; _i++) {
         collision = collisions[_i];
         if (__indexOf.call(list, collision) < 0) {
-          if (x !== 0 && collision.getY() !== this.shape.getY() + this.shape.getHeight()) {
-            if (collision.getName() !== void 0 && collision.getName().split(' ')[0] === 'bonus') {
-              this.takeBonus(collision);
-              return false;
-            } else {
-              return collision;
-            }
-          }
-          if (y !== 0 && collision.getX() !== this.shape.getX() + this.shape.getWidth() && collision.getX() + collision.getWidth() !== this.shape.getX()) {
-            if (collision.getName() !== void 0 && collision.getName().split(' ')[0] === 'bonus') {
+          if ((x !== 0 && collision.getY() !== this.shape.getY() + this.shape.getHeight()) || (y !== 0 && collision.getX() !== this.shape.getX() + this.shape.getWidth() && collision.getX() + collision.getWidth() !== this.shape.getX())) {
+            if (collision.getName() !== void 0 && collision.getName() !== null && collision.getName().split(' ')[0] === 'bonus') {
               this.takeBonus(collision);
               return false;
             } else {
@@ -793,6 +787,9 @@
       this.socket.on('fallingCube', function(data) {
         return new FallingCube(data[0], data[1], data[2]);
       });
+      this.socket.on('fallingBonus', function(data) {
+        return new Bonus(data[0], data[1], data[2]);
+      });
       this.socket.on('resetLevel', function() {
         levelManager.reset();
         return player.reset();
@@ -954,8 +951,6 @@
   levelManager = new LevelManager();
 
   bonusManager = new BonusManager();
-
-  new Bonus(0, 0, 'doubleJump');
 
   game.update = function(frameTime) {
     var cubes;

@@ -69,6 +69,12 @@
       this.waiting = false;
       this.types = [
         {
+          proba: 50,
+          size: SquareEnum.SMALL,
+          width: SquareEnum.SMALL.x / 32,
+          height: SquareEnum.SMALL.y / 32,
+          bonus: 'doubleJump'
+        }, {
           proba: 8,
           size: SquareEnum.LARGE,
           width: SquareEnum.LARGE.x / 32,
@@ -147,9 +153,13 @@
         count = choices[typeIndex].length;
         rand = Math.floor(Math.random() * count);
         choice = choices[typeIndex][rand];
-        networkManager.sendCube(choice.column, type.size, choice.height);
-        for (columnPosition = _i = 1, _ref = type.width; 1 <= _ref ? _i <= _ref : _i >= _ref; columnPosition = 1 <= _ref ? ++_i : --_i) {
-          this.map[choice.column + columnPosition - 1] = choice.height + type.height;
+        if (type.bonus !== void 0) {
+          networkManager.sendBonus(choice.column, type.bonus, choice.height);
+        } else {
+          networkManager.sendCube(choice.column, type.size, choice.height);
+          for (columnPosition = _i = 1, _ref = type.width; 1 <= _ref ? _i <= _ref : _i >= _ref; columnPosition = 1 <= _ref ? ++_i : --_i) {
+            this.map[choice.column + columnPosition - 1] = choice.height + type.height;
+          }
         }
         return true;
       } else {
@@ -360,6 +370,10 @@
 
     NetworkManager.prototype.sendCube = function(col, size, dest) {
       return this.io.sockets.emit('fallingCube', [col, size, dest]);
+    };
+
+    NetworkManager.prototype.sendBonus = function(col, bonus, dest) {
+      return this.io.sockets.emit('fallingBonus', [col, dest, bonus]);
     };
 
     NetworkManager.prototype.sendResetLevel = function() {

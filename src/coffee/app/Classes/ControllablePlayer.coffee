@@ -28,6 +28,8 @@ class ControllablePlayer extends Player
       if collide and collide.getName() is 'falling'
         @kill()
         networkManager.sendDie()
+      else if collide and collide.getName().split(' ')[0] is 'bonus'
+        @takeBonus(collide)
 
       if @jump or @falling or keyboard.keys.left or keyboard.keys.right or keyboard.keys.up or keyboard.keys.down
         if !@jump
@@ -167,14 +169,8 @@ class ControllablePlayer extends Player
     collisions = @getCollisions()
     for collision in collisions
       if collision not in list
-        if x isnt 0 and collision.getY() isnt @shape.getY() + @shape.getHeight()
-          if collision.getName() isnt undefined and collision.getName().split(' ')[0] is 'bonus'
-            @takeBonus(collision)
-            return false
-          else
-            return collision
-        if y isnt 0 and collision.getX() isnt @shape.getX() + @shape.getWidth() and collision.getX() + collision.getWidth() isnt @shape.getX()
-          if collision.getName() isnt undefined and collision.getName().split(' ')[0] is 'bonus'
+        if (x isnt 0 and collision.getY() isnt @shape.getY() + @shape.getHeight()) or (y isnt 0 and collision.getX() isnt @shape.getX() + @shape.getWidth() and collision.getX() + collision.getWidth() isnt @shape.getX())
+          if collision.getName() isnt undefined and collision.getName() isnt null and collision.getName().split(' ')[0] is 'bonus'
             @takeBonus(collision)
             return false
           else
