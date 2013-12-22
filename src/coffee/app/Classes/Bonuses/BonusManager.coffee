@@ -43,3 +43,10 @@ class BonusManager
   reset: ->
     for timer in @timers
       clearInterval(timer)
+
+  remove: (id) ->
+    cubes = fallingCubes.find('Rect')
+    cubes.each (cube) ->
+      if cube.getId() is id
+        cube.destroy()
+        fallingCubes.draw()

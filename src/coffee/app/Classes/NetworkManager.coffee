@@ -9,7 +9,7 @@ class NetworkManager
     @socket.on 'fallingCube', (data) ->
       new FallingCube(data[0], data[1], data[2])
     @socket.on 'fallingBonus', (data) ->
-      new Bonus(data[0], data[1], data[2])
+      new Bonus(data[0], data[1], data[2], data[3])
     @socket.on 'resetLevel', ->
       levelManager.reset()
       player.reset()
@@ -17,6 +17,8 @@ class NetworkManager
       levelManager.clearLevel()
     @socket.on 'moveLevel', (height) ->
       levelManager.moveLevel(height)
+    @socket.on 'bonusTaken', (id) ->
+      bonusManager.remove(id)
     @socket.on 'connection', (arr) ->
       self.players[arr[0]] = new VirtualPlayer(arr[1])
     @socket.on 'disconnect', (id) ->
@@ -41,3 +43,6 @@ class NetworkManager
 
   sendMoveLevelOk: ->
     @socket.emit 'moveLevelOk'
+
+  sendBonusTaken: (id) ->
+    @socket.emit 'bonusTaken', id

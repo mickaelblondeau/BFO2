@@ -462,7 +462,8 @@
     ControllablePlayer.prototype.takeBonus = function(bonus) {
       bonusManager.getBonus(bonus.getName().split(' ')[1], this);
       bonus.destroy();
-      return fallingCubes.draw();
+      fallingCubes.draw();
+      return networkManager.sendBonusTaken(bonus.getId());
     };
 
     return ControllablePlayer;
@@ -615,7 +616,8 @@
   })(Cube);
 
   Bonus = (function() {
-    function Bonus(col, destination, type) {
+    function Bonus(col, destination, type, id) {
+      this.id = id;
       this.type = type;
       this.x = col * 32 + 160;
       this.y = stage.getY() * -1;
@@ -642,10 +644,10 @@
         y: this.y,
         width: 32,
         height: 32,
-        fill: 'gold',
-        stroke: 'black',
+        stroke: 'gold',
         strokeWidth: 1,
-        name: 'bonus ' + this.type
+        name: 'bonus ' + this.type,
+        id: 'bonus' + this.id
       });
       return fallingCubes.add(this.shape);
     };
@@ -721,6 +723,17 @@
         _results.push(clearInterval(timer));
       }
       return _results;
+    };
+
+    BonusManager.prototype.remove = function(id) {
+      var cubes;
+      cubes = fallingCubes.find('Rect');
+      return cubes.each(function(cube) {
+        if (cube.getId() === id) {
+          cube.destroy();
+          return fallingCubes.draw();
+        }
+      });
     };
 
     return BonusManager;
@@ -801,7 +814,7 @@
         return new FallingCube(data[0], data[1], data[2]);
       });
       this.socket.on('fallingBonus', function(data) {
-        return new Bonus(data[0], data[1], data[2]);
+        return new Bonus(data[0], data[1], data[2], data[3]);
       });
       this.socket.on('resetLevel', function() {
         levelManager.reset();
@@ -812,6 +825,9 @@
       });
       this.socket.on('moveLevel', function(height) {
         return levelManager.moveLevel(height);
+      });
+      this.socket.on('bonusTaken', function(id) {
+        return bonusManager.remove(id);
       });
       this.socket.on('connection', function(arr) {
         return self.players[arr[0]] = new VirtualPlayer(arr[1]);
@@ -847,6 +863,10 @@
 
     NetworkManager.prototype.sendMoveLevelOk = function() {
       return this.socket.emit('moveLevelOk');
+    };
+
+    NetworkManager.prototype.sendBonusTaken = function(id) {
+      return this.socket.emit('bonusTaken', id);
     };
 
     return NetworkManager;

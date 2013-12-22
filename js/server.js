@@ -67,6 +67,7 @@
       this.levelHeight = 0;
       this.running = false;
       this.waiting = false;
+      this.bonusId = 0;
       this.types = [
         {
           proba: 50,
@@ -121,6 +122,7 @@
       this.levelHeight = 0;
       this.stop();
       this.waiting = false;
+      this.bonusId = 0;
       return this.resetMap();
     };
 
@@ -154,7 +156,8 @@
         rand = Math.floor(Math.random() * count);
         choice = choices[typeIndex][rand];
         if (type.bonus !== void 0) {
-          networkManager.sendBonus(choice.column, type.bonus, choice.height);
+          networkManager.sendBonus(choice.column, type.bonus, choice.height, this.bonusId);
+          this.bonusId++;
         } else {
           networkManager.sendCube(choice.column, type.size, choice.height);
           for (columnPosition = _i = 1, _ref = type.width; 1 <= _ref ? _i <= _ref : _i >= _ref; columnPosition = 1 <= _ref ? ++_i : --_i) {
@@ -362,6 +365,9 @@
           cubeManager.waiting = false;
           return levelManager.nextLevel();
         });
+        socket.on('bonusTaken', function(bonusId) {
+          return socket.broadcast.emit('bonusTaken', bonusId);
+        });
         return socket.on('disconnect', function() {
           socket.broadcast.emit('disconnect', socket.id);
           return delete self.players[socket.id];
@@ -373,8 +379,8 @@
       return this.io.sockets.emit('fallingCube', [col, size, dest]);
     };
 
-    NetworkManager.prototype.sendBonus = function(col, bonus, dest) {
-      return this.io.sockets.emit('fallingBonus', [col, dest, bonus]);
+    NetworkManager.prototype.sendBonus = function(col, bonus, dest, id) {
+      return this.io.sockets.emit('fallingBonus', [col, dest, bonus, id]);
     };
 
     NetworkManager.prototype.sendResetLevel = function() {

@@ -16,6 +16,7 @@ class CubeManager
     @levelHeight = 0
     @running = false
     @waiting = false
+    @bonusId = 0
 
     @types = [
       {
@@ -74,6 +75,7 @@ class CubeManager
     @levelHeight = 0
     @stop()
     @waiting = false
+    @bonusId = 0
     @resetMap()
 
   stop: ->
@@ -98,7 +100,8 @@ class CubeManager
       rand = Math.floor(Math.random()*count)
       choice = choices[typeIndex][rand]
       if type.bonus isnt undefined
-        networkManager.sendBonus(choice.column, type.bonus, choice.height)
+        networkManager.sendBonus(choice.column, type.bonus, choice.height, @bonusId)
+        @bonusId++
       else
         networkManager.sendCube(choice.column, type.size, choice.height)
         for columnPosition in [1..type.width]

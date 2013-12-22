@@ -1,5 +1,6 @@
 class Bonus
-  constructor: (col, destination, type) ->
+  constructor: (col, destination, type, id) ->
+    @id = id
     @type = type
     @x = col * 32 + 160
     @y = stage.getY() * -1
@@ -23,8 +24,8 @@ class Bonus
       y: @y
       width: 32
       height: 32
-      fill: 'gold'
-      stroke: 'black'
+      stroke: 'gold'
       strokeWidth: 1
       name: 'bonus ' + @type
+      id: 'bonus' + @id
     fallingCubes.add @shape

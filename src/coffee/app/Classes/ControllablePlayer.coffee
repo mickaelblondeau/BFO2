@@ -190,3 +190,4 @@ class ControllablePlayer extends Player
     bonusManager.getBonus(bonus.getName().split(' ')[1], @)
     bonus.destroy()
     fallingCubes.draw()
+    networkManager.sendBonusTaken(bonus.getId())

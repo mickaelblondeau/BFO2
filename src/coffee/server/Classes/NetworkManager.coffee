@@ -45,6 +45,9 @@ class NetworkManager
         cubeManager.waiting = false
         levelManager.nextLevel()
 
+      socket.on 'bonusTaken', (bonusId) ->
+        socket.broadcast.emit 'bonusTaken', bonusId
+
       socket.on 'disconnect', ->
         socket.broadcast.emit 'disconnect', socket.id
         delete self.players[socket.id]
@@ -52,8 +55,8 @@ class NetworkManager
   sendCube: (col, size, dest) ->
     @io.sockets.emit('fallingCube', [col, size, dest])
 
-  sendBonus: (col, bonus, dest) ->
-    @io.sockets.emit('fallingBonus', [col, dest, bonus])
+  sendBonus: (col, bonus, dest, id) ->
+    @io.sockets.emit('fallingBonus', [col, dest, bonus, id])
 
   sendResetLevel: ->
     @io.sockets.emit 'resetLevel'
