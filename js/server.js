@@ -371,8 +371,8 @@
           return socket.broadcast.emit('bonusTaken', bonusId);
         });
         return socket.on('disconnect', function() {
-          socket.broadcast.emit('disconnect', socket.id);
-          return delete self.players[socket.id];
+          socket.broadcast.emit('disconnect', id);
+          return delete self.players[id];
         });
       });
     };

@@ -51,8 +51,8 @@ class NetworkManager
         socket.broadcast.emit 'bonusTaken', bonusId
 
       socket.on 'disconnect', ->
-        socket.broadcast.emit 'disconnect', socket.id
-        delete self.players[socket.id]
+        socket.broadcast.emit 'disconnect', id
+        delete self.players[id]
 
   sendCube: (col, size, dest) ->
     @io.sockets.emit('fallingCube', [col, size, dest])
