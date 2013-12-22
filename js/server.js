@@ -198,7 +198,7 @@
           percent: randomCount
         });
       }
-      rand = Math.floor(Math.random() * 100) + 1;
+      rand = Math.floor(Math.random() * randomCount) + 1;
       for (_l = 0, _len3 = randomMap.length; _l < _len3; _l++) {
         item = randomMap[_l];
         if (rand <= item.percent) {

@@ -121,7 +121,7 @@ class CubeManager
     for possibleType, index in possibleTypes
       randomCount += possibleType.proba
       randomMap.push { index: index, percent: randomCount }
-    rand = Math.floor(Math.random()*100)+1
+    rand = Math.floor(Math.random()*randomCount)+1
     for item in randomMap
       if rand <= item.percent
         return possibleTypes[item.index]
