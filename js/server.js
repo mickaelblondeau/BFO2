@@ -318,6 +318,7 @@
       this.players = [];
       this.playersCached = [];
       this.playersIds = [];
+      this.currentId = 0;
       this.listener();
     }
 
@@ -341,7 +342,8 @@
           id = removeList[_j];
           delete self.playersIds[id];
         }
-        id = socket.id;
+        id = self.currentId.toString(32);
+        self.currentId++;
         self.playersIds.push(id);
         self.players[id] = {
           name: "Chy"

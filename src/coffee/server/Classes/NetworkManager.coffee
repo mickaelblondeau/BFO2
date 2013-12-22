@@ -4,6 +4,7 @@ class NetworkManager
     @players = []
     @playersCached = []
     @playersIds = []
+    @currentId = 0
     @listener()
 
   listener: ->
@@ -21,7 +22,8 @@ class NetworkManager
       for id in removeList
         delete self.playersIds[id]
 
-      id = socket.id
+      id = self.currentId.toString(32)
+      self.currentId++
       self.playersIds.push id
       self.players[id] = { name: "Chy" }
 
