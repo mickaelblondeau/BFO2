@@ -1,5 +1,5 @@
 (function() {
-  var Arena, CollisionManager, ControllablePlayer, Cube, FallingCube, Game, Keyboard, LevelManager, NetworkManager, Player, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bg, collisionManager, config, fallingCubes, game, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
+  var Arena, Bonus, BonusManager, CollisionManager, ControllablePlayer, Cube, FallingCube, Game, Keyboard, LevelManager, NetworkManager, Player, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bg, bonusManager, collisionManager, config, fallingCubes, game, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -7,7 +7,10 @@
   config = {
     levelHeight: 976,
     levelWidth: 704,
-    levelSpeed: 1000
+    levelSpeed: 1000,
+    playerJumpMax: 1,
+    playerJumpHeight: 80,
+    playerSpeed: 0.3
   };
 
   Keyboard = (function() {
@@ -200,7 +203,10 @@
     Player.prototype.reset = function() {
       this.spawn();
       this.alive = true;
-      return this.falling = true;
+      this.falling = true;
+      this.jumpMax = config.jumpMax;
+      this.speed = config.playerJumpMax;
+      return this.jumpHeight = config.playerJumpHeight;
     };
 
     Player.prototype.kill = function() {
@@ -220,7 +226,7 @@
 
     function ControllablePlayer() {
       ControllablePlayer.__super__.constructor.call(this);
-      this.speed = 0.3;
+      this.speed = config.playerSpeed;
       this.couchedSpeedRatio = 0.5;
       this.fallMinAcceleration = 0.2;
       this.fallMaxAcceleration = 0.6;
@@ -230,8 +236,8 @@
       this.jumpMaxAcceleration = 0.6;
       this.jumpDeceleration = 0.95;
       this.jumpCurrentAcceleration = 0;
-      this.jumpHeight = 80;
-      this.jumpMax = 1;
+      this.jumpHeight = config.playerJumpHeight;
+      this.jumpMax = config.playerJumpMax;
       this.jump = false;
       this.canJump = true;
       this.jumpStart = 0;
@@ -425,10 +431,20 @@
         collision = collisions[_i];
         if (__indexOf.call(list, collision) < 0) {
           if (x !== 0 && collision.getY() !== this.shape.getY() + this.shape.getHeight()) {
-            return collision;
+            if (collision.getName() !== void 0 && collision.getName().split(' ')[0] === 'bonus') {
+              this.takeBonus(collision);
+              return false;
+            } else {
+              return collision;
+            }
           }
           if (y !== 0 && collision.getX() !== this.shape.getX() + this.shape.getWidth() && collision.getX() + collision.getWidth() !== this.shape.getX()) {
-            return collision;
+            if (collision.getName() !== void 0 && collision.getName().split(' ')[0] === 'bonus') {
+              this.takeBonus(collision);
+              return false;
+            } else {
+              return collision;
+            }
           }
         }
       }
@@ -447,6 +463,12 @@
       }
       this.actualCollisions = collisions;
       return false;
+    };
+
+    ControllablePlayer.prototype.takeBonus = function(bonus) {
+      bonusManager.getBonus(bonus.getName().split(' ')[1], this);
+      bonus.destroy();
+      return fallingCubes.draw();
     };
 
     return ControllablePlayer;
@@ -489,6 +511,10 @@
   })(Player);
 
   SquareEnum = {
+    BONUS: {
+      x: 0,
+      y: 0
+    },
     SMALL: {
       x: 32,
       y: 32
@@ -594,6 +620,107 @@
 
   })(Cube);
 
+  Bonus = (function() {
+    function Bonus(col, destination, type) {
+      this.type = type;
+      this.x = col * 32 + 160;
+      this.y = stage.getY() * -1;
+      this.draw();
+      this.destination = arena.y - destination * 32 - 32;
+      this.diffY = this.destination - this.y;
+      this.speed = 600;
+      this.fall();
+    }
+
+    Bonus.prototype.fall = function() {
+      var tween;
+      tween = new Kinetic.Tween({
+        node: this.shape,
+        duration: this.diffY / this.speed,
+        y: this.destination
+      });
+      return tween.play();
+    };
+
+    Bonus.prototype.draw = function() {
+      this.shape = new Kinetic.Rect({
+        x: this.x,
+        y: this.y,
+        width: 32,
+        height: 32,
+        fill: 'gold',
+        stroke: 'black',
+        strokeWidth: 1,
+        name: 'bonus ' + this.type
+      });
+      return fallingCubes.add(this.shape);
+    };
+
+    return Bonus;
+
+  })();
+
+  BonusManager = (function() {
+    function BonusManager() {
+      this.bonuses = [
+        {
+          name: 'doubleJump',
+          attribute: 'jumpCount',
+          value: 1,
+          time: 3000
+        }
+      ];
+    }
+
+    BonusManager.prototype.getBonus = function(bonusName, player) {
+      var bonus, self, _i, _len, _ref, _results;
+      _ref = this.bonuses;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        bonus = _ref[_i];
+        if (bonusName === bonus.name) {
+          this.addBonus(bonus, player);
+          if (bonus.time !== void 0) {
+            self = this;
+            _results.push(setTimeout(function() {
+              return self.removeBonus(bonus, player);
+            }, bonus.time));
+          } else {
+            _results.push(void 0);
+          }
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    BonusManager.prototype.addBonus = function(bonus, player) {
+      switch (bonus.attribute) {
+        case "speed":
+          return player.speed += bonus.value;
+        case "jumpHeight":
+          return player.jumpHeight += bonus.value;
+        case "jumpCount":
+          return player.jumpMax += bonus.value;
+      }
+    };
+
+    BonusManager.prototype.removeBonus = function(bonus, player) {
+      switch (bonus.attribute) {
+        case "speed":
+          return player.speed -= bonus.value;
+        case "jumpHeight":
+          return player.jumpHeight -= bonus.value;
+        case "jumpCount":
+          return player.jumpMax -= bonus.value;
+      }
+    };
+
+    return BonusManager;
+
+  })();
+
   LevelManager = (function() {
     function LevelManager() {
       this.tweens = [];
@@ -683,7 +810,9 @@
         return self.players[id].remove();
       });
       this.socket.on('move', function(arr) {
-        return self.players[arr[0]].move(arr[1], arr[2]);
+        if (self.players[arr[0]] !== void 0) {
+          return self.players[arr[0]].move(arr[1], arr[2]);
+        }
       });
       return this.socket.on('kill', function(id) {
         return self.players[id].kill();
@@ -823,6 +952,10 @@
   player = new ControllablePlayer();
 
   levelManager = new LevelManager();
+
+  bonusManager = new BonusManager();
+
+  new Bonus(0, 0, 'doubleJump');
 
   game.update = function(frameTime) {
     var cubes;

@@ -2,7 +2,7 @@ module.exports = function(grunt) {
 
     grunt.initConfig({
         watch: {
-            files: ['src/coffee/app/*.coffee', 'src/coffee/app/Classes/*.coffee', 'src/coffee/server/*.coffee', 'src/coffee/server/Classes/*.coffee'],
+            files: ['src/coffee/app/*.coffee', 'src/coffee/app/Classes/*.coffee', 'src/coffee/app/Classes/Bonuses/*.coffee', 'src/coffee/server/*.coffee', 'src/coffee/server/Classes/*.coffee'],
             tasks: ['concat', 'coffee', 'uglify']
         },
         concat: {
@@ -18,6 +18,8 @@ module.exports = function(grunt) {
                     'src/coffee/app/Classes/Cube.coffee',
                     'src/coffee/app/Classes/FallingCube.coffee',
                     'src/coffee/app/Classes/StaticCube.coffee',
+                    'src/coffee/app/Classes/Bonuses/Bonus.coffee',
+                    'src/coffee/app/Classes/Bonuses/BonusManager.coffee',
                     'src/coffee/app/Classes/LevelManager.coffee',
                     'src/coffee/app/Classes/NetworkManager.coffee',
                     'src/coffee/app/Classes/Arena.coffee',

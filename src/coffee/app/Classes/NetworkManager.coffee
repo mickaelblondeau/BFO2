@@ -20,7 +20,8 @@ class NetworkManager
     @socket.on 'disconnect', (id) ->
       self.players[id].remove()
     @socket.on 'move', (arr) ->
-      self.players[arr[0]].move(arr[1], arr[2])
+      if self.players[arr[0]] isnt undefined
+        self.players[arr[0]].move(arr[1], arr[2])
     @socket.on 'kill', (id) ->
       self.players[id].kill()
 

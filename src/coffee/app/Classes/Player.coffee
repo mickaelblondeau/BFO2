@@ -33,6 +33,9 @@ class Player
     @spawn()
     @alive = true
     @falling = true
+    @jumpMax = config.jumpMax
+    @speed = config.playerJumpMax
+    @jumpHeight = config.playerJumpHeight
 
   kill: ->
     @shape.setX(32)

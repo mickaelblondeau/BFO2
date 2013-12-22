@@ -1,7 +1,7 @@
 class ControllablePlayer extends Player
   constructor: () ->
     super()
-    @speed = 0.3
+    @speed = config.playerSpeed
     @couchedSpeedRatio = 0.5
     @fallMinAcceleration = 0.2
     @fallMaxAcceleration = 0.6
@@ -11,8 +11,8 @@ class ControllablePlayer extends Player
     @jumpMaxAcceleration = 0.6
     @jumpDeceleration = 0.95
     @jumpCurrentAcceleration = 0
-    @jumpHeight = 80
-    @jumpMax = 1
+    @jumpHeight = config.playerJumpHeight
+    @jumpMax = config.playerJumpMax
     @jump = false
     @canJump = true
     @jumpStart = 0
@@ -168,9 +168,17 @@ class ControllablePlayer extends Player
     for collision in collisions
       if collision not in list
         if x isnt 0 and collision.getY() isnt @shape.getY() + @shape.getHeight()
-          return collision
+          if collision.getName() isnt undefined and collision.getName().split(' ')[0] is 'bonus'
+            @takeBonus(collision)
+            return false
+          else
+            return collision
         if y isnt 0 and collision.getX() isnt @shape.getX() + @shape.getWidth() and collision.getX() + collision.getWidth() isnt @shape.getX()
-          return collision
+          if collision.getName() isnt undefined and collision.getName().split(' ')[0] is 'bonus'
+            @takeBonus(collision)
+            return false
+          else
+            return collision
     return false
 
   testDiff: ->
@@ -181,3 +189,8 @@ class ControllablePlayer extends Player
         return collision
     @actualCollisions = collisions
     return false
+
+  takeBonus: (bonus) ->
+    bonusManager.getBonus(bonus.getName().split(' ')[1], @)
+    bonus.destroy()
+    fallingCubes.draw()
