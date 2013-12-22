@@ -2,6 +2,7 @@ class NetworkManager
   constructor: ->
     @io = require('socket.io').listen(8080)
     @players = []
+    @playersCached = []
     @playersIds = []
     @listener()
 
@@ -65,5 +66,6 @@ class NetworkManager
 
   sendPositions: ->
     for id in @playersIds
-      if @players[id] isnt undefined
+      if @players[id] isnt undefined and (@playersCached[id] is undefined or (@playersCached[id].x isnt @players[id].x or @playersCached[id].y isnt @players[id].y))
         @io.sockets.emit 'move', [id, @players[id].x, @players[id].y]
+        @playersCached[id] = { x: @players[id].x, y: @players[id].y }

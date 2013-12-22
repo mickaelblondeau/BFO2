@@ -313,6 +313,7 @@
     function NetworkManager() {
       this.io = require('socket.io').listen(8080);
       this.players = [];
+      this.playersCached = [];
       this.playersIds = [];
       this.listener();
     }
@@ -394,8 +395,12 @@
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         id = _ref[_i];
-        if (this.players[id] !== void 0) {
-          _results.push(this.io.sockets.emit('move', [id, this.players[id].x, this.players[id].y]));
+        if (this.players[id] !== void 0 && (this.playersCached[id] === void 0 || (this.playersCached[id].x !== this.players[id].x || this.playersCached[id].y !== this.players[id].y))) {
+          this.io.sockets.emit('move', [id, this.players[id].x, this.players[id].y]);
+          _results.push(this.playersCached[id] = {
+            x: this.players[id].x,
+            y: this.players[id].y
+          });
         } else {
           _results.push(void 0);
         }
