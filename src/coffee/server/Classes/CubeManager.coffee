@@ -20,44 +20,44 @@ class CubeManager
 
     @types = [
       {
-        proba: 50
+        proba: 5
         size: SquareEnum.SMALL
         width: SquareEnum.SMALL.x/32
         height: SquareEnum.SMALL.y/32
         bonus: 'doubleJump'
       },
       {
-        proba: 8
+        proba: 5
         size: SquareEnum.LARGE
         width: SquareEnum.LARGE.x/32
         height: SquareEnum.LARGE.y/32
       },
       {
-        proba: 26
+        proba: 20
         size: SquareEnum.MEDIUM
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
       },
       {
-        proba: 26
+        proba: 15
         size: SquareEnum.SMALL
         width: SquareEnum.SMALL.x/32
         height: SquareEnum.SMALL.y/32
       },
       {
-        proba: 16
+        proba: 10
         size: SquareEnum.MEDIUM_RECT
         width: SquareEnum.MEDIUM_RECT.x/32
         height: SquareEnum.MEDIUM_RECT.y/32
       },
       {
-        proba: 8
+        proba: 5
         size: SquareEnum.LARGE_RECT
         width: SquareEnum.LARGE_RECT.x/32
         height: SquareEnum.LARGE_RECT.y/32
       },
       {
-        proba: 16
+        proba: 5
         size: SquareEnum.LONG_RECT
         width: SquareEnum.LONG_RECT.x/32
         height: SquareEnum.LONG_RECT.y/32

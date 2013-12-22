@@ -170,11 +170,15 @@ class ControllablePlayer extends Player
     for collision in collisions
       if collision not in list
         if (x isnt 0 and collision.getY() isnt @shape.getY() + @shape.getHeight()) or (y isnt 0 and collision.getX() isnt @shape.getX() + @shape.getWidth() and collision.getX() + collision.getWidth() isnt @shape.getX())
-          if collision.getName() isnt undefined and collision.getName() isnt null and collision.getName().split(' ')[0] is 'bonus'
-            @takeBonus(collision)
-            return false
-          else
+          if !(collision.getName() isnt undefined and collision.getName() isnt null and collision.getName().split(' ')[0] is 'bonus')
             return collision
+
+    for collision in collisions
+      if collision not in list
+        if collision.getName() isnt undefined and collision.getName() isnt null and collision.getName().split(' ')[0] is 'bonus'
+          @takeBonus(collision)
+          return false
+
     return false
 
   testDiff: ->

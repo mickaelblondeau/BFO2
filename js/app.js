@@ -420,7 +420,7 @@
     };
 
     ControllablePlayer.prototype.testMove = function(x, y) {
-      var collision, collisions, list, _i, _len;
+      var collision, collisions, list, _i, _j, _len, _len1;
       list = this.getCollisions();
       if (x !== 0) {
         this.shape.setX(x);
@@ -433,12 +433,18 @@
         collision = collisions[_i];
         if (__indexOf.call(list, collision) < 0) {
           if ((x !== 0 && collision.getY() !== this.shape.getY() + this.shape.getHeight()) || (y !== 0 && collision.getX() !== this.shape.getX() + this.shape.getWidth() && collision.getX() + collision.getWidth() !== this.shape.getX())) {
-            if (collision.getName() !== void 0 && collision.getName() !== null && collision.getName().split(' ')[0] === 'bonus') {
-              this.takeBonus(collision);
-              return false;
-            } else {
+            if (!(collision.getName() !== void 0 && collision.getName() !== null && collision.getName().split(' ')[0] === 'bonus')) {
               return collision;
             }
+          }
+        }
+      }
+      for (_j = 0, _len1 = collisions.length; _j < _len1; _j++) {
+        collision = collisions[_j];
+        if (__indexOf.call(list, collision) < 0) {
+          if (collision.getName() !== void 0 && collision.getName() !== null && collision.getName().split(' ')[0] === 'bonus') {
+            this.takeBonus(collision);
+            return false;
           }
         }
       }
@@ -506,10 +512,6 @@
   })(Player);
 
   SquareEnum = {
-    BONUS: {
-      x: 0,
-      y: 0
-    },
     SMALL: {
       x: 32,
       y: 32

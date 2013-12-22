@@ -1,5 +1,4 @@
 SquareEnum = {
-  BONUS : { x: 0, y: 0 }
   SMALL : { x: 32, y: 32 }
   MEDIUM : { x: 64, y: 64 }
   LARGE : { x: 128, y: 128 }
