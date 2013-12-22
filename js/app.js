@@ -664,6 +664,7 @@
           time: 3000
         }
       ];
+      this.timers = [];
     }
 
     BonusManager.prototype.getBonus = function(bonusName, player) {
@@ -676,9 +677,9 @@
           this.addBonus(bonus, player);
           if (bonus.time !== void 0) {
             self = this;
-            _results.push(setTimeout(function() {
+            _results.push(this.timers.push(setTimeout(function() {
               return self.removeBonus(bonus, player);
-            }, bonus.time));
+            }, bonus.time)));
           } else {
             _results.push(void 0);
           }
@@ -711,6 +712,17 @@
       }
     };
 
+    BonusManager.prototype.reset = function() {
+      var timer, _i, _len, _ref, _results;
+      _ref = this.timers;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        timer = _ref[_i];
+        _results.push(clearInterval(timer));
+      }
+      return _results;
+    };
+
     return BonusManager;
 
   })();
@@ -733,6 +745,7 @@
       stage.setY(0);
       staticBg.setY(0);
       arena.reset();
+      bonusManager.reset();
       fallingCubes.destroyChildren();
       stage.draw();
       return this.level = 0;

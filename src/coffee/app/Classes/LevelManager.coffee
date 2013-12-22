@@ -10,6 +10,7 @@ class LevelManager
     stage.setY(0)
     staticBg.setY(0)
     arena.reset()
+    bonusManager.reset()
     fallingCubes.destroyChildren()
     stage.draw()
     @level = 0

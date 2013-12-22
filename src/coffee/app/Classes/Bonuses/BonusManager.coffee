@@ -8,6 +8,7 @@ class BonusManager
         time: 3000
       }
     ]
+    @timers = []
 
   getBonus: (bonusName, player) ->
     for bonus in @bonuses
@@ -15,7 +16,7 @@ class BonusManager
         @addBonus(bonus, player)
         if bonus.time isnt undefined
           self = @
-          setTimeout(
+          @timers.push setTimeout(
             () ->
               self.removeBonus(bonus, player)
             , bonus.time
@@ -38,3 +39,7 @@ class BonusManager
         player.jumpHeight -= bonus.value
       when "jumpCount"
         player.jumpMax -= bonus.value
+
+  reset: ->
+    for timer in @timers
+      clearInterval(timer)
