@@ -682,8 +682,10 @@
     };
 
     ControllablePlayer.prototype.changeAnimation = function(animation) {
-      ControllablePlayer.__super__.changeAnimation.call(this, animation);
-      return networkManager.sendAnimation(animation);
+      if (this.skin.getAnimation() !== animation) {
+        this.skin.setAnimation(animation);
+        return networkManager.sendAnimation(animation);
+      }
     };
 
     ControllablePlayer.prototype.changeSide = function(side) {

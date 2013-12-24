@@ -217,8 +217,9 @@ class ControllablePlayer extends Player
     networkManager.sendBonusTaken(bonus.getId())
 
   changeAnimation: (animation) ->
-    super(animation)
-    networkManager.sendAnimation(animation)
+    if @skin.getAnimation() != animation
+      @skin.setAnimation(animation)
+      networkManager.sendAnimation(animation)
 
   changeSide: (side) ->
     super(side)

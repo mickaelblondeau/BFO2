@@ -12,4 +12,3 @@ Bugs :
 * after level up, if the player rescale the window, the background may be at a wrong place
 
 Optimisations :
-* Positions sync
