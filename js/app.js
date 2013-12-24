@@ -90,6 +90,7 @@
     function Game() {
       this.lastFrame = Date.now();
       this.statsInit();
+      this.scale = 1;
     }
 
     Game.prototype.loop = function() {
@@ -111,12 +112,11 @@
     };
 
     Game.prototype.resize = function() {
-      var scale;
-      scale = window.innerHeight / config.levelHeight;
-      stage.setScaleX(scale);
-      stage.setScaleY(scale);
+      this.scale = window.innerHeight / config.levelHeight;
+      stage.setScaleX(this.scale);
+      stage.setScaleY(this.scale);
       stage.draw();
-      return document.getElementById("container").style.width = config.levelWidth * scale + "px";
+      return document.getElementById("container").style.width = config.levelWidth * this.scale + "px";
     };
 
     Game.prototype.statsInit = function() {
@@ -1054,7 +1054,7 @@
       this.tweens[0] = new Kinetic.Tween({
         node: stage,
         duration: 2,
-        y: stage.getY() + height,
+        y: stage.getY() + height * game.scale,
         onFinish: function() {
           return networkManager.sendMoveLevelOk();
         }

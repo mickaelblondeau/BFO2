@@ -9,6 +9,7 @@ class Game
   constructor: ->
     @lastFrame = Date.now()
     @statsInit()
+    @scale = 1
 
   loop: ->
     thisFrame = Date.now()
@@ -27,11 +28,11 @@ class Game
     @loop()
 
   resize: ->
-    scale = window.innerHeight/config.levelHeight
-    stage.setScaleX(scale)
-    stage.setScaleY(scale)
+    @scale = window.innerHeight/config.levelHeight
+    stage.setScaleX(@scale)
+    stage.setScaleY(@scale)
     stage.draw()
-    document.getElementById("container").style.width = config.levelWidth * scale + "px"
+    document.getElementById("container").style.width = config.levelWidth * @scale + "px"
 
   statsInit: ->
     @fps = new Stats()
