@@ -31,6 +31,8 @@ class ControllablePlayer extends Player
       else if collide and collide.getName().split(' ')[0] is 'bonus'
         @takeBonus(collide)
 
+      moveSide = 0
+
       if @jump or @falling or keyboard.keys.left or keyboard.keys.right or keyboard.keys.up or keyboard.keys.down
         if !@jump
           @doFall(frameTime)
@@ -46,10 +48,14 @@ class ControllablePlayer extends Player
           collide = @testMove(@shape.getX() - moveSpeed, 0)
           if collide
             @shape.setX(collide.getX() + collide.getWidth())
+          else
+            moveSide = -1
         if keyboard.keys.right
           collide = @testMove(@shape.getX() + moveSpeed, 0)
           if collide
             @shape.setX(collide.getX() - @shape.getWidth())
+          else
+            moveSide = 1
 
         if keyboard.keys.up
           if @canJump
@@ -63,20 +69,34 @@ class ControllablePlayer extends Player
           @stopCouch()
 
         networkManager.sendMove(@shape.getX(), @shape.getY())
-        @skin.setX(@shape.getX())
-        @skin.setY(@shape.getY())
-        @skin.setWidth(@shape.getWidth())
-        @skin.setHeight(@shape.getHeight())
 
       else if @couched
         @stopCouch()
-        @skin.setX(@shape.getX())
-        @skin.setY(@shape.getY())
-        @skin.setWidth(@shape.getWidth())
-        @skin.setHeight(@shape.getHeight())
+        networkManager.sendMove(@shape.getX(), @shape.getY())
 
       else if !keyboard.keys.up
         @canJump = true
+
+      if moveSide is -1 and @skin.getScaleX() != -1
+        @changeSide(-1)
+      else if moveSide is 1 and @skin.getScaleX() != 1
+        @changeSide(1)
+
+      if @jump
+
+      else if @falling
+        @changeAnimation('fall')
+      else if @couched
+        if moveSide isnt 0
+          @changeAnimation('couchMove')
+        else
+          @changeAnimation('couch')
+      else if moveSide isnt 0
+        @changeAnimation('run')
+      else
+        @changeAnimation('idle')
+
+      @fixSkinPos()
 
       HTML.query('#jump').textContent = @jump
       HTML.query('#jumps').textContent = @jumpCount + '/' + @jumpMax
@@ -195,3 +215,11 @@ class ControllablePlayer extends Player
     bonus.destroy()
     fallingCubes.draw()
     networkManager.sendBonusTaken(bonus.getId())
+
+  changeAnimation: (animation) ->
+    super(animation)
+    networkManager.sendAnimation(animation)
+
+  changeSide: (side) ->
+    super(side)
+    networkManager.sendAnimationSide(side)

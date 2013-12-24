@@ -12,10 +12,9 @@ class VirtualPlayer extends Player
   move: (x, y) ->
     @shape.setX(x)
     @shape.setY(y)
-    @skin.setX(x)
-    @skin.setY(y)
     @name.setX(x)
     @name.setY(y - 20)
+    @fixSkinPos()
 
   remove: ->
     @shape.destroy()

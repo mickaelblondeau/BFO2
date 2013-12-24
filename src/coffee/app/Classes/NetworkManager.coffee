@@ -24,8 +24,11 @@ class NetworkManager
     @socket.on 'disconnect', (id) ->
       self.players[id].remove()
     @socket.on 'move', (arr) ->
-      if self.players[arr[0]] isnt undefined
-        self.players[arr[0]].move(arr[1], arr[2])
+      self.players[arr[0]].move(arr[1], arr[2])
+    @socket.on 'changeAnimation', (arr) ->
+      self.players[arr[0]].changeAnimation(arr[1])
+    @socket.on 'changeAnimationSide', (arr) ->
+      self.players[arr[0]].changeSide(arr[1])
     @socket.on 'kill', (id) ->
       self.players[id].kill()
 
@@ -46,3 +49,9 @@ class NetworkManager
 
   sendBonusTaken: (id) ->
     @socket.emit 'bonusTaken', id
+
+  sendAnimation: (animation) ->
+    @socket.emit 'changeAnimation', animation
+
+  sendAnimationSide: (side) ->
+    @socket.emit 'changeAnimationSide', side

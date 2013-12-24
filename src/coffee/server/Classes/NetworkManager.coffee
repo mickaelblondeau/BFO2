@@ -31,25 +31,23 @@ class NetworkManager
 
       socket.on 'launch', ->
         game.launch()
-
       socket.on 'reset', ->
         game.reset()
         self.sendResetLevel()
-
       socket.on 'move', (arr) ->
         self.players[id].x = parseInt(arr[0])
         self.players[id].y = parseInt(arr[1])
-
       socket.on 'die', ->
         socket.broadcast.emit 'kill', id
-
+      socket.on 'changeAnimation', (animation) ->
+        socket.broadcast.emit 'changeAnimation', [id, animation]
+      socket.on 'changeAnimationSide', (side) ->
+        socket.broadcast.emit 'changeAnimationSide', [id, side]
       socket.on 'moveLevelOk', ->
         cubeManager.waiting = false
         levelManager.nextLevel()
-
       socket.on 'bonusTaken', (bonusId) ->
         socket.broadcast.emit 'bonusTaken', bonusId
-
       socket.on 'disconnect', ->
         socket.broadcast.emit 'disconnect', id
         delete self.players[id]

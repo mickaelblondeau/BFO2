@@ -363,6 +363,12 @@
         socket.on('die', function() {
           return socket.broadcast.emit('kill', id);
         });
+        socket.on('changeAnimation', function(animation) {
+          return socket.broadcast.emit('changeAnimation', [id, animation]);
+        });
+        socket.on('changeAnimationSide', function(side) {
+          return socket.broadcast.emit('changeAnimationSide', [id, side]);
+        });
         socket.on('moveLevelOk', function() {
           cubeManager.waiting = false;
           return levelManager.nextLevel();

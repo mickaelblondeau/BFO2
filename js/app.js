@@ -167,32 +167,125 @@
   Player = (function() {
     function Player() {
       this.heightCouched = 30;
-      this.height = 62;
+      this.height = 46;
       this.draw();
       this.spawn();
     }
 
     Player.prototype.draw = function() {
+      var animations, imageObj;
       this.shape = new Kinetic.Rect({
         width: 32,
         height: this.height,
         stroke: null
       });
       players.add(this.shape);
-      this.skin = new Kinetic.Shape({
-        drawFunc: function(context) {
-          context.beginPath();
-          context.arc(16, 10, 10, 0, 180, false);
-          context.moveTo(0, 62);
-          context.lineTo(32, 62);
-          context.lineTo(16, 22);
-          context.closePath();
-          return context.fillStrokeShape(this);
-        },
-        fill: 'red',
-        stroke: 'black'
+      animations = {
+        idle: [
+          {
+            x: 290,
+            y: 2,
+            width: 46,
+            height: 45
+          }
+        ],
+        jump: [
+          {
+            x: 339,
+            y: 2,
+            width: 45,
+            height: 45
+          }
+        ],
+        fall: [
+          {
+            x: 387,
+            y: 2,
+            width: 46,
+            height: 45
+          }
+        ],
+        run: [
+          {
+            x: 0,
+            y: 2,
+            width: 46,
+            height: 45
+          }, {
+            x: 49,
+            y: 2,
+            width: 46,
+            height: 45
+          }, {
+            x: 97,
+            y: 2,
+            width: 46,
+            height: 45
+          }, {
+            x: 145,
+            y: 2,
+            width: 46,
+            height: 45
+          }, {
+            x: 193,
+            y: 2,
+            width: 46,
+            height: 45
+          }, {
+            x: 241,
+            y: 2,
+            width: 46,
+            height: 45
+          }
+        ],
+        couch: [
+          {
+            x: 0,
+            y: 63,
+            width: 46,
+            height: 34
+          }
+        ],
+        couchMove: [
+          {
+            x: 50,
+            y: 67,
+            width: 46,
+            height: 34
+          }, {
+            x: 98,
+            y: 67,
+            width: 46,
+            height: 34
+          }, {
+            x: 146,
+            y: 67,
+            width: 46,
+            height: 34
+          }, {
+            x: 194,
+            y: 67,
+            width: 46,
+            height: 34
+          }, {
+            x: 242,
+            y: 67,
+            width: 46,
+            height: 34
+          }
+        ]
+      };
+      imageObj = new Image();
+      imageObj.src = '../assets/playerSpirteSheet.png';
+      this.skin = new Kinetic.Sprite({
+        image: imageObj,
+        animation: 'run',
+        animations: animations,
+        frameRate: 7,
+        index: 0
       });
-      return players.add(this.skin);
+      players.add(this.skin);
+      return this.skin.start();
     };
 
     Player.prototype.spawn = function() {
@@ -215,6 +308,35 @@
       this.skin.setX(32);
       this.skin.setY(32);
       return this.alive = false;
+    };
+
+    Player.prototype.fixSkinPos = function() {
+      if (this.skin.getScaleX() === -1) {
+        this.skin.setX(this.shape.getX() - 7 + 48);
+      } else {
+        this.skin.setX(this.shape.getX() - 7);
+      }
+      if (this.skin.getAnimation() === 'couch') {
+        return this.skin.setY(this.shape.getY() - 4);
+      } else {
+        return this.skin.setY(this.shape.getY());
+      }
+    };
+
+    Player.prototype.changeAnimation = function(animation) {
+      if (this.skin.getAnimation() !== animation) {
+        return this.skin.setAnimation(animation);
+      }
+    };
+
+    Player.prototype.changeSide = function(side) {
+      if (side === -1) {
+        this.skin.setScaleX(-1);
+        return this.skin.setX(this.skin.getX() + 48);
+      } else if (side === 1) {
+        this.skin.setScaleX(1);
+        return this.skin.setX(this.skin.getX() - 48);
+      }
     };
 
     return Player;
@@ -249,7 +371,7 @@
     }
 
     ControllablePlayer.prototype.update = function(frameTime) {
-      var collide, moveSpeed;
+      var collide, moveSide, moveSpeed;
       if (this.alive) {
         collide = this.testDiff();
         if (collide && collide.getName() === 'falling') {
@@ -258,6 +380,7 @@
         } else if (collide && collide.getName().split(' ')[0] === 'bonus') {
           this.takeBonus(collide);
         }
+        moveSide = 0;
         if (this.jump || this.falling || keyboard.keys.left || keyboard.keys.right || keyboard.keys.up || keyboard.keys.down) {
           if (!this.jump) {
             this.doFall(frameTime);
@@ -273,12 +396,16 @@
             collide = this.testMove(this.shape.getX() - moveSpeed, 0);
             if (collide) {
               this.shape.setX(collide.getX() + collide.getWidth());
+            } else {
+              moveSide = -1;
             }
           }
           if (keyboard.keys.right) {
             collide = this.testMove(this.shape.getX() + moveSpeed, 0);
             if (collide) {
               this.shape.setX(collide.getX() - this.shape.getWidth());
+            } else {
+              moveSide = 1;
             }
           }
           if (keyboard.keys.up) {
@@ -294,19 +421,33 @@
             this.stopCouch();
           }
           networkManager.sendMove(this.shape.getX(), this.shape.getY());
-          this.skin.setX(this.shape.getX());
-          this.skin.setY(this.shape.getY());
-          this.skin.setWidth(this.shape.getWidth());
-          this.skin.setHeight(this.shape.getHeight());
         } else if (this.couched) {
           this.stopCouch();
-          this.skin.setX(this.shape.getX());
-          this.skin.setY(this.shape.getY());
-          this.skin.setWidth(this.shape.getWidth());
-          this.skin.setHeight(this.shape.getHeight());
+          networkManager.sendMove(this.shape.getX(), this.shape.getY());
         } else if (!keyboard.keys.up) {
           this.canJump = true;
         }
+        if (moveSide === -1 && this.skin.getScaleX() !== -1) {
+          this.changeSide(-1);
+        } else if (moveSide === 1 && this.skin.getScaleX() !== 1) {
+          this.changeSide(1);
+        }
+        if (this.jump) {
+
+        } else if (this.falling) {
+          this.changeAnimation('fall');
+        } else if (this.couched) {
+          if (moveSide !== 0) {
+            this.changeAnimation('couchMove');
+          } else {
+            this.changeAnimation('couch');
+          }
+        } else if (moveSide !== 0) {
+          this.changeAnimation('run');
+        } else {
+          this.changeAnimation('idle');
+        }
+        this.fixSkinPos();
         HTML.query('#jump').textContent = this.jump;
         HTML.query('#jumps').textContent = this.jumpCount + '/' + this.jumpMax;
         HTML.query('#falling').textContent = this.falling;
@@ -472,6 +613,16 @@
       return networkManager.sendBonusTaken(bonus.getId());
     };
 
+    ControllablePlayer.prototype.changeAnimation = function(animation) {
+      ControllablePlayer.__super__.changeAnimation.call(this, animation);
+      return networkManager.sendAnimation(animation);
+    };
+
+    ControllablePlayer.prototype.changeSide = function(side) {
+      ControllablePlayer.__super__.changeSide.call(this, side);
+      return networkManager.sendAnimationSide(side);
+    };
+
     return ControllablePlayer;
 
   })(Player);
@@ -494,10 +645,9 @@
     VirtualPlayer.prototype.move = function(x, y) {
       this.shape.setX(x);
       this.shape.setY(y);
-      this.skin.setX(x);
-      this.skin.setY(y);
       this.name.setX(x);
-      return this.name.setY(y - 20);
+      this.name.setY(y - 20);
+      return this.fixSkinPos();
     };
 
     VirtualPlayer.prototype.remove = function() {
@@ -838,9 +988,13 @@
         return self.players[id].remove();
       });
       this.socket.on('move', function(arr) {
-        if (self.players[arr[0]] !== void 0) {
-          return self.players[arr[0]].move(arr[1], arr[2]);
-        }
+        return self.players[arr[0]].move(arr[1], arr[2]);
+      });
+      this.socket.on('changeAnimation', function(arr) {
+        return self.players[arr[0]].changeAnimation(arr[1]);
+      });
+      this.socket.on('changeAnimationSide', function(arr) {
+        return self.players[arr[0]].changeSide(arr[1]);
       });
       return this.socket.on('kill', function(id) {
         return self.players[id].kill();
@@ -869,6 +1023,14 @@
 
     NetworkManager.prototype.sendBonusTaken = function(id) {
       return this.socket.emit('bonusTaken', id);
+    };
+
+    NetworkManager.prototype.sendAnimation = function(animation) {
+      return this.socket.emit('changeAnimation', animation);
+    };
+
+    NetworkManager.prototype.sendAnimationSide = function(side) {
+      return this.socket.emit('changeAnimationSide', side);
     };
 
     return NetworkManager;

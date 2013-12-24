@@ -1,7 +1,7 @@
 class Player
   constructor: () ->
     @heightCouched = 30
-    @height = 62
+    @height = 46
     @draw()
     @spawn()
 
@@ -12,18 +12,101 @@ class Player
       stroke: null
     players.add @shape
 
-    @skin = new Kinetic.Shape
-      drawFunc: (context) ->
-        context.beginPath()
-        context.arc(16, 10, 10, 0, 180, false)
-        context.moveTo(0, 62)
-        context.lineTo(32, 62)
-        context.lineTo(16, 22)
-        context.closePath()
-        context.fillStrokeShape(@)
-      fill: 'red'
-      stroke: 'black'
+    animations = {
+      idle: [{
+        x: 290
+        y: 2
+        width: 46
+        height: 45
+      }],
+      jump: [{
+        x: 339
+        y: 2
+        width: 45
+        height: 45
+      }],
+      fall: [{
+        x: 387
+        y: 2
+        width: 46
+        height: 45
+      }],
+      run: [{
+        x: 0
+        y: 2
+        width: 46
+        height: 45
+      }, {
+        x: 49
+        y: 2
+        width: 46
+        height: 45
+      }, {
+        x: 97
+        y: 2
+        width: 46
+        height: 45
+      }, {
+        x: 145
+        y: 2
+        width: 46
+        height: 45
+      }, {
+        x: 193
+        y: 2
+        width: 46
+        height: 45
+      }, {
+        x: 241
+        y: 2
+        width: 46
+        height: 45
+      }],
+      couch: [{
+        x: 0
+        y: 63
+        width: 46
+        height: 34
+      }],
+      couchMove: [{
+        x: 50
+        y: 67
+        width: 46
+        height: 34
+      }, {
+        x: 98
+        y: 67
+        width: 46
+        height: 34
+      }, {
+        x: 146
+        y: 67
+        width: 46
+        height: 34
+      }, {
+        x: 194
+        y: 67
+        width: 46
+        height: 34
+      }, {
+        x: 242
+        y: 67
+        width: 46
+        height: 34
+      }]
+    }
+
+    imageObj = new Image()
+    imageObj.src = '../assets/playerSpirteSheet.png';
+
+    @skin = new Kinetic.Sprite
+      image: imageObj
+      animation: 'run',
+      animations: animations,
+      frameRate: 7,
+      index: 0
     players.add @skin
+    @skin.start()
 
   spawn: ->
     @shape.setX(336)
@@ -43,3 +126,25 @@ class Player
     @skin.setX(32)
     @skin.setY(32)
     @alive = false
+
+  fixSkinPos: ->
+    if @skin.getScaleX() is -1
+      @skin.setX(@shape.getX() - 7 + 48)
+    else
+      @skin.setX(@shape.getX() - 7)
+    if @skin.getAnimation() is 'couch'
+      @skin.setY(@shape.getY() - 4)
+    else
+      @skin.setY(@shape.getY())
+
+  changeAnimation: (animation) ->
+    if @skin.getAnimation() != animation
+      @skin.setAnimation(animation)
+
+  changeSide: (side) ->
+    if side is -1
+      @skin.setScaleX(-1)
+      @skin.setX(@skin.getX() + 48)
+    else if side is 1
+      @skin.setScaleX(1)
+      @skin.setX(@skin.getX() - 48)
