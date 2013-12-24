@@ -3,7 +3,8 @@
 
   config = {
     FPS: 60,
-    levelSpeed: 1000
+    levelSpeed: 1000,
+    timeout: 5000
   };
 
   Game = (function() {
@@ -276,6 +277,7 @@
     LevelManager.prototype.reset = function() {
       networkManager.sendResetLevel();
       cubeManager.reset();
+      clearTimeout(networkManager.timeout);
       this.level = 0;
       return this.speed = config.levelSpeed;
     };
@@ -298,6 +300,7 @@
 
     LevelManager.prototype.nextLevel = function() {
       if (!cubeManager.running) {
+        clearTimeout(networkManager.timeout);
         this.clearLevel();
         this.lastHeight = this.randomizeHeight();
         return cubeManager.start(this.lastHeight, this.speed);
@@ -319,6 +322,8 @@
       this.playersCached = [];
       this.playersIds = [];
       this.currentId = 0;
+      this.waitingFor = 0;
+      this.responseOk = 0;
       this.listener();
     }
 
@@ -370,8 +375,11 @@
           return socket.broadcast.emit('changeAnimationSide', [id, side]);
         });
         socket.on('moveLevelOk', function() {
-          cubeManager.waiting = false;
-          return levelManager.nextLevel();
+          self.responseOk++;
+          if (self.responseOk >= self.waitingFor) {
+            cubeManager.waiting = false;
+            return levelManager.nextLevel();
+          }
         });
         socket.on('bonusTaken', function(bonusId) {
           return socket.broadcast.emit('bonusTaken', bonusId);
@@ -400,6 +408,7 @@
     };
 
     NetworkManager.prototype.moveLevel = function(height) {
+      this.waitForAll();
       return this.io.sockets.emit('moveLevel', height);
     };
 
@@ -420,6 +429,21 @@
         }
       }
       return _results;
+    };
+
+    NetworkManager.prototype.waitForAll = function() {
+      var self;
+      this.waitingFor = this.players.length;
+      this.responseOk = 0;
+      self = this;
+      return this.timeout = setTimeout(function() {
+        cubeManager.waiting = false;
+        return levelManager.nextLevel();
+      }, config.timeout);
+    };
+
+    NetworkManager.prototype.forceAllReady = function(count) {
+      return this.responseOk = count;
     };
 
     return NetworkManager;

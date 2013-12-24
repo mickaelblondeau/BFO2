@@ -11,6 +11,7 @@ class LevelManager
   reset: ->
     networkManager.sendResetLevel()
     cubeManager.reset()
+    clearTimeout(networkManager.timeout)
     @level = 0
     @speed = config.levelSpeed
 
@@ -28,6 +29,7 @@ class LevelManager
 
   nextLevel: ->
     if !cubeManager.running
+      clearTimeout(networkManager.timeout)
       @clearLevel()
       @lastHeight = @randomizeHeight()
       cubeManager.start(@lastHeight, @speed)

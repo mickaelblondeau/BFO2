@@ -7,7 +7,7 @@ class Player
 
   draw: ->
     @shape = new Kinetic.Rect
-      width: 32
+      width: 22
       height: @height
       stroke: null
     players.add @shape
@@ -126,9 +126,9 @@ class Player
 
   fixSkinPos: ->
     if @skin.getScaleX() is -1
-      @skin.setX(@shape.getX() - 7 + 48)
+      @skin.setX(@shape.getX() - 12 + 48)
     else
-      @skin.setX(@shape.getX() - 7)
+      @skin.setX(@shape.getX() - 12)
     if @skin.getAnimation() is 'couch'
       @skin.setY(@shape.getY() - 4)
     else

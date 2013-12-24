@@ -245,7 +245,7 @@
     Player.prototype.draw = function() {
       var animations;
       this.shape = new Kinetic.Rect({
-        width: 32,
+        width: 22,
         height: this.height,
         stroke: null
       });
@@ -380,9 +380,9 @@
 
     Player.prototype.fixSkinPos = function() {
       if (this.skin.getScaleX() === -1) {
-        this.skin.setX(this.shape.getX() - 7 + 48);
+        this.skin.setX(this.shape.getX() - 12 + 48);
       } else {
-        this.skin.setX(this.shape.getX() - 7);
+        this.skin.setX(this.shape.getX() - 12);
       }
       if (this.skin.getAnimation() === 'couch') {
         return this.skin.setY(this.shape.getY() - 4);
@@ -1074,11 +1074,14 @@
       HTML.query('#lml').textContent = this.level;
       arena.clearOutOfScreen();
       cubes = fallingCubes.find('Sprite');
-      return cubes.each(function(cube) {
+      cubes.each(function(cube) {
         if (cube.getY() > stage.getY() * -1 + stage.getHeight()) {
           return cube.destroy();
         }
       });
+      if (player.shape.getY() > stage.getY() * -1 + stage.getHeight()) {
+        return player.kill();
+      }
     };
 
     return LevelManager;

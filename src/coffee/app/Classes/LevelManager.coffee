@@ -38,3 +38,5 @@ class LevelManager
     cubes.each (cube) ->
       if cube.getY() > stage.getY()*-1 + stage.getHeight()
         cube.destroy()
+    if player.shape.getY() > stage.getY()*-1 + stage.getHeight()
+      player.kill()

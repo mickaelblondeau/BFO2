@@ -5,6 +5,8 @@ class NetworkManager
     @playersCached = []
     @playersIds = []
     @currentId = 0
+    @waitingFor = 0
+    @responseOk = 0
     @listener()
 
   listener: ->
@@ -44,8 +46,10 @@ class NetworkManager
       socket.on 'changeAnimationSide', (side) ->
         socket.broadcast.emit 'changeAnimationSide', [id, side]
       socket.on 'moveLevelOk', ->
-        cubeManager.waiting = false
-        levelManager.nextLevel()
+        self.responseOk++
+        if self.responseOk >= self.waitingFor
+          cubeManager.waiting = false
+          levelManager.nextLevel()
       socket.on 'bonusTaken', (bonusId) ->
         socket.broadcast.emit 'bonusTaken', bonusId
       socket.on 'disconnect', ->
@@ -65,6 +69,7 @@ class NetworkManager
     @io.sockets.emit 'clearLevel'
 
   moveLevel: (height) ->
+    @waitForAll()
     @io.sockets.emit 'moveLevel', height
 
   sendPositions: ->
@@ -72,3 +77,17 @@ class NetworkManager
       if @players[id] isnt undefined and (@playersCached[id] is undefined or (@playersCached[id].x isnt @players[id].x or @playersCached[id].y isnt @players[id].y))
         @io.sockets.emit 'move', [id, @players[id].x, @players[id].y]
         @playersCached[id] = { x: @players[id].x, y: @players[id].y }
+
+  waitForAll: ->
+    @waitingFor = @players.length
+    @responseOk = 0
+    self = @
+    @timeout = setTimeout(
+      () ->
+        cubeManager.waiting = false
+        levelManager.nextLevel()
+      , config.timeout
+    )
+
+  forceAllReady: (count) ->
+    @responseOk = count
