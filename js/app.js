@@ -159,7 +159,11 @@
       });
       imageLoader.addLoad({
         name: 'bonus',
-        url: '../assets/bonus.jpg'
+        url: '../assets/bonus.png'
+      });
+      imageLoader.addLoad({
+        name: 'bg',
+        url: '../assets/bg.jpg'
       });
       imageLoader.addLoad({
         name: 'playerSpirteSheet',
@@ -317,27 +321,27 @@
             x: 50,
             y: 67,
             width: 46,
-            height: 34
+            height: 30
           }, {
             x: 98,
             y: 67,
             width: 46,
-            height: 34
+            height: 30
           }, {
             x: 146,
             y: 67,
             width: 46,
-            height: 34
+            height: 30
           }, {
             x: 194,
             y: 67,
             width: 46,
-            height: 34
+            height: 30
           }, {
             x: 242,
             y: 67,
             width: 46,
-            height: 34
+            height: 30
           }
         ]
       };
@@ -1274,8 +1278,7 @@
     bg = new Kinetic.Rect({
       width: stage.getWidth(),
       height: stage.getHeight(),
-      fill: "grey",
-      stroke: "black"
+      fillPatternImage: imageLoader.images['bg']
     });
     staticBg.add(bg);
     bg.setZIndex(-1);

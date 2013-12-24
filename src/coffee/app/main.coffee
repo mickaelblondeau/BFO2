@@ -30,8 +30,7 @@ imageLoader.imagesLoaded = ->
   bg = new Kinetic.Rect
     width: stage.getWidth()
     height: stage.getHeight()
-    fill: "grey"
-    stroke: "black"
+    fillPatternImage: imageLoader.images['bg']
   staticBg.add bg
   bg.setZIndex(-1)
   bg.draw()

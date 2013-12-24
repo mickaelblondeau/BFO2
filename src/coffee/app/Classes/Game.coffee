@@ -54,6 +54,7 @@ class Game
     imageLoader.addLoad({ name:'cubes_red', url:'../assets/cubes_red.jpg'})
     imageLoader.addLoad({ name:'cubes_blue', url:'../assets/cubes_blue.jpg'})
     imageLoader.addLoad({ name:'cubes_green', url:'../assets/cubes_green.jpg'})
-    imageLoader.addLoad({ name:'bonus', url:'../assets/bonus.jpg'})
+    imageLoader.addLoad({ name:'bonus', url:'../assets/bonus.png'})
+    imageLoader.addLoad({ name:'bg', url:'../assets/bg.jpg'})
     imageLoader.addLoad({ name:'playerSpirteSheet', url:'../assets/playerSpirteSheet.png'})
     imageLoader.load()

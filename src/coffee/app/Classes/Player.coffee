@@ -72,27 +72,27 @@ class Player
         x: 50
         y: 67
         width: 46
-        height: 34
+        height: 30
       }, {
         x: 98
         y: 67
         width: 46
-        height: 34
+        height: 30
       }, {
         x: 146
         y: 67
         width: 46
-        height: 34
+        height: 30
       }, {
         x: 194
         y: 67
         width: 46
-        height: 34
+        height: 30
       }, {
         x: 242
         y: 67
         width: 46
-        height: 34
+        height: 30
       }]
     }
 
