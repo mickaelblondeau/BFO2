@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, CollisionManager, ControllablePlayer, Cube, FallingCube, Game, ImageLoader, Keyboard, LevelManager, NetworkManager, Player, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, collisionManager, config, fallingCubes, game, imageLoader, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ControllablePlayer, Cube, FallingCube, Game, ImageLoader, Keyboard, LevelManager, NetworkManager, Player, RoueMan, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bossManager, collisionManager, config, dynamicEntities, game, imageLoader, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -164,6 +164,10 @@
       imageLoader.addLoad({
         name: 'bg',
         url: '../assets/bg.jpg'
+      });
+      imageLoader.addLoad({
+        name: 'boss',
+        url: '../assets/boss.png'
       });
       imageLoader.addLoad({
         name: 'playerSpirteSheet',
@@ -445,8 +449,10 @@
         if (collide && collide.getName() === 'falling') {
           this.kill();
           networkManager.sendDie();
-        } else if (collide && collide.getName().split(' ')[0] === 'bonus') {
+        } else if (collide && collide.getName().type === 'bonus') {
           this.takeBonus(collide);
+        } else if (collide && collide.getName().type === 'boss') {
+          this.collideBoss(collide);
         }
         moveSide = 0;
         if (this.jump || this.falling || keyboard.keys.left || keyboard.keys.right || keyboard.keys.up || keyboard.keys.down) {
@@ -617,7 +623,7 @@
           return result.push(cube);
         }
       });
-      cubes = fallingCubes.find('Sprite');
+      cubes = dynamicEntities.find('Sprite');
       cubes.each(function(cube) {
         var cubeBoundBox;
         cubeBoundBox = collisionManager.getBoundBox(cube);
@@ -642,7 +648,7 @@
         collision = collisions[_i];
         if (__indexOf.call(list, collision) < 0) {
           if ((x !== 0 && collision.getY() !== this.shape.getY() + this.shape.getHeight()) || (y !== 0 && collision.getX() !== this.shape.getX() + this.shape.getWidth() && collision.getX() + collision.getWidth() !== this.shape.getX())) {
-            if (!(collision.getName() !== void 0 && collision.getName() !== null && collision.getName().split(' ')[0] === 'bonus')) {
+            if (!(collision.getName() !== void 0 && collision.getName() !== null && (collision.getName().type === 'bonus' || collision.getName().type === 'boss'))) {
               return collision;
             }
           }
@@ -651,9 +657,13 @@
       for (_j = 0, _len1 = collisions.length; _j < _len1; _j++) {
         collision = collisions[_j];
         if (__indexOf.call(list, collision) < 0) {
-          if (collision.getName() !== void 0 && collision.getName() !== null && collision.getName().split(' ')[0] === 'bonus') {
-            this.takeBonus(collision);
-            return false;
+          if (collision.getName() !== void 0 && collision.getName() !== null) {
+            if (collision.getName().type === 'bonus') {
+              this.takeBonus(collision);
+            }
+            if (collision.getName().type === 'boss') {
+              this.collideBoss(collision);
+            }
           }
         }
       }
@@ -675,9 +685,9 @@
     };
 
     ControllablePlayer.prototype.takeBonus = function(bonus) {
-      bonusManager.getBonus(bonus.getName().split(' ')[1], this);
+      bonusManager.getBonus(bonus.getName().name, this);
       bonus.destroy();
-      fallingCubes.draw();
+      dynamicEntities.draw();
       return networkManager.sendBonusTaken(bonus.getId());
     };
 
@@ -691,6 +701,10 @@
     ControllablePlayer.prototype.changeSide = function(side) {
       ControllablePlayer.__super__.changeSide.call(this, side);
       return networkManager.sendAnimationSide(side);
+    };
+
+    ControllablePlayer.prototype.collideBoss = function(boss) {
+      return this.kill();
     };
 
     return ControllablePlayer;
@@ -843,7 +857,7 @@
       x = col * 32 + 160;
       y = stage.getY() * -1;
       FallingCube.__super__.constructor.call(this, x, y, size, this.getColor());
-      fallingCubes.add(this.shape);
+      dynamicEntities.add(this.shape);
       this.shape.setName('falling');
       this.shape.draw();
       this.destination = arena.y - destination * 32 - size.y;
@@ -933,10 +947,13 @@
         animations: this.bonusesTypes,
         frameRate: 0,
         index: 0,
-        name: 'bonus ' + this.type,
+        name: {
+          type: 'bonus',
+          name: this.type
+        },
         id: 'bonus' + this.id
       });
-      return fallingCubes.add(this.shape);
+      return dynamicEntities.add(this.shape);
     };
 
     return Bonus;
@@ -1014,11 +1031,11 @@
 
     BonusManager.prototype.remove = function(id) {
       var cubes;
-      cubes = fallingCubes.find('Sprite');
+      cubes = dynamicEntities.find('Sprite');
       return cubes.each(function(cube) {
         if (cube.getId() === id) {
           cube.destroy();
-          return fallingCubes.draw();
+          return dynamicEntities.draw();
         }
       });
     };
@@ -1046,7 +1063,8 @@
       staticBg.setY(0);
       arena.reset();
       bonusManager.reset();
-      fallingCubes.destroyChildren();
+      bossManager.reset();
+      dynamicEntities.destroyChildren();
       stage.draw();
       return this.level = 0;
     };
@@ -1075,7 +1093,7 @@
       this.level++;
       HTML.query('#lml').textContent = this.level;
       arena.clearOutOfScreen();
-      cubes = fallingCubes.find('Sprite');
+      cubes = dynamicEntities.find('Sprite');
       cubes.each(function(cube) {
         if (cube.getY() > stage.getY() * -1 + stage.getHeight()) {
           return cube.destroy();
@@ -1136,8 +1154,11 @@
       this.socket.on('changeAnimationSide', function(arr) {
         return self.players[arr[0]].changeSide(arr[1]);
       });
-      return this.socket.on('kill', function(id) {
+      this.socket.on('kill', function(id) {
         return self.players[id].kill();
+      });
+      return this.socket.on('spawnBoss', function(arr) {
+        return bossManager.spawn(arr[0], arr[1]);
       });
     };
 
@@ -1171,6 +1192,10 @@
 
     NetworkManager.prototype.sendAnimationSide = function(side) {
       return this.socket.emit('changeAnimationSide', side);
+    };
+
+    NetworkManager.prototype.sendBossBeaten = function() {
+      return this.socket.emit('bossBeaten');
     };
 
     return NetworkManager;
@@ -1236,13 +1261,172 @@
 
   })();
 
+  Boss = (function() {
+    function Boss(id, type, x, y, w, h) {
+      this.id = id;
+      this.type = type;
+      this.x = x;
+      this.y = y;
+      this.w = w;
+      this.h = h;
+      this.bossTypes = {
+        roueman: [
+          {
+            x: 0,
+            y: 0,
+            width: 64,
+            height: 64
+          }, {
+            x: 64,
+            y: 0,
+            width: 64,
+            height: 64
+          }, {
+            x: 128,
+            y: 0,
+            width: 64,
+            height: 64
+          }
+        ]
+      };
+      this.draw();
+      this.tweens = [];
+    }
+
+    Boss.prototype.draw = function() {
+      this.shape = new Kinetic.Sprite({
+        x: this.x,
+        y: this.y,
+        width: this.w,
+        height: this.h,
+        image: imageLoader.images['boss'],
+        animation: this.type,
+        animations: this.bossTypes,
+        frameRate: 7,
+        index: 0,
+        name: {
+          type: 'boss',
+          name: this.type
+        },
+        id: 'boss' + this.id
+      });
+      dynamicEntities.add(this.shape);
+      return this.shape.start();
+    };
+
+    Boss.prototype.finish = function() {
+      this.shape.destroy();
+      dynamicEntities.draw();
+      return networkManager.sendBossBeaten();
+    };
+
+    Boss.prototype.reset = function() {
+      var tween, _i, _len, _ref, _results;
+      _ref = this.tweens;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        tween = _ref[_i];
+        _results.push(tween.pause());
+      }
+      return _results;
+    };
+
+    return Boss;
+
+  })();
+
+  BossManager = (function() {
+    function BossManager() {
+      this.currentBoss;
+    }
+
+    BossManager.prototype.spawn = function(boss, options) {
+      if (boss === 'roueman') {
+        return this.currentBoss = new RoueMan(0, options);
+      }
+    };
+
+    BossManager.prototype.reset = function() {
+      return this.currentBoss.reset();
+    };
+
+    return BossManager;
+
+  })();
+
+  RoueMan = (function(_super) {
+    __extends(RoueMan, _super);
+
+    function RoueMan(id, pattern) {
+      var y;
+      y = stage.getY() * -1 + config.levelHeight - 160;
+      RoueMan.__super__.constructor.call(this, id, 'roueman', 0, y, 64, 64);
+      this.attacks = pattern;
+      this.index = 0;
+      this.loop();
+    }
+
+    RoueMan.prototype.attack = function(level) {
+      var self, tween1;
+      self = this;
+      this.tweens.push(tween1 = new Kinetic.Tween({
+        node: this.shape,
+        duration: 0.1,
+        y: stage.getY() * -1 + config.levelHeight - level * 32,
+        onFinish: function() {
+          var tween2;
+          self.tweens.push(tween2 = new Kinetic.Tween({
+            node: self.shape,
+            duration: 1,
+            x: config.levelWidth - 64,
+            onFinish: function() {
+              var tween3;
+              self.tweens.push(tween3 = new Kinetic.Tween({
+                node: self.shape,
+                duration: 0.1,
+                y: stage.getY() * -1 + config.levelHeight - 128,
+                onFinish: function() {
+                  var tween4;
+                  self.tweens.push(tween4 = new Kinetic.Tween({
+                    node: self.shape,
+                    duration: 0.5,
+                    x: 0,
+                    onFinish: function() {
+                      return self.loop();
+                    }
+                  }));
+                  return tween4.play();
+                }
+              }));
+              return tween3.play();
+            }
+          }));
+          return tween2.play();
+        }
+      }));
+      return tween1.play();
+    };
+
+    RoueMan.prototype.loop = function() {
+      if (this.attacks[this.index] !== void 0) {
+        this.attack(this.attacks[this.index]);
+        return this.index++;
+      } else {
+        return this.finish();
+      }
+    };
+
+    return RoueMan;
+
+  })(Boss);
+
   stage = new Kinetic.Stage({
     container: 'container',
     width: config.levelWidth,
     height: config.levelHeight
   });
 
-  fallingCubes = new Kinetic.Layer();
+  dynamicEntities = new Kinetic.Layer();
 
   players = new Kinetic.Layer();
 
@@ -1256,7 +1440,7 @@
 
   stage.add(players);
 
-  stage.add(fallingCubes);
+  stage.add(dynamicEntities);
 
   networkManager = new NetworkManager();
 
@@ -1269,6 +1453,8 @@
   levelManager = new LevelManager();
 
   bonusManager = new BonusManager();
+
+  bossManager = new BossManager();
 
   game = new Game();
 
@@ -1294,7 +1480,7 @@
       var cubes;
       players.draw();
       player.update(frameTime);
-      cubes = fallingCubes.find('Sprite');
+      cubes = dynamicEntities.find('Sprite');
       HTML.query('#cc').textContent = cubes.length;
       cubes = staticCubes.find('Sprite');
       return HTML.query('#sc').textContent = cubes.length;

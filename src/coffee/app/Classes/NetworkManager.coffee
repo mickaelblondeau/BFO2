@@ -32,6 +32,8 @@ class NetworkManager
       self.players[arr[0]].changeSide(arr[1])
     @socket.on 'kill', (id) ->
       self.players[id].kill()
+    @socket.on 'spawnBoss', (arr) ->
+      bossManager.spawn(arr[0], arr[1])
 
   sendLaunch: ->
     @socket.emit 'launch'
@@ -56,3 +58,6 @@ class NetworkManager
 
   sendAnimationSide: (side) ->
     @socket.emit 'changeAnimationSide', side
+
+  sendBossBeaten: ->
+    @socket.emit 'bossBeaten'

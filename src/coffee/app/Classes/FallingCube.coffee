@@ -3,11 +3,11 @@ class FallingCube extends Cube
     x = col * 32 + 160
     y = stage.getY() * -1
     super(x, y, size, @getColor())
-    fallingCubes.add @shape
+    dynamicEntities.add @shape
     @shape.setName('falling')
     @shape.draw()
 
-    @destination = arena.y - destination * 32 - size.y
+    @destination = (arena.y - destination * 32 - size.y)
     @diffY = @destination - y
     @speed = 600
     @fall()

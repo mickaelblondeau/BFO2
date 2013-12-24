@@ -37,6 +37,6 @@ class Bonus
       animations: @bonusesTypes
       frameRate: 0
       index: 0
-      name: 'bonus ' + @type
+      name: { type: 'bonus', name: @type }
       id: 'bonus' + @id
-    fallingCubes.add @shape
+    dynamicEntities.add @shape

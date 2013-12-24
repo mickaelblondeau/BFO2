@@ -28,8 +28,10 @@ class ControllablePlayer extends Player
       if collide and collide.getName() is 'falling'
         @kill()
         networkManager.sendDie()
-      else if collide and collide.getName().split(' ')[0] is 'bonus'
+      else if collide and collide.getName().type is 'bonus'
         @takeBonus(collide)
+      else if collide and collide.getName().type is 'boss'
+        @collideBoss(collide)
 
       moveSide = 0
 
@@ -173,7 +175,7 @@ class ControllablePlayer extends Player
       cubeBoundBox = collisionManager.getBoundBox(cube)
       if collisionManager.colliding(playerBoundBox, cubeBoundBox)
         result.push(cube)
-    cubes = fallingCubes.find('Sprite')
+    cubes = dynamicEntities.find('Sprite')
     cubes.each (cube) ->
       cubeBoundBox = collisionManager.getBoundBox(cube)
       if collisionManager.colliding(playerBoundBox, cubeBoundBox)
@@ -190,15 +192,15 @@ class ControllablePlayer extends Player
     for collision in collisions
       if collision not in list
         if (x isnt 0 and collision.getY() isnt @shape.getY() + @shape.getHeight()) or (y isnt 0 and collision.getX() isnt @shape.getX() + @shape.getWidth() and collision.getX() + collision.getWidth() isnt @shape.getX())
-          if !(collision.getName() isnt undefined and collision.getName() isnt null and collision.getName().split(' ')[0] is 'bonus')
+          if !(collision.getName() isnt undefined and collision.getName() isnt null and (collision.getName().type is 'bonus' or collision.getName().type is 'boss'))
             return collision
-
     for collision in collisions
       if collision not in list
-        if collision.getName() isnt undefined and collision.getName() isnt null and collision.getName().split(' ')[0] is 'bonus'
-          @takeBonus(collision)
-          return false
-
+        if collision.getName() isnt undefined and collision.getName() isnt null
+          if collision.getName().type is 'bonus'
+            @takeBonus(collision)
+          if collision.getName().type is 'boss'
+            @collideBoss(collision)
     return false
 
   testDiff: ->
@@ -211,9 +213,9 @@ class ControllablePlayer extends Player
     return false
 
   takeBonus: (bonus) ->
-    bonusManager.getBonus(bonus.getName().split(' ')[1], @)
+    bonusManager.getBonus(bonus.getName().name, @)
     bonus.destroy()
-    fallingCubes.draw()
+    dynamicEntities.draw()
     networkManager.sendBonusTaken(bonus.getId())
 
   changeAnimation: (animation) ->
@@ -224,3 +226,6 @@ class ControllablePlayer extends Player
   changeSide: (side) ->
     super(side)
     networkManager.sendAnimationSide(side)
+
+  collideBoss: (boss) ->
+    @kill()

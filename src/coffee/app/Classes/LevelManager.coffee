@@ -11,7 +11,8 @@ class LevelManager
     staticBg.setY(0)
     arena.reset()
     bonusManager.reset()
-    fallingCubes.destroyChildren()
+    bossManager.reset()
+    dynamicEntities.destroyChildren()
     stage.draw()
     @level = 0
 
@@ -34,7 +35,7 @@ class LevelManager
     @level++
     HTML.query('#lml').textContent = @level
     arena.clearOutOfScreen()
-    cubes = fallingCubes.find('Sprite')
+    cubes = dynamicEntities.find('Sprite')
     cubes.each (cube) ->
       if cube.getY() > stage.getY()*-1 + stage.getHeight()
         cube.destroy()

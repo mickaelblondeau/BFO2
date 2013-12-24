@@ -384,6 +384,13 @@
         socket.on('bonusTaken', function(bonusId) {
           return socket.broadcast.emit('bonusTaken', bonusId);
         });
+        socket.on('bossBeaten', function() {
+          self.responseOk++;
+          if (self.responseOk >= self.waitingFor) {
+            cubeManager.waiting = false;
+            return levelManager.nextLevel();
+          }
+        });
         return socket.on('disconnect', function() {
           socket.broadcast.emit('disconnect', id);
           return delete self.players[id];
@@ -408,8 +415,23 @@
     };
 
     NetworkManager.prototype.moveLevel = function(height) {
-      this.waitForAll();
+      var callback;
+      callback = function() {
+        cubeManager.waiting = false;
+        return levelManager.nextLevel();
+      };
+      this.waitForAll(callback, config.timeout);
       return this.io.sockets.emit('moveLevel', height);
+    };
+
+    NetworkManager.prototype.sendBoss = function(boss, options, timeout) {
+      var callback;
+      callback = function() {
+        cubeManager.waiting = false;
+        return levelManager.nextLevel();
+      };
+      this.waitForAll(callback, config.timeout + timeout);
+      return this.io.sockets.emit('spawnBoss', [boss, options]);
     };
 
     NetworkManager.prototype.sendPositions = function() {
@@ -431,15 +453,10 @@
       return _results;
     };
 
-    NetworkManager.prototype.waitForAll = function() {
-      var self;
+    NetworkManager.prototype.waitForAll = function(callback, time) {
       this.waitingFor = this.players.length;
       this.responseOk = 0;
-      self = this;
-      return this.timeout = setTimeout(function() {
-        cubeManager.waiting = false;
-        return levelManager.nextLevel();
-      }, config.timeout);
+      return this.timeout = setTimeout(callback, time);
     };
 
     NetworkManager.prototype.forceAllReady = function(count) {

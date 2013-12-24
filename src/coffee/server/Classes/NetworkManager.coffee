@@ -52,6 +52,11 @@ class NetworkManager
           levelManager.nextLevel()
       socket.on 'bonusTaken', (bonusId) ->
         socket.broadcast.emit 'bonusTaken', bonusId
+      socket.on 'bossBeaten', ->
+        self.responseOk++
+        if self.responseOk >= self.waitingFor
+          cubeManager.waiting = false
+          levelManager.nextLevel()
       socket.on 'disconnect', ->
         socket.broadcast.emit 'disconnect', id
         delete self.players[id]
@@ -69,8 +74,18 @@ class NetworkManager
     @io.sockets.emit 'clearLevel'
 
   moveLevel: (height) ->
-    @waitForAll()
+    callback = ->
+      cubeManager.waiting = false
+      levelManager.nextLevel()
+    @waitForAll(callback, config.timeout)
     @io.sockets.emit 'moveLevel', height
+
+  sendBoss: (boss, options, timeout) ->
+    callback = ->
+      cubeManager.waiting = false
+      levelManager.nextLevel()
+    @waitForAll(callback, config.timeout + timeout)
+    @io.sockets.emit 'spawnBoss', [boss, options]
 
   sendPositions: ->
     for id in @playersIds
@@ -78,16 +93,10 @@ class NetworkManager
         @io.sockets.emit 'move', [id, @players[id].x, @players[id].y]
         @playersCached[id] = { x: @players[id].x, y: @players[id].y }
 
-  waitForAll: ->
+  waitForAll: (callback, time) ->
     @waitingFor = @players.length
     @responseOk = 0
-    self = @
-    @timeout = setTimeout(
-      () ->
-        cubeManager.waiting = false
-        levelManager.nextLevel()
-      , config.timeout
-    )
+    @timeout = setTimeout(callback, time)
 
   forceAllReady: (count) ->
     @responseOk = count

@@ -45,8 +45,8 @@ class BonusManager
       clearInterval(timer)
 
   remove: (id) ->
-    cubes = fallingCubes.find('Sprite')
+    cubes = dynamicEntities.find('Sprite')
     cubes.each (cube) ->
       if cube.getId() is id
         cube.destroy()
-        fallingCubes.draw()
+        dynamicEntities.draw()

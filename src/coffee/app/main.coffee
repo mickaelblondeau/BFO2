@@ -3,7 +3,7 @@ stage = new Kinetic.Stage
   width: config.levelWidth
   height: config.levelHeight
 
-fallingCubes = new Kinetic.Layer()
+dynamicEntities = new Kinetic.Layer()
 players = new Kinetic.Layer()
 staticCubes = new Kinetic.Layer()
 staticBg = new Kinetic.Layer()
@@ -11,7 +11,7 @@ staticBg = new Kinetic.Layer()
 stage.add staticBg
 stage.add staticCubes
 stage.add players
-stage.add fallingCubes
+stage.add dynamicEntities
 
 networkManager = new NetworkManager()
 imageLoader = new ImageLoader()
@@ -19,6 +19,7 @@ collisionManager = new CollisionManager()
 keyboard = new Keyboard()
 levelManager = new LevelManager()
 bonusManager = new BonusManager()
+bossManager = new BossManager()
 
 game = new Game()
 game.loadAssets()
@@ -42,7 +43,7 @@ imageLoader.imagesLoaded = ->
     players.draw()
     player.update(frameTime)
 
-    cubes = fallingCubes.find('Sprite')
+    cubes = dynamicEntities.find('Sprite')
     HTML.query('#cc').textContent = cubes.length
 
     cubes = staticCubes.find('Sprite')
