@@ -168,12 +168,12 @@ class ControllablePlayer extends Player
   getCollisions: ->
     result = []
     playerBoundBox = collisionManager.getBoundBox(@shape)
-    cubes = staticCubes.find('Rect')
+    cubes = staticCubes.find('Sprite')
     cubes.each (cube) ->
       cubeBoundBox = collisionManager.getBoundBox(cube)
       if collisionManager.colliding(playerBoundBox, cubeBoundBox)
         result.push(cube)
-    cubes = fallingCubes.find('Rect')
+    cubes = fallingCubes.find('Sprite')
     cubes.each (cube) ->
       cubeBoundBox = collisionManager.getBoundBox(cube)
       if collisionManager.colliding(playerBoundBox, cubeBoundBox)

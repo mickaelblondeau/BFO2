@@ -45,7 +45,7 @@ class BonusManager
       clearInterval(timer)
 
   remove: (id) ->
-    cubes = fallingCubes.find('Rect')
+    cubes = fallingCubes.find('Sprite')
     cubes.each (cube) ->
       if cube.getId() is id
         cube.destroy()

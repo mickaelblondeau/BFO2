@@ -13,32 +13,40 @@ stage.add staticCubes
 stage.add players
 stage.add fallingCubes
 
-bg = new Kinetic.Rect
-  width: stage.getWidth()
-  height: stage.getHeight()
-  fill: "grey"
-  stroke: "black"
-staticBg.add bg
-bg.setZIndex(-1)
-bg.draw()
-
 networkManager = new NetworkManager()
-
-game = new Game()
-game.start()
+imageLoader = new ImageLoader()
 collisionManager = new CollisionManager()
-arena = new Arena()
 keyboard = new Keyboard()
-player = new ControllablePlayer()
 levelManager = new LevelManager()
 bonusManager = new BonusManager()
 
-game.update = (frameTime) ->
-  players.draw()
-  player.update(frameTime)
+game = new Game()
+game.loadAssets()
 
-  cubes = fallingCubes.find('Rect')
-  HTML.query('#cc').textContent = cubes.length
+arena = null
+player = null
 
-  cubes = staticCubes.find('Rect')
-  HTML.query('#sc').textContent = cubes.length
+imageLoader.imagesLoaded = ->
+  bg = new Kinetic.Rect
+    width: stage.getWidth()
+    height: stage.getHeight()
+    fill: "grey"
+    stroke: "black"
+  staticBg.add bg
+  bg.setZIndex(-1)
+  bg.draw()
+
+  arena = new Arena()
+  player = new ControllablePlayer()
+
+  game.update = (frameTime) ->
+    players.draw()
+    player.update(frameTime)
+
+    cubes = fallingCubes.find('Sprite')
+    HTML.query('#cc').textContent = cubes.length
+
+    cubes = staticCubes.find('Sprite')
+    HTML.query('#sc').textContent = cubes.length
+
+  game.start()

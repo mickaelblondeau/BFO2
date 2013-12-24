@@ -34,7 +34,7 @@ class LevelManager
     @level++
     HTML.query('#lml').textContent = @level
     arena.clearOutOfScreen()
-    cubes = fallingCubes.find('Rect')
+    cubes = fallingCubes.find('Sprite')
     cubes.each (cube) ->
       if cube.getY() > stage.getY()*-1 + stage.getHeight()
         cube.destroy()

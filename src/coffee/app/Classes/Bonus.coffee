@@ -4,6 +4,14 @@ class Bonus
     @type = type
     @x = col * 32 + 160
     @y = stage.getY() * -1
+    @bonusesTypes = {
+      doubleJump: [{
+        x: 0
+        y: 0
+        width: 32
+        height: 32
+      }]
+    }
     @draw()
 
     @destination = arena.y - destination * 32 - 32
@@ -19,13 +27,16 @@ class Bonus
     tween.play()
 
   draw: ->
-    @shape = new Kinetic.Rect
+    @shape = new Kinetic.Sprite
       x: @x
       y: @y
       width: 32
       height: 32
-      stroke: 'gold'
-      strokeWidth: 1
+      image: imageLoader.images['bonus']
+      animation: @type
+      animations: @bonusesTypes
+      frameRate: 0
+      index: 0
       name: 'bonus ' + @type
       id: 'bonus' + @id
     fallingCubes.add @shape

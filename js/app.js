@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, CollisionManager, ControllablePlayer, Cube, FallingCube, Game, Keyboard, LevelManager, NetworkManager, Player, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bg, bonusManager, collisionManager, config, fallingCubes, game, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
+  var Arena, Bonus, BonusManager, CollisionManager, ControllablePlayer, Cube, FallingCube, Game, ImageLoader, Keyboard, LevelManager, NetworkManager, Player, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, collisionManager, config, fallingCubes, game, imageLoader, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -140,7 +140,73 @@
       return networkManager.sendLaunch();
     };
 
+    Game.prototype.loadAssets = function() {
+      imageLoader.addLoad({
+        name: 'cubes',
+        url: '../assets/cubes.jpg'
+      });
+      imageLoader.addLoad({
+        name: 'cubes_red',
+        url: '../assets/cubes_red.jpg'
+      });
+      imageLoader.addLoad({
+        name: 'cubes_blue',
+        url: '../assets/cubes_blue.jpg'
+      });
+      imageLoader.addLoad({
+        name: 'cubes_green',
+        url: '../assets/cubes_green.jpg'
+      });
+      imageLoader.addLoad({
+        name: 'bonus',
+        url: '../assets/bonus.jpg'
+      });
+      imageLoader.addLoad({
+        name: 'playerSpirteSheet',
+        url: '../assets/playerSpirteSheet.png'
+      });
+      return imageLoader.load();
+    };
+
     return Game;
+
+  })();
+
+  ImageLoader = (function() {
+    function ImageLoader() {
+      this.imagesToLoad = [];
+      this.images = [];
+    }
+
+    ImageLoader.prototype.addLoad = function(image) {
+      return this.imagesToLoad.push(image);
+    };
+
+    ImageLoader.prototype.load = function() {
+      var count, imageObj, img, self, total, _i, _len, _ref, _results;
+      self = this;
+      count = 0;
+      total = this.imagesToLoad.length;
+      _ref = this.imagesToLoad;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        img = _ref[_i];
+        imageObj = new Image();
+        imageObj.src = img.url;
+        this.images[img.name] = imageObj;
+        _results.push(imageObj.onload = function() {
+          count++;
+          if (count === total) {
+            return self.imagesLoaded();
+          }
+        });
+      }
+      return _results;
+    };
+
+    ImageLoader.prototype.imagesLoaded = function() {};
+
+    return ImageLoader;
 
   })();
 
@@ -173,7 +239,7 @@
     }
 
     Player.prototype.draw = function() {
-      var animations, imageObj;
+      var animations;
       this.shape = new Kinetic.Rect({
         width: 32,
         height: this.height,
@@ -275,10 +341,8 @@
           }
         ]
       };
-      imageObj = new Image();
-      imageObj.src = '../assets/playerSpirteSheet.png';
       this.skin = new Kinetic.Sprite({
-        image: imageObj,
+        image: imageLoader.images['playerSpirteSheet'],
         animation: 'run',
         animations: animations,
         frameRate: 7,
@@ -541,7 +605,7 @@
       var cubes, playerBoundBox, result;
       result = [];
       playerBoundBox = collisionManager.getBoundBox(this.shape);
-      cubes = staticCubes.find('Rect');
+      cubes = staticCubes.find('Sprite');
       cubes.each(function(cube) {
         var cubeBoundBox;
         cubeBoundBox = collisionManager.getBoundBox(cube);
@@ -549,7 +613,7 @@
           return result.push(cube);
         }
       });
-      cubes = fallingCubes.find('Rect');
+      cubes = fallingCubes.find('Sprite');
       cubes.each(function(cube) {
         var cubeBoundBox;
         cubeBoundBox = collisionManager.getBoundBox(cube);
@@ -694,18 +758,70 @@
       this.y = y;
       this.size = size;
       this.color = color;
+      this.cubesTypes = {
+        '32-32': [
+          {
+            x: 192,
+            y: 96,
+            width: 32,
+            height: 32
+          }
+        ],
+        '64-64': [
+          {
+            x: 128,
+            y: 64,
+            width: 64,
+            height: 64
+          }
+        ],
+        '128-128': [
+          {
+            x: 0,
+            y: 0,
+            width: 128,
+            height: 128
+          }
+        ],
+        '64-32': [
+          {
+            x: 192,
+            y: 64,
+            width: 64,
+            height: 32
+          }
+        ],
+        '128-64': [
+          {
+            x: 128,
+            y: 0,
+            width: 128,
+            height: 64
+          }
+        ],
+        '32-128': [
+          {
+            x: 256,
+            y: 0,
+            width: 32,
+            height: 128
+          }
+        ]
+      };
       this.draw();
     }
 
     Cube.prototype.draw = function() {
-      return this.shape = new Kinetic.Rect({
+      return this.shape = new Kinetic.Sprite({
         x: this.x,
         y: this.y,
         width: this.size.x,
         height: this.size.y,
-        fill: this.color,
-        stroke: 'black',
-        strokeWidth: 1
+        image: imageLoader.images['cubes' + this.color],
+        animation: this.size.x + '-' + this.size.y,
+        animations: this.cubesTypes,
+        frameRate: 0,
+        index: 0
       });
     };
 
@@ -746,7 +862,7 @@
 
     FallingCube.prototype.getColor = function() {
       var colors;
-      colors = ["red", "orange", "yellow", "green", "blue", "cyan", "purple"];
+      colors = ["_red", "_green", "_blue"];
       return colors[Math.floor(Math.random() * colors.length)];
     };
 
@@ -758,7 +874,7 @@
     __extends(StaticCube, _super);
 
     function StaticCube(x, y, size) {
-      StaticCube.__super__.constructor.call(this, x, y, size, 'white');
+      StaticCube.__super__.constructor.call(this, x, y, size, '');
       staticCubes.add(this.shape);
       this.shape.draw();
     }
@@ -773,6 +889,16 @@
       this.type = type;
       this.x = col * 32 + 160;
       this.y = stage.getY() * -1;
+      this.bonusesTypes = {
+        doubleJump: [
+          {
+            x: 0,
+            y: 0,
+            width: 32,
+            height: 32
+          }
+        ]
+      };
       this.draw();
       this.destination = arena.y - destination * 32 - 32;
       this.diffY = this.destination - this.y;
@@ -791,13 +917,16 @@
     };
 
     Bonus.prototype.draw = function() {
-      this.shape = new Kinetic.Rect({
+      this.shape = new Kinetic.Sprite({
         x: this.x,
         y: this.y,
         width: 32,
         height: 32,
-        stroke: 'gold',
-        strokeWidth: 1,
+        image: imageLoader.images['bonus'],
+        animation: this.type,
+        animations: this.bonusesTypes,
+        frameRate: 0,
+        index: 0,
         name: 'bonus ' + this.type,
         id: 'bonus' + this.id
       });
@@ -879,7 +1008,7 @@
 
     BonusManager.prototype.remove = function(id) {
       var cubes;
-      cubes = fallingCubes.find('Rect');
+      cubes = fallingCubes.find('Sprite');
       return cubes.each(function(cube) {
         if (cube.getId() === id) {
           cube.destroy();
@@ -940,7 +1069,7 @@
       this.level++;
       HTML.query('#lml').textContent = this.level;
       arena.clearOutOfScreen();
-      cubes = fallingCubes.find('Rect');
+      cubes = fallingCubes.find('Sprite');
       return cubes.each(function(cube) {
         if (cube.getY() > stage.getY() * -1 + stage.getHeight()) {
           return cube.destroy();
@@ -988,7 +1117,9 @@
         return self.players[id].remove();
       });
       this.socket.on('move', function(arr) {
-        return self.players[arr[0]].move(arr[1], arr[2]);
+        if (self.players[arr[0]] !== void 0) {
+          return self.players[arr[0]].move(arr[1], arr[2]);
+        }
       });
       this.socket.on('changeAnimation', function(arr) {
         return self.players[arr[0]].changeAnimation(arr[1]);
@@ -1066,7 +1197,7 @@
 
     Arena.prototype.clear = function() {
       var shapes;
-      shapes = staticCubes.find('Rect');
+      shapes = staticCubes.find('Sprite');
       shapes.each(function(shape) {
         return shape.remove();
       });
@@ -1084,7 +1215,7 @@
 
     Arena.prototype.clearOutOfScreen = function() {
       var cubes;
-      cubes = staticCubes.find('Rect');
+      cubes = staticCubes.find('Sprite');
       return cubes.each(function(cube) {
         if (cube.getY() > stage.getY() * -1 + stage.getHeight()) {
           return cube.destroy();
@@ -1118,45 +1249,49 @@
 
   stage.add(fallingCubes);
 
-  bg = new Kinetic.Rect({
-    width: stage.getWidth(),
-    height: stage.getHeight(),
-    fill: "grey",
-    stroke: "black"
-  });
-
-  staticBg.add(bg);
-
-  bg.setZIndex(-1);
-
-  bg.draw();
-
   networkManager = new NetworkManager();
 
-  game = new Game();
-
-  game.start();
+  imageLoader = new ImageLoader();
 
   collisionManager = new CollisionManager();
 
-  arena = new Arena();
-
   keyboard = new Keyboard();
-
-  player = new ControllablePlayer();
 
   levelManager = new LevelManager();
 
   bonusManager = new BonusManager();
 
-  game.update = function(frameTime) {
-    var cubes;
-    players.draw();
-    player.update(frameTime);
-    cubes = fallingCubes.find('Rect');
-    HTML.query('#cc').textContent = cubes.length;
-    cubes = staticCubes.find('Rect');
-    return HTML.query('#sc').textContent = cubes.length;
+  game = new Game();
+
+  game.loadAssets();
+
+  arena = null;
+
+  player = null;
+
+  imageLoader.imagesLoaded = function() {
+    var bg;
+    bg = new Kinetic.Rect({
+      width: stage.getWidth(),
+      height: stage.getHeight(),
+      fill: "grey",
+      stroke: "black"
+    });
+    staticBg.add(bg);
+    bg.setZIndex(-1);
+    bg.draw();
+    arena = new Arena();
+    player = new ControllablePlayer();
+    game.update = function(frameTime) {
+      var cubes;
+      players.draw();
+      player.update(frameTime);
+      cubes = fallingCubes.find('Sprite');
+      HTML.query('#cc').textContent = cubes.length;
+      cubes = staticCubes.find('Sprite');
+      return HTML.query('#sc').textContent = cubes.length;
+    };
+    return game.start();
   };
 
   window.onresize = function() {

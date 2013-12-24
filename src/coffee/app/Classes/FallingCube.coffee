@@ -23,5 +23,5 @@ class FallingCube extends Cube
     tween.play()
 
   getColor: ->
-    colors = ["red", "orange", "yellow", "green", "blue", "cyan", "purple"]
+    colors = ["_red", "_green", "_blue"]
     return colors[Math.floor((Math.random()*colors.length))]

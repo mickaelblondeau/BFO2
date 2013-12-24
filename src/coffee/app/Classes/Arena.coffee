@@ -18,7 +18,7 @@ class Arena
     @draw()
 
   clear: ->
-    shapes = staticCubes.find('Rect')
+    shapes = staticCubes.find('Sprite')
     shapes.each (shape) ->
       shape.remove()
     staticCubes.draw()
@@ -30,7 +30,7 @@ class Arena
     @height += level
 
   clearOutOfScreen: ->
-    cubes = staticCubes.find('Rect')
+    cubes = staticCubes.find('Sprite')
     cubes.each (cube) ->
       if cube.getY() > stage.getY()*-1 + stage.getHeight()
         cube.destroy()

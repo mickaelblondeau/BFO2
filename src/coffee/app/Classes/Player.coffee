@@ -96,11 +96,8 @@ class Player
       }]
     }
 
-    imageObj = new Image()
-    imageObj.src = '../assets/playerSpirteSheet.png';
-
     @skin = new Kinetic.Sprite
-      image: imageObj
+      image: imageLoader.images['playerSpirteSheet']
       animation: 'run',
       animations: animations,
       frameRate: 7,
