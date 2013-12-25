@@ -40,6 +40,7 @@ class LevelManager
 
   nextBoss: ->
     if !bossManager.launched
+      clearTimeout(networkManager.timeout)
       bossManager.launch()
 
   passNextLevel: ->

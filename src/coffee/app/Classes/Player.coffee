@@ -118,10 +118,7 @@ class Player
     @jumpHeight = config.playerJumpHeight
 
   kill: ->
-    @shape.setX(32)
-    @shape.setY(32)
-    @skin.setX(32)
-    @skin.setY(32)
+    @shape.setX(-64)
     @alive = false
 
   fixSkinPos: ->

@@ -3,7 +3,6 @@ BFO2 TODO
 Features :
 * coop based actions
 * corner grab
-* boss management
 * player stats (Name, skin?)
 * can't join on started game (missing blocks)
 * ingame chat

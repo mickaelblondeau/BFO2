@@ -314,6 +314,7 @@
 
     LevelManager.prototype.nextBoss = function() {
       if (!bossManager.launched) {
+        clearTimeout(networkManager.timeout);
         return bossManager.launch();
       }
     };

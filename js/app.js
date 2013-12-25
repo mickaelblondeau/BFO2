@@ -375,10 +375,7 @@
     };
 
     Player.prototype.kill = function() {
-      this.shape.setX(32);
-      this.shape.setY(32);
-      this.skin.setX(32);
-      this.skin.setY(32);
+      this.shape.setX(-64);
       return this.alive = false;
     };
 
@@ -1347,7 +1344,9 @@
     };
 
     BossManager.prototype.reset = function() {
-      return this.currentBoss.reset();
+      if (this.currentBoss !== void 0) {
+        return this.currentBoss.reset();
+      }
     };
 
     return BossManager;

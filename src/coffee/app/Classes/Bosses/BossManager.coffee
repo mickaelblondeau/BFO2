@@ -7,4 +7,5 @@ class BossManager
       @currentBoss = new RoueMan(0, options)
 
   reset: ->
-    @currentBoss.reset()
+    if @currentBoss isnt undefined
+      @currentBoss.reset()
