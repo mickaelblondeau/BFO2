@@ -15,7 +15,8 @@ class NetworkManager
           player.get 'name', (error, name) ->
             socket.emit 'connection', [player.id, name]
           player.get 'position', (error, position) ->
-            socket.emit 'move', [player.id, position.x, position.y]
+            if position isnt null
+              socket.emit 'move', [player.id, position.x, position.y]
 
       name = 'Chy'
       socket.set('name', name)
@@ -73,7 +74,7 @@ class NetworkManager
     players = @io.sockets.clients()
     for player in players
       player.get 'position', (error, position) ->
-        if position != null
+        if position isnt null
           player.get 'oldPosition', (error, oldPosition) ->
             if oldPosition is null or oldPosition isnt position
               self.io.sockets.emit 'move', [player.id, position.x, position.y]

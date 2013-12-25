@@ -350,7 +350,9 @@
               return socket.emit('connection', [player.id, name]);
             });
             player.get('position', function(error, position) {
-              return socket.emit('move', [player.id, position.x, position.y]);
+              if (position !== null) {
+                return socket.emit('move', [player.id, position.x, position.y]);
+              }
             });
           }
         }
