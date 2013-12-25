@@ -1,10 +1,6 @@
 class NetworkManager
   constructor: ->
     @io = require('socket.io').listen(8080)
-    @players = []
-    @playersCached = []
-    @playersIds = []
-    @currentId = 0
     @waitingFor = 0
     @responseOk = 0
     @listener()
@@ -13,23 +9,18 @@ class NetworkManager
     self = @
     @io.sockets.on 'connection', (socket) ->
 
-      removeList = []
-      for id in self.playersIds
-        if self.players[id] isnt undefined
-          socket.emit 'connection', [id, self.players[id].name]
-          socket.emit 'move', [id, self.players[id].x, self.players[id].y]
-        else
-          removeList.push id
+      players = self.io.sockets.clients()
+      for player in players
+        if player.id != socket.id
+          player.get 'name', (error, name) ->
+            socket.emit 'connection', [player.id, name]
+          player.get 'position', (error, position) ->
+            socket.emit 'move', [player.id, position.x, position.y]
 
-      for id in removeList
-        delete self.playersIds[id]
+      name = 'Chy'
+      socket.set('name', name)
 
-      id = self.currentId.toString(32)
-      self.currentId++
-      self.playersIds.push id
-      self.players[id] = { name: "Chy" }
-
-      socket.broadcast.emit 'connection', [id, self.players[id].name]
+      socket.broadcast.emit 'connection', [socket.id, name]
 
       socket.on 'launch', ->
         game.launch()
@@ -37,14 +28,13 @@ class NetworkManager
         game.reset()
         self.sendResetLevel()
       socket.on 'move', (arr) ->
-        self.players[id].x = parseInt(arr[0])
-        self.players[id].y = parseInt(arr[1])
+        socket.set('position', {x: parseInt(arr[0]), y: parseInt(arr[1])})
       socket.on 'die', ->
-        socket.broadcast.emit 'kill', id
+        socket.broadcast.emit 'kill', socket.id
       socket.on 'changeAnimation', (animation) ->
-        socket.broadcast.emit 'changeAnimation', [id, animation]
+        socket.broadcast.emit 'changeAnimation', [socket.id, animation]
       socket.on 'changeAnimationSide', (side) ->
-        socket.broadcast.emit 'changeAnimationSide', [id, side]
+        socket.broadcast.emit 'changeAnimationSide', [socket.id, side]
       socket.on 'moveLevelOk', ->
         self.responseOk++
         if self.responseOk >= self.waitingFor
@@ -56,8 +46,7 @@ class NetworkManager
         if self.responseOk >= self.waitingFor
           levelManager.passNextLevel()
       socket.on 'disconnect', ->
-        socket.broadcast.emit 'disconnect', id
-        delete self.players[id]
+        socket.broadcast.emit 'disconnect', socket.id
 
   sendCube: (col, size, dest) ->
     @io.sockets.emit('fallingCube', [col, size, dest])
@@ -80,12 +69,17 @@ class NetworkManager
     @io.sockets.emit 'spawnBoss', [boss, options]
 
   sendPositions: ->
-    for id in @playersIds
-      if @players[id] isnt undefined and (@playersCached[id] is undefined or (@playersCached[id].x isnt @players[id].x or @playersCached[id].y isnt @players[id].y))
-        @io.sockets.emit 'move', [id, @players[id].x, @players[id].y]
-        @playersCached[id] = { x: @players[id].x, y: @players[id].y }
+    self = @
+    players = @io.sockets.clients()
+    for player in players
+      player.get 'position', (error, position) ->
+        if position != null
+          player.get 'oldPosition', (error, oldPosition) ->
+            if oldPosition is null or oldPosition isnt position
+              self.io.sockets.emit 'move', [player.id, position.x, position.y]
+              player.set 'oldPosition', position
 
   waitForAll: (callback, time) ->
-    @waitingFor = @players.length
+    @waitingFor = @io.sockets.clients().length
     @responseOk = 0
     @timeout = setTimeout(callback, time)

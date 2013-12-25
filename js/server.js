@@ -332,10 +332,6 @@
   NetworkManager = (function() {
     function NetworkManager() {
       this.io = require('socket.io').listen(8080);
-      this.players = [];
-      this.playersCached = [];
-      this.playersIds = [];
-      this.currentId = 0;
       this.waitingFor = 0;
       this.responseOk = 0;
       this.listener();
@@ -345,29 +341,22 @@
       var self;
       self = this;
       return this.io.sockets.on('connection', function(socket) {
-        var id, removeList, _i, _j, _len, _len1, _ref;
-        removeList = [];
-        _ref = self.playersIds;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          id = _ref[_i];
-          if (self.players[id] !== void 0) {
-            socket.emit('connection', [id, self.players[id].name]);
-            socket.emit('move', [id, self.players[id].x, self.players[id].y]);
-          } else {
-            removeList.push(id);
+        var name, player, players, _i, _len;
+        players = self.io.sockets.clients();
+        for (_i = 0, _len = players.length; _i < _len; _i++) {
+          player = players[_i];
+          if (player.id !== socket.id) {
+            player.get('name', function(error, name) {
+              return socket.emit('connection', [player.id, name]);
+            });
+            player.get('position', function(error, position) {
+              return socket.emit('move', [player.id, position.x, position.y]);
+            });
           }
         }
-        for (_j = 0, _len1 = removeList.length; _j < _len1; _j++) {
-          id = removeList[_j];
-          delete self.playersIds[id];
-        }
-        id = self.currentId.toString(32);
-        self.currentId++;
-        self.playersIds.push(id);
-        self.players[id] = {
-          name: "Chy"
-        };
-        socket.broadcast.emit('connection', [id, self.players[id].name]);
+        name = 'Chy';
+        socket.set('name', name);
+        socket.broadcast.emit('connection', [socket.id, name]);
         socket.on('launch', function() {
           return game.launch();
         });
@@ -376,17 +365,19 @@
           return self.sendResetLevel();
         });
         socket.on('move', function(arr) {
-          self.players[id].x = parseInt(arr[0]);
-          return self.players[id].y = parseInt(arr[1]);
+          return socket.set('position', {
+            x: parseInt(arr[0]),
+            y: parseInt(arr[1])
+          });
         });
         socket.on('die', function() {
-          return socket.broadcast.emit('kill', id);
+          return socket.broadcast.emit('kill', socket.id);
         });
         socket.on('changeAnimation', function(animation) {
-          return socket.broadcast.emit('changeAnimation', [id, animation]);
+          return socket.broadcast.emit('changeAnimation', [socket.id, animation]);
         });
         socket.on('changeAnimationSide', function(side) {
-          return socket.broadcast.emit('changeAnimationSide', [id, side]);
+          return socket.broadcast.emit('changeAnimationSide', [socket.id, side]);
         });
         socket.on('moveLevelOk', function() {
           self.responseOk++;
@@ -404,8 +395,7 @@
           }
         });
         return socket.on('disconnect', function() {
-          socket.broadcast.emit('disconnect', id);
-          return delete self.players[id];
+          return socket.broadcast.emit('disconnect', socket.id);
         });
       });
     };
@@ -437,26 +427,28 @@
     };
 
     NetworkManager.prototype.sendPositions = function() {
-      var id, _i, _len, _ref, _results;
-      _ref = this.playersIds;
+      var player, players, self, _i, _len, _results;
+      self = this;
+      players = this.io.sockets.clients();
       _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        id = _ref[_i];
-        if (this.players[id] !== void 0 && (this.playersCached[id] === void 0 || (this.playersCached[id].x !== this.players[id].x || this.playersCached[id].y !== this.players[id].y))) {
-          this.io.sockets.emit('move', [id, this.players[id].x, this.players[id].y]);
-          _results.push(this.playersCached[id] = {
-            x: this.players[id].x,
-            y: this.players[id].y
-          });
-        } else {
-          _results.push(void 0);
-        }
+      for (_i = 0, _len = players.length; _i < _len; _i++) {
+        player = players[_i];
+        _results.push(player.get('position', function(error, position) {
+          if (position !== null) {
+            return player.get('oldPosition', function(error, oldPosition) {
+              if (oldPosition === null || oldPosition !== position) {
+                self.io.sockets.emit('move', [player.id, position.x, position.y]);
+                return player.set('oldPosition', position);
+              }
+            });
+          }
+        }));
       }
       return _results;
     };
 
     NetworkManager.prototype.waitForAll = function(callback, time) {
-      this.waitingFor = this.players.length;
+      this.waitingFor = this.io.sockets.clients().length;
       this.responseOk = 0;
       return this.timeout = setTimeout(callback, time);
     };
