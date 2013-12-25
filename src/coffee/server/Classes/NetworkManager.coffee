@@ -48,15 +48,13 @@ class NetworkManager
       socket.on 'moveLevelOk', ->
         self.responseOk++
         if self.responseOk >= self.waitingFor
-          cubeManager.waiting = false
-          levelManager.nextLevel()
+          levelManager.nextBoss()
       socket.on 'bonusTaken', (bonusId) ->
         socket.broadcast.emit 'bonusTaken', bonusId
       socket.on 'bossBeaten', ->
         self.responseOk++
         if self.responseOk >= self.waitingFor
-          cubeManager.waiting = false
-          levelManager.nextLevel()
+          levelManager.passNextLevel()
       socket.on 'disconnect', ->
         socket.broadcast.emit 'disconnect', id
         delete self.players[id]
@@ -74,17 +72,11 @@ class NetworkManager
     @io.sockets.emit 'clearLevel'
 
   moveLevel: (height) ->
-    callback = ->
-      cubeManager.waiting = false
-      levelManager.nextLevel()
-    @waitForAll(callback, config.timeout)
+    @waitForAll(levelManager.nextBoss, config.timeout)
     @io.sockets.emit 'moveLevel', height
 
   sendBoss: (boss, options, timeout) ->
-    callback = ->
-      cubeManager.waiting = false
-      levelManager.nextLevel()
-    @waitForAll(callback, config.timeout + timeout)
+    @waitForAll(levelManager.passNextLevel, config.timeout + timeout)
     @io.sockets.emit 'spawnBoss', [boss, options]
 
   sendPositions: ->
@@ -97,6 +89,3 @@ class NetworkManager
     @waitingFor = @players.length
     @responseOk = 0
     @timeout = setTimeout(callback, time)
-
-  forceAllReady: (count) ->
-    @responseOk = count

@@ -1,5 +1,5 @@
 (function() {
-  var CubeManager, Game, LevelManager, NetworkManager, SquareEnum, config, cubeManager, game, levelManager, networkManager;
+  var BossManager, CubeManager, Game, LevelManager, NetworkManager, SquareEnum, bossManager, config, cubeManager, game, levelManager, networkManager;
 
   config = {
     FPS: 60,
@@ -279,7 +279,8 @@
       cubeManager.reset();
       clearTimeout(networkManager.timeout);
       this.level = 0;
-      return this.speed = config.levelSpeed;
+      this.speed = config.levelSpeed;
+      return this.bossRound = false;
     };
 
     LevelManager.prototype.moveStage = function() {
@@ -309,6 +310,18 @@
 
     LevelManager.prototype.clearLevel = function() {
       return networkManager.sendClearLevel();
+    };
+
+    LevelManager.prototype.nextBoss = function() {
+      if (!bossManager.launched) {
+        return bossManager.launch();
+      }
+    };
+
+    LevelManager.prototype.passNextLevel = function() {
+      cubeManager.waiting = false;
+      bossManager.launched = false;
+      return levelManager.nextLevel();
     };
 
     return LevelManager;
@@ -377,8 +390,7 @@
         socket.on('moveLevelOk', function() {
           self.responseOk++;
           if (self.responseOk >= self.waitingFor) {
-            cubeManager.waiting = false;
-            return levelManager.nextLevel();
+            return levelManager.nextBoss();
           }
         });
         socket.on('bonusTaken', function(bonusId) {
@@ -387,8 +399,7 @@
         socket.on('bossBeaten', function() {
           self.responseOk++;
           if (self.responseOk >= self.waitingFor) {
-            cubeManager.waiting = false;
-            return levelManager.nextLevel();
+            return levelManager.passNextLevel();
           }
         });
         return socket.on('disconnect', function() {
@@ -415,22 +426,12 @@
     };
 
     NetworkManager.prototype.moveLevel = function(height) {
-      var callback;
-      callback = function() {
-        cubeManager.waiting = false;
-        return levelManager.nextLevel();
-      };
-      this.waitForAll(callback, config.timeout);
+      this.waitForAll(levelManager.nextBoss, config.timeout);
       return this.io.sockets.emit('moveLevel', height);
     };
 
     NetworkManager.prototype.sendBoss = function(boss, options, timeout) {
-      var callback;
-      callback = function() {
-        cubeManager.waiting = false;
-        return levelManager.nextLevel();
-      };
-      this.waitForAll(callback, config.timeout + timeout);
+      this.waitForAll(levelManager.passNextLevel, config.timeout + timeout);
       return this.io.sockets.emit('spawnBoss', [boss, options]);
     };
 
@@ -459,11 +460,21 @@
       return this.timeout = setTimeout(callback, time);
     };
 
-    NetworkManager.prototype.forceAllReady = function(count) {
-      return this.responseOk = count;
+    return NetworkManager;
+
+  })();
+
+  BossManager = (function() {
+    function BossManager() {
+      this.launched = false;
+    }
+
+    BossManager.prototype.launch = function() {
+      networkManager.sendBoss('roueman', [3, 1, 1, 3, 3], 15000);
+      return this.launched = true;
     };
 
-    return NetworkManager;
+    return BossManager;
 
   })();
 
@@ -474,6 +485,8 @@
   cubeManager = new CubeManager();
 
   levelManager = new LevelManager();
+
+  bossManager = new BossManager();
 
   setInterval(function() {
     return game.loop();

@@ -6,7 +6,6 @@ class LevelManager
     @lastHeight = 0
 
   launch: ->
-    #networkManager.sendBoss('roueman', [3, 1, 1, 3, 3], 15000)
     @nextLevel()
 
   reset: ->
@@ -15,6 +14,7 @@ class LevelManager
     clearTimeout(networkManager.timeout)
     @level = 0
     @speed = config.levelSpeed
+    @bossRound = false
 
   moveStage: ->
     height = @lastHeight * 32
@@ -37,3 +37,12 @@ class LevelManager
 
   clearLevel: ->
     networkManager.sendClearLevel()
+
+  nextBoss: ->
+    if !bossManager.launched
+      bossManager.launch()
+
+  passNextLevel: ->
+    cubeManager.waiting = false
+    bossManager.launched = false
+    levelManager.nextLevel()

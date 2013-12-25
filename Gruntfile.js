@@ -39,6 +39,7 @@ module.exports = function(grunt) {
                     'src/coffee/server/Classes/CubeManager.coffee',
                     'src/coffee/server/Classes/LevelManager.coffee',
                     'src/coffee/server/Classes/NetworkManager.coffee',
+                    'src/coffee/server/Classes/BossManager.coffee',
                     'src/coffee/server/main.coffee'
                 ],
                 dest: 'src/tmp/server.coffee'
