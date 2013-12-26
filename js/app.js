@@ -384,7 +384,14 @@
       this.jumpMax = config.playerJumpMax;
       this.speed = config.playerSpeed;
       this.jumpHeight = config.playerJumpHeight;
-      return this.grabbing = false;
+      this.grabbing = false;
+      return this.coopJump = false;
+    };
+
+    Player.prototype.resurection = function() {
+      if (!this.alive) {
+        return this.reset();
+      }
     };
 
     Player.prototype.kill = function() {
@@ -450,6 +457,7 @@
       this.falling = true;
       this.grabbing = false;
       this.canGrab = false;
+      this.coopJump = false;
       this.alive = true;
       this.actualCollisions = [];
     }
@@ -574,6 +582,10 @@
     ControllablePlayer.prototype.startJump = function() {
       this.canJump = false;
       if (this.jumpCount < this.jumpMax && !this.couched) {
+        if (this.playerCollision()) {
+          this.coopJump = true;
+          this.jumpHeight += 40;
+        }
         this.jumpCount++;
         this.jump = true;
         this.jumpCurrentAcceleration = this.jumpMaxAcceleration;
@@ -603,7 +615,11 @@
 
     ControllablePlayer.prototype.stopJump = function() {
       this.jump = false;
-      return this.falling = true;
+      this.falling = true;
+      if (this.coopJump) {
+        this.coopJump = false;
+        return this.jumpHeight -= 40;
+      }
     };
 
     ControllablePlayer.prototype.startCouch = function() {
@@ -735,8 +751,22 @@
         cubeBoundBox = collisionManager.getBoundBox(cube);
         if (collisionManager.colliding(playerBoundBox, cubeBoundBox)) {
           if (collisionManager.collidingCorners(playerBoundBox, cubeBoundBox)) {
-            self.grab(cube);
-            return count++;
+            if (self.canGrab) {
+              self.grab(cube);
+              return count++;
+            } else {
+              return players.find('Rect').each(function(plr) {
+                var otherPlayerBoundBox;
+                if (plr.getName() === 'otherPlayer') {
+                  otherPlayerBoundBox = collisionManager.getBoundBox(plr);
+                  otherPlayerBoundBox.bottom += 4;
+                  if (collisionManager.colliding(playerBoundBox, otherPlayerBoundBox) && plr.getHeight() < self.height) {
+                    self.grab(cube);
+                    return count++;
+                  }
+                }
+              });
+            }
           }
         }
       });
@@ -745,8 +775,24 @@
       }
     };
 
+    ControllablePlayer.prototype.playerCollision = function() {
+      var playerBoundBox, response;
+      response = false;
+      playerBoundBox = collisionManager.getBoundBox(this.shape);
+      players.find('Rect').each(function(plr) {
+        var otherPlayerBoundBox;
+        if (plr.getName() === 'otherPlayer') {
+          otherPlayerBoundBox = collisionManager.getBoundBox(plr);
+          if (collisionManager.colliding(playerBoundBox, otherPlayerBoundBox) && plr.getHeight() < self.height) {
+            return response = true;
+          }
+        }
+      });
+      return response;
+    };
+
     ControllablePlayer.prototype.grab = function(cube) {
-      if (!this.grabbing && this.canGrab) {
+      if (!this.grabbing) {
         this.stopJump();
         this.grabbing = true;
         this.jumpCount = 0;
@@ -764,6 +810,7 @@
     function VirtualPlayer(name) {
       VirtualPlayer.__super__.constructor.call(this);
       this.skin.setFill('white');
+      this.shape.setName('otherPlayer');
       this.name = new Kinetic.Text({
         text: name,
         fill: 'black',
@@ -972,6 +1019,14 @@
             width: 32,
             height: 32
           }
+        ],
+        resurection: [
+          {
+            x: 64,
+            y: 0,
+            width: 32,
+            height: 32
+          }
         ]
       };
       this.draw();
@@ -1028,6 +1083,9 @@
           attribute: 'canGrab',
           value: true,
           time: 10000
+        }, {
+          name: 'resurection',
+          attribute: 'resurection'
         }
       ];
       this.timers = [];
@@ -1066,6 +1124,9 @@
           return player.jumpMax += bonus.value;
         case "canGrab":
           return player.canGrab = true;
+        case "resurection":
+          networkManager.sendResurection();
+          return player.resurection();
       }
     };
 
@@ -1221,8 +1282,11 @@
       this.socket.on('kill', function(id) {
         return self.players[id].kill();
       });
-      return this.socket.on('spawnBoss', function(arr) {
+      this.socket.on('spawnBoss', function(arr) {
         return bossManager.spawn(arr[0], arr[1]);
+      });
+      return this.socket.on('resurection', function() {
+        return player.resurection();
       });
     };
 
@@ -1260,6 +1324,10 @@
 
     NetworkManager.prototype.sendBossBeaten = function() {
       return this.socket.emit('bossBeaten');
+    };
+
+    NetworkManager.prototype.sendResurection = function() {
+      return this.socket.emit('resurection');
     };
 
     return NetworkManager;

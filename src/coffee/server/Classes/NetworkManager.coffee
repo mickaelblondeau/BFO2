@@ -46,6 +46,8 @@ class NetworkManager
         self.responseOk++
         if self.responseOk >= self.waitingFor
           levelManager.passNextLevel()
+      socket.on 'resurection', ->
+        socket.broadcast.emit 'resurection'
       socket.on 'disconnect', ->
         socket.broadcast.emit 'disconnect', socket.id
 

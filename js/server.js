@@ -120,6 +120,10 @@
 
     CubeManager.prototype.start = function(level, rate) {
       if (!this.running && !this.waiting) {
+        if (levelManager.level !== 0) {
+          networkManager.sendBonus(4, 'resurection', this.map[4], this.bonusId);
+          this.bonusId++;
+        }
         this.updateRate = rate;
         this.current = 0;
         this.levelHeight += level;
@@ -404,6 +408,9 @@
           if (self.responseOk >= self.waitingFor) {
             return levelManager.passNextLevel();
           }
+        });
+        socket.on('resurection', function() {
+          return socket.broadcast.emit('resurection');
         });
         return socket.on('disconnect', function() {
           return socket.broadcast.emit('disconnect', socket.id);

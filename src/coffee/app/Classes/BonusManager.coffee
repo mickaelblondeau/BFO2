@@ -12,6 +12,10 @@ class BonusManager
         attribute: 'canGrab'
         value: true
         time: 10000
+      },
+      {
+        name: 'resurection'
+        attribute: 'resurection'
       }
     ]
     @timers = []
@@ -38,6 +42,9 @@ class BonusManager
         player.jumpMax += bonus.value
       when "canGrab"
         player.canGrab = true
+      when "resurection"
+        networkManager.sendResurection()
+        player.resurection()
 
   removeBonus: (bonus, player) ->
     switch bonus.attribute

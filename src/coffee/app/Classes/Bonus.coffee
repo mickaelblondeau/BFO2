@@ -16,6 +16,12 @@ class Bonus
         y: 0
         width: 32
         height: 32
+      }],
+      resurection: [{
+        x: 64
+        y: 0
+        width: 32
+        height: 32
       }]
     }
     @draw()

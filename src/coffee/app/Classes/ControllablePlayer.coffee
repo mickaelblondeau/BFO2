@@ -21,6 +21,7 @@ class ControllablePlayer extends Player
     @falling = true
     @grabbing = false
     @canGrab = false
+    @coopJump = false
     @alive = true
     @actualCollisions = []
 
@@ -135,6 +136,9 @@ class ControllablePlayer extends Player
   startJump: ->
     @canJump = false
     if @jumpCount < @jumpMax and !@couched
+      if @playerCollision()
+        @coopJump = true
+        @jumpHeight += 40
       @jumpCount++
       @jump = true
       @jumpCurrentAcceleration = @jumpMaxAcceleration
@@ -158,6 +162,9 @@ class ControllablePlayer extends Player
   stopJump: ->
     @jump = false
     @falling = true
+    if @coopJump
+      @coopJump = false
+      @jumpHeight -= 40
 
   startCouch: ->
     if !@couched and !@grabbing
@@ -247,13 +254,32 @@ class ControllablePlayer extends Player
       cubeBoundBox = collisionManager.getBoundBox(cube)
       if collisionManager.colliding(playerBoundBox, cubeBoundBox)
         if collisionManager.collidingCorners(playerBoundBox, cubeBoundBox)
-          self.grab(cube)
-          count++
+          if self.canGrab
+            self.grab(cube)
+            count++
+          else
+            players.find('Rect').each (plr) ->
+              if plr.getName() is 'otherPlayer'
+                otherPlayerBoundBox = collisionManager.getBoundBox(plr)
+                otherPlayerBoundBox.bottom += 4
+                if collisionManager.colliding(playerBoundBox, otherPlayerBoundBox) and plr.getHeight() < self.height
+                  self.grab(cube)
+                  count++
     if count is 0
       @grabbing = false
 
+  playerCollision: ->
+    response = false
+    playerBoundBox = collisionManager.getBoundBox(@shape)
+    players.find('Rect').each (plr) ->
+      if plr.getName() is 'otherPlayer'
+        otherPlayerBoundBox = collisionManager.getBoundBox(plr)
+        if collisionManager.colliding(playerBoundBox, otherPlayerBoundBox) and plr.getHeight() < self.height
+          response = true
+    return response
+
   grab: (cube) ->
-    if !@grabbing and @canGrab
+    if !@grabbing
       @stopJump()
       @grabbing = true
       @jumpCount = 0

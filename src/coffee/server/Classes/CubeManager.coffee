@@ -73,6 +73,9 @@ class CubeManager
 
   start: (level, rate) ->
     if !@running and !@waiting
+      if levelManager.level != 0
+        networkManager.sendBonus(4, 'resurection', @map[4], @bonusId)
+        @bonusId++
       @updateRate = rate
       @current = 0
       @levelHeight += level

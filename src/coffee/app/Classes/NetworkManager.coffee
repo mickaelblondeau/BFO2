@@ -34,6 +34,8 @@ class NetworkManager
       self.players[id].kill()
     @socket.on 'spawnBoss', (arr) ->
       bossManager.spawn(arr[0], arr[1])
+    @socket.on 'resurection', ->
+      player.resurection()
 
   sendLaunch: ->
     @socket.emit 'launch'
@@ -61,3 +63,6 @@ class NetworkManager
 
   sendBossBeaten: ->
     @socket.emit 'bossBeaten'
+
+  sendResurection: ->
+    @socket.emit 'resurection'

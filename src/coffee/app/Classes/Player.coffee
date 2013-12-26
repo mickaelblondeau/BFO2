@@ -123,6 +123,11 @@ class Player
     @speed = config.playerSpeed
     @jumpHeight = config.playerJumpHeight
     @grabbing = false
+    @coopJump = false
+
+   resurection: ->
+     if !@alive
+       @reset()
 
   kill: ->
     @shape.setX(-64)
