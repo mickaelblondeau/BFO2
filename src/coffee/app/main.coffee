@@ -28,27 +28,31 @@ arena = null
 player = null
 
 imageLoader.imagesLoaded = ->
-  bg = new Kinetic.Rect
-    width: stage.getWidth()
-    height: stage.getHeight()
-    fillPatternImage: imageLoader.images['bg']
-  staticBg.add bg
-  bg.setZIndex(-1)
-  bg.draw()
+  launchGame = (ip, name) ->
+    bg = new Kinetic.Rect
+      width: stage.getWidth()
+      height: stage.getHeight()
+      fillPatternImage: imageLoader.images['bg']
+    staticBg.add bg
+    bg.setZIndex(-1)
+    bg.draw()
 
-  arena = new Arena()
-  player = new ControllablePlayer()
+    arena = new Arena()
+    player = new ControllablePlayer()
 
-  new Bonus(0, 0, 'doubleJump', 0)
+    networkManager.connect(ip, name)
 
-  game.update = (frameTime) ->
-    players.draw()
-    player.update(frameTime)
+    game.update = (frameTime) ->
+      players.draw()
+      player.update(frameTime)
 
-    cubes = dynamicEntities.find('Sprite')
-    HTML.query('#cc').textContent = cubes.length
+      cubes = dynamicEntities.find('Sprite')
+      HTML.query('#cc').textContent = cubes.length
+      cubes = staticCubes.find('Sprite')
+      HTML.query('#sc').textContent = cubes.length
 
-    cubes = staticCubes.find('Sprite')
-    HTML.query('#sc').textContent = cubes.length
+    game.start()
 
-  game.start()
+  document.getElementById('play').onclick = () ->
+    document.getElementById('login').style.display = 'none'
+    launchGame()

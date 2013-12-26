@@ -18,11 +18,9 @@ class NetworkManager
             if position isnt null
               socket.emit 'move', [player.id, position.x, position.y]
 
-      name = 'Chy'
-      socket.set('name', name)
-
-      socket.broadcast.emit 'connection', [socket.id, name]
-
+      socket.on 'login', (name) ->
+        socket.set('name', name)
+        socket.broadcast.emit 'connection', [socket.id, name]
       socket.on 'launch', ->
         game.launch()
       socket.on 'reset', ->

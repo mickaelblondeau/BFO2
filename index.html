@@ -6,6 +6,7 @@
         #debug { position: absolute; left: 90px; }
         #container { margin: auto; display: block !important; }
         #stats { position: absolute; top: 0; left: 0; }
+        #login { width: 500px; margin: auto; }
     </style>
 </head>
 <body>
@@ -19,12 +20,18 @@
     Static cubes : <span id="sc"></span><br>
     Player position cached : <span id="ppc"></span><br>
 </div>
+<div id="login">
+    IP : <input type="text" name="ip" value="localhost" /><br>
+    Name : <input type="text" name="name" value="chy" /><br>
+    Skin : <input type="text" name="skin" value="default" /><br>
+    <button id="play">Play</button>
+</div>
 <div id="container"></div>
 <script src="js/lib/HTML.min.js"></script>
 <script src="js/lib/keypress-1.0.9.min.js"></script>
 <script src="js/lib/kinetic-v4.7.4.min.js"></script>
 <script src="js/lib/stats.min.js"></script>
-<script src="http://localhost:8080/socket.io/socket.io.js"></script>
+<script src="js/lib/socket.io.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

@@ -1238,10 +1238,14 @@
 
   NetworkManager = (function() {
     function NetworkManager() {
-      this.socket = io.connect('http://localhost:8080');
       this.players = [];
-      this.listener();
     }
+
+    NetworkManager.prototype.connect = function(ip, name) {
+      this.socket = io.connect('http://' + ip + ':8080');
+      this.socket.emit('login', name);
+      return this.listener();
+    };
 
     NetworkManager.prototype.listener = function() {
       var self;
@@ -1602,28 +1606,35 @@
   player = null;
 
   imageLoader.imagesLoaded = function() {
-    var bg;
-    bg = new Kinetic.Rect({
-      width: stage.getWidth(),
-      height: stage.getHeight(),
-      fillPatternImage: imageLoader.images['bg']
-    });
-    staticBg.add(bg);
-    bg.setZIndex(-1);
-    bg.draw();
-    arena = new Arena();
-    player = new ControllablePlayer();
-    new Bonus(0, 0, 'doubleJump', 0);
-    game.update = function(frameTime) {
-      var cubes;
-      players.draw();
-      player.update(frameTime);
-      cubes = dynamicEntities.find('Sprite');
-      HTML.query('#cc').textContent = cubes.length;
-      cubes = staticCubes.find('Sprite');
-      return HTML.query('#sc').textContent = cubes.length;
+    var launchGame;
+    launchGame = function(ip, name) {
+      var bg;
+      bg = new Kinetic.Rect({
+        width: stage.getWidth(),
+        height: stage.getHeight(),
+        fillPatternImage: imageLoader.images['bg']
+      });
+      staticBg.add(bg);
+      bg.setZIndex(-1);
+      bg.draw();
+      arena = new Arena();
+      player = new ControllablePlayer();
+      networkManager.connect(ip, name);
+      game.update = function(frameTime) {
+        var cubes;
+        players.draw();
+        player.update(frameTime);
+        cubes = dynamicEntities.find('Sprite');
+        HTML.query('#cc').textContent = cubes.length;
+        cubes = staticCubes.find('Sprite');
+        return HTML.query('#sc').textContent = cubes.length;
+      };
+      return game.start();
     };
-    return game.start();
+    return document.getElementById('play').onclick = function() {
+      document.getElementById('login').style.display = 'none';
+      return launchGame();
+    };
   };
 
   window.onresize = function() {

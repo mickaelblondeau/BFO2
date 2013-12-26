@@ -354,7 +354,7 @@
       var self;
       self = this;
       return this.io.sockets.on('connection', function(socket) {
-        var name, player, players, _i, _len;
+        var player, players, _i, _len;
         players = self.io.sockets.clients();
         for (_i = 0, _len = players.length; _i < _len; _i++) {
           player = players[_i];
@@ -369,9 +369,10 @@
             });
           }
         }
-        name = 'Chy';
-        socket.set('name', name);
-        socket.broadcast.emit('connection', [socket.id, name]);
+        socket.on('login', function(name) {
+          socket.set('name', name);
+          return socket.broadcast.emit('connection', [socket.id, name]);
+        });
         socket.on('launch', function() {
           return game.launch();
         });

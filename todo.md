@@ -1,11 +1,10 @@
 BFO2 TODO
 ====
 Features :
-* login interface
 * can't join on started game (missing blocks)
 * ingame chat
 * player hud (level, bonuses, players count)
-* kick player not responding
+* update connected players
 * other boss
 
 Bugs :

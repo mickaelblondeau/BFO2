@@ -1,7 +1,10 @@
 class NetworkManager
   constructor: ->
-    @socket = io.connect('http://localhost:8080')
     @players = []
+
+  connect: (ip, name) ->
+    @socket = io.connect('http://'+ip+':8080')
+    @socket.emit 'login', name
     @listener()
 
   listener: ->
