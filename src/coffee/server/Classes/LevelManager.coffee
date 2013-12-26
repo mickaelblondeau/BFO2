@@ -11,6 +11,7 @@ class LevelManager
   reset: ->
     networkManager.sendResetLevel()
     cubeManager.reset()
+    bossManager.reset()
     clearTimeout(networkManager.timeout)
     @level = 0
     @speed = config.levelSpeed

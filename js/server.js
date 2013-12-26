@@ -277,6 +277,7 @@
     LevelManager.prototype.reset = function() {
       networkManager.sendResetLevel();
       cubeManager.reset();
+      bossManager.reset();
       clearTimeout(networkManager.timeout);
       this.level = 0;
       this.speed = config.levelSpeed;
@@ -467,6 +468,10 @@
     BossManager.prototype.launch = function() {
       networkManager.sendBoss('roueman', [3, 1, 1, 3, 3], 15000);
       return this.launched = true;
+    };
+
+    BossManager.prototype.reset = function() {
+      return this.launched = false;
     };
 
     return BossManager;
