@@ -6,8 +6,7 @@ Features :
 * player stats (Name, skin?)
 * can't join on started game (missing blocks)
 * ingame chat
-* bonus timer hud
-* player hud
+* player hud (level, bonuses, players count)
 * rez all bonus
 * kick player not responding
 
