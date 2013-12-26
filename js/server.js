@@ -1,5 +1,7 @@
 (function() {
-  var BossManager, CubeManager, Game, LevelManager, NetworkManager, SquareEnum, bossManager, config, cubeManager, game, levelManager, networkManager;
+  var Boss, BossManager, CubeManager, Game, LevelManager, NetworkManager, RoueMan, SquareEnum, bossManager, config, cubeManager, game, levelManager, networkManager,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   config = {
     FPS: 60,
@@ -460,13 +462,27 @@
 
   })();
 
+  Boss = (function() {
+    function Boss(name, timeout, options) {
+      this.timeout = timeout;
+      this.name = name;
+      this.options = options;
+    }
+
+    return Boss;
+
+  })();
+
   BossManager = (function() {
     function BossManager() {
       this.launched = false;
+      this.boss = ['roueman'];
     }
 
     BossManager.prototype.launch = function() {
-      networkManager.sendBoss('roueman', [3, 1, 1, 3, 3], 15000);
+      var boss;
+      boss = this.getBoss();
+      networkManager.sendBoss(boss.name, boss.options, boss.timeout);
       return this.launched = true;
     };
 
@@ -474,9 +490,42 @@
       return this.launched = false;
     };
 
+    BossManager.prototype.getBoss = function() {
+      var boss;
+      boss = this.boss[Math.floor(Math.random() * this.boss.length)];
+      if (boss === 'roueman') {
+        return new RoueMan();
+      }
+    };
+
     return BossManager;
 
   })();
+
+  RoueMan = (function(_super) {
+    __extends(RoueMan, _super);
+
+    function RoueMan() {
+      RoueMan.__super__.constructor.call(this, 'roueman', 15000, this.getPattern());
+    }
+
+    RoueMan.prototype.getPattern = function() {
+      var attacks, i, rand, _i;
+      attacks = [];
+      for (i = _i = 0; _i <= 5; i = ++_i) {
+        rand = Math.floor((Math.random() * 100) + 1);
+        if (rand >= 50) {
+          attacks.push(3);
+        } else {
+          attacks.push(1);
+        }
+      }
+      return attacks;
+    };
+
+    return RoueMan;
+
+  })(Boss);
 
   networkManager = new NetworkManager();
 

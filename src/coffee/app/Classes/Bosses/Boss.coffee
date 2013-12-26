@@ -36,7 +36,7 @@ class Boss
       image: imageLoader.images['boss']
       animation: @type
       animations: @bossTypes
-      frameRate: 7
+      frameRate: 10
       index: 0
       name: { type: 'boss', name: @type }
       id: 'boss' + @id

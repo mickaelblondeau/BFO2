@@ -2,7 +2,7 @@ module.exports = function(grunt) {
 
     grunt.initConfig({
         watch: {
-            files: ['src/coffee/app/*.coffee', 'src/coffee/app/Classes/*.coffee', 'src/coffee/app/Classes/Bosses/*.coffee', 'src/coffee/server/*.coffee', 'src/coffee/server/Classes/*.coffee'],
+            files: ['src/coffee/app/*.coffee', 'src/coffee/app/Classes/*.coffee', 'src/coffee/app/Classes/Bosses/*.coffee', 'src/coffee/server/*.coffee', 'src/coffee/server/Classes/*.coffee', 'src/coffee/server/Classes/Bosses/*.coffee'],
             tasks: ['concat', 'coffee', 'uglify']
         },
         concat: {
@@ -39,7 +39,9 @@ module.exports = function(grunt) {
                     'src/coffee/server/Classes/CubeManager.coffee',
                     'src/coffee/server/Classes/LevelManager.coffee',
                     'src/coffee/server/Classes/NetworkManager.coffee',
-                    'src/coffee/server/Classes/BossManager.coffee',
+                    'src/coffee/server/Classes/Bosses/Boss.coffee',
+                    'src/coffee/server/Classes/Bosses/BossManager.coffee',
+                    'src/coffee/server/Classes/Bosses/RoueMan.coffee',
                     'src/coffee/server/main.coffee'
                 ],
                 dest: 'src/tmp/server.coffee'

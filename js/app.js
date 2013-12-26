@@ -1299,7 +1299,7 @@
         image: imageLoader.images['boss'],
         animation: this.type,
         animations: this.bossTypes,
-        frameRate: 7,
+        frameRate: 10,
         index: 0,
         name: {
           type: 'boss',
