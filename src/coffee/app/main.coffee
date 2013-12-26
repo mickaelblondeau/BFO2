@@ -55,4 +55,4 @@ imageLoader.imagesLoaded = ->
 
   document.getElementById('play').onclick = () ->
     document.getElementById('login').style.display = 'none'
-    launchGame()
+    launchGame(document.getElementById('ip').value, document.getElementById('name').value)

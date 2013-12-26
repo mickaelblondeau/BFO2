@@ -45,10 +45,12 @@ class Game
     @fps.end()
 
   reset: ->
-    networkManager.sendReset()
+    if networkManager.io isnt undefined
+      networkManager.sendReset()
 
   launch: ->
-    networkManager.sendLaunch()
+    if networkManager.io isnt undefined
+      networkManager.sendLaunch()
 
   loadAssets: ->
     imageLoader.addLoad({ name:'cubes', url:'../assets/cubes.jpg'})

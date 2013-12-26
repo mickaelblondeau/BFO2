@@ -133,11 +133,15 @@
     };
 
     Game.prototype.reset = function() {
-      return networkManager.sendReset();
+      if (networkManager.io !== void 0) {
+        return networkManager.sendReset();
+      }
     };
 
     Game.prototype.launch = function() {
-      return networkManager.sendLaunch();
+      if (networkManager.io !== void 0) {
+        return networkManager.sendLaunch();
+      }
     };
 
     Game.prototype.loadAssets = function() {
@@ -1633,7 +1637,7 @@
     };
     return document.getElementById('play').onclick = function() {
       document.getElementById('login').style.display = 'none';
-      return launchGame();
+      return launchGame(document.getElementById('ip').value, document.getElementById('name').value);
     };
   };
 

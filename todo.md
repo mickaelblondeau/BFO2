@@ -10,3 +10,4 @@ Features :
 Bugs :
 * after level up, if the player rescale the window, the background may be at a wrong place
 * animation state sync
+* space not working in input
