@@ -19,6 +19,8 @@ class ControllablePlayer extends Player
     @jumpCount = 0
     @couched = false
     @falling = true
+    @grabbing = false
+    @canGrab = false
     @alive = true
     @actualCollisions = []
 
@@ -36,7 +38,7 @@ class ControllablePlayer extends Player
       moveSide = 0
 
       if @jump or @falling or keyboard.keys.left or keyboard.keys.right or keyboard.keys.up or keyboard.keys.down
-        if !@jump
+        if !@jump and !@grabbing
           @doFall(frameTime)
         else
           @doJump(frameTime)
@@ -85,7 +87,9 @@ class ControllablePlayer extends Player
         @changeSide(1)
 
       if @jump
-
+        @changeAnimation('jump')
+      else if @grabbing
+        @changeAnimation('grabbing')
       else if @falling
         @changeAnimation('fall')
       else if @couched
@@ -99,6 +103,8 @@ class ControllablePlayer extends Player
         @changeAnimation('idle')
 
       @fixSkinPos()
+
+      @getCornerCollisions()
 
       HTML.query('#jump').textContent = @jump
       HTML.query('#jumps').textContent = @jumpCount + '/' + @jumpMax
@@ -135,7 +141,7 @@ class ControllablePlayer extends Player
       @jumpStart = @shape.getY()
 
   doJump: (frameTime) ->
-    if(@jumpStart - @shape.getY() < @jumpHeight)
+    if(@jumpStart - @shape.getY() < @jumpHeight) and @jump
       collide = @testMove(0, @shape.getY() - @jumpCurrentAcceleration*frameTime)
       tmpAcceleration = @jumpCurrentAcceleration*@jumpDeceleration
       if tmpAcceleration >= @jumpMinAcceleration
@@ -154,7 +160,7 @@ class ControllablePlayer extends Player
     @falling = true
 
   startCouch: ->
-    if !@couched
+    if !@couched and !@grabbing
       @couched = true
       @shape.setHeight(@heightCouched)
       @shape.setY(@shape.getY() + @height - @heightCouched)
@@ -229,3 +235,26 @@ class ControllablePlayer extends Player
 
   collideBoss: (boss) ->
     @kill()
+
+  getCornerCollisions: ->
+    self = @
+    count = 0
+    playerBoundBox = collisionManager.getBoundBox(@shape)
+    playerBoundBox.left -= 4
+    playerBoundBox.right += 4
+    cubes = dynamicEntities.find('Sprite')
+    cubes.each (cube) ->
+      cubeBoundBox = collisionManager.getBoundBox(cube)
+      if collisionManager.colliding(playerBoundBox, cubeBoundBox)
+        if collisionManager.collidingCorners(playerBoundBox, cubeBoundBox)
+          self.grab(cube)
+          count++
+    if count is 0
+      @grabbing = false
+
+  grab: (cube) ->
+    if !@grabbing and @canGrab
+      @stopJump()
+      @grabbing = true
+      @jumpCount = 0
+      @shape.setY(cube.getY())

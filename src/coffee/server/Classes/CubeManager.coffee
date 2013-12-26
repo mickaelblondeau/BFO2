@@ -28,6 +28,13 @@ class CubeManager
       },
       {
         proba: 5
+        size: SquareEnum.SMALL
+        width: SquareEnum.SMALL.x/32
+        height: SquareEnum.SMALL.y/32
+        bonus: 'grabbing'
+      },
+      {
+        proba: 5
         size: SquareEnum.LARGE
         width: SquareEnum.LARGE.x/32
         height: SquareEnum.LARGE.y/32

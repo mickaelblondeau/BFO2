@@ -93,6 +93,12 @@ class Player
         y: 67
         width: 46
         height: 30
+      }],
+      grabbing: [{
+        x: 0
+        y: 98
+        width: 46
+        height: 48
       }]
     }
 
@@ -116,6 +122,7 @@ class Player
     @jumpMax = config.playerJumpMax
     @speed = config.playerSpeed
     @jumpHeight = config.playerJumpHeight
+    @grabbing = false
 
   kill: ->
     @shape.setX(-64)

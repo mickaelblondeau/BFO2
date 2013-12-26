@@ -234,6 +234,10 @@
       return !((a.left >= b.right) || (a.right <= b.left) || (a.top >= b.bottom) || (a.bottom <= b.top));
     };
 
+    CollisionManager.prototype.collidingCorners = function(a, b) {
+      return ((b.right >= a.left && b.right < a.right && b.top >= a.top && b.top < a.bottom) || (b.left >= a.left && b.left < a.right && b.top >= a.top && b.top < a.bottom)) && a.top > b.top - 5;
+    };
+
     return CollisionManager;
 
   })();
@@ -347,6 +351,14 @@
             width: 46,
             height: 30
           }
+        ],
+        grabbing: [
+          {
+            x: 0,
+            y: 98,
+            width: 46,
+            height: 48
+          }
         ]
       };
       this.skin = new Kinetic.Sprite({
@@ -371,7 +383,8 @@
       this.falling = true;
       this.jumpMax = config.playerJumpMax;
       this.speed = config.playerSpeed;
-      return this.jumpHeight = config.playerJumpHeight;
+      this.jumpHeight = config.playerJumpHeight;
+      return this.grabbing = false;
     };
 
     Player.prototype.kill = function() {
@@ -435,6 +448,8 @@
       this.jumpCount = 0;
       this.couched = false;
       this.falling = true;
+      this.grabbing = false;
+      this.canGrab = false;
       this.alive = true;
       this.actualCollisions = [];
     }
@@ -453,7 +468,7 @@
         }
         moveSide = 0;
         if (this.jump || this.falling || keyboard.keys.left || keyboard.keys.right || keyboard.keys.up || keyboard.keys.down) {
-          if (!this.jump) {
+          if (!this.jump && !this.grabbing) {
             this.doFall(frameTime);
           } else {
             this.doJump(frameTime);
@@ -504,7 +519,9 @@
           this.changeSide(1);
         }
         if (this.jump) {
-
+          this.changeAnimation('jump');
+        } else if (this.grabbing) {
+          this.changeAnimation('grabbing');
         } else if (this.falling) {
           this.changeAnimation('fall');
         } else if (this.couched) {
@@ -519,6 +536,7 @@
           this.changeAnimation('idle');
         }
         this.fixSkinPos();
+        this.getCornerCollisions();
         HTML.query('#jump').textContent = this.jump;
         HTML.query('#jumps').textContent = this.jumpCount + '/' + this.jumpMax;
         HTML.query('#falling').textContent = this.falling;
@@ -565,7 +583,7 @@
 
     ControllablePlayer.prototype.doJump = function(frameTime) {
       var collide, tmpAcceleration;
-      if (this.jumpStart - this.shape.getY() < this.jumpHeight) {
+      if ((this.jumpStart - this.shape.getY() < this.jumpHeight) && this.jump) {
         collide = this.testMove(0, this.shape.getY() - this.jumpCurrentAcceleration * frameTime);
         tmpAcceleration = this.jumpCurrentAcceleration * this.jumpDeceleration;
         if (tmpAcceleration >= this.jumpMinAcceleration) {
@@ -589,7 +607,7 @@
     };
 
     ControllablePlayer.prototype.startCouch = function() {
-      if (!this.couched) {
+      if (!this.couched && !this.grabbing) {
         this.couched = true;
         this.shape.setHeight(this.heightCouched);
         return this.shape.setY(this.shape.getY() + this.height - this.heightCouched);
@@ -702,6 +720,38 @@
 
     ControllablePlayer.prototype.collideBoss = function(boss) {
       return this.kill();
+    };
+
+    ControllablePlayer.prototype.getCornerCollisions = function() {
+      var count, cubes, playerBoundBox, self;
+      self = this;
+      count = 0;
+      playerBoundBox = collisionManager.getBoundBox(this.shape);
+      playerBoundBox.left -= 4;
+      playerBoundBox.right += 4;
+      cubes = dynamicEntities.find('Sprite');
+      cubes.each(function(cube) {
+        var cubeBoundBox;
+        cubeBoundBox = collisionManager.getBoundBox(cube);
+        if (collisionManager.colliding(playerBoundBox, cubeBoundBox)) {
+          if (collisionManager.collidingCorners(playerBoundBox, cubeBoundBox)) {
+            self.grab(cube);
+            return count++;
+          }
+        }
+      });
+      if (count === 0) {
+        return this.grabbing = false;
+      }
+    };
+
+    ControllablePlayer.prototype.grab = function(cube) {
+      if (!this.grabbing && this.canGrab) {
+        this.stopJump();
+        this.grabbing = true;
+        this.jumpCount = 0;
+        return this.shape.setY(cube.getY());
+      }
     };
 
     return ControllablePlayer;
@@ -914,6 +964,14 @@
             width: 32,
             height: 32
           }
+        ],
+        grabbing: [
+          {
+            x: 32,
+            y: 0,
+            width: 32,
+            height: 32
+          }
         ]
       };
       this.draw();
@@ -965,6 +1023,11 @@
           attribute: 'jumpCount',
           value: 1,
           time: 3000
+        }, {
+          name: 'grabbing',
+          attribute: 'canGrab',
+          value: true,
+          time: 10000
         }
       ];
       this.timers = [];
@@ -1001,6 +1064,8 @@
           return player.jumpHeight += bonus.value;
         case "jumpCount":
           return player.jumpMax += bonus.value;
+        case "canGrab":
+          return player.canGrab = true;
       }
     };
 
@@ -1012,6 +1077,8 @@
           return player.jumpHeight -= bonus.value;
         case "jumpCount":
           return player.jumpMax -= bonus.value;
+        case "canGrab":
+          return player.canGrab = false;
       }
     };
 

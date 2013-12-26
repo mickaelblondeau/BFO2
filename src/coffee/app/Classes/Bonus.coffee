@@ -10,6 +10,12 @@ class Bonus
         y: 0
         width: 32
         height: 32
+      }],
+      grabbing: [{
+        x: 32
+        y: 0
+        width: 32
+        height: 32
       }]
     }
     @draw()

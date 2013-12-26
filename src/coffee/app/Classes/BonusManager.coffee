@@ -6,6 +6,12 @@ class BonusManager
         attribute: 'jumpCount'
         value: 1
         time: 3000
+      },
+      {
+        name: 'grabbing'
+        attribute: 'canGrab'
+        value: true
+        time: 10000
       }
     ]
     @timers = []
@@ -30,6 +36,8 @@ class BonusManager
         player.jumpHeight += bonus.value
       when "jumpCount"
         player.jumpMax += bonus.value
+      when "canGrab"
+        player.canGrab = true
 
   removeBonus: (bonus, player) ->
     switch bonus.attribute
@@ -39,6 +47,8 @@ class BonusManager
         player.jumpHeight -= bonus.value
       when "jumpCount"
         player.jumpMax -= bonus.value
+      when "canGrab"
+        player.canGrab = false
 
   reset: ->
     for timer in @timers
