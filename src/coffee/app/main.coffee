@@ -39,6 +39,8 @@ imageLoader.imagesLoaded = ->
   arena = new Arena()
   player = new ControllablePlayer()
 
+  new Bonus(0, 0, 'doubleJump', 0)
+
   game.update = (frameTime) ->
     players.draw()
     player.update(frameTime)

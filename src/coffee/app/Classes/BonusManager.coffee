@@ -26,11 +26,10 @@ class BonusManager
         @addBonus(bonus, player)
         if bonus.time isnt undefined
           self = @
-          @timers.push setTimeout(
-            () ->
-              self.removeBonus(bonus, player)
-            , bonus.time
-          )
+          thisBonus = bonus
+          callback = () ->
+            self.removeBonus(thisBonus, player)
+          @timers.push setTimeout(callback, bonus.time)
 
   addBonus: (bonus, player) ->
     switch bonus.attribute

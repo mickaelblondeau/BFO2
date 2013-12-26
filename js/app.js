@@ -385,6 +385,7 @@
       this.speed = config.playerSpeed;
       this.jumpHeight = config.playerJumpHeight;
       this.grabbing = false;
+      this.canGrab = false;
       return this.coopJump = false;
     };
 
@@ -1092,7 +1093,7 @@
     }
 
     BonusManager.prototype.getBonus = function(bonusName, player) {
-      var bonus, self, _i, _len, _ref, _results;
+      var bonus, callback, self, thisBonus, _i, _len, _ref, _results;
       _ref = this.bonuses;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -1101,9 +1102,11 @@
           this.addBonus(bonus, player);
           if (bonus.time !== void 0) {
             self = this;
-            _results.push(this.timers.push(setTimeout(function() {
-              return self.removeBonus(bonus, player);
-            }, bonus.time)));
+            thisBonus = bonus;
+            callback = function() {
+              return self.removeBonus(thisBonus, player);
+            };
+            _results.push(this.timers.push(setTimeout(callback, bonus.time)));
           } else {
             _results.push(void 0);
           }
@@ -1610,6 +1613,7 @@
     bg.draw();
     arena = new Arena();
     player = new ControllablePlayer();
+    new Bonus(0, 0, 'doubleJump', 0);
     game.update = function(frameTime) {
       var cubes;
       players.draw();
