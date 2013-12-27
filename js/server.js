@@ -1,10 +1,11 @@
 (function() {
-  var Boss, BossManager, CubeManager, Game, LevelManager, NetworkManager, RoueMan, SquareEnum, bossManager, config, cubeManager, game, levelManager, networkManager,
+  var Boss, BossManager, CubeManager, Game, LevelManager, NetworkManager, RoueMan, SquareEnum, bossManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   config = {
     FPS: 60,
+    lowFPS: 0.1,
     levelSpeed: 1000,
     timeout: 5000
   };
@@ -472,6 +473,17 @@
       return this.timeout = setTimeout(callback, time);
     };
 
+    NetworkManager.prototype.sendPlayerList = function() {
+      var list, player, players, _i, _len;
+      list = [];
+      players = this.io.sockets.clients();
+      for (_i = 0, _len = players.length; _i < _len; _i++) {
+        player = players[_i];
+        list.push(player.id);
+      }
+      return this.io.sockets.emit('playerList', list);
+    };
+
     return NetworkManager;
 
   })();
@@ -555,9 +567,17 @@
     return game.loop();
   }, 1000 / config.FPS);
 
+  setInterval(function() {
+    return slowLoop();
+  }, 1000 / config.lowFPS);
+
   game.update = function(frameTime) {
     cubeManager.update(frameTime);
     return networkManager.sendPositions();
+  };
+
+  slowLoop = function() {
+    return networkManager.sendPlayerList();
   };
 
 }).call(this);

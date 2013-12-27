@@ -1241,6 +1241,7 @@
   NetworkManager = (function() {
     function NetworkManager() {
       this.players = [];
+      this.playersId = [];
     }
 
     NetworkManager.prototype.connect = function(ip, name) {
@@ -1272,7 +1273,8 @@
         return bonusManager.remove(id);
       });
       this.socket.on('connection', function(arr) {
-        return self.players[arr[0]] = new VirtualPlayer(arr[1]);
+        self.players[arr[0]] = new VirtualPlayer(arr[1]);
+        return self.playersId.push(arr[0]);
       });
       this.socket.on('disconnect', function(id) {
         return self.players[id].remove();
@@ -1294,8 +1296,23 @@
       this.socket.on('spawnBoss', function(arr) {
         return bossManager.spawn(arr[0], arr[1]);
       });
-      return this.socket.on('resurection', function() {
+      this.socket.on('resurection', function() {
         return player.resurection();
+      });
+      return this.socket.on('playerList', function(arr) {
+        var i, id, _i, _len, _ref, _results;
+        _ref = self.playersId;
+        _results = [];
+        for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+          id = _ref[i];
+          if (arr.indexOf(id) === -1) {
+            self.players[id].remove();
+            _results.push(self.playersId.splice(i, 1));
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
       });
     };
 

@@ -1,6 +1,7 @@
 class NetworkManager
   constructor: ->
     @players = []
+    @playersId = []
 
   connect: (ip, name) ->
     @socket = io.connect('http://'+ip+':8080')
@@ -24,6 +25,7 @@ class NetworkManager
       bonusManager.remove(id)
     @socket.on 'connection', (arr) ->
       self.players[arr[0]] = new VirtualPlayer(arr[1])
+      self.playersId.push arr[0]
     @socket.on 'disconnect', (id) ->
       self.players[id].remove()
     @socket.on 'move', (arr) ->
@@ -39,6 +41,11 @@ class NetworkManager
       bossManager.spawn(arr[0], arr[1])
     @socket.on 'resurection', ->
       player.resurection()
+    @socket.on 'playerList', (arr) ->
+      for id, i in self.playersId
+        if arr.indexOf(id) is -1
+          self.players[id].remove()
+          self.playersId.splice(i, 1)
 
   sendLaunch: ->
     @socket.emit 'launch'

@@ -84,3 +84,10 @@ class NetworkManager
     @waitingFor = @io.sockets.clients().length
     @responseOk = 0
     @timeout = setTimeout(callback, time)
+
+  sendPlayerList: ->
+    list = []
+    players = @io.sockets.clients()
+    for player in players
+      list.push player.id
+    @io.sockets.emit 'playerList', list

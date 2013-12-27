@@ -4,7 +4,6 @@ Features :
 * can't join on started game (missing blocks)
 * ingame chat
 * player hud (level, bonuses, players count)
-* update connected players
 * other boss
 * loading bar
 
