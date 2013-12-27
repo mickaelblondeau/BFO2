@@ -44,14 +44,12 @@ class Keyboard
       },
       {
         keys          : "r",
-        on_keydown    : (e) ->
-          e.preventDefault()
+        on_keydown    : ->
           game.reset()
       },
       {
-        keys          : "space",
-        on_keydown    : (e) ->
-          e.preventDefault()
+        keys          : "enter",
+        on_keydown    : ->
           game.launch()
       },
     ]

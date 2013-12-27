@@ -7,7 +7,6 @@ null
 
 class Game
   constructor: ->
-    @lastFrame = Date.now()
     @statsInit()
     @scale = 1
 
@@ -24,6 +23,7 @@ class Game
   update: (frameTime) ->
 
   start: ->
+    @lastFrame = Date.now()
     @resize()
     @loop()
 
@@ -45,11 +45,11 @@ class Game
     @fps.end()
 
   reset: ->
-    if networkManager.io isnt undefined
+    if networkManager.socket isnt undefined
       networkManager.sendReset()
 
   launch: ->
-    if networkManager.io isnt undefined
+    if networkManager.socket isnt undefined
       networkManager.sendLaunch()
 
   loadAssets: ->

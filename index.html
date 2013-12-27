@@ -6,7 +6,13 @@
         #debug { position: absolute; left: 90px; }
         #container { margin: auto; display: block !important; }
         #stats { position: absolute; top: 0; left: 0; }
-        #login { width: 500px; margin: auto; }
+        #login { width: 704px; height: 100%; margin: auto; background: url('assets/bg.jpg') }
+        #login label { display: block; }
+        #login .form-line { margin: auto; width: 300px; padding-top: 20px; }
+        #login input { padding: 10px; border: 1px solid grey; border-radius: 10px; width: 300px; }
+        #login button { padding: 10px; border: 1px solid grey; border-radius: 10px; background: springgreen; width: 100px; margin: auto; display: block; margin-top: 20px; }
+        #login button:hover { cursor: pointer; background: green; }
+        .mg-1 { padding-top: 100px; }
     </style>
 </head>
 <body>
@@ -21,9 +27,19 @@
     Player position cached : <span id="ppc"></span><br>
 </div>
 <div id="login">
-    IP : <input type="text" id="ip" value="localhost" /><br>
-    Name : <input type="text" id="name" value="chy" /><br>
-    Skin : <input type="text" id="skin" value="default" /><br>
+    <div class="mg-1"></div>
+    <div class="form-line">
+        <label for="ip">IP :</label>
+        <input type="text" id="ip" value="localhost" />
+    </div>
+    <div class="form-line">
+        <label for="name">Name :</label>
+        <input type="text" id="name" value="Chy" />
+    </div>
+    <div class="form-line">
+        <label for="skin">Skin :</label>
+        <input type="text" id="skin" value="default" />
+    </div>
     <button id="play">Play</button>
 </div>
 <div id="container"></div>

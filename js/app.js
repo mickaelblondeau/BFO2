@@ -65,14 +65,12 @@
           }
         }, {
           keys: "r",
-          on_keydown: function(e) {
-            e.preventDefault();
+          on_keydown: function() {
             return game.reset();
           }
         }, {
-          keys: "space",
-          on_keydown: function(e) {
-            e.preventDefault();
+          keys: "enter",
+          on_keydown: function() {
             return game.launch();
           }
         }
@@ -88,7 +86,6 @@
 
   Game = (function() {
     function Game() {
-      this.lastFrame = Date.now();
       this.statsInit();
       this.scale = 1;
     }
@@ -107,6 +104,7 @@
     Game.prototype.update = function(frameTime) {};
 
     Game.prototype.start = function() {
+      this.lastFrame = Date.now();
       this.resize();
       return this.loop();
     };
@@ -133,13 +131,13 @@
     };
 
     Game.prototype.reset = function() {
-      if (networkManager.io !== void 0) {
+      if (networkManager.socket !== void 0) {
         return networkManager.sendReset();
       }
     };
 
     Game.prototype.launch = function() {
-      if (networkManager.io !== void 0) {
+      if (networkManager.socket !== void 0) {
         return networkManager.sendLaunch();
       }
     };
