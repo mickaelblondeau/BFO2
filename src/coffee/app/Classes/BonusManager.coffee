@@ -16,19 +16,31 @@ class BonusManager
       {
         name: 'resurection'
         attribute: 'resurection'
-      }
+      },
+      {
+        name: 'speed'
+        attribute: 'speed'
+        value: 0.1
+      },
+      {
+        name: 'jumpHeight'
+        attribute: 'jumpHeight'
+        value: 10
+      },
     ]
     @timers = []
 
-  getBonus: (bonusName, player) ->
+  getBonus: (bonusName, player, bonusId) ->
     for bonus in @bonuses
       if bonusName is bonus.name
         @addBonus(bonus, player)
+        hud.addBuff(bonusId, bonusName, bonus.time)
         if bonus.time isnt undefined
           self = @
           thisBonus = bonus
           callback = () ->
             self.removeBonus(thisBonus, player)
+            hud.deleteBuff(bonusId)
           @timers.push setTimeout(callback, bonus.time)
 
   addBonus: (bonus, player) ->

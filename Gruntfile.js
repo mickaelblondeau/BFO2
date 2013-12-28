@@ -24,6 +24,7 @@ module.exports = function(grunt) {
                     'src/coffee/app/Classes/LevelManager.coffee',
                     'src/coffee/app/Classes/NetworkManager.coffee',
                     'src/coffee/app/Classes/Arena.coffee',
+                    'src/coffee/app/Classes/HUD.coffee',
                     'src/coffee/app/Classes/Bosses/Boss.coffee',
                     'src/coffee/app/Classes/Bosses/BossManager.coffee',
                     'src/coffee/app/Classes/Bosses/RoueMan.coffee',

@@ -7,11 +7,13 @@ dynamicEntities = new Kinetic.Layer()
 players = new Kinetic.Layer()
 staticCubes = new Kinetic.Layer()
 staticBg = new Kinetic.Layer()
+hudLayer = new Kinetic.Layer()
 
 stage.add staticBg
 stage.add staticCubes
 stage.add players
 stage.add dynamicEntities
+stage.add hudLayer
 
 networkManager = new NetworkManager()
 imageLoader = new ImageLoader()
@@ -26,6 +28,7 @@ game.loadAssets()
 
 arena = null
 player = null
+hud = null
 
 imageLoader.imagesLoaded = ->
   launchGame = (ip, name) ->
@@ -39,12 +42,22 @@ imageLoader.imagesLoaded = ->
 
     arena = new Arena()
     player = new ControllablePlayer()
+    hud = new HUD()
 
     networkManager.connect(ip, name)
+
+    new Bonus(0, 0, 'doubleJump', 0)
+    new Bonus(1, 0, 'grabbing', 1)
+
+    new Bonus(4, 0, 'doubleJump', 2)
+    new Bonus(7, 0, 'speed', 3)
+    new Bonus(8, 0, 'jumpHeight', 4)
+    new Bonus(9, 0, 'speed', 5)
 
     game.update = (frameTime) ->
       players.draw()
       player.update(frameTime)
+      hud.update(frameTime)
 
       cubes = dynamicEntities.find('Sprite')
       HTML.query('#cc').textContent = cubes.length

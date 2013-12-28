@@ -24,6 +24,20 @@ class CubeManager
         size: SquareEnum.SMALL
         width: SquareEnum.SMALL.x/32
         height: SquareEnum.SMALL.y/32
+        bonus: 'speed'
+      },
+      {
+        proba: 5
+        size: SquareEnum.SMALL
+        width: SquareEnum.SMALL.x/32
+        height: SquareEnum.SMALL.y/32
+        bonus: 'jumpHeight'
+      },
+      {
+        proba: 5
+        size: SquareEnum.SMALL
+        width: SquareEnum.SMALL.x/32
+        height: SquareEnum.SMALL.y/32
         bonus: 'doubleJump'
       },
       {

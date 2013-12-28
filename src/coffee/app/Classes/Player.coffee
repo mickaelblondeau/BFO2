@@ -133,6 +133,7 @@ class Player
   kill: ->
     @shape.setX(-64)
     @alive = false
+    hud.reset()
 
   fixSkinPos: ->
     if @skin.getScaleX() is -1

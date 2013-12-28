@@ -12,6 +12,7 @@ class LevelManager
     arena.reset()
     bonusManager.reset()
     bossManager.reset()
+    hud.reset()
     dynamicEntities.destroyChildren()
     stage.draw()
     @level = 0
@@ -30,6 +31,11 @@ class LevelManager
       duration: 2
       y: staticBg.getY() - height
     @tweens[1].play()
+    @tweens[2] = new Kinetic.Tween
+      node: hudLayer
+      duration: 2
+      y: hudLayer.getY() - height
+    @tweens[2].play()
 
   clearLevel: ->
     @level++

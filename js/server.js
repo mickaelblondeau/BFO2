@@ -78,6 +78,18 @@
           size: SquareEnum.SMALL,
           width: SquareEnum.SMALL.x / 32,
           height: SquareEnum.SMALL.y / 32,
+          bonus: 'speed'
+        }, {
+          proba: 5,
+          size: SquareEnum.SMALL,
+          width: SquareEnum.SMALL.x / 32,
+          height: SquareEnum.SMALL.y / 32,
+          bonus: 'jumpHeight'
+        }, {
+          proba: 5,
+          size: SquareEnum.SMALL,
+          width: SquareEnum.SMALL.x / 32,
+          height: SquareEnum.SMALL.y / 32,
           bonus: 'doubleJump'
         }, {
           proba: 5,
@@ -443,6 +455,7 @@
 
     NetworkManager.prototype.sendBoss = function(boss, options, timeout) {
       this.waitForAll(levelManager.passNextLevel, config.timeout + timeout);
+      this.sendClearLevel();
       return this.io.sockets.emit('spawnBoss', [boss, options]);
     };
 

@@ -226,7 +226,7 @@ class ControllablePlayer extends Player
     return false
 
   takeBonus: (bonus) ->
-    bonusManager.getBonus(bonus.getName().name, @)
+    bonusManager.getBonus(bonus.getName().name, @, bonus.getId())
     bonus.destroy()
     dynamicEntities.draw()
     networkManager.sendBonusTaken(bonus.getId())

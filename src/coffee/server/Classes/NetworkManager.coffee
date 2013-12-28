@@ -67,6 +67,7 @@ class NetworkManager
 
   sendBoss: (boss, options, timeout) ->
     @waitForAll(levelManager.passNextLevel, config.timeout + timeout)
+    @sendClearLevel()
     @io.sockets.emit 'spawnBoss', [boss, options]
 
   sendPositions: ->

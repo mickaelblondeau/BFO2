@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ControllablePlayer, Cube, FallingCube, Game, ImageLoader, Keyboard, LevelManager, NetworkManager, Player, RoueMan, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bossManager, collisionManager, config, dynamicEntities, game, imageLoader, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ControllablePlayer, Cube, FallingCube, Game, HUD, ImageLoader, Keyboard, LevelManager, NetworkManager, Player, RoueMan, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bossManager, collisionManager, config, dynamicEntities, game, hud, hudLayer, imageLoader, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -399,7 +399,8 @@
 
     Player.prototype.kill = function() {
       this.shape.setX(-64);
-      return this.alive = false;
+      this.alive = false;
+      return hud.reset();
     };
 
     Player.prototype.fixSkinPos = function() {
@@ -719,7 +720,7 @@
     };
 
     ControllablePlayer.prototype.takeBonus = function(bonus) {
-      bonusManager.getBonus(bonus.getName().name, this);
+      bonusManager.getBonus(bonus.getName().name, this, bonus.getId());
       bonus.destroy();
       dynamicEntities.draw();
       return networkManager.sendBonusTaken(bonus.getId());
@@ -1000,38 +1001,55 @@
 
   })(Cube);
 
+  bonusTypes = {
+    doubleJump: [
+      {
+        x: 0,
+        y: 0,
+        width: 32,
+        height: 32
+      }
+    ],
+    grabbing: [
+      {
+        x: 32,
+        y: 0,
+        width: 32,
+        height: 32
+      }
+    ],
+    resurection: [
+      {
+        x: 64,
+        y: 0,
+        width: 32,
+        height: 32
+      }
+    ],
+    jumpHeight: [
+      {
+        x: 0,
+        y: 0,
+        width: 32,
+        height: 32
+      }
+    ],
+    speed: [
+      {
+        x: 96,
+        y: 0,
+        width: 32,
+        height: 32
+      }
+    ]
+  };
+
   Bonus = (function() {
     function Bonus(col, destination, type, id) {
       this.id = id;
       this.type = type;
       this.x = col * 32 + 160;
       this.y = stage.getY() * -1;
-      this.bonusesTypes = {
-        doubleJump: [
-          {
-            x: 0,
-            y: 0,
-            width: 32,
-            height: 32
-          }
-        ],
-        grabbing: [
-          {
-            x: 32,
-            y: 0,
-            width: 32,
-            height: 32
-          }
-        ],
-        resurection: [
-          {
-            x: 64,
-            y: 0,
-            width: 32,
-            height: 32
-          }
-        ]
-      };
       this.draw();
       this.destination = arena.y - destination * 32 - 32;
       this.diffY = this.destination - this.y;
@@ -1057,7 +1075,7 @@
         height: 32,
         image: imageLoader.images['bonus'],
         animation: this.type,
-        animations: this.bonusesTypes,
+        animations: bonusTypes,
         frameRate: 0,
         index: 0,
         name: {
@@ -1089,12 +1107,20 @@
         }, {
           name: 'resurection',
           attribute: 'resurection'
+        }, {
+          name: 'speed',
+          attribute: 'speed',
+          value: 0.1
+        }, {
+          name: 'jumpHeight',
+          attribute: 'jumpHeight',
+          value: 10
         }
       ];
       this.timers = [];
     }
 
-    BonusManager.prototype.getBonus = function(bonusName, player) {
+    BonusManager.prototype.getBonus = function(bonusName, player, bonusId) {
       var bonus, callback, self, thisBonus, _i, _len, _ref, _results;
       _ref = this.bonuses;
       _results = [];
@@ -1102,11 +1128,13 @@
         bonus = _ref[_i];
         if (bonusName === bonus.name) {
           this.addBonus(bonus, player);
+          hud.addBuff(bonusId, bonusName, bonus.time);
           if (bonus.time !== void 0) {
             self = this;
             thisBonus = bonus;
             callback = function() {
-              return self.removeBonus(thisBonus, player);
+              self.removeBonus(thisBonus, player);
+              return hud.deleteBuff(bonusId);
             };
             _results.push(this.timers.push(setTimeout(callback, bonus.time)));
           } else {
@@ -1194,6 +1222,7 @@
       arena.reset();
       bonusManager.reset();
       bossManager.reset();
+      hud.reset();
       dynamicEntities.destroyChildren();
       stage.draw();
       return this.level = 0;
@@ -1215,7 +1244,13 @@
         duration: 2,
         y: staticBg.getY() - height
       });
-      return this.tweens[1].play();
+      this.tweens[1].play();
+      this.tweens[2] = new Kinetic.Tween({
+        node: hudLayer,
+        duration: 2,
+        y: hudLayer.getY() - height
+      });
+      return this.tweens[2].play();
     };
 
     LevelManager.prototype.clearLevel = function() {
@@ -1419,6 +1454,119 @@
 
   })();
 
+  HUD = (function() {
+    function HUD() {
+      this.level;
+      this.buffs = [];
+      this.drawLevel();
+    }
+
+    HUD.prototype.update = function(frameTime) {
+      var levelText;
+      levelText = 'Level : ' + levelManager.level;
+      if (levelText !== this.level.getText()) {
+        this.level.setText(levelText);
+      }
+      this.updateBuffs(frameTime);
+      return hudLayer.draw();
+    };
+
+    HUD.prototype.drawLevel = function() {
+      this.level = new Kinetic.Text({
+        text: 'Level : 0',
+        fill: 'black',
+        fontFamily: 'Calibri',
+        fontSize: 18
+      });
+      return hudLayer.add(this.level);
+    };
+
+    HUD.prototype.addBuff = function(id, buff, time) {
+      var timer;
+      this.buffs.push({
+        id: id,
+        buff: buff,
+        time: time
+      });
+      buff = new Kinetic.Sprite({
+        x: 608,
+        y: 0,
+        width: 32,
+        height: 32,
+        image: imageLoader.images['bonus'],
+        animation: buff,
+        animations: bonusTypes,
+        frameRate: 0,
+        index: 0,
+        id: id
+      });
+      hudLayer.add(buff);
+      if (time !== void 0) {
+        timer = new Kinetic.Text({
+          x: 640,
+          y: 0,
+          text: time,
+          fill: 'black',
+          fontFamily: 'Calibri',
+          fontSize: 18,
+          id: 'txt' + id,
+          name: 'timer'
+        });
+        return hudLayer.add(timer);
+      }
+    };
+
+    HUD.prototype.deleteBuff = function(id) {
+      hudLayer.find('Text').each(function(txt) {
+        if (txt.getId() === 'txt' + id) {
+          return txt.destroy();
+        }
+      });
+      return hudLayer.find('Sprite').each(function(icon) {
+        if (icon.getId() === id) {
+          return icon.destroy();
+        }
+      });
+    };
+
+    HUD.prototype.updateBuffs = function(frameTime) {
+      var y;
+      y = 2;
+      hudLayer.find('Sprite').each(function(icon) {
+        var txt;
+        txt = hudLayer.find('#txt' + icon.getId())[0];
+        if (txt !== void 0) {
+          txt.setY(y);
+        }
+        icon.setY(y);
+        return y += 34;
+      });
+      return hudLayer.find('Text').each(function(txt) {
+        if (txt.getName() === 'timer') {
+          if (txt.getText() - frameTime >= 0) {
+            return txt.setText(txt.getText() - frameTime);
+          } else {
+            return txt.setText(0);
+          }
+        }
+      });
+    };
+
+    HUD.prototype.reset = function() {
+      hudLayer.find('Text').each(function(txt) {
+        if (txt.getName() === 'timer') {
+          return txt.destroy();
+        }
+      });
+      return hudLayer.find('Sprite').each(function(icon) {
+        return icon.destroy();
+      });
+    };
+
+    return HUD;
+
+  })();
+
   Boss = (function() {
     function Boss(id, type, x, y, w, h) {
       this.id = id;
@@ -1594,6 +1742,8 @@
 
   staticBg = new Kinetic.Layer();
 
+  hudLayer = new Kinetic.Layer();
+
   stage.add(staticBg);
 
   stage.add(staticCubes);
@@ -1601,6 +1751,8 @@
   stage.add(players);
 
   stage.add(dynamicEntities);
+
+  stage.add(hudLayer);
 
   networkManager = new NetworkManager();
 
@@ -1624,6 +1776,8 @@
 
   player = null;
 
+  hud = null;
+
   imageLoader.imagesLoaded = function() {
     var launchGame;
     launchGame = function(ip, name) {
@@ -1638,11 +1792,19 @@
       bg.draw();
       arena = new Arena();
       player = new ControllablePlayer();
+      hud = new HUD();
       networkManager.connect(ip, name);
+      new Bonus(0, 0, 'doubleJump', 0);
+      new Bonus(1, 0, 'grabbing', 1);
+      new Bonus(4, 0, 'doubleJump', 2);
+      new Bonus(7, 0, 'speed', 3);
+      new Bonus(8, 0, 'jumpHeight', 4);
+      new Bonus(9, 0, 'speed', 5);
       game.update = function(frameTime) {
         var cubes;
         players.draw();
         player.update(frameTime);
+        hud.update(frameTime);
         cubes = dynamicEntities.find('Sprite');
         HTML.query('#cc').textContent = cubes.length;
         cubes = staticCubes.find('Sprite');
