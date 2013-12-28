@@ -34,13 +34,13 @@ class BonusManager
     for bonus in @bonuses
       if bonusName is bonus.name
         @addBonus(bonus, player)
-        hud.addBuff(bonusId, bonusName, bonus.time)
+        hud.addBuff(bonusName, bonus.time)
         if bonus.time isnt undefined
           self = @
           thisBonus = bonus
           callback = () ->
             self.removeBonus(thisBonus, player)
-            hud.deleteBuff(bonusId)
+            hud.deleteBuff(bonusName)
           @timers.push setTimeout(callback, bonus.time)
 
   addBonus: (bonus, player) ->

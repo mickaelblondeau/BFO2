@@ -46,14 +46,6 @@ imageLoader.imagesLoaded = ->
 
     networkManager.connect(ip, name)
 
-    new Bonus(0, 0, 'doubleJump', 0)
-    new Bonus(1, 0, 'grabbing', 1)
-
-    new Bonus(4, 0, 'doubleJump', 2)
-    new Bonus(7, 0, 'speed', 3)
-    new Bonus(8, 0, 'jumpHeight', 4)
-    new Bonus(9, 0, 'speed', 5)
-
     game.update = (frameTime) ->
       players.draw()
       player.update(frameTime)

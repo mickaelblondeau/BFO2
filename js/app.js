@@ -1128,13 +1128,13 @@
         bonus = _ref[_i];
         if (bonusName === bonus.name) {
           this.addBonus(bonus, player);
-          hud.addBuff(bonusId, bonusName, bonus.time);
+          hud.addBuff(bonusName, bonus.time);
           if (bonus.time !== void 0) {
             self = this;
             thisBonus = bonus;
             callback = function() {
               self.removeBonus(thisBonus, player);
-              return hud.deleteBuff(bonusId);
+              return hud.deleteBuff(bonusName);
             };
             _results.push(this.timers.push(setTimeout(callback, bonus.time)));
           } else {
@@ -1481,81 +1481,120 @@
       return hudLayer.add(this.level);
     };
 
-    HUD.prototype.addBuff = function(id, buff, time) {
-      var timer;
+    HUD.prototype.addBuff = function(buffType, time) {
+      var buff, count, timer;
       this.buffs.push({
-        id: id,
-        buff: buff,
+        buff: buffType,
         time: time
       });
-      buff = new Kinetic.Sprite({
-        x: 608,
-        y: 0,
-        width: 32,
-        height: 32,
-        image: imageLoader.images['bonus'],
-        animation: buff,
-        animations: bonusTypes,
-        frameRate: 0,
-        index: 0,
-        id: id
-      });
-      hudLayer.add(buff);
-      if (time !== void 0) {
-        timer = new Kinetic.Text({
-          x: 640,
+      if (hudLayer.find('#' + buffType)[0] !== void 0) {
+        count = hudLayer.find('#count' + buffType)[0];
+        count.setText((parseInt(count.getText().split(' x ')) + 1) + ' x ');
+        if (time !== void 0) {
+          timer = hudLayer.find('#timer' + buffType)[0];
+          return timer.setText(time / 1000);
+        }
+      } else {
+        buff = new Kinetic.Sprite({
+          x: 618,
           y: 0,
-          text: time,
+          width: 32,
+          height: 32,
+          image: imageLoader.images['bonus'],
+          animation: buffType,
+          animations: bonusTypes,
+          frameRate: 0,
+          index: 0,
+          id: buffType
+        });
+        hudLayer.add(buff);
+        if (time !== void 0) {
+          timer = new Kinetic.Text({
+            x: 658,
+            y: 0,
+            text: time / 1000,
+            fill: 'black',
+            fontFamily: 'Calibri',
+            fontSize: 18,
+            id: 'timer' + buffType,
+            name: 'timer'
+          });
+          hudLayer.add(timer);
+          timer.setAttr('currentTime', time / 1000);
+        }
+        count = new Kinetic.Text({
+          x: 590,
+          y: 0,
+          text: '1 x ',
           fill: 'black',
           fontFamily: 'Calibri',
           fontSize: 18,
-          id: 'txt' + id,
-          name: 'timer'
+          id: 'count' + buffType,
+          name: 'count'
         });
-        return hudLayer.add(timer);
+        return hudLayer.add(count);
       }
     };
 
-    HUD.prototype.deleteBuff = function(id) {
-      hudLayer.find('Text').each(function(txt) {
-        if (txt.getId() === 'txt' + id) {
-          return txt.destroy();
+    HUD.prototype.deleteBuff = function(buffType) {
+      var buff, count, text;
+      buff = hudLayer.find('#' + buffType)[0];
+      count = hudLayer.find('#count' + buffType)[0];
+      text = hudLayer.find('#timer' + buffType)[0];
+      if (buff !== void 0) {
+        if (count !== void 0) {
+          if (count.getText() === '1 x ') {
+            buff.destroy();
+            count.destroy();
+            if (text !== void 0) {
+              return text.destroy();
+            }
+          } else {
+            return count.setText((parseInt(count.getText().split(' x ')) - 1) + ' x ');
+          }
+        } else {
+          buff.destroy();
+          count.destroy();
+          if (text !== void 0) {
+            return text.destroy();
+          }
         }
-      });
-      return hudLayer.find('Sprite').each(function(icon) {
-        if (icon.getId() === id) {
-          return icon.destroy();
-        }
-      });
+      }
     };
 
     HUD.prototype.updateBuffs = function(frameTime) {
       var y;
-      y = 2;
+      y = 0;
       hudLayer.find('Sprite').each(function(icon) {
-        var txt;
-        txt = hudLayer.find('#txt' + icon.getId())[0];
-        if (txt !== void 0) {
-          txt.setY(y);
+        var count, timer;
+        timer = hudLayer.find('#timer' + icon.getId())[0];
+        if (timer !== void 0) {
+          timer.setY(y + 8);
+        }
+        count = hudLayer.find('#count' + icon.getId())[0];
+        if (count !== void 0) {
+          count.setY(y + 8);
         }
         icon.setY(y);
-        return y += 34;
+        return y += 40;
       });
-      return hudLayer.find('Text').each(function(txt) {
-        if (txt.getName() === 'timer') {
-          if (txt.getText() - frameTime >= 0) {
-            return txt.setText(txt.getText() - frameTime);
-          } else {
-            return txt.setText(0);
+      return hudLayer.find('Text').each(function(timer) {
+        var newTime;
+        if (timer.getName() === 'timer') {
+          newTime = timer.getAttr('currentTime') - frameTime / 1000;
+          if (newTime < 0) {
+            newTime = 0;
           }
+          timer.setAttr('currentTime', newTime);
+          return timer.setText(Math.round(newTime * 100) / 100);
         }
       });
     };
 
     HUD.prototype.reset = function() {
-      hudLayer.find('Text').each(function(txt) {
-        if (txt.getName() === 'timer') {
-          return txt.destroy();
+      hudLayer.find('Text').each(function(timer) {
+        if (timer.getName() === 'timer' || timer.getName() === 'count') {
+          return timer.destroy();
         }
       });
       return hudLayer.find('Sprite').each(function(icon) {
@@ -1794,12 +1833,6 @@
       player = new ControllablePlayer();
       hud = new HUD();
       networkManager.connect(ip, name);
-      new Bonus(0, 0, 'doubleJump', 0);
-      new Bonus(1, 0, 'grabbing', 1);
-      new Bonus(4, 0, 'doubleJump', 2);
-      new Bonus(7, 0, 'speed', 3);
-      new Bonus(8, 0, 'jumpHeight', 4);
-      new Bonus(9, 0, 'speed', 5);
       game.update = function(frameTime) {
         var cubes;
         players.draw();
