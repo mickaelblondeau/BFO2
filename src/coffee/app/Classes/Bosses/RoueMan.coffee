@@ -10,22 +10,22 @@ class RoueMan extends Boss
 
   attack: (level) ->
     self = @
-    @tweens.push tween1 = new Kinetic.Tween
+    bossManager.tweens.push tween1 = new Kinetic.Tween
       node: @shape
       duration: 0.1
       y: stage.getY() * -1 + config.levelHeight - level * 32
       onFinish: ->
-        self.tweens.push tween2 = new Kinetic.Tween
+        bossManager.tweens.push tween2 = new Kinetic.Tween
           node: self.shape
           duration: 1
           x: config.levelWidth - 64
           onFinish: ->
-            self.tweens.push tween3 = new Kinetic.Tween
+            bossManager.tweens.push tween3 = new Kinetic.Tween
               node: self.shape
               duration: 0.1
               y: stage.getY() * -1 + config.levelHeight - 128
               onFinish: ->
-                self.tweens.push tween4 = new Kinetic.Tween
+                bossManager.tweens.push tween4 = new Kinetic.Tween
                   node: self.shape
                   duration: 0.5
                   x: 0

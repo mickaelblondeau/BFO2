@@ -22,10 +22,15 @@ class Boss
         y: 0
         width: 64
         height: 64
+      }],
+      freezeman: [{
+        x: 0
+        y: 64
+        width: 544
+        height: 32
       }]
     }
     @draw()
-    @tweens = []
 
   draw: ->
     @shape = new Kinetic.Sprite
@@ -40,6 +45,9 @@ class Boss
       index: 0
       name: { type: 'boss', name: @type }
       id: 'boss' + @id
+      stroke: 'black'
+      strokeWidth: 1
+      strokeEnabled: true
     dynamicEntities.add @shape
     @shape.start()
 
@@ -49,5 +57,5 @@ class Boss
     networkManager.sendBossBeaten()
 
   reset: ->
-    for tween in @tweens
-      tween.pause()
+    @shape.destroy()
+    dynamicEntities.draw()

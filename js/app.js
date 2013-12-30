@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ControllablePlayer, Cube, FallingCube, Game, HUD, ImageLoader, Keyboard, LevelManager, NetworkManager, Player, RoueMan, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bossManager, collisionManager, config, dynamicEntities, game, hud, hudLayer, imageLoader, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ControllablePlayer, Cube, FallingCube, FreezeMan, Game, HUD, ImageLoader, Keyboard, LevelManager, NetworkManager, Player, RoueMan, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bossManager, collisionManager, config, dynamicEntities, game, hud, hudLayer, imageLoader, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -972,7 +972,8 @@
         duration: this.diffY / this.speed,
         y: this.destination,
         onFinish: function() {
-          return self.shape.setName(null);
+          self.shape.setName(null);
+          return tween.destroy();
         }
       });
       return tween.play();
@@ -1214,7 +1215,7 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         tween = _ref[_i];
         if (tween !== void 0) {
-          tween.pause();
+          tween.destroy();
         }
       }
       stage.setY(0);
@@ -1632,10 +1633,17 @@
             width: 64,
             height: 64
           }
+        ],
+        freezeman: [
+          {
+            x: 0,
+            y: 64,
+            width: 544,
+            height: 32
+          }
         ]
       };
       this.draw();
-      this.tweens = [];
     }
 
     Boss.prototype.draw = function() {
@@ -1653,7 +1661,10 @@
           type: 'boss',
           name: this.type
         },
-        id: 'boss' + this.id
+        id: 'boss' + this.id,
+        stroke: 'black',
+        strokeWidth: 1,
+        strokeEnabled: true
       });
       dynamicEntities.add(this.shape);
       return this.shape.start();
@@ -1666,14 +1677,8 @@
     };
 
     Boss.prototype.reset = function() {
-      var tween, _i, _len, _ref, _results;
-      _ref = this.tweens;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        tween = _ref[_i];
-        _results.push(tween.pause());
-      }
-      return _results;
+      this.shape.destroy();
+      return dynamicEntities.draw();
     };
 
     return Boss;
@@ -1683,15 +1688,26 @@
   BossManager = (function() {
     function BossManager() {
       this.currentBoss;
+      this.tweens = [];
     }
 
     BossManager.prototype.spawn = function(boss, options) {
       if (boss === 'roueman') {
-        return this.currentBoss = new RoueMan(0, options);
+        this.currentBoss = new RoueMan(0, options);
+      }
+      if (boss === 'freezeman') {
+        return this.currentBoss = new FreezeMan(0, options);
       }
     };
 
     BossManager.prototype.reset = function() {
+      var tween, _i, _len, _ref;
+      _ref = this.tweens;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        tween = _ref[_i];
+        tween.destroy();
+      }
+      this.tweens = [];
       if (this.currentBoss !== void 0) {
         return this.currentBoss.reset();
       }
@@ -1716,25 +1732,25 @@
     RoueMan.prototype.attack = function(level) {
       var self, tween1;
       self = this;
-      this.tweens.push(tween1 = new Kinetic.Tween({
+      bossManager.tweens.push(tween1 = new Kinetic.Tween({
         node: this.shape,
         duration: 0.1,
         y: stage.getY() * -1 + config.levelHeight - level * 32,
         onFinish: function() {
           var tween2;
-          self.tweens.push(tween2 = new Kinetic.Tween({
+          bossManager.tweens.push(tween2 = new Kinetic.Tween({
             node: self.shape,
             duration: 1,
             x: config.levelWidth - 64,
             onFinish: function() {
               var tween3;
-              self.tweens.push(tween3 = new Kinetic.Tween({
+              bossManager.tweens.push(tween3 = new Kinetic.Tween({
                 node: self.shape,
                 duration: 0.1,
                 y: stage.getY() * -1 + config.levelHeight - 128,
                 onFinish: function() {
                   var tween4;
-                  self.tweens.push(tween4 = new Kinetic.Tween({
+                  bossManager.tweens.push(tween4 = new Kinetic.Tween({
                     node: self.shape,
                     duration: 0.5,
                     x: 0,
@@ -1766,6 +1782,85 @@
     return RoueMan;
 
   })(Boss);
+
+  FreezeMan = (function() {
+    function FreezeMan(id, pattern) {
+      var i, _i, _ref;
+      this.count = 4;
+      this.intervalTime = 700;
+      this.parts = [];
+      for (i = _i = 0, _ref = this.count - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        this.parts.push(new Boss(id, 'freezeman', -544, 0, 544, 32));
+      }
+      this.freeWidth = 64;
+      this.top = stage.getY() * -1 - 128;
+      this.attacks = [[10, 10, 26, 10], [19, 19, 19, 10], [10, 10, 29, 10]];
+      this.index = 0;
+      this.subIndex = 0;
+      this.start();
+    }
+
+    FreezeMan.prototype.attack = function(level, index) {
+      var tween;
+      this.parts[index].shape.setX(128 + level * 32 - 544 + 32);
+      this.parts[index].shape.setY(this.top);
+      bossManager.tweens.push(tween = new Kinetic.Tween({
+        node: this.parts[index].shape,
+        duration: 2,
+        y: stage.getY() * -1 + config.levelHeight
+      }));
+      return tween.play();
+    };
+
+    FreezeMan.prototype.loop = function() {
+      if (this.attacks[this.index] !== void 0) {
+        if (this.attacks[this.index][this.subIndex] !== void 0) {
+          this.attack(this.attacks[this.index][this.subIndex], this.subIndex);
+          return this.subIndex++;
+        } else {
+          this.index++;
+          return this.subIndex = 0;
+        }
+      } else {
+        clearInterval(this.interval);
+        return this.finish();
+      }
+    };
+
+    FreezeMan.prototype.start = function() {
+      var self, thisLoop;
+      self = this;
+      thisLoop = function() {
+        return self.loop();
+      };
+      return this.interval = setInterval(thisLoop, this.intervalTime);
+    };
+
+    FreezeMan.prototype.reset = function() {
+      var part, _i, _len, _ref, _results;
+      _ref = this.parts;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        part = _ref[_i];
+        _results.push(part.reset());
+      }
+      return _results;
+    };
+
+    FreezeMan.prototype.finish = function() {
+      var part, _i, _len, _ref;
+      _ref = this.parts;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        part = _ref[_i];
+        part.shape.destroy();
+      }
+      dynamicEntities.draw();
+      return networkManager.sendBossBeaten();
+    };
+
+    return FreezeMan;
+
+  })();
 
   stage = new Kinetic.Stage({
     container: 'container',
@@ -1833,6 +1928,7 @@
       player = new ControllablePlayer();
       hud = new HUD();
       networkManager.connect(ip, name);
+      bossManager.spawn('freezeman');
       game.update = function(frameTime) {
         var cubes;
         players.draw();

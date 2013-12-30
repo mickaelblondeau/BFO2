@@ -28,6 +28,7 @@ module.exports = function(grunt) {
                     'src/coffee/app/Classes/Bosses/Boss.coffee',
                     'src/coffee/app/Classes/Bosses/BossManager.coffee',
                     'src/coffee/app/Classes/Bosses/RoueMan.coffee',
+                    'src/coffee/app/Classes/Bosses/FreezeMan.coffee',
                     'src/coffee/app/main.coffee',
                     'src/coffee/app/events.coffee'
                 ],

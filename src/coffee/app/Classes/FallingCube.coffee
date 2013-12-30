@@ -20,6 +20,7 @@ class FallingCube extends Cube
       y: @destination
       onFinish: ->
         self.shape.setName(null)
+        tween.destroy()
     tween.play()
 
   getColor: ->
