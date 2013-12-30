@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ControllablePlayer, Cube, FallingCube, FreezeMan, Game, HUD, ImageLoader, Keyboard, LevelManager, NetworkManager, Player, RoueMan, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bossManager, collisionManager, config, dynamicEntities, game, hud, hudLayer, imageLoader, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ControllablePlayer, Cube, FallingCube, FreezeMan, FreezeManPart, Game, HUD, ImageLoader, Keyboard, LevelManager, NetworkManager, Player, RoueMan, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bossManager, collisionManager, config, dynamicEntities, game, hud, hudLayer, imageLoader, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -169,7 +169,7 @@
       });
       imageLoader.addLoad({
         name: 'boss',
-        url: 'http://res.cloudinary.com/bfo/image/upload/v1388426530/BFO/boss.png'
+        url: 'http://res.cloudinary.com/bfo/image/upload/v1388434905/BFO/boss.png'
       });
       imageLoader.addLoad({
         name: 'playerSpirteSheet',
@@ -1481,56 +1481,58 @@
 
     HUD.prototype.addBuff = function(buffType, time) {
       var buff, count, timer;
-      this.buffs.push({
-        buff: buffType,
-        time: time
-      });
-      if (hudLayer.find('#' + buffType)[0] !== void 0) {
-        count = hudLayer.find('#count' + buffType)[0];
-        count.setText((parseInt(count.getText().split(' x ')) + 1) + ' x ');
-        if (time !== void 0) {
-          timer = hudLayer.find('#timer' + buffType)[0];
-          return timer.setText(time / 1000);
-        }
-      } else {
-        buff = new Kinetic.Sprite({
-          x: 618,
-          y: 0,
-          width: 32,
-          height: 32,
-          image: imageLoader.images['bonus'],
-          animation: buffType,
-          animations: bonusTypes,
-          frameRate: 0,
-          index: 0,
-          id: buffType
+      if (buffType !== 'resurection') {
+        this.buffs.push({
+          buff: buffType,
+          time: time
         });
-        hudLayer.add(buff);
-        if (time !== void 0) {
-          timer = new Kinetic.Text({
-            x: 658,
+        if (hudLayer.find('#' + buffType)[0] !== void 0) {
+          count = hudLayer.find('#count' + buffType)[0];
+          count.setText((parseInt(count.getText().split(' x ')) + 1) + ' x ');
+          if (time !== void 0) {
+            timer = hudLayer.find('#timer' + buffType)[0];
+            return timer.setText(time / 1000);
+          }
+        } else {
+          buff = new Kinetic.Sprite({
+            x: 618,
             y: 0,
-            text: time / 1000,
+            width: 32,
+            height: 32,
+            image: imageLoader.images['bonus'],
+            animation: buffType,
+            animations: bonusTypes,
+            frameRate: 0,
+            index: 0,
+            id: buffType
+          });
+          hudLayer.add(buff);
+          if (time !== void 0) {
+            timer = new Kinetic.Text({
+              x: 658,
+              y: 0,
+              text: time / 1000,
+              fill: 'black',
+              fontFamily: 'Calibri',
+              fontSize: 18,
+              id: 'timer' + buffType,
+              name: 'timer'
+            });
+            hudLayer.add(timer);
+            timer.setAttr('currentTime', time / 1000);
+          }
+          count = new Kinetic.Text({
+            x: 590,
+            y: 0,
+            text: '1 x ',
             fill: 'black',
             fontFamily: 'Calibri',
             fontSize: 18,
-            id: 'timer' + buffType,
-            name: 'timer'
+            id: 'count' + buffType,
+            name: 'count'
           });
-          hudLayer.add(timer);
-          timer.setAttr('currentTime', time / 1000);
+          return hudLayer.add(count);
         }
-        count = new Kinetic.Text({
-          x: 590,
-          y: 0,
-          text: '1 x ',
-          fill: 'black',
-          fontFamily: 'Calibri',
-          fontSize: 18,
-          id: 'count' + buffType,
-          name: 'count'
-        });
-        return hudLayer.add(count);
       }
     };
 
@@ -1617,17 +1619,17 @@
           {
             x: 0,
             y: 0,
-            width: 64,
+            width: 63,
             height: 64
           }, {
             x: 64,
             y: 0,
-            width: 64,
+            width: 63,
             height: 64
           }, {
             x: 128,
             y: 0,
-            width: 64,
+            width: 63,
             height: 64
           }
         ],
@@ -1668,14 +1670,13 @@
     };
 
     Boss.prototype.finish = function() {
+      bossManager.stopUpdate();
       this.shape.destroy();
-      dynamicEntities.draw();
       return networkManager.sendBossBeaten();
     };
 
     Boss.prototype.reset = function() {
-      this.shape.destroy();
-      return dynamicEntities.draw();
+      return this.shape.destroy();
     };
 
     return Boss;
@@ -1685,7 +1686,6 @@
   BossManager = (function() {
     function BossManager() {
       this.currentBoss;
-      this.tweens = [];
     }
 
     BossManager.prototype.spawn = function(boss, options) {
@@ -1698,16 +1698,16 @@
     };
 
     BossManager.prototype.reset = function() {
-      var tween, _i, _len, _ref;
-      _ref = this.tweens;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        tween = _ref[_i];
-        tween.destroy();
-      }
-      this.tweens = [];
+      this.stopUpdate();
       if (this.currentBoss !== void 0) {
         return this.currentBoss.reset();
       }
+    };
+
+    BossManager.prototype.update = function(frameTime) {};
+
+    BossManager.prototype.stopUpdate = function() {
+      return this.update = function(frameTime) {};
     };
 
     return BossManager;
@@ -1722,72 +1722,72 @@
       y = stage.getY() * -1;
       RoueMan.__super__.constructor.call(this, id, 'roueman', 0, y, 64, 64);
       this.attacks = pattern;
-      this.index = 0;
+      this.attackIndex = 0;
+      this.attackSpeed = 0.6;
       this.start();
     }
 
-    RoueMan.prototype.attack = function(level) {
-      var self, tween1;
-      self = this;
-      bossManager.tweens.push(tween1 = new Kinetic.Tween({
-        node: this.shape,
-        duration: 0.1,
-        y: arena.y - levelManager.levelHeight - level * 32,
-        onFinish: function() {
-          var tween2;
-          bossManager.tweens.push(tween2 = new Kinetic.Tween({
-            node: self.shape,
-            duration: 1,
-            x: config.levelWidth - 64,
-            onFinish: function() {
-              var tween3;
-              bossManager.tweens.push(tween3 = new Kinetic.Tween({
-                node: self.shape,
-                duration: 0.1,
-                y: arena.y - levelManager.levelHeight - 128,
-                onFinish: function() {
-                  var tween4;
-                  bossManager.tweens.push(tween4 = new Kinetic.Tween({
-                    node: self.shape,
-                    duration: 0.5,
-                    x: 0,
-                    onFinish: function() {
-                      return self.loop();
-                    }
-                  }));
-                  return tween4.play();
-                }
-              }));
-              return tween3.play();
-            }
-          }));
-          return tween2.play();
-        }
-      }));
-      return tween1.play();
+    RoueMan.prototype.start = function() {
+      return this.moveY(arena.y - levelManager.levelHeight - 128, '+', 'next');
     };
 
-    RoueMan.prototype.loop = function() {
-      if (this.attacks[this.index] !== void 0) {
-        this.attack(this.attacks[this.index]);
-        return this.index++;
+    RoueMan.prototype.moveX = function(x, side, next) {
+      var self;
+      self = this;
+      return bossManager.update = function(frameTime) {
+        var tmp;
+        if (side === '+') {
+          tmp = self.shape.getX() + frameTime * self.attackSpeed;
+        } else if (side === '-') {
+          tmp = self.shape.getX() - frameTime * self.attackSpeed;
+        }
+        if ((side === '+' && tmp < x) || (side === '-' && tmp > x)) {
+          return self.shape.setX(tmp);
+        } else {
+          self.shape.setX(x);
+          if (next === 'return') {
+            return self.moveY(arena.y - levelManager.levelHeight - 128, '-', 'return');
+          } else if (next === 'next') {
+            return self.next();
+          }
+        }
+      };
+    };
+
+    RoueMan.prototype.moveY = function(y, side, next) {
+      var self;
+      self = this;
+      return bossManager.update = function(frameTime) {
+        var tmp;
+        if (side === '+') {
+          tmp = self.shape.getY() + frameTime * self.attackSpeed;
+        } else if (side === '-') {
+          tmp = self.shape.getY() - frameTime * self.attackSpeed;
+        }
+        if ((side === '+' && tmp < y) || (side === '-' && tmp > y)) {
+          return self.shape.setY(tmp);
+        } else {
+          self.shape.setY(y);
+          if (next === 'attack') {
+            return self.moveX(config.levelWidth - 64, '+', 'return');
+          } else if (next === 'return') {
+            return self.moveX(0, '-', 'next');
+          } else if (next === 'next') {
+            return self.next();
+          }
+        }
+      };
+    };
+
+    RoueMan.prototype.next = function() {
+      var tmp;
+      tmp = this.attacks[this.attackIndex];
+      if (tmp !== void 0) {
+        this.moveY(arena.y - levelManager.levelHeight - tmp * 32, '+', 'attack');
+        return this.attackIndex++;
       } else {
         return this.finish();
       }
-    };
-
-    RoueMan.prototype.start = function() {
-      var self, tween;
-      self = this;
-      bossManager.tweens.push(tween = new Kinetic.Tween({
-        node: this.shape,
-        duration: 2,
-        y: arena.y - levelManager.levelHeight - 128,
-        onFinish: function() {
-          return self.loop();
-        }
-      }));
-      return tween.play();
     };
 
     return RoueMan;
@@ -1796,55 +1796,59 @@
 
   FreezeMan = (function() {
     function FreezeMan(id, pattern) {
-      var i, _i, _ref;
-      this.count = 4;
-      this.intervalTime = 700;
+      this.speed = 0.4;
+      this.counter = 0;
+      this.interval = 1500;
+      this.attacks = pattern;
+      this.attackIndex = 0;
+      this.count = 0;
       this.parts = [];
-      for (i = _i = 0, _ref = this.count - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-        this.parts.push(new Boss(id, 'freezeman', -544, 0, 544, 32));
-      }
-      this.freeWidth = 64;
-      this.top = stage.getY() * -1 - 128;
-      this.attacks = [[10, 10, 26, 10], [19, 19, 19, 10], [10, 10, 29, 10]];
-      this.index = 0;
-      this.subIndex = 0;
+      this.levelHeight = arena.y - levelManager.levelHeight;
       this.start();
+      this.next();
     }
 
-    FreezeMan.prototype.attack = function(level, index) {
-      var tween;
-      this.parts[index].shape.setX(128 + level * 32 - 544 + 32);
-      this.parts[index].shape.setY(this.top);
-      bossManager.tweens.push(tween = new Kinetic.Tween({
-        node: this.parts[index].shape,
-        duration: 2,
-        y: stage.getY() * -1 + config.levelHeight
-      }));
-      return tween.play();
-    };
-
-    FreezeMan.prototype.loop = function() {
-      if (this.attacks[this.index] !== void 0) {
-        if (this.attacks[this.index][this.subIndex] !== void 0) {
-          this.attack(this.attacks[this.index][this.subIndex], this.subIndex);
-          return this.subIndex++;
-        } else {
-          this.index++;
-          return this.subIndex = 0;
-        }
-      } else {
-        clearInterval(this.interval);
-        return this.finish();
-      }
-    };
-
     FreezeMan.prototype.start = function() {
-      var self, thisLoop;
+      var self;
       self = this;
-      thisLoop = function() {
-        return self.loop();
+      return bossManager.update = function(frameTime) {
+        var i, part, tmp, _i, _len, _ref, _results;
+        self.counter += frameTime;
+        if (self.counter >= self.interval) {
+          self.counter = 0;
+          self.next();
+        }
+        _ref = self.parts;
+        _results = [];
+        for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+          part = _ref[i];
+          if (part !== void 0) {
+            tmp = part.shape.getY() + frameTime * self.speed;
+            if (tmp < self.levelHeight) {
+              _results.push(part.shape.setY(tmp));
+            } else {
+              part.shape.destroy();
+              self.count++;
+              if (self.count === self.attacks.length) {
+                self.finish();
+              }
+              _results.push(self.parts.splice(i, 1));
+            }
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
       };
-      return this.interval = setInterval(thisLoop, this.intervalTime);
+    };
+
+    FreezeMan.prototype.next = function() {
+      var tmp;
+      tmp = this.attacks[this.attackIndex];
+      if (tmp !== void 0) {
+        this.parts.push(new FreezeManPart(tmp * 32 + 128));
+        return this.attackIndex++;
+      }
     };
 
     FreezeMan.prototype.reset = function() {
@@ -1859,19 +1863,26 @@
     };
 
     FreezeMan.prototype.finish = function() {
-      var part, _i, _len, _ref;
-      _ref = this.parts;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        part = _ref[_i];
-        part.shape.destroy();
-      }
-      dynamicEntities.draw();
+      bossManager.stopUpdate();
       return networkManager.sendBossBeaten();
     };
 
     return FreezeMan;
 
   })();
+
+  FreezeManPart = (function(_super) {
+    __extends(FreezeManPart, _super);
+
+    function FreezeManPart(x) {
+      var y;
+      y = stage.getY() * -1;
+      FreezeManPart.__super__.constructor.call(this, 0, 'freezeman', x, y, 544, 32);
+    }
+
+    return FreezeManPart;
+
+  })(Boss);
 
   stage = new Kinetic.Stage({
     container: 'container',
@@ -1942,6 +1953,7 @@
       game.update = function(frameTime) {
         players.draw();
         player.update(frameTime);
+        bossManager.update(frameTime);
         return hud.update(frameTime);
       };
       return game.start();

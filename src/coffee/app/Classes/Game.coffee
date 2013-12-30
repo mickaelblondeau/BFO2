@@ -59,6 +59,6 @@ class Game
     imageLoader.addLoad({ name:'cubes_green', url:'http://res.cloudinary.com/bfo/image/upload/v1388426531/BFO/cubes_green.jpg'})
     imageLoader.addLoad({ name:'bonus', url:'http://res.cloudinary.com/bfo/image/upload/v1388426529/BFO/bonus.png'})
     imageLoader.addLoad({ name:'bg', url:'http://res.cloudinary.com/bfo/image/upload/v1388426531/BFO/bg.jpg'})
-    imageLoader.addLoad({ name:'boss', url:'http://res.cloudinary.com/bfo/image/upload/v1388426530/BFO/boss.png'})
+    imageLoader.addLoad({ name:'boss', url:'http://res.cloudinary.com/bfo/image/upload/v1388434905/BFO/boss.png'})
     imageLoader.addLoad({ name:'playerSpirteSheet', url:'http://res.cloudinary.com/bfo/image/upload/v1388426529/BFO/playerSpirteSheet.png'})
     imageLoader.load()

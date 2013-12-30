@@ -10,17 +10,17 @@ class Boss
       roueman: [{
         x: 0
         y: 0
-        width: 64
+        width: 63
         height: 64
       }, {
         x: 64
         y: 0
-        width: 64
+        width: 63
         height: 64
       }, {
         x: 128
         y: 0
-        width: 64
+        width: 63
         height: 64
       }],
       freezeman: [{
@@ -52,10 +52,9 @@ class Boss
     @shape.start()
 
   finish: ->
+    bossManager.stopUpdate()
     @shape.destroy()
-    dynamicEntities.draw()
     networkManager.sendBossBeaten()
 
   reset: ->
     @shape.destroy()
-    dynamicEntities.draw()

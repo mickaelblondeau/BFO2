@@ -1,7 +1,7 @@
 class BossManager
   constructor: ->
     @launched = false
-    @boss = ['roueman']
+    @boss = ['roueman', 'freezeman']
 
   launch: ->
     boss = @getBoss()
@@ -15,3 +15,5 @@ class BossManager
     boss = @boss[Math.floor(Math.random()*@boss.length)]
     if boss is 'roueman'
       return new RoueMan()
+    else if boss is 'freezeman'
+      return new FreezeMan()

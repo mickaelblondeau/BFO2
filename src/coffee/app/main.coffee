@@ -46,11 +46,10 @@ imageLoader.imagesLoaded = ->
 
     networkManager.connect(ip, name)
 
-    #bossManager.spawn('freezeman')
-
     game.update = (frameTime) ->
       players.draw()
       player.update(frameTime)
+      bossManager.update(frameTime)
       hud.update(frameTime)
     game.start()
 

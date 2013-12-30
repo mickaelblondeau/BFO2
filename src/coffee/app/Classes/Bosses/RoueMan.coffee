@@ -2,53 +2,52 @@ class RoueMan extends Boss
   constructor: (id, pattern) ->
     y = stage.getY() * -1
     super(id, 'roueman', 0, y, 64, 64)
-
     @attacks = pattern
-    @index = 0
-
+    @attackIndex = 0
+    @attackSpeed = 0.6
     @start()
 
-  attack: (level) ->
-    self = @
-    bossManager.tweens.push tween1 = new Kinetic.Tween
-      node: @shape
-      duration: 0.1
-      y: arena.y - levelManager.levelHeight - level * 32
-      onFinish: ->
-        bossManager.tweens.push tween2 = new Kinetic.Tween
-          node: self.shape
-          duration: 1
-          x: config.levelWidth - 64
-          onFinish: ->
-            bossManager.tweens.push tween3 = new Kinetic.Tween
-              node: self.shape
-              duration: 0.1
-              y: arena.y - levelManager.levelHeight - 128
-              onFinish: ->
-                bossManager.tweens.push tween4 = new Kinetic.Tween
-                  node: self.shape
-                  duration: 0.5
-                  x: 0
-                  onFinish: ->
-                    self.loop()
-                tween4.play()
-            tween3.play()
-        tween2.play()
-    tween1.play()
+  start: ->
+    @moveY(arena.y - levelManager.levelHeight - 128, '+', 'next')
 
-  loop: ->
-    if @attacks[@index] isnt undefined
-      @attack(@attacks[@index])
-      @index++
+  moveX: (x, side, next) ->
+    self = @
+    bossManager.update = (frameTime) ->
+      if side is '+'
+        tmp = self.shape.getX() + frameTime * self.attackSpeed
+      else if side is '-'
+        tmp = self.shape.getX() - frameTime * self.attackSpeed
+      if (side is '+' and tmp < x) or (side is '-' and tmp > x)
+        self.shape.setX(tmp)
+      else
+        self.shape.setX(x)
+        if next is 'return'
+          self.moveY(arena.y - levelManager.levelHeight - 128, '-', 'return')
+        else if next is 'next'
+          self.next()
+
+  moveY: (y, side, next) ->
+    self = @
+    bossManager.update = (frameTime) ->
+      if side is '+'
+        tmp = self.shape.getY() + frameTime * self.attackSpeed
+      else if side is '-'
+        tmp = self.shape.getY() - frameTime * self.attackSpeed
+      if (side is '+' and tmp < y) or (side is '-' and tmp > y)
+        self.shape.setY(tmp)
+      else
+        self.shape.setY(y)
+        if next is 'attack'
+          self.moveX(config.levelWidth - 64, '+', 'return')
+        else if next is 'return'
+          self.moveX(0, '-', 'next')
+        else if next is 'next'
+          self.next()
+
+  next: ->
+    tmp = @attacks[@attackIndex]
+    if tmp isnt undefined
+      @moveY(arena.y - levelManager.levelHeight - tmp*32, '+', 'attack')
+      @attackIndex++
     else
       @finish()
-
-  start: ->
-    self = @
-    bossManager.tweens.push tween = new Kinetic.Tween
-      node: @shape
-      duration: 2
-      y: arena.y - levelManager.levelHeight - 128
-      onFinish: ->
-        self.loop()
-    tween.play()

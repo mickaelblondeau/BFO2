@@ -1,56 +1,45 @@
 class FreezeMan
   constructor: (id, pattern) ->
-    @count = 4
-    @intervalTime = 700
+    @speed = 0.4
+    @counter = 0
+    @interval = 1500
+    @attacks = pattern
+    @attackIndex = 0
+    @count = 0
     @parts = []
-    for i in [0..@count - 1]
-      @parts.push new Boss(id, 'freezeman', -544, 0, 544, 32)
-
-    @freeWidth = 64
-    @top = stage.getY() * -1 - 128
-
-    # 0 - 10
-    # 19 - 29
-    @attacks = [[10, 10, 26, 10], [19, 19, 19, 10], [10, 10, 29, 10]]
-    @index = 0
-    @subIndex = 0
-
+    @levelHeight = arena.y - levelManager.levelHeight
     @start()
-
-  attack: (level, index) ->
-    @parts[index].shape.setX(128 + level * 32 - 544 + 32)
-    @parts[index].shape.setY(@top)
-
-    bossManager.tweens.push tween = new Kinetic.Tween
-      node: @parts[index].shape
-      duration: 2
-      y: stage.getY() * -1 + config.levelHeight
-    tween.play()
-
-  loop: ->
-    if @attacks[@index] isnt undefined
-      if @attacks[@index][@subIndex] isnt undefined
-        @attack(@attacks[@index][@subIndex], @subIndex)
-        @subIndex++
-      else
-        @index++
-        @subIndex = 0
-    else
-      clearInterval(@interval)
-      @finish()
+    @next()
 
   start: ->
     self = @
-    thisLoop = () ->
-      self.loop()
-    @interval = setInterval(thisLoop, @intervalTime)
+    bossManager.update = (frameTime) ->
+      self.counter += frameTime
+      if self.counter >= self.interval
+        self.counter = 0
+        self.next()
+      for part, i in self.parts
+        if part isnt undefined
+          tmp = part.shape.getY() + frameTime * self.speed
+          if tmp < self.levelHeight
+            part.shape.setY(tmp)
+          else
+            part.shape.destroy()
+            self.count++
+            if self.count is self.attacks.length
+              self.finish()
+            self.parts.splice(i, 1)
+
+  next: ->
+    tmp = @attacks[@attackIndex]
+    if tmp isnt undefined
+      @parts.push new FreezeManPart(tmp*32+128)
+      @attackIndex++
 
   reset: ->
     for part in @parts
       part.reset()
 
   finish: ->
-    for part in @parts
-      part.shape.destroy()
-    dynamicEntities.draw()
+    bossManager.stopUpdate()
     networkManager.sendBossBeaten()

@@ -3,7 +3,6 @@ BFO2 TODO
 Features :
 * can't join on started game (missing blocks)
 * ingame chat
-* other boss
 * new skins / customisation
 
 Bugs :

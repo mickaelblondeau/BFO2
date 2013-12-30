@@ -1,7 +1,6 @@
 class BossManager
   constructor: ->
     @currentBoss
-    @tweens = []
 
   spawn: (boss, options) ->
     if boss == 'roueman'
@@ -10,8 +9,11 @@ class BossManager
       @currentBoss = new FreezeMan(0, options)
 
   reset: ->
-    for tween in @tweens
-      tween.destroy()
-    @tweens = []
+    @stopUpdate()
     if @currentBoss isnt undefined
       @currentBoss.reset()
+
+  update: (frameTime) ->
+
+  stopUpdate: ->
+    @update = (frameTime) ->

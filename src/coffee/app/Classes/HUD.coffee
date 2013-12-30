@@ -20,51 +20,52 @@ class HUD
     hudLayer.add @level
 
   addBuff: (buffType, time) ->
-    @buffs.push { buff: buffType, time: time }
+    if buffType != 'resurection'
+      @buffs.push { buff: buffType, time: time }
 
-    if hudLayer.find('#' + buffType)[0] isnt undefined
-      count = hudLayer.find('#count' + buffType)[0]
-      count.setText((parseInt(count.getText().split(' x ')) + 1) + ' x ')
-      if time isnt undefined
-        timer = hudLayer.find('#timer' + buffType)[0]
-        timer.setText(time/1000)
-    else
-      buff = new Kinetic.Sprite
-        x: 618
-        y: 0
-        width: 32
-        height: 32
-        image: imageLoader.images['bonus']
-        animation: buffType
-        animations: bonusTypes
-        frameRate: 0
-        index: 0
-        id: buffType
-      hudLayer.add buff
-
-      if time isnt undefined
-        timer = new Kinetic.Text
-          x: 658
+      if hudLayer.find('#' + buffType)[0] isnt undefined
+        count = hudLayer.find('#count' + buffType)[0]
+        count.setText((parseInt(count.getText().split(' x ')) + 1) + ' x ')
+        if time isnt undefined
+          timer = hudLayer.find('#timer' + buffType)[0]
+          timer.setText(time/1000)
+      else
+        buff = new Kinetic.Sprite
+          x: 618
           y: 0
-          text: time/1000
+          width: 32
+          height: 32
+          image: imageLoader.images['bonus']
+          animation: buffType
+          animations: bonusTypes
+          frameRate: 0
+          index: 0
+          id: buffType
+        hudLayer.add buff
+
+        if time isnt undefined
+          timer = new Kinetic.Text
+            x: 658
+            y: 0
+            text: time/1000
+            fill: 'black'
+            fontFamily: 'Calibri'
+            fontSize: 18
+            id: 'timer' + buffType
+            name: 'timer'
+          hudLayer.add timer
+          timer.setAttr('currentTime', time/1000)
+
+        count = new Kinetic.Text
+          x: 590
+          y: 0
+          text: '1 x '
           fill: 'black'
           fontFamily: 'Calibri'
           fontSize: 18
-          id: 'timer' + buffType
-          name: 'timer'
-        hudLayer.add timer
-        timer.setAttr('currentTime', time/1000)
-
-      count = new Kinetic.Text
-        x: 590
-        y: 0
-        text: '1 x '
-        fill: 'black'
-        fontFamily: 'Calibri'
-        fontSize: 18
-        id: 'count' + buffType
-        name: 'count'
-      hudLayer.add count
+          id: 'count' + buffType
+          name: 'count'
+        hudLayer.add count
 
   deleteBuff: (buffType) ->
     buff = hudLayer.find('#' + buffType)[0]
