@@ -46,6 +46,8 @@ class NetworkManager
           levelManager.passNextLevel()
       socket.on 'resurection', ->
         socket.broadcast.emit 'resurection'
+      socket.on 'message', (message) ->
+        socket.broadcast.emit 'message', [socket.id, message]
       socket.on 'disconnect', ->
         socket.broadcast.emit 'disconnect', socket.id
 

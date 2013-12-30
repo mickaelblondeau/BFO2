@@ -45,12 +45,19 @@ class Keyboard
       {
         keys          : "r",
         on_keydown    : ->
-          game.reset()
+          if !game.writting
+            game.reset()
+      },
+      {
+        keys          : "e",
+        on_keydown    : ->
+          if !game.writting
+            game.launch()
       },
       {
         keys          : "enter",
         on_keydown    : ->
-          game.launch()
+          game.chat()
       },
     ]
     keypress.register_many(my_combos)

@@ -426,6 +426,9 @@
         socket.on('resurection', function() {
           return socket.broadcast.emit('resurection');
         });
+        socket.on('message', function(message) {
+          return socket.broadcast.emit('message', [socket.id, message]);
+        });
         return socket.on('disconnect', function() {
           return socket.broadcast.emit('disconnect', socket.id);
         });

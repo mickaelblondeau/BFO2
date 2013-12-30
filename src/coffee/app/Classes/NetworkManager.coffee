@@ -44,8 +44,11 @@ class NetworkManager
     @socket.on 'playerList', (arr) ->
       for id, i in self.playersId
         if arr.indexOf(id) is -1
-          self.players[id].remove()
+          if self.players[id] isnt undefined
+            self.players[id].remove()
           self.playersId.splice(i, 1)
+    @socket.on 'message', (arr) ->
+      game.addMessage(self.players[arr[0]].name.getText(), arr[1])
 
   sendLaunch: ->
     @socket.emit 'launch'
@@ -76,3 +79,6 @@ class NetworkManager
 
   sendResurection: ->
     @socket.emit 'resurection'
+
+  sendMessage: (message) ->
+    @socket.emit 'message', message

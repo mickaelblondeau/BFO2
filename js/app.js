@@ -66,12 +66,21 @@
         }, {
           keys: "r",
           on_keydown: function() {
-            return game.reset();
+            if (!game.writting) {
+              return game.reset();
+            }
+          }
+        }, {
+          keys: "e",
+          on_keydown: function() {
+            if (!game.writting) {
+              return game.launch();
+            }
           }
         }, {
           keys: "enter",
           on_keydown: function() {
-            return game.launch();
+            return game.chat();
           }
         }
       ];
@@ -88,6 +97,7 @@
     function Game() {
       this.statsInit();
       this.scale = 1;
+      this.writting = false;
     }
 
     Game.prototype.loop = function() {
@@ -114,7 +124,9 @@
       stage.setScaleX(this.scale);
       stage.setScaleY(this.scale);
       stage.draw();
-      return document.getElementById("container").style.width = config.levelWidth * this.scale + "px";
+      document.getElementById("container").style.width = config.levelWidth * this.scale + "px";
+      document.getElementById("chat").style.width = config.levelWidth * this.scale + "px";
+      return document.getElementById("chat").style.margin = "0" + -(config.levelWidth * this.scale / 2);
     };
 
     Game.prototype.statsInit = function() {
@@ -176,6 +188,30 @@
         url: 'http://res.cloudinary.com/bfo/image/upload/v1388426529/BFO/playerSpirteSheet.png'
       });
       return imageLoader.load();
+    };
+
+    Game.prototype.chat = function() {
+      if (document.activeElement.id === 'chatMessage') {
+        this.writting = false;
+        if (document.activeElement.value !== void 0 && document.activeElement.value !== '') {
+          networkManager.sendMessage(document.getElementById('chatMessage').value);
+          this.addMessage('Me', document.getElementById('chatMessage').value);
+        }
+        document.getElementById('chatMessage').blur();
+        return document.getElementById('chatMessage').value = null;
+      } else {
+        this.writting = true;
+        return document.getElementById('chatMessage').focus();
+      }
+    };
+
+    Game.prototype.addMessage = function(name, message) {
+      var callback;
+      document.getElementById('chatMessages').innerHTML += '<div class="message"><span class="from">' + name + '</span> : <span class="content">' + message + '</span></div>';
+      callback = function() {
+        return document.querySelectorAll('#chatMessages .message')[0].remove();
+      };
+      return setTimeout(callback, 3000);
     };
 
     return Game;
@@ -1332,20 +1368,25 @@
       this.socket.on('resurection', function() {
         return player.resurection();
       });
-      return this.socket.on('playerList', function(arr) {
+      this.socket.on('playerList', function(arr) {
         var i, id, _i, _len, _ref, _results;
         _ref = self.playersId;
         _results = [];
         for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
           id = _ref[i];
           if (arr.indexOf(id) === -1) {
-            self.players[id].remove();
+            if (self.players[id] !== void 0) {
+              self.players[id].remove();
+            }
             _results.push(self.playersId.splice(i, 1));
           } else {
             _results.push(void 0);
           }
         }
         return _results;
+      });
+      return this.socket.on('message', function(arr) {
+        return game.addMessage(self.players[arr[0]].name.getText(), arr[1]);
       });
     };
 
@@ -1387,6 +1428,10 @@
 
     NetworkManager.prototype.sendResurection = function() {
       return this.socket.emit('resurection');
+    };
+
+    NetworkManager.prototype.sendMessage = function(message) {
+      return this.socket.emit('message', message);
     };
 
     return NetworkManager;

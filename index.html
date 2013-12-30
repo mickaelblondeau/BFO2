@@ -12,6 +12,10 @@
         #login button { padding: 10px; border: 1px solid grey; border-radius: 10px; background: springgreen; width: 100px; margin: auto; display: block; margin-top: 20px; }
         #login button:hover { cursor: pointer; background: green; }
         .mg-1 { padding-top: 100px; }
+        #chat { position: absolute; width: 600px; z-index: 999; left: 50%; margin-left: -300px; bottom: 0px; padding: 10px; }
+        #chat input { border: 0; background: none; width: 100%; }
+        #chat span { word-wrap: break-word; }
+        #chat .from { font-weight: bold; }
     </style>
 </head>
 <body>
@@ -30,6 +34,12 @@
         <input type="text" id="skin" value="default" />
     </div>
     <button id="play">Play</button>
+</div>
+<div id="chat">
+    <div id="chatMessages"></div>
+    <div>
+        <input type="text" id="chatMessage" value="" />
+    </div>
 </div>
 <div id="container"></div>
 <script src="js/lib/keypress-1.0.9.min.js"></script>
