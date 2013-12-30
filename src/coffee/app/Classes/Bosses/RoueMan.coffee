@@ -1,19 +1,19 @@
 class RoueMan extends Boss
   constructor: (id, pattern) ->
-    y = stage.getY() * -1 + config.levelHeight - 160
+    y = stage.getY() * -1
     super(id, 'roueman', 0, y, 64, 64)
 
     @attacks = pattern
     @index = 0
 
-    @loop()
+    @start()
 
   attack: (level) ->
     self = @
     bossManager.tweens.push tween1 = new Kinetic.Tween
       node: @shape
       duration: 0.1
-      y: stage.getY() * -1 + config.levelHeight - level * 32
+      y: arena.y - levelManager.levelHeight - level * 32
       onFinish: ->
         bossManager.tweens.push tween2 = new Kinetic.Tween
           node: self.shape
@@ -23,7 +23,7 @@ class RoueMan extends Boss
             bossManager.tweens.push tween3 = new Kinetic.Tween
               node: self.shape
               duration: 0.1
-              y: stage.getY() * -1 + config.levelHeight - 128
+              y: arena.y - levelManager.levelHeight - 128
               onFinish: ->
                 bossManager.tweens.push tween4 = new Kinetic.Tween
                   node: self.shape
@@ -42,3 +42,13 @@ class RoueMan extends Boss
       @index++
     else
       @finish()
+
+  start: ->
+    self = @
+    bossManager.tweens.push tween = new Kinetic.Tween
+      node: @shape
+      duration: 2
+      y: arena.y - levelManager.levelHeight - 128
+      onFinish: ->
+        self.loop()
+    tween.play()

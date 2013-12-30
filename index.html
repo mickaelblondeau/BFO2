@@ -3,10 +3,9 @@
     <title>BFO</title>
     <style>
         body { overflow: hidden; margin: 0; }
-        #debug { position: absolute; left: 90px; }
         #container { margin: auto; display: block !important; }
         #stats { position: absolute; top: 0; left: 0; }
-        #login { width: 704px; height: 100%; margin: auto; background: url('assets/bg.jpg') }
+        #login { width: 704px; height: 100%; margin: auto; background: url('http://res.cloudinary.com/bfo/image/upload/v1388426531/BFO/bg.jpg') }
         #login label { display: block; }
         #login .form-line { margin: auto; width: 300px; padding-top: 20px; }
         #login input { padding: 10px; border: 1px solid grey; border-radius: 10px; width: 300px; }
@@ -16,16 +15,6 @@
     </style>
 </head>
 <body>
-<div id="debug">
-    Player jumping : <span id="jump"></span><br>
-    Player jumps : <span id="jumps"></span><br>
-    Player falling : <span id="falling"></span><br>
-    Player alive : <span id="alive"></span><br>
-    Level : <span id="lml">0</span><br>
-    Falling cubes : <span id="cc"></span><br>
-    Static cubes : <span id="sc"></span><br>
-    Player position cached : <span id="ppc"></span><br>
-</div>
 <div id="login">
     <div class="mg-1"></div>
     <div class="form-line">
@@ -43,7 +32,6 @@
     <button id="play">Play</button>
 </div>
 <div id="container"></div>
-<script src="js/lib/HTML.min.js"></script>
 <script src="js/lib/keypress-1.0.9.min.js"></script>
 <script src="js/lib/kinetic-v4.7.4.min.js"></script>
 <script src="js/lib/stats.min.js"></script>

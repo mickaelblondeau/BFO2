@@ -20,12 +20,12 @@ class BonusManager
       {
         name: 'speed'
         attribute: 'speed'
-        value: 0.1
+        value: 0.03
       },
       {
         name: 'jumpHeight'
         attribute: 'jumpHeight'
-        value: 10
+        value: 5
       },
     ]
     @timers = []

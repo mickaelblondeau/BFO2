@@ -2,6 +2,7 @@ class LevelManager
   constructor: ->
     @tweens = []
     @level = 0
+    @levelHeight = 0
 
   reset: ->
     for tween in @tweens
@@ -9,6 +10,7 @@ class LevelManager
         tween.destroy()
     stage.setY(0)
     staticBg.setY(0)
+    hudLayer.setY(0)
     arena.reset()
     bonusManager.reset()
     bossManager.reset()
@@ -19,6 +21,7 @@ class LevelManager
 
   moveLevel: (height) ->
     arena.add(height/32)
+    @levelHeight = height
     @tweens[0] = new Kinetic.Tween
       node: stage
       duration: 2
@@ -39,7 +42,6 @@ class LevelManager
 
   clearLevel: ->
     @level++
-    HTML.query('#lml').textContent = @level
     arena.clearOutOfScreen()
     cubes = dynamicEntities.find('Sprite')
     cubes.each (cube) ->

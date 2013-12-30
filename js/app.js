@@ -145,35 +145,35 @@
     Game.prototype.loadAssets = function() {
       imageLoader.addLoad({
         name: 'cubes',
-        url: '../assets/cubes.jpg'
+        url: 'http://res.cloudinary.com/bfo/image/upload/v1388426529/BFO/cubes.jpg'
       });
       imageLoader.addLoad({
         name: 'cubes_red',
-        url: '../assets/cubes_red.jpg'
+        url: 'http://res.cloudinary.com/bfo/image/upload/v1388426529/BFO/cubes_red.jpg'
       });
       imageLoader.addLoad({
         name: 'cubes_blue',
-        url: '../assets/cubes_blue.jpg'
+        url: 'http://res.cloudinary.com/bfo/image/upload/v1388426531/BFO/cubes_blue.jpg'
       });
       imageLoader.addLoad({
         name: 'cubes_green',
-        url: '../assets/cubes_green.jpg'
+        url: 'http://res.cloudinary.com/bfo/image/upload/v1388426531/BFO/cubes_green.jpg'
       });
       imageLoader.addLoad({
         name: 'bonus',
-        url: '../assets/bonus.png'
+        url: 'http://res.cloudinary.com/bfo/image/upload/v1388426529/BFO/bonus.png'
       });
       imageLoader.addLoad({
         name: 'bg',
-        url: '../assets/bg.jpg'
+        url: 'http://res.cloudinary.com/bfo/image/upload/v1388426531/BFO/bg.jpg'
       });
       imageLoader.addLoad({
         name: 'boss',
-        url: '../assets/boss.png'
+        url: 'http://res.cloudinary.com/bfo/image/upload/v1388426530/BFO/boss.png'
       });
       imageLoader.addLoad({
         name: 'playerSpirteSheet',
-        url: '../assets/playerSpirteSheet.png'
+        url: 'http://res.cloudinary.com/bfo/image/upload/v1388426529/BFO/playerSpirteSheet.png'
       });
       return imageLoader.load();
     };
@@ -548,12 +548,7 @@
           this.changeAnimation('idle');
         }
         this.fixSkinPos();
-        this.getCornerCollisions();
-        HTML.query('#jump').textContent = this.jump;
-        HTML.query('#jumps').textContent = this.jumpCount + '/' + this.jumpMax;
-        HTML.query('#falling').textContent = this.falling;
-        HTML.query('#alive').textContent = this.alive;
-        return HTML.query('#ppc').textContent = !(this.jump || this.falling || keyboard.keys.left || keyboard.keys.right || keyboard.keys.up || keyboard.keys.down);
+        return this.getCornerCollisions();
       }
     };
 
@@ -1111,11 +1106,11 @@
         }, {
           name: 'speed',
           attribute: 'speed',
-          value: 0.1
+          value: 0.03
         }, {
           name: 'jumpHeight',
           attribute: 'jumpHeight',
-          value: 10
+          value: 5
         }
       ];
       this.timers = [];
@@ -1207,6 +1202,7 @@
     function LevelManager() {
       this.tweens = [];
       this.level = 0;
+      this.levelHeight = 0;
     }
 
     LevelManager.prototype.reset = function() {
@@ -1220,6 +1216,7 @@
       }
       stage.setY(0);
       staticBg.setY(0);
+      hudLayer.setY(0);
       arena.reset();
       bonusManager.reset();
       bossManager.reset();
@@ -1231,6 +1228,7 @@
 
     LevelManager.prototype.moveLevel = function(height) {
       arena.add(height / 32);
+      this.levelHeight = height;
       this.tweens[0] = new Kinetic.Tween({
         node: stage,
         duration: 2,
@@ -1257,7 +1255,6 @@
     LevelManager.prototype.clearLevel = function() {
       var cubes;
       this.level++;
-      HTML.query('#lml').textContent = this.level;
       arena.clearOutOfScreen();
       cubes = dynamicEntities.find('Sprite');
       cubes.each(function(cube) {
@@ -1722,11 +1719,11 @@
 
     function RoueMan(id, pattern) {
       var y;
-      y = stage.getY() * -1 + config.levelHeight - 160;
+      y = stage.getY() * -1;
       RoueMan.__super__.constructor.call(this, id, 'roueman', 0, y, 64, 64);
       this.attacks = pattern;
       this.index = 0;
-      this.loop();
+      this.start();
     }
 
     RoueMan.prototype.attack = function(level) {
@@ -1735,7 +1732,7 @@
       bossManager.tweens.push(tween1 = new Kinetic.Tween({
         node: this.shape,
         duration: 0.1,
-        y: stage.getY() * -1 + config.levelHeight - level * 32,
+        y: arena.y - levelManager.levelHeight - level * 32,
         onFinish: function() {
           var tween2;
           bossManager.tweens.push(tween2 = new Kinetic.Tween({
@@ -1747,7 +1744,7 @@
               bossManager.tweens.push(tween3 = new Kinetic.Tween({
                 node: self.shape,
                 duration: 0.1,
-                y: stage.getY() * -1 + config.levelHeight - 128,
+                y: arena.y - levelManager.levelHeight - 128,
                 onFinish: function() {
                   var tween4;
                   bossManager.tweens.push(tween4 = new Kinetic.Tween({
@@ -1777,6 +1774,20 @@
       } else {
         return this.finish();
       }
+    };
+
+    RoueMan.prototype.start = function() {
+      var self, tween;
+      self = this;
+      bossManager.tweens.push(tween = new Kinetic.Tween({
+        node: this.shape,
+        duration: 2,
+        y: arena.y - levelManager.levelHeight - 128,
+        onFinish: function() {
+          return self.loop();
+        }
+      }));
+      return tween.play();
     };
 
     return RoueMan;
@@ -1928,16 +1939,10 @@
       player = new ControllablePlayer();
       hud = new HUD();
       networkManager.connect(ip, name);
-      bossManager.spawn('freezeman');
       game.update = function(frameTime) {
-        var cubes;
         players.draw();
         player.update(frameTime);
-        hud.update(frameTime);
-        cubes = dynamicEntities.find('Sprite');
-        HTML.query('#cc').textContent = cubes.length;
-        cubes = staticCubes.find('Sprite');
-        return HTML.query('#sc').textContent = cubes.length;
+        return hud.update(frameTime);
       };
       return game.start();
     };

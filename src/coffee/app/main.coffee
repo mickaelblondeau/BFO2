@@ -52,12 +52,6 @@ imageLoader.imagesLoaded = ->
       players.draw()
       player.update(frameTime)
       hud.update(frameTime)
-
-      cubes = dynamicEntities.find('Sprite')
-      HTML.query('#cc').textContent = cubes.length
-      cubes = staticCubes.find('Sprite')
-      HTML.query('#sc').textContent = cubes.length
-
     game.start()
 
   document.getElementById('play').onclick = () ->

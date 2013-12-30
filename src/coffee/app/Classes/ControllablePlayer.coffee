@@ -104,14 +104,7 @@ class ControllablePlayer extends Player
         @changeAnimation('idle')
 
       @fixSkinPos()
-
       @getCornerCollisions()
-
-      HTML.query('#jump').textContent = @jump
-      HTML.query('#jumps').textContent = @jumpCount + '/' + @jumpMax
-      HTML.query('#falling').textContent = @falling
-      HTML.query('#alive').textContent = @alive
-      HTML.query('#ppc').textContent = !(@jump or @falling or keyboard.keys.left or keyboard.keys.right or keyboard.keys.up or keyboard.keys.down)
 
   doFall: (frameTime) ->
     if @jumpCount is 0

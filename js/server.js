@@ -74,25 +74,25 @@
       this.bonusId = 0;
       this.types = [
         {
-          proba: 5,
+          proba: 2,
           size: SquareEnum.SMALL,
           width: SquareEnum.SMALL.x / 32,
           height: SquareEnum.SMALL.y / 32,
           bonus: 'speed'
         }, {
-          proba: 5,
+          proba: 2,
           size: SquareEnum.SMALL,
           width: SquareEnum.SMALL.x / 32,
           height: SquareEnum.SMALL.y / 32,
           bonus: 'jumpHeight'
         }, {
-          proba: 5,
+          proba: 2,
           size: SquareEnum.SMALL,
           width: SquareEnum.SMALL.x / 32,
           height: SquareEnum.SMALL.y / 32,
           bonus: 'doubleJump'
         }, {
-          proba: 5,
+          proba: 2,
           size: SquareEnum.SMALL,
           width: SquareEnum.SMALL.x / 32,
           height: SquareEnum.SMALL.y / 32,
