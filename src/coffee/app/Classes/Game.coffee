@@ -60,6 +60,8 @@ class Game
     imageLoader.addLoad({ name:'cubes_red', url:'http://res.cloudinary.com/bfo/image/upload/v1388426529/BFO/cubes_red.jpg'})
     imageLoader.addLoad({ name:'cubes_blue', url:'http://res.cloudinary.com/bfo/image/upload/v1388426531/BFO/cubes_blue.jpg'})
     imageLoader.addLoad({ name:'cubes_green', url:'http://res.cloudinary.com/bfo/image/upload/v1388426531/BFO/cubes_green.jpg'})
+    imageLoader.addLoad({ name:'cubes_special', url:'http://res.cloudinary.com/bfo/image/upload/v1388496003/BFO/cubes_special.jpg'})
+    imageLoader.addLoad({ name:'effects', url:'../assets/effects.png'})
     imageLoader.addLoad({ name:'bonus', url:'http://res.cloudinary.com/bfo/image/upload/v1388426529/BFO/bonus.png'})
     imageLoader.addLoad({ name:'bg', url:'http://res.cloudinary.com/bfo/image/upload/v1388426531/BFO/bg.jpg'})
     imageLoader.addLoad({ name:'boss', url:'http://res.cloudinary.com/bfo/image/upload/v1388434905/BFO/boss.png'})

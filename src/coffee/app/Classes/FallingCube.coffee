@@ -2,7 +2,8 @@ class FallingCube extends Cube
   constructor: (col, size, destination) ->
     x = col * 32 + 160
     y = stage.getY() * -1
-    super(x, y, size, @getColor())
+    anim = size.x + '-' + size.y
+    super(x, y, size, @getSpriteSheet(), anim)
     dynamicEntities.add @shape
     @shape.setName('falling')
     @shape.draw()
@@ -23,6 +24,6 @@ class FallingCube extends Cube
         tween.destroy()
     tween.play()
 
-  getColor: ->
-    colors = ["_red", "_green", "_blue"]
-    return colors[Math.floor((Math.random()*colors.length))]
+  getSpriteSheet: ->
+    sheets = ["cubes_red", "cubes_green", "cubes_blue"]
+    return sheets[Math.floor((Math.random()*sheets.length))]

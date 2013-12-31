@@ -74,6 +74,12 @@
       this.bonusId = 0;
       this.types = [
         {
+          proba: 5,
+          size: SquareEnum.MEDIUM,
+          width: SquareEnum.MEDIUM.x / 32,
+          height: SquareEnum.MEDIUM.y / 32,
+          special: 'iceExplosion'
+        }, {
           proba: 2,
           size: SquareEnum.SMALL,
           width: SquareEnum.SMALL.x / 32,
@@ -184,6 +190,8 @@
         if (type.bonus !== void 0) {
           networkManager.sendBonus(choice.column, type.bonus, choice.height, this.bonusId);
           this.bonusId++;
+        } else if (type.special !== void 0) {
+          networkManager.sendSpecial(choice.column, type.size, choice.height, type.special);
         } else {
           networkManager.sendCube(choice.column, type.size, choice.height);
           for (columnPosition = _i = 1, _ref = type.width; 1 <= _ref ? _i <= _ref : _i >= _ref; columnPosition = 1 <= _ref ? ++_i : --_i) {
@@ -441,6 +449,10 @@
 
     NetworkManager.prototype.sendBonus = function(col, bonus, dest, id) {
       return this.io.sockets.emit('fallingBonus', [col, dest, bonus, id]);
+    };
+
+    NetworkManager.prototype.sendSpecial = function(col, size, dest, type) {
+      return this.io.sockets.emit('fallingSpecial', [col, size, dest, type]);
     };
 
     NetworkManager.prototype.sendResetLevel = function() {

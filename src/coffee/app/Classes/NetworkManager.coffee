@@ -14,6 +14,8 @@ class NetworkManager
       new FallingCube(data[0], data[1], data[2])
     @socket.on 'fallingBonus', (data) ->
       new Bonus(data[0], data[1], data[2], data[3])
+    @socket.on 'fallingSpecial', (data) ->
+      new SpecialCube(data[0], data[1], data[2], data[3])
     @socket.on 'resetLevel', ->
       levelManager.reset()
       player.reset()

@@ -1,8 +1,7 @@
 (function() {
-  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ControllablePlayer, Cube, FallingCube, FreezeMan, FreezeManPart, Game, HUD, ImageLoader, Keyboard, LevelManager, NetworkManager, Player, RoueMan, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bossManager, collisionManager, config, dynamicEntities, game, hud, hudLayer, imageLoader, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ControllablePlayer, Cube, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, ImageLoader, Keyboard, LevelManager, NetworkManager, Player, RoueMan, SpecialCube, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bossManager, collisionManager, config, dynamicEntities, game, hud, hudLayer, imageLoader, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
     __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   config = {
     levelHeight: 976,
@@ -170,6 +169,14 @@
       imageLoader.addLoad({
         name: 'cubes_green',
         url: 'http://res.cloudinary.com/bfo/image/upload/v1388426531/BFO/cubes_green.jpg'
+      });
+      imageLoader.addLoad({
+        name: 'cubes_special',
+        url: 'http://res.cloudinary.com/bfo/image/upload/v1388496003/BFO/cubes_special.jpg'
+      });
+      imageLoader.addLoad({
+        name: 'effects',
+        url: '../assets/effects.png'
       });
       imageLoader.addLoad({
         name: 'bonus',
@@ -505,14 +512,10 @@
     ControllablePlayer.prototype.update = function(frameTime) {
       var collide, moveSide, moveSpeed;
       if (this.alive) {
-        collide = this.testDiff();
-        if (collide && collide.getName() === 'falling') {
-          this.kill();
-          networkManager.sendDie();
-        } else if (collide && collide.getName().type === 'bonus') {
-          this.takeBonus(collide);
-        } else if (collide && collide.getName().type === 'boss') {
-          this.collideBoss(collide);
+        this.sliding = false;
+        this.testMove(this.shape.getX(), 0);
+        if (!this.testMove(0, this.shape.getY())) {
+          this.falling = true;
         }
         moveSide = 0;
         if (this.jump || this.falling || keyboard.keys.left || keyboard.keys.right || keyboard.keys.up || keyboard.keys.down) {
@@ -560,6 +563,19 @@
           networkManager.sendMove(this.shape.getX(), this.shape.getY());
         } else if (!keyboard.keys.up) {
           this.canJump = true;
+        }
+        if (this.sliding) {
+          if (this.skin.getScaleX() === -1) {
+            collide = this.testMove(this.shape.getX() - (this.speed * frameTime) / 2, 0);
+            if (collide) {
+              this.shape.setX(collide.getX() + collide.getWidth());
+            }
+          } else {
+            collide = this.testMove(this.shape.getX() + (this.speed * frameTime) / 2, 0);
+            if (collide) {
+              this.shape.setX(collide.getX() - this.shape.getWidth());
+            }
+          }
         }
         if (moveSide === -1 && this.skin.getScaleX() !== -1) {
           this.changeSide(-1);
@@ -701,8 +717,7 @@
     };
 
     ControllablePlayer.prototype.testMove = function(x, y) {
-      var collision, collisions, list, _i, _j, _len, _len1;
-      list = this.getCollisions();
+      var collision, collisions, _i, _j, _len, _len1;
       if (x !== 0) {
         this.shape.setX(x);
       }
@@ -712,41 +727,28 @@
       collisions = this.getCollisions();
       for (_i = 0, _len = collisions.length; _i < _len; _i++) {
         collision = collisions[_i];
-        if (__indexOf.call(list, collision) < 0) {
-          if ((x !== 0 && collision.getY() !== this.shape.getY() + this.shape.getHeight()) || (y !== 0 && collision.getX() !== this.shape.getX() + this.shape.getWidth() && collision.getX() + collision.getWidth() !== this.shape.getX())) {
-            if (!(collision.getName() !== void 0 && collision.getName() !== null && (collision.getName().type === 'bonus' || collision.getName().type === 'boss'))) {
-              return collision;
-            }
-          }
+        if (!(collision.getName() !== void 0 && collision.getName() !== null && (collision.getName() === 'falling' || collision.getName().type === 'bonus' || collision.getName().type === 'boss' || collision.getName().type === 'effect'))) {
+          return collision;
         }
       }
       for (_j = 0, _len1 = collisions.length; _j < _len1; _j++) {
         collision = collisions[_j];
-        if (__indexOf.call(list, collision) < 0) {
-          if (collision.getName() !== void 0 && collision.getName() !== null) {
-            if (collision.getName().type === 'bonus') {
-              this.takeBonus(collision);
-            }
-            if (collision.getName().type === 'boss') {
-              this.collideBoss(collision);
-            }
+        if (collision.getName() !== void 0 && collision.getName() !== null) {
+          if (collision.getName() === 'falling') {
+            this.kill();
+            networkManager.sendDie();
+          }
+          if (collision.getName().type === 'bonus') {
+            this.takeBonus(collision);
+          }
+          if (collision.getName().type === 'boss') {
+            this.collideBoss(collision);
+          }
+          if (collision.getName().type === 'effect') {
+            this.collideEffect(collision);
           }
         }
       }
-      return false;
-    };
-
-    ControllablePlayer.prototype.testDiff = function() {
-      var collision, collisions, _i, _len;
-      collisions = this.getCollisions();
-      for (_i = 0, _len = collisions.length; _i < _len; _i++) {
-        collision = collisions[_i];
-        if (__indexOf.call(this.actualCollisions, collision) < 0) {
-          this.actualCollisions = collisions;
-          return collision;
-        }
-      }
-      this.actualCollisions = collisions;
       return false;
     };
 
@@ -771,6 +773,12 @@
 
     ControllablePlayer.prototype.collideBoss = function(boss) {
       return this.kill();
+    };
+
+    ControllablePlayer.prototype.collideEffect = function(effect) {
+      if (effect.getName().name === 'ice') {
+        return this.sliding = true;
+      }
     };
 
     ControllablePlayer.prototype.getCornerCollisions = function() {
@@ -902,11 +910,12 @@
   };
 
   Cube = (function() {
-    function Cube(x, y, size, color) {
+    function Cube(x, y, size, spriteSheet, animation) {
       this.x = x;
       this.y = y;
       this.size = size;
-      this.color = color;
+      this.spriteSheet = spriteSheet;
+      this.animation = animation;
       this.cubesTypes = {
         '32-32': [
           {
@@ -955,6 +964,30 @@
             width: 32,
             height: 128
           }
+        ],
+        'iceExplosion': [
+          {
+            x: 0,
+            y: 0,
+            width: 64,
+            height: 64
+          }
+        ],
+        'explosion': [
+          {
+            x: 64,
+            y: 0,
+            width: 64,
+            height: 64
+          }
+        ],
+        'ice': [
+          {
+            x: 0,
+            y: 0,
+            width: 32,
+            height: 32
+          }
         ]
       };
       this.draw();
@@ -966,8 +999,8 @@
         y: this.y,
         width: this.size.x,
         height: this.size.y,
-        image: imageLoader.images['cubes' + this.color],
-        animation: this.size.x + '-' + this.size.y,
+        image: imageLoader.images[this.spriteSheet],
+        animation: this.animation,
         animations: this.cubesTypes,
         frameRate: 0,
         index: 0
@@ -982,10 +1015,11 @@
     __extends(FallingCube, _super);
 
     function FallingCube(col, size, destination) {
-      var x, y;
+      var anim, x, y;
       x = col * 32 + 160;
       y = stage.getY() * -1;
-      FallingCube.__super__.constructor.call(this, x, y, size, this.getColor());
+      anim = size.x + '-' + size.y;
+      FallingCube.__super__.constructor.call(this, x, y, size, this.getSpriteSheet(), anim);
       dynamicEntities.add(this.shape);
       this.shape.setName('falling');
       this.shape.draw();
@@ -1010,10 +1044,10 @@
       return tween.play();
     };
 
-    FallingCube.prototype.getColor = function() {
-      var colors;
-      colors = ["_red", "_green", "_blue"];
-      return colors[Math.floor(Math.random() * colors.length)];
+    FallingCube.prototype.getSpriteSheet = function() {
+      var sheets;
+      sheets = ["cubes_red", "cubes_green", "cubes_blue"];
+      return sheets[Math.floor(Math.random() * sheets.length)];
     };
 
     return FallingCube;
@@ -1024,12 +1058,71 @@
     __extends(StaticCube, _super);
 
     function StaticCube(x, y, size) {
-      StaticCube.__super__.constructor.call(this, x, y, size, '');
+      var anim;
+      anim = size.x + '-' + size.y;
+      StaticCube.__super__.constructor.call(this, x, y, size, 'cubes', anim);
       staticCubes.add(this.shape);
       this.shape.draw();
     }
 
     return StaticCube;
+
+  })(Cube);
+
+  SpecialCube = (function(_super) {
+    __extends(SpecialCube, _super);
+
+    function SpecialCube(col, size, destination, type) {
+      var x, y;
+      x = col * 32 + 160;
+      y = stage.getY() * -1;
+      this.type = type;
+      SpecialCube.__super__.constructor.call(this, x, y, size, 'cubes_special', type);
+      dynamicEntities.add(this.shape);
+      this.shape.setName('falling');
+      this.shape.draw();
+      this.destination = arena.y - destination * 32 - size.y;
+      this.diffY = this.destination - y;
+      this.speed = 600;
+      this.fall();
+    }
+
+    SpecialCube.prototype.fall = function() {
+      var self, tween;
+      self = this;
+      tween = new Kinetic.Tween({
+        node: this.shape,
+        duration: this.diffY / this.speed,
+        y: this.destination,
+        onFinish: function() {
+          tween.destroy();
+          self.doEffect();
+          return self.shape.destroy();
+        }
+      });
+      return tween.play();
+    };
+
+    SpecialCube.prototype.doEffect = function() {
+      var self;
+      self = this;
+      if (this.type === 'iceExplosion') {
+        return dynamicEntities.find('Sprite').each(function(cube) {
+          var i, _i, _ref, _results;
+          if (cube.getName() === null) {
+            if (cube.getX() < self.shape.getX() + 128 && cube.getX() > self.shape.getX() - 128 && cube.getY() < self.shape.getY() + 128 && cube.getY() > self.shape.getY() - 128) {
+              _results = [];
+              for (i = _i = 0, _ref = (cube.getWidth() / 32) - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+                _results.push(new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'ice'));
+              }
+              return _results;
+            }
+          }
+        });
+      }
+    };
+
+    return SpecialCube;
 
   })(Cube);
 
@@ -1327,6 +1420,9 @@
       });
       this.socket.on('fallingBonus', function(data) {
         return new Bonus(data[0], data[1], data[2], data[3]);
+      });
+      this.socket.on('fallingSpecial', function(data) {
+        return new SpecialCube(data[0], data[1], data[2], data[3]);
       });
       this.socket.on('resetLevel', function() {
         levelManager.reset();
@@ -1650,6 +1746,23 @@
     return HUD;
 
   })();
+
+  Effect = (function(_super) {
+    __extends(Effect, _super);
+
+    function Effect(x, y, size, anim) {
+      Effect.__super__.constructor.call(this, x, y, size, 'effects', anim);
+      dynamicEntities.add(this.shape);
+      this.shape.setName({
+        type: 'effect',
+        name: anim
+      });
+      this.shape.draw();
+    }
+
+    return Effect;
+
+  })(Cube);
 
   Boss = (function() {
     function Boss(id, type, x, y, w, h) {
@@ -1982,7 +2095,7 @@
   imageLoader.imagesLoaded = function() {
     var launchGame;
     launchGame = function(ip, name) {
-      var bg;
+      var bg, callback;
       bg = new Kinetic.Rect({
         width: stage.getWidth(),
         height: stage.getHeight(),
@@ -1995,6 +2108,8 @@
       player = new ControllablePlayer();
       hud = new HUD();
       networkManager.connect(ip, name);
+      callback = function() {};
+      setTimeout(callback, 2000);
       game.update = function(frameTime) {
         players.draw();
         player.update(frameTime);

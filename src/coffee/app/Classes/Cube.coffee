@@ -8,11 +8,12 @@ SquareEnum = {
 }
 
 class Cube
-  constructor: (x, y, size, color) ->
+  constructor: (x, y, size, spriteSheet, animation) ->
     @x = x
     @y = y
     @size = size
-    @color = color
+    @spriteSheet = spriteSheet
+    @animation = animation
     @cubesTypes = {
       '32-32': [{
         x: 192
@@ -49,6 +50,24 @@ class Cube
         y: 0
         width: 32
         height: 128
+      }],
+      'iceExplosion': [{
+        x: 0
+        y: 0
+        width: 64
+        height: 64
+      }],
+      'explosion': [{
+        x: 64
+        y: 0
+        width: 64
+        height: 64
+      }],
+      'ice': [{
+        x: 0
+        y: 0
+        width: 32
+        height: 32
       }]
     }
     @draw()
@@ -59,8 +78,8 @@ class Cube
       y: @y
       width: @size.x
       height: @size.y
-      image: imageLoader.images['cubes'+@color]
-      animation: @size.x + '-' + @size.y
+      image: imageLoader.images[@spriteSheet]
+      animation: @animation
       animations: @cubesTypes
       frameRate: 0
       index: 0

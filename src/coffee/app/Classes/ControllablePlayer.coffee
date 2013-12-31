@@ -27,14 +27,11 @@ class ControllablePlayer extends Player
 
   update: (frameTime) ->
     if @alive
-      collide = @testDiff()
-      if collide and collide.getName() is 'falling'
-        @kill()
-        networkManager.sendDie()
-      else if collide and collide.getName().type is 'bonus'
-        @takeBonus(collide)
-      else if collide and collide.getName().type is 'boss'
-        @collideBoss(collide)
+      @sliding = false
+
+      @testMove(@shape.getX(), 0)
+      if !@testMove(0, @shape.getY())
+        @falling = true
 
       moveSide = 0
 
@@ -43,12 +40,10 @@ class ControllablePlayer extends Player
           @doFall(frameTime)
         else
           @doJump(frameTime)
-
         if @couched and !@jump
           moveSpeed = @speed*frameTime*@couchedSpeedRatio
         else
           moveSpeed = @speed*frameTime
-
         if keyboard.keys.left
           collide = @testMove(@shape.getX() - moveSpeed, 0)
           if collide
@@ -61,26 +56,31 @@ class ControllablePlayer extends Player
             @shape.setX(collide.getX() - @shape.getWidth())
           else
             moveSide = 1
-
         if keyboard.keys.up
           if @canJump
             @startJump()
         else
           @canJump = true
-
         if keyboard.keys.down
           @startCouch()
         else
           @stopCouch()
-
         networkManager.sendMove(@shape.getX(), @shape.getY())
-
       else if @couched
         @stopCouch()
         networkManager.sendMove(@shape.getX(), @shape.getY())
-
       else if !keyboard.keys.up
         @canJump = true
+
+      if @sliding
+        if @skin.getScaleX() is -1
+          collide = @testMove(@shape.getX() - (@speed*frameTime)/2, 0)
+          if collide
+            @shape.setX(collide.getX() + collide.getWidth())
+        else
+          collide = @testMove(@shape.getX() + (@speed*frameTime)/2, 0)
+          if collide
+            @shape.setX(collide.getX() - @shape.getWidth())
 
       if moveSide is -1 and @skin.getScaleX() != -1
         @changeSide(-1)
@@ -189,33 +189,25 @@ class ControllablePlayer extends Player
     return result
 
   testMove: (x, y) ->
-    list = @getCollisions()
     if x isnt 0
       @shape.setX(x)
     if y isnt 0
       @shape.setY(y)
     collisions = @getCollisions()
     for collision in collisions
-      if collision not in list
-        if (x isnt 0 and collision.getY() isnt @shape.getY() + @shape.getHeight()) or (y isnt 0 and collision.getX() isnt @shape.getX() + @shape.getWidth() and collision.getX() + collision.getWidth() isnt @shape.getX())
-          if !(collision.getName() isnt undefined and collision.getName() isnt null and (collision.getName().type is 'bonus' or collision.getName().type is 'boss'))
-            return collision
+        if !(collision.getName() isnt undefined and collision.getName() isnt null and (collision.getName() is 'falling' or collision.getName().type is 'bonus' or collision.getName().type is 'boss' or collision.getName().type is 'effect'))
+          return collision
     for collision in collisions
-      if collision not in list
         if collision.getName() isnt undefined and collision.getName() isnt null
+          if collision.getName() is 'falling'
+            @kill()
+            networkManager.sendDie()
           if collision.getName().type is 'bonus'
             @takeBonus(collision)
           if collision.getName().type is 'boss'
             @collideBoss(collision)
-    return false
-
-  testDiff: ->
-    collisions = @getCollisions()
-    for collision in collisions
-      if collision not in @actualCollisions
-        @actualCollisions = collisions
-        return collision
-    @actualCollisions = collisions
+          if collision.getName().type is 'effect'
+            @collideEffect(collision)
     return false
 
   takeBonus: (bonus) ->
@@ -235,6 +227,10 @@ class ControllablePlayer extends Player
 
   collideBoss: (boss) ->
     @kill()
+
+  collideEffect: (effect) ->
+    if effect.getName().name is 'ice'
+      @sliding = true
 
   getCornerCollisions: ->
     self = @

@@ -57,6 +57,9 @@ class NetworkManager
   sendBonus: (col, bonus, dest, id) ->
     @io.sockets.emit('fallingBonus', [col, dest, bonus, id])
 
+  sendSpecial: (col, size, dest, type) ->
+    @io.sockets.emit('fallingSpecial', [col, size, dest, type])
+
   sendResetLevel: ->
     @io.sockets.emit 'resetLevel'
 

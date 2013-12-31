@@ -20,6 +20,13 @@ class CubeManager
 
     @types = [
       {
+        proba: 5
+        size: SquareEnum.MEDIUM
+        width: SquareEnum.MEDIUM.x/32
+        height: SquareEnum.MEDIUM.y/32
+        special: 'iceExplosion'
+      },
+      {
         proba: 2
         size: SquareEnum.SMALL
         width: SquareEnum.SMALL.x/32
@@ -126,6 +133,8 @@ class CubeManager
       if type.bonus isnt undefined
         networkManager.sendBonus(choice.column, type.bonus, choice.height, @bonusId)
         @bonusId++
+      else if type.special isnt undefined
+        networkManager.sendSpecial(choice.column, type.size, choice.height, type.special)
       else
         networkManager.sendCube(choice.column, type.size, choice.height)
         for columnPosition in [1..type.width]
