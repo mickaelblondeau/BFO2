@@ -24,6 +24,7 @@ class ControllablePlayer extends Player
     @coopJump = false
     @alive = true
     @actualCollisions = []
+    @cached = {}
 
   update: (frameTime) ->
     if @alive
@@ -65,10 +66,16 @@ class ControllablePlayer extends Player
           @startCouch()
         else
           @stopCouch()
-        networkManager.sendMove(@shape.getX(), @shape.getY())
+        if @cached.x != @shape.getX() or @cached.y != @shape.getY()
+          networkManager.sendMove(@shape.getX(), @shape.getY())
+          @cached.x = @shape.getX()
+          @cached.y = @shape.getY()
       else if @couched
         @stopCouch()
-        networkManager.sendMove(@shape.getX(), @shape.getY())
+        if @cached.x != @shape.getX() or @cached.y != @shape.getY()
+          networkManager.sendMove(@shape.getX(), @shape.getY())
+          @cached.x = @shape.getX()
+          @cached.y = @shape.getY()
       else if !keyboard.keys.up
         @canJump = true
 
@@ -201,7 +208,6 @@ class ControllablePlayer extends Player
         if collision.getName() isnt undefined and collision.getName() isnt null
           if collision.getName() is 'falling'
             @kill()
-            networkManager.sendDie()
           if collision.getName().type is 'bonus'
             @takeBonus(collision)
           if collision.getName().type is 'boss'
@@ -273,3 +279,7 @@ class ControllablePlayer extends Player
       @grabbing = true
       @jumpCount = 0
       @shape.setY(cube.getY())
+
+  kill: ->
+    super()
+    networkManager.sendDie()

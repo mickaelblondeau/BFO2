@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ControllablePlayer, Cube, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, ImageLoader, Keyboard, LevelManager, NetworkManager, Player, RoueMan, SpecialCube, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bossManager, collisionManager, config, dynamicEntities, game, hud, hudLayer, imageLoader, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ControllablePlayer, Cube, CubeFragment, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, ImageLoader, Keyboard, LevelManager, NetworkManager, Player, RoueMan, SpecialCube, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bossManager, collisionManager, config, dynamicEntities, game, hud, hudLayer, imageLoader, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -176,7 +176,7 @@
       });
       imageLoader.addLoad({
         name: 'effects',
-        url: '../assets/effects.png'
+        url: 'http://res.cloudinary.com/bfo/image/upload/v1388501783/BFO/effects.png'
       });
       imageLoader.addLoad({
         name: 'bonus',
@@ -418,6 +418,10 @@
     };
 
     Player.prototype.spawn = function() {
+      this.skin.setVisible(true);
+      if (this.name !== void 0) {
+        this.name.setVisible(true);
+      }
       this.shape.setX(336);
       return this.shape.setY(stage.getY() * -1);
     };
@@ -441,7 +445,10 @@
     };
 
     Player.prototype.kill = function() {
-      this.shape.setX(-64);
+      this.skin.setVisible(false);
+      if (this.name !== void 0) {
+        this.name.setVisible(false);
+      }
       this.alive = false;
       return hud.reset();
     };
@@ -507,6 +514,7 @@
       this.coopJump = false;
       this.alive = true;
       this.actualCollisions = [];
+      this.cached = {};
     }
 
     ControllablePlayer.prototype.update = function(frameTime) {
@@ -557,10 +565,18 @@
           } else {
             this.stopCouch();
           }
-          networkManager.sendMove(this.shape.getX(), this.shape.getY());
+          if (this.cached.x !== this.shape.getX() || this.cached.y !== this.shape.getY()) {
+            networkManager.sendMove(this.shape.getX(), this.shape.getY());
+            this.cached.x = this.shape.getX();
+            this.cached.y = this.shape.getY();
+          }
         } else if (this.couched) {
           this.stopCouch();
-          networkManager.sendMove(this.shape.getX(), this.shape.getY());
+          if (this.cached.x !== this.shape.getX() || this.cached.y !== this.shape.getY()) {
+            networkManager.sendMove(this.shape.getX(), this.shape.getY());
+            this.cached.x = this.shape.getX();
+            this.cached.y = this.shape.getY();
+          }
         } else if (!keyboard.keys.up) {
           this.canJump = true;
         }
@@ -736,7 +752,6 @@
         if (collision.getName() !== void 0 && collision.getName() !== null) {
           if (collision.getName() === 'falling') {
             this.kill();
-            networkManager.sendDie();
           }
           if (collision.getName().type === 'bonus') {
             this.takeBonus(collision);
@@ -841,6 +856,11 @@
         this.jumpCount = 0;
         return this.shape.setY(cube.getY());
       }
+    };
+
+    ControllablePlayer.prototype.kill = function() {
+      ControllablePlayer.__super__.kill.call(this);
+      return networkManager.sendDie();
     };
 
     return ControllablePlayer;
@@ -1014,7 +1034,7 @@
   FallingCube = (function(_super) {
     __extends(FallingCube, _super);
 
-    function FallingCube(col, size, destination) {
+    function FallingCube(col, size, destination, placed, placeX, placeY) {
       var anim, x, y;
       x = col * 32 + 160;
       y = stage.getY() * -1;
@@ -1026,7 +1046,13 @@
       this.destination = arena.y - destination * 32 - size.y;
       this.diffY = this.destination - y;
       this.speed = 600;
-      this.fall();
+      if (placed === void 0) {
+        this.fall();
+      } else {
+        this.shape.setName(null);
+        this.shape.setX(placeX);
+        this.shape.setY(placeY);
+      }
     }
 
     FallingCube.prototype.fall = function() {
@@ -1107,7 +1133,7 @@
       var self;
       self = this;
       if (this.type === 'iceExplosion') {
-        return dynamicEntities.find('Sprite').each(function(cube) {
+        dynamicEntities.find('Sprite').each(function(cube) {
           var i, _i, _ref, _results;
           if (cube.getName() === null) {
             if (cube.getX() < self.shape.getX() + 128 && cube.getX() > self.shape.getX() - 128 && cube.getY() < self.shape.getY() + 128 && cube.getY() > self.shape.getY() - 128) {
@@ -1120,9 +1146,80 @@
           }
         });
       }
+      if (this.type === 'explosion') {
+        dynamicEntities.find('Sprite').each(function(cube) {
+          var i, j, k, l, _i, _j, _k, _ref, _ref1, _results;
+          if (cube.getName() === null) {
+            _results = [];
+            for (i = _i = -4; _i <= 5; i = ++_i) {
+              if (i > 0) {
+                j = i - 1;
+              } else {
+                j = i;
+              }
+              if (cube.getX() === self.shape.getX() + i * 32 && cube.getY() < self.shape.getY() - (-5 + Math.abs(j)) * 32 && cube.getY() > self.shape.getY() + (-5 + Math.abs(j)) * 32) {
+                if (cube.getWidth() > 32 || cube.getHeight() > 32) {
+                  for (k = _j = 0, _ref = cube.getWidth() / 32 - 1; 0 <= _ref ? _j <= _ref : _j >= _ref; k = 0 <= _ref ? ++_j : --_j) {
+                    for (l = _k = 0, _ref1 = cube.getHeight() / 32 - 1; 0 <= _ref1 ? _k <= _ref1 : _k >= _ref1; l = 0 <= _ref1 ? ++_k : --_k) {
+                      new CubeFragment(cube.getX() + k * 32, cube.getY() + l * 32, SquareEnum.SMALL);
+                    }
+                  }
+                  _results.push(cube.destroy());
+                } else {
+                  _results.push(void 0);
+                }
+              } else {
+                _results.push(void 0);
+              }
+            }
+            return _results;
+          }
+        });
+        dynamicEntities.find('Sprite').each(function(cube) {
+          var i, j, _i, _results;
+          _results = [];
+          for (i = _i = -4; _i <= 5; i = ++_i) {
+            if (i > 0) {
+              j = i - 1;
+            } else {
+              j = i;
+            }
+            if (cube.getX() === self.shape.getX() + i * 32 && cube.getY() < self.shape.getY() - (-5 + Math.abs(j)) * 32 && cube.getY() > self.shape.getY() + (-5 + Math.abs(j)) * 32) {
+              _results.push(cube.destroy());
+            } else {
+              _results.push(void 0);
+            }
+          }
+          return _results;
+        });
+        if (player.shape.getX() < self.shape.getX() + 96 && player.shape.getX() > self.shape.getX() - 96 && player.shape.getY() < self.shape.getY() + 96 && player.shape.getY() > self.shape.getY() - 96) {
+          return player.kill();
+        }
+      }
     };
 
     return SpecialCube;
+
+  })(Cube);
+
+  CubeFragment = (function(_super) {
+    __extends(CubeFragment, _super);
+
+    function CubeFragment(x, y, size) {
+      var anim;
+      anim = size.x + '-' + size.y;
+      CubeFragment.__super__.constructor.call(this, x, y, size, this.getSpriteSheet(), anim);
+      dynamicEntities.add(this.shape);
+      this.shape.draw();
+    }
+
+    CubeFragment.prototype.getSpriteSheet = function() {
+      var sheets;
+      sheets = ["cubes_red", "cubes_green", "cubes_blue"];
+      return sheets[Math.floor(Math.random() * sheets.length)];
+    };
+
+    return CubeFragment;
 
   })(Cube);
 
@@ -1357,7 +1454,7 @@
 
     LevelManager.prototype.moveLevel = function(height) {
       arena.add(height / 32);
-      this.levelHeight = height;
+      this.levelHeight += height;
       this.tweens[0] = new Kinetic.Tween({
         node: stage,
         duration: 2,
@@ -1967,10 +2064,13 @@
     }
 
     FreezeMan.prototype.start = function() {
-      var self;
+      var i, self, _i;
+      for (i = _i = 5; _i <= 16; i = ++_i) {
+        new Effect(i * 32, this.levelHeight - 4, SquareEnum.SMALL, 'ice');
+      }
       self = this;
       return bossManager.update = function(frameTime) {
-        var i, part, tmp, _i, _len, _ref, _results;
+        var part, tmp, _j, _len, _ref, _results;
         self.counter += frameTime;
         if (self.counter >= self.interval) {
           self.counter = 0;
@@ -1978,7 +2078,7 @@
         }
         _ref = self.parts;
         _results = [];
-        for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        for (i = _j = 0, _len = _ref.length; _j < _len; i = ++_j) {
           part = _ref[i];
           if (part !== void 0) {
             tmp = part.shape.getY() + frameTime * self.speed;
@@ -2095,7 +2195,7 @@
   imageLoader.imagesLoaded = function() {
     var launchGame;
     launchGame = function(ip, name) {
-      var bg, callback;
+      var bg;
       bg = new Kinetic.Rect({
         width: stage.getWidth(),
         height: stage.getHeight(),
@@ -2108,8 +2208,6 @@
       player = new ControllablePlayer();
       hud = new HUD();
       networkManager.connect(ip, name);
-      callback = function() {};
-      setTimeout(callback, 2000);
       game.update = function(frameTime) {
         players.draw();
         player.update(frameTime);

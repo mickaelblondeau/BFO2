@@ -12,6 +12,8 @@ class FreezeMan
     @next()
 
   start: ->
+    for i in [5..16]
+      new Effect(i * 32, @levelHeight - 4, SquareEnum.SMALL, 'ice')
     self = @
     bossManager.update = (frameTime) ->
       self.counter += frameTime

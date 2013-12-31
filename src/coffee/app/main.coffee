@@ -46,16 +46,6 @@ imageLoader.imagesLoaded = ->
 
     networkManager.connect(ip, name)
 
-    #new FallingCube(0, SquareEnum.MEDIUM, 0)
-    #new FallingCube(2, SquareEnum.SMALL, 0)
-    #new FallingCube(4, SquareEnum.SMALL, 0)
-    #new FallingCube(7, SquareEnum.SMALL, 0)
-    #new FallingCube(11, SquareEnum.SMALL, 0)
-
-    callback = ->
-      #new SpecialCube(0, SquareEnum.MEDIUM, 2, 'explosion')
-    setTimeout(callback, 2000)
-
     game.update = (frameTime) ->
       players.draw()
       player.update(frameTime)

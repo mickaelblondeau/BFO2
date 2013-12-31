@@ -74,11 +74,17 @@
       this.bonusId = 0;
       this.types = [
         {
-          proba: 5,
+          proba: 3,
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
           special: 'iceExplosion'
+        }, {
+          proba: 3,
+          size: SquareEnum.MEDIUM,
+          width: SquareEnum.MEDIUM.x / 32,
+          height: SquareEnum.MEDIUM.y / 32,
+          special: 'explosion'
         }, {
           proba: 2,
           size: SquareEnum.SMALL,
@@ -191,6 +197,9 @@
           networkManager.sendBonus(choice.column, type.bonus, choice.height, this.bonusId);
           this.bonusId++;
         } else if (type.special !== void 0) {
+          if (type.special === 'explosion') {
+            this.explodeMap(choice.column, choice.height);
+          }
           networkManager.sendSpecial(choice.column, type.size, choice.height, type.special);
         } else {
           networkManager.sendCube(choice.column, type.size, choice.height);
@@ -289,6 +298,31 @@
         }
       }
       return available;
+    };
+
+    CubeManager.prototype.explodeMap = function(col, height) {
+      var i, index, j, tmp, _i, _results;
+      _results = [];
+      for (i = _i = -4; _i <= 5; i = ++_i) {
+        if (i > 0) {
+          j = i - 1;
+        } else {
+          j = i;
+        }
+        index = col + i;
+        if (index >= 0) {
+          tmp = parseInt(this.map[index]) + parseInt(-5 + Math.abs(j));
+          if (this.map[index] < height + parseInt(-5 + Math.abs(j)) * -1) {
+            if (tmp < 0) {
+              this.map[index] = 0;
+            } else {
+              this.map[index] = tmp;
+            }
+          }
+        }
+        _results.push(console.log(this.map));
+      }
+      return _results;
     };
 
     return CubeManager;

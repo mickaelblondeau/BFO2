@@ -20,11 +20,18 @@ class CubeManager
 
     @types = [
       {
-        proba: 5
+        proba: 3
         size: SquareEnum.MEDIUM
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
         special: 'iceExplosion'
+      },
+      {
+        proba: 3
+        size: SquareEnum.MEDIUM
+        width: SquareEnum.MEDIUM.x/32
+        height: SquareEnum.MEDIUM.y/32
+        special: 'explosion'
       },
       {
         proba: 2
@@ -134,6 +141,8 @@ class CubeManager
         networkManager.sendBonus(choice.column, type.bonus, choice.height, @bonusId)
         @bonusId++
       else if type.special isnt undefined
+        if type.special is 'explosion'
+          @explodeMap(choice.column, choice.height)
         networkManager.sendSpecial(choice.column, type.size, choice.height, type.special)
       else
         networkManager.sendCube(choice.column, type.size, choice.height)
@@ -192,3 +201,19 @@ class CubeManager
             height: height
           }
     return available
+
+  explodeMap: (col, height) ->
+    for i in [-4..5]
+      if i > 0
+        j = i-1
+      else
+        j = i
+      index = col + i
+      if index >= 0
+        tmp = parseInt(@map[index]) + parseInt(-5 + Math.abs(j))
+        if @map[index] < height + parseInt(-5 + Math.abs(j))*-1
+          if tmp < 0
+            @map[index] = 0
+          else
+            @map[index] = tmp
+      console.log @map

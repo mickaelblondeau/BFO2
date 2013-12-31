@@ -21,7 +21,7 @@ class LevelManager
 
   moveLevel: (height) ->
     arena.add(height/32)
-    @levelHeight = height
+    @levelHeight += height
     @tweens[0] = new Kinetic.Tween
       node: stage
       duration: 2

@@ -20,6 +20,7 @@ module.exports = function(grunt) {
                     'src/coffee/app/Classes/FallingCube.coffee',
                     'src/coffee/app/Classes/StaticCube.coffee',
                     'src/coffee/app/Classes/SpecialCube.coffee',
+                    'src/coffee/app/Classes/CubeFragment.coffee',
                     'src/coffee/app/Classes/Bonus.coffee',
                     'src/coffee/app/Classes/BonusManager.coffee',
                     'src/coffee/app/Classes/LevelManager.coffee',

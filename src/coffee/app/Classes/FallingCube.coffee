@@ -1,5 +1,5 @@
 class FallingCube extends Cube
-  constructor: (col, size, destination) ->
+  constructor: (col, size, destination, placed, placeX, placeY) ->
     x = col * 32 + 160
     y = stage.getY() * -1
     anim = size.x + '-' + size.y
@@ -11,7 +11,13 @@ class FallingCube extends Cube
     @destination = (arena.y - destination * 32 - size.y)
     @diffY = @destination - y
     @speed = 600
-    @fall()
+
+    if placed is undefined
+      @fall()
+    else
+      @shape.setName(null)
+      @shape.setX(placeX)
+      @shape.setY(placeY)
 
   fall: ->
     self = @
