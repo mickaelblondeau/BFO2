@@ -18,6 +18,7 @@ class LevelManager
     dynamicEntities.destroyChildren()
     stage.draw()
     @level = 0
+    @levelHeight = 0
 
   moveLevel: (height) ->
     arena.add(height/32)

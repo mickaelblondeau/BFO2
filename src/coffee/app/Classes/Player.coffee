@@ -112,9 +112,6 @@ class Player
     @skin.start()
 
   spawn: ->
-    @skin.setVisible(true)
-    if @name isnt undefined
-      @name.setVisible(true)
     @shape.setX(336)
     @shape.setY(stage.getY() * -1)
 
@@ -134,9 +131,6 @@ class Player
        @reset()
 
   kill: ->
-    @skin.setVisible(false)
-    if @name isnt undefined
-      @name.setVisible(false)
     @alive = false
     hud.reset()
 
