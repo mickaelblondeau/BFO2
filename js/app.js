@@ -124,6 +124,7 @@
       stage.setScaleY(this.scale);
       stage.draw();
       document.getElementById("container").style.width = config.levelWidth * this.scale + "px";
+      document.getElementById("container").style.height = config.levelHeight * this.scale + "px";
       document.getElementById("chat").style.width = config.levelWidth * this.scale + "px";
       return document.getElementById("chat").style.margin = "0" + -(config.levelWidth * this.scale / 2);
     };
@@ -418,10 +419,6 @@
     };
 
     Player.prototype.spawn = function() {
-      this.skin.setVisible(true);
-      if (this.name !== void 0) {
-        this.name.setVisible(true);
-      }
       this.shape.setX(336);
       return this.shape.setY(stage.getY() * -1);
     };
@@ -445,10 +442,6 @@
     };
 
     Player.prototype.kill = function() {
-      this.skin.setVisible(false);
-      if (this.name !== void 0) {
-        this.name.setVisible(false);
-      }
       this.alive = false;
       return hud.reset();
     };
@@ -1449,7 +1442,8 @@
       hud.reset();
       dynamicEntities.destroyChildren();
       stage.draw();
-      return this.level = 0;
+      this.level = 0;
+      return this.levelHeight = 0;
     };
 
     LevelManager.prototype.moveLevel = function(height) {

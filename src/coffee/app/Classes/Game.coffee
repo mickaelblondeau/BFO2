@@ -34,6 +34,7 @@ class Game
     stage.setScaleY(@scale)
     stage.draw()
     document.getElementById("container").style.width = config.levelWidth * @scale + "px"
+    document.getElementById("container").style.height = config.levelHeight * @scale + "px"
     document.getElementById("chat").style.width = config.levelWidth * @scale + "px"
     document.getElementById("chat").style.margin = "0" + -(config.levelWidth * @scale/2)
 
