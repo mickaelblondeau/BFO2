@@ -1,0 +1,14 @@
+body { overflow: hidden; margin: 0; }
+#container { margin: auto; display: block !important; }
+#stats { position: absolute; top: 0; left: 0; }
+#login { width: 704px; height: 100%; margin: auto; background: url('../assets/bg.jpg'); background-size: 100% 100%; }
+#login label { display: block; }
+#login .form-line { margin: auto; width: 300px; padding-top: 20px; }
+#login input { padding: 10px; border: 1px solid grey; border-radius: 10px; width: 300px; }
+#login button { padding: 10px; border: 1px solid grey; border-radius: 10px; background: springgreen; width: 100px; margin: auto; display: block; margin-top: 20px; }
+#login button:hover { cursor: pointer; background: green; }
+.pt-1 { padding-top: 100px; }
+#chat { position: absolute; width: 600px; z-index: 999; left: 50%; margin-left: -300px; bottom: 0px; padding: 10px; }
+#chat input { border: 0; background: none; width: 100%; }
+#chat span { word-wrap: break-word; }
+#chat .from { font-weight: bold; }
