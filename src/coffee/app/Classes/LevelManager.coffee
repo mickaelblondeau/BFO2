@@ -26,7 +26,7 @@ class LevelManager
     @tweens[0] = new Kinetic.Tween
       node: stage
       duration: 2
-      y: stage.getY() + height * game.scale
+      y: stage.getY() + height
       onFinish: ->
         networkManager.sendMoveLevelOk()
     @tweens[0].play()

@@ -36,6 +36,9 @@ class ControllablePlayer extends Player
 
       moveSide = 0
 
+      if @shape.getY() > 1000
+        @kill()
+
       if @jump or @falling or keyboard.keys.left or keyboard.keys.right or keyboard.keys.up or keyboard.keys.down
         if !@jump and !@grabbing
           @doFall(frameTime)

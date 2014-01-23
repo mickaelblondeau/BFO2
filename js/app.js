@@ -95,7 +95,6 @@
   Game = (function() {
     function Game() {
       this.statsInit();
-      this.scale = 1;
       this.writting = false;
     }
 
@@ -119,14 +118,8 @@
     };
 
     Game.prototype.resize = function() {
-      this.scale = window.innerHeight / config.levelHeight;
-      stage.setScaleX(this.scale);
-      stage.setScaleY(this.scale);
-      stage.draw();
-      document.getElementById("container").style.width = config.levelWidth * this.scale + "px";
-      document.getElementById("container").style.height = config.levelHeight * this.scale + "px";
-      document.getElementById("chat").style.width = config.levelWidth * this.scale + "px";
-      return document.getElementById("chat").style.margin = "0" + -(config.levelWidth * this.scale / 2);
+      document.getElementById("container").style.margin = "-" + (config.levelHeight - window.innerHeight) + " auto";
+      return document.getElementById("container").style.width = config.levelWidth;
     };
 
     Game.prototype.statsInit = function() {
@@ -157,43 +150,43 @@
     Game.prototype.loadAssets = function() {
       imageLoader.addLoad({
         name: 'cubes',
-        url: 'http://res.cloudinary.com/bfo/image/upload/v1388426529/BFO/cubes.jpg'
+        url: '../assets/cubes.jpg'
       });
       imageLoader.addLoad({
         name: 'cubes_red',
-        url: 'http://res.cloudinary.com/bfo/image/upload/v1388426529/BFO/cubes_red.jpg'
+        url: '../assets/cubes_red.jpg'
       });
       imageLoader.addLoad({
         name: 'cubes_blue',
-        url: 'http://res.cloudinary.com/bfo/image/upload/v1388426531/BFO/cubes_blue.jpg'
+        url: '../assets/cubes_blue.jpg'
       });
       imageLoader.addLoad({
         name: 'cubes_green',
-        url: 'http://res.cloudinary.com/bfo/image/upload/v1388426531/BFO/cubes_green.jpg'
+        url: '../assets/cubes_green.jpg'
       });
       imageLoader.addLoad({
         name: 'cubes_special',
-        url: 'http://res.cloudinary.com/bfo/image/upload/v1388496003/BFO/cubes_special.jpg'
+        url: '../assets/cubes_special.jpg'
       });
       imageLoader.addLoad({
         name: 'effects',
-        url: 'http://res.cloudinary.com/bfo/image/upload/v1388501783/BFO/effects.png'
+        url: '../assets/effects.png'
       });
       imageLoader.addLoad({
         name: 'bonus',
-        url: 'http://res.cloudinary.com/bfo/image/upload/v1388426529/BFO/bonus.png'
+        url: '../assets/bonus.png'
       });
       imageLoader.addLoad({
         name: 'bg',
-        url: 'http://res.cloudinary.com/bfo/image/upload/v1388426531/BFO/bg.jpg'
+        url: '../assets/bg.jpg'
       });
       imageLoader.addLoad({
         name: 'boss',
-        url: 'http://res.cloudinary.com/bfo/image/upload/v1388434905/BFO/boss.png'
+        url: '../assets/boss.png'
       });
       imageLoader.addLoad({
         name: 'playerSpirteSheet',
-        url: 'http://res.cloudinary.com/bfo/image/upload/v1388426529/BFO/playerSpirteSheet.png'
+        url: '../assets/playerSpirteSheet.png'
       });
       return imageLoader.load();
     };
@@ -519,6 +512,9 @@
           this.falling = true;
         }
         moveSide = 0;
+        if (this.shape.getY() > 1000) {
+          this.kill();
+        }
         if (this.jump || this.falling || keyboard.keys.left || keyboard.keys.right || keyboard.keys.up || keyboard.keys.down) {
           if (!this.jump && !this.grabbing) {
             this.doFall(frameTime);
@@ -1452,7 +1448,7 @@
       this.tweens[0] = new Kinetic.Tween({
         node: stage,
         duration: 2,
-        y: stage.getY() + height * game.scale,
+        y: stage.getY() + height,
         onFinish: function() {
           return networkManager.sendMoveLevelOk();
         }

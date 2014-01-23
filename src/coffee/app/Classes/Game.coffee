@@ -8,7 +8,6 @@ null
 class Game
   constructor: ->
     @statsInit()
-    @scale = 1
     @writting = false
 
   loop: ->
@@ -29,14 +28,8 @@ class Game
     @loop()
 
   resize: ->
-    @scale = window.innerHeight/config.levelHeight
-    stage.setScaleX(@scale)
-    stage.setScaleY(@scale)
-    stage.draw()
-    document.getElementById("container").style.width = config.levelWidth * @scale + "px"
-    document.getElementById("container").style.height = config.levelHeight * @scale + "px"
-    document.getElementById("chat").style.width = config.levelWidth * @scale + "px"
-    document.getElementById("chat").style.margin = "0" + -(config.levelWidth * @scale/2)
+    document.getElementById("container").style.margin = "-"+(config.levelHeight-window.innerHeight)+" auto"
+    document.getElementById("container").style.width = config.levelWidth
 
   statsInit: ->
     @fps = new Stats()
@@ -57,16 +50,16 @@ class Game
       networkManager.sendLaunch()
 
   loadAssets: ->
-    imageLoader.addLoad({ name:'cubes', url:'http://res.cloudinary.com/bfo/image/upload/v1388426529/BFO/cubes.jpg'})
-    imageLoader.addLoad({ name:'cubes_red', url:'http://res.cloudinary.com/bfo/image/upload/v1388426529/BFO/cubes_red.jpg'})
-    imageLoader.addLoad({ name:'cubes_blue', url:'http://res.cloudinary.com/bfo/image/upload/v1388426531/BFO/cubes_blue.jpg'})
-    imageLoader.addLoad({ name:'cubes_green', url:'http://res.cloudinary.com/bfo/image/upload/v1388426531/BFO/cubes_green.jpg'})
-    imageLoader.addLoad({ name:'cubes_special', url:'http://res.cloudinary.com/bfo/image/upload/v1388496003/BFO/cubes_special.jpg'})
-    imageLoader.addLoad({ name:'effects', url:'http://res.cloudinary.com/bfo/image/upload/v1388501783/BFO/effects.png'})
-    imageLoader.addLoad({ name:'bonus', url:'http://res.cloudinary.com/bfo/image/upload/v1388426529/BFO/bonus.png'})
-    imageLoader.addLoad({ name:'bg', url:'http://res.cloudinary.com/bfo/image/upload/v1388426531/BFO/bg.jpg'})
-    imageLoader.addLoad({ name:'boss', url:'http://res.cloudinary.com/bfo/image/upload/v1388434905/BFO/boss.png'})
-    imageLoader.addLoad({ name:'playerSpirteSheet', url:'http://res.cloudinary.com/bfo/image/upload/v1388426529/BFO/playerSpirteSheet.png'})
+    imageLoader.addLoad({ name:'cubes', url:'../assets/cubes.jpg'})
+    imageLoader.addLoad({ name:'cubes_red', url:'../assets/cubes_red.jpg'})
+    imageLoader.addLoad({ name:'cubes_blue', url:'../assets/cubes_blue.jpg'})
+    imageLoader.addLoad({ name:'cubes_green', url:'../assets/cubes_green.jpg'})
+    imageLoader.addLoad({ name:'cubes_special', url:'../assets/cubes_special.jpg'})
+    imageLoader.addLoad({ name:'effects', url:'../assets/effects.png'})
+    imageLoader.addLoad({ name:'bonus', url:'../assets/bonus.png'})
+    imageLoader.addLoad({ name:'bg', url:'../assets/bg.jpg'})
+    imageLoader.addLoad({ name:'boss', url:'../assets/boss.png'})
+    imageLoader.addLoad({ name:'playerSpirteSheet', url:'../assets/playerSpirteSheet.png'})
     imageLoader.load()
 
   chat: ->
