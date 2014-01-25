@@ -195,7 +195,7 @@
     Game.prototype.chat = function() {
       if (document.activeElement.id === 'chatMessage') {
         this.writting = false;
-        if (document.activeElement.value !== void 0 && document.activeElement.value !== '') {
+        if (document.activeElement.value !== void 0 && document.activeElement.value.trim() !== '') {
           networkManager.sendMessage(document.getElementById('chatMessage').value);
           this.addMessage('Me', document.getElementById('chatMessage').value);
         }
@@ -804,13 +804,16 @@
               return count++;
             } else {
               return players.find('Rect').each(function(plr) {
-                var otherPlayerBoundBox;
-                if (plr.getName() === 'otherPlayer') {
-                  otherPlayerBoundBox = collisionManager.getBoundBox(plr);
-                  otherPlayerBoundBox.bottom += 4;
-                  if (collisionManager.colliding(playerBoundBox, otherPlayerBoundBox) && plr.getHeight() < self.height) {
-                    self.grab(cube);
-                    return count++;
+                var otherPlayerBoundBox, skin;
+                skin = players.find('#skin-' + plr.getId())[0];
+                if (plr.getId() !== void 0) {
+                  if (plr.getName() === 'otherPlayer' && skin.getAnimation() === 'couch') {
+                    otherPlayerBoundBox = collisionManager.getBoundBox(plr);
+                    otherPlayerBoundBox.bottom += 4;
+                    if (collisionManager.colliding(playerBoundBox, otherPlayerBoundBox)) {
+                      self.grab(cube);
+                      return count++;
+                    }
                   }
                 }
               });
@@ -828,11 +831,14 @@
       response = false;
       playerBoundBox = collisionManager.getBoundBox(this.shape);
       players.find('Rect').each(function(plr) {
-        var otherPlayerBoundBox;
-        if (plr.getName() === 'otherPlayer') {
-          otherPlayerBoundBox = collisionManager.getBoundBox(plr);
-          if (collisionManager.colliding(playerBoundBox, otherPlayerBoundBox) && plr.getHeight() < self.height) {
-            return response = true;
+        var otherPlayerBoundBox, skin;
+        if (plr.getId() !== void 0) {
+          skin = players.find('#skin-' + plr.getId())[0];
+          if (plr.getName() === 'otherPlayer' && skin.getAnimation() === 'couch') {
+            otherPlayerBoundBox = collisionManager.getBoundBox(plr);
+            if (collisionManager.colliding(playerBoundBox, otherPlayerBoundBox)) {
+              return response = true;
+            }
           }
         }
       });
@@ -860,10 +866,12 @@
   VirtualPlayer = (function(_super) {
     __extends(VirtualPlayer, _super);
 
-    function VirtualPlayer(name) {
+    function VirtualPlayer(id, name) {
       VirtualPlayer.__super__.constructor.call(this);
       this.skin.setFill('white');
       this.shape.setName('otherPlayer');
+      this.shape.setId(id);
+      this.skin.setId('skin-' + id);
       this.name = new Kinetic.Text({
         text: name,
         fill: 'black',
@@ -1524,7 +1532,7 @@
         return bonusManager.remove(id);
       });
       this.socket.on('connection', function(arr) {
-        self.players[arr[0]] = new VirtualPlayer(arr[1]);
+        self.players[arr[0]] = new VirtualPlayer(arr[0], arr[1]);
         return self.playersId.push(arr[0]);
       });
       this.socket.on('disconnect', function(id) {
@@ -1627,7 +1635,7 @@
 
   Arena = (function() {
     function Arena() {
-      this.y = stage.getHeight();
+      this.y = stage.getHeight() - 32;
       this.initHeight = 31;
       this.height = this.initHeight;
       this.draw();

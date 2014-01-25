@@ -26,7 +26,7 @@ class NetworkManager
     @socket.on 'bonusTaken', (id) ->
       bonusManager.remove(id)
     @socket.on 'connection', (arr) ->
-      self.players[arr[0]] = new VirtualPlayer(arr[1])
+      self.players[arr[0]] = new VirtualPlayer(arr[0], arr[1])
       self.playersId.push arr[0]
     @socket.on 'disconnect', (id) ->
       self.players[id].remove()

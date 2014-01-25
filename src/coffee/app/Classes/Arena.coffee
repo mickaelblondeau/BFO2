@@ -1,6 +1,6 @@
 class Arena
   constructor: () ->
-    @y = stage.getHeight()
+    @y = stage.getHeight() - 32
     @initHeight = 31
     @height = @initHeight
     @draw()

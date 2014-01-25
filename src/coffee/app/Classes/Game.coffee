@@ -65,7 +65,7 @@ class Game
   chat: ->
     if document.activeElement.id is 'chatMessage'
       @writting = false
-      if document.activeElement.value isnt undefined and document.activeElement.value isnt ''
+      if document.activeElement.value isnt undefined and document.activeElement.value.trim() isnt ''
         networkManager.sendMessage(document.getElementById('chatMessage').value)
         @addMessage('Me', document.getElementById('chatMessage').value)
       document.getElementById('chatMessage').blur()

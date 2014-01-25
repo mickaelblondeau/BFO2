@@ -1,8 +1,10 @@
 class VirtualPlayer extends Player
-  constructor: (name) ->
+  constructor: (id, name) ->
     super()
     @skin.setFill('white')
     @shape.setName('otherPlayer')
+    @shape.setId(id)
+    @skin.setId('skin-' + id)
     @name = new Kinetic.Text
       text: name
       fill: 'black'

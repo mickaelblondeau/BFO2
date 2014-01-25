@@ -257,12 +257,14 @@ class ControllablePlayer extends Player
             count++
           else
             players.find('Rect').each (plr) ->
-              if plr.getName() is 'otherPlayer'
-                otherPlayerBoundBox = collisionManager.getBoundBox(plr)
-                otherPlayerBoundBox.bottom += 4
-                if collisionManager.colliding(playerBoundBox, otherPlayerBoundBox) and plr.getHeight() < self.height
-                  self.grab(cube)
-                  count++
+              skin = players.find('#skin-' + plr.getId())[0]
+              if plr.getId() isnt undefined
+                if plr.getName() is 'otherPlayer' and skin.getAnimation() is 'couch'
+                  otherPlayerBoundBox = collisionManager.getBoundBox(plr)
+                  otherPlayerBoundBox.bottom += 4
+                  if collisionManager.colliding(playerBoundBox, otherPlayerBoundBox)
+                    self.grab(cube)
+                    count++
     if count is 0
       @grabbing = false
 
@@ -270,10 +272,12 @@ class ControllablePlayer extends Player
     response = false
     playerBoundBox = collisionManager.getBoundBox(@shape)
     players.find('Rect').each (plr) ->
-      if plr.getName() is 'otherPlayer'
-        otherPlayerBoundBox = collisionManager.getBoundBox(plr)
-        if collisionManager.colliding(playerBoundBox, otherPlayerBoundBox) and plr.getHeight() < self.height
-          response = true
+      if plr.getId() isnt undefined
+        skin = players.find('#skin-' + plr.getId())[0]
+        if plr.getName() is 'otherPlayer' and skin.getAnimation() is 'couch'
+          otherPlayerBoundBox = collisionManager.getBoundBox(plr)
+          if collisionManager.colliding(playerBoundBox, otherPlayerBoundBox)
+            response = true
     return response
 
   grab: (cube) ->
