@@ -2064,7 +2064,7 @@
       }
       self = this;
       return bossManager.update = function(frameTime) {
-        var part, tmp, _j, _len, _ref, _results;
+        var fn, part, tmp, _j, _len, _ref, _results;
         self.counter += frameTime;
         if (self.counter >= self.interval) {
           self.counter = 0;
@@ -2082,7 +2082,10 @@
               part.shape.destroy();
               self.count++;
               if (self.count === self.attacks.length) {
-                self.finish();
+                fn = function() {
+                  return self.finish();
+                };
+                setTimeout(fn, 5000);
               }
               _results.push(self.parts.splice(i, 1));
             }
@@ -2098,7 +2101,8 @@
       var tmp;
       tmp = this.attacks[this.attackIndex];
       if (tmp !== void 0) {
-        this.parts.push(new FreezeManPart(tmp * 32 + 128));
+        this.parts.push(new FreezeManPart(tmp[0] * 32 + 128));
+        this.parts.push(new FreezeManPart(tmp[1] * 32 + 128));
         return this.attackIndex++;
       }
     };

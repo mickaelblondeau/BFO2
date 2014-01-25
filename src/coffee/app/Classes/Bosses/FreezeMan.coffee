@@ -29,13 +29,16 @@ class FreezeMan
             part.shape.destroy()
             self.count++
             if self.count is self.attacks.length
-              self.finish()
+              fn = ->
+                self.finish()
+              setTimeout(fn, 5000)
             self.parts.splice(i, 1)
 
   next: ->
     tmp = @attacks[@attackIndex]
     if tmp isnt undefined
-      @parts.push new FreezeManPart(tmp*32+128)
+      @parts.push new FreezeManPart(tmp[0]*32+128)
+      @parts.push new FreezeManPart(tmp[1]*32+128)
       @attackIndex++
 
   reset: ->

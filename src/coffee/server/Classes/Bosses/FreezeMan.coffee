@@ -6,8 +6,5 @@ class FreezeMan extends Boss
     attacks = []
     for i in [0..5]
       attack = Math.floor((Math.random()*10)+1)
-      if i % 2 == 0
-        attacks.push -16 + attack
-      else
-        attacks.push 3 + attack
+      attacks.push [4 + attack, 4 + attack - 20]
     return attacks

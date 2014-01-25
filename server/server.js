@@ -77,13 +77,13 @@
       this.bonusId = 0;
       this.types = [
         {
-          proba: 3,
+          proba: 2,
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
           special: 'iceExplosion'
         }, {
-          proba: 15,
+          proba: 2,
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
@@ -698,11 +698,7 @@
       attacks = [];
       for (i = _i = 0; _i <= 5; i = ++_i) {
         attack = Math.floor((Math.random() * 10) + 1);
-        if (i % 2 === 0) {
-          attacks.push(-16 + attack);
-        } else {
-          attacks.push(3 + attack);
-        }
+        attacks.push([4 + attack, 4 + attack - 20]);
       }
       return attacks;
     };

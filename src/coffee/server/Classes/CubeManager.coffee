@@ -21,14 +21,14 @@ class CubeManager
 
     @types = [
       {
-        proba: 3
+        proba: 2
         size: SquareEnum.MEDIUM
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
         special: 'iceExplosion'
       },
       {
-        proba: 15
+        proba: 2
         size: SquareEnum.MEDIUM
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
