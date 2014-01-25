@@ -20,19 +20,22 @@ class FreezeMan
       if self.counter >= self.interval
         self.counter = 0
         self.next()
+      speed = frameTime * self.speed
       for part, i in self.parts
         if part isnt undefined
-          tmp = part.shape.getY() + frameTime * self.speed
+          tmp = part.shape.getY() + speed
           if tmp < self.levelHeight
             part.shape.setY(tmp)
           else
             part.shape.destroy()
+            self.parts[i] = null
             self.count++
-            if self.count is self.attacks.length
-              fn = ->
-                self.finish()
-              setTimeout(fn, 5000)
-            self.parts.splice(i, 1)
+            if self.count is self.attacks.length * 2
+              self.finish()
+      self.parts = self.parts.filter(
+        (e)->
+          e
+      )
 
   next: ->
     tmp = @attacks[@attackIndex]

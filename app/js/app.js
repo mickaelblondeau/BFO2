@@ -2074,36 +2074,33 @@
       }
       self = this;
       return bossManager.update = function(frameTime) {
-        var fn, part, tmp, _j, _len, _ref, _results;
+        var part, speed, tmp, _j, _len, _ref;
         self.counter += frameTime;
         if (self.counter >= self.interval) {
           self.counter = 0;
           self.next();
         }
+        speed = frameTime * self.speed;
         _ref = self.parts;
-        _results = [];
         for (i = _j = 0, _len = _ref.length; _j < _len; i = ++_j) {
           part = _ref[i];
           if (part !== void 0) {
-            tmp = part.shape.getY() + frameTime * self.speed;
+            tmp = part.shape.getY() + speed;
             if (tmp < self.levelHeight) {
-              _results.push(part.shape.setY(tmp));
+              part.shape.setY(tmp);
             } else {
               part.shape.destroy();
+              self.parts[i] = null;
               self.count++;
-              if (self.count === self.attacks.length) {
-                fn = function() {
-                  return self.finish();
-                };
-                setTimeout(fn, 5000);
+              if (self.count === self.attacks.length * 2) {
+                self.finish();
               }
-              _results.push(self.parts.splice(i, 1));
             }
-          } else {
-            _results.push(void 0);
           }
         }
-        return _results;
+        return self.parts = self.parts.filter(function(e) {
+          return e;
+        });
       };
     };
 
