@@ -7,7 +7,9 @@
     FPS: 60,
     lowFPS: 0.1,
     levelSpeed: 1000,
-    timeout: 5000
+    timeout: 5000,
+    debug: false,
+    debugMap: false
   };
 
   Game = (function() {
@@ -65,6 +67,7 @@
   CubeManager = (function() {
     function CubeManager() {
       this.map = [];
+      this.mapTest = [];
       this.resetMap();
       this.updateRate = 0;
       this.current = 0;
@@ -80,7 +83,7 @@
           height: SquareEnum.MEDIUM.y / 32,
           special: 'iceExplosion'
         }, {
-          proba: 3,
+          proba: 15,
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
@@ -152,7 +155,10 @@
         this.updateRate = rate;
         this.current = 0;
         this.levelHeight += level;
-        return this.running = true;
+        this.running = true;
+        if (config.debugMap) {
+          return this.debug();
+        }
       }
     };
 
@@ -175,16 +181,19 @@
     };
 
     CubeManager.prototype.resetMap = function() {
-      var i, _i, _results;
-      _results = [];
+      var i, _i, _j, _results;
       for (i = _i = 0; _i <= 11; i = ++_i) {
-        _results.push(this.map[i] = 0);
+        this.map[i] = 0;
+      }
+      _results = [];
+      for (i = _j = 0; _j <= 11; i = ++_j) {
+        _results.push(this.mapTest[i] = []);
       }
       return _results;
     };
 
     CubeManager.prototype.sendCube = function() {
-      var choice, choices, columnPosition, count, rand, tmp, type, typeIndex, _i, _ref;
+      var choice, choices, columnPosition, count, h, rand, tmp, type, typeIndex, _i, _j, _ref, _ref1;
       choices = this.checkCols();
       if (choices.length > 0) {
         tmp = this.randomizeType(choices);
@@ -205,7 +214,13 @@
           networkManager.sendCube(choice.column, type.size, choice.height);
           for (columnPosition = _i = 1, _ref = type.width; 1 <= _ref ? _i <= _ref : _i >= _ref; columnPosition = 1 <= _ref ? ++_i : --_i) {
             this.map[choice.column + columnPosition - 1] = choice.height + type.height;
+            for (h = _j = 0, _ref1 = type.height - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; h = 0 <= _ref1 ? ++_j : --_j) {
+              this.mapTest[choice.column + columnPosition - 1][choice.height + h] = 1;
+            }
           }
+        }
+        if (config.debug) {
+          networkManager.sendMap(this.mapTest);
         }
         return true;
       } else {
@@ -259,8 +274,10 @@
         this.current += frameTime;
         if (this.current >= this.updateRate) {
           this.current = 0;
-          if (!this.sendCube()) {
-            return this.wait();
+          if (!config.debugMap) {
+            if (!this.sendCube()) {
+              return this.wait();
+            }
           }
         }
       }
@@ -301,28 +318,76 @@
     };
 
     CubeManager.prototype.explodeMap = function(col, height) {
-      var i, index, j, tmp, _i, _results;
-      _results = [];
+      var colHeight, deep, i, j, k, newCol, newColHeight, newColMaxHeight, tmp, val, _i, _j, _len, _ref;
       for (i = _i = -4; _i <= 5; i = ++_i) {
         if (i > 0) {
           j = i - 1;
         } else {
           j = i;
         }
-        index = col + i;
-        if (index >= 0) {
-          tmp = parseInt(this.map[index]) + parseInt(-5 + Math.abs(j));
-          if (this.map[index] < height + parseInt(-5 + Math.abs(j)) * -1) {
-            if (tmp < 0) {
-              this.map[index] = 0;
-            } else {
-              this.map[index] = tmp;
+        newCol = col + i;
+        if (newCol >= 0 && newCol <= 11) {
+          deep = -5 + Math.abs(j);
+          colHeight = 0;
+          if (this.mapTest[newCol] !== void 0 && this.mapTest[newCol] !== null) {
+            colHeight = this.mapTest[newCol].length;
+          }
+          newColHeight = height + deep + 1;
+          newColMaxHeight = height - deep + 1;
+          if (this.mapTest[newCol] !== void 0 && this.mapTest[newCol] !== null) {
+            _ref = this.mapTest[newCol];
+            for (k = _j = 0, _len = _ref.length; _j < _len; k = ++_j) {
+              val = _ref[k];
+              if (k > newColHeight && k < newColMaxHeight) {
+                this.mapTest[newCol][k] = null;
+              }
             }
           }
+          tmp = this.mapTest[newCol].lastIndexOf(1);
+          if (tmp === -1) {
+            this.mapTest[newCol] = [];
+          } else {
+            this.mapTest[newCol] = this.mapTest[newCol].slice(0, tmp + 1);
+          }
         }
-        _results.push(console.log(this.map));
+      }
+      return this.syncMap();
+    };
+
+    CubeManager.prototype.syncMap = function() {
+      var i, len, subMap, _i, _len, _ref, _results;
+      _ref = this.mapTest;
+      _results = [];
+      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        subMap = _ref[i];
+        len = 0;
+        if (subMap !== void 0 && subMap !== null) {
+          len = subMap.length;
+        }
+        _results.push(this.map[i] = len);
       }
       return _results;
+    };
+
+    CubeManager.prototype.debug = function() {
+      var fn, i, j, self, _i, _j;
+      self = this;
+      for (i = _i = 0; _i <= 11; i = ++_i) {
+        for (j = _j = 0; _j <= 10; j = ++_j) {
+          networkManager.sendCube(i, SquareEnum.SMALL, j);
+          this.mapTest[i][j] = 1;
+        }
+      }
+      networkManager.sendMap(this.mapTest);
+      fn = function() {
+        var col, row;
+        col = Math.floor(Math.random() * 10) + 1;
+        row = Math.floor(Math.random() * 10) + 1;
+        networkManager.sendSpecial(col, SquareEnum.MEDIUM, row, 'explosion');
+        self.explodeMap(col, row);
+        return networkManager.sendMap(self.mapTest);
+      };
+      return setTimeout(fn, 1000);
     };
 
     return CubeManager;
@@ -544,6 +609,10 @@
         list.push(player.id);
       }
       return this.io.sockets.emit('playerList', list);
+    };
+
+    NetworkManager.prototype.sendMap = function(map) {
+      return this.io.sockets.emit('debugMap', map);
     };
 
     return NetworkManager;

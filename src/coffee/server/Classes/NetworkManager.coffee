@@ -97,3 +97,6 @@ class NetworkManager
     for player in players
       list.push player.id
     @io.sockets.emit 'playerList', list
+
+  sendMap: (map) ->
+    @io.sockets.emit 'debugMap', map

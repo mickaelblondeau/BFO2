@@ -43,6 +43,9 @@ class NetworkManager
       bossManager.spawn(arr[0], arr[1])
     @socket.on 'resurection', ->
       player.resurection()
+    @socket.on 'debugMap', (map) ->
+      if config.debug
+        debugMap(map)
     @socket.on 'playerList', (arr) ->
       for id, i in self.playersId
         if arr.indexOf(id) is -1

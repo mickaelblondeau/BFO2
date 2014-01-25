@@ -5,4 +5,5 @@ config = {
   playerJumpMax: 1
   playerJumpHeight: 80
   playerSpeed: 0.3
+  debug: false
 }

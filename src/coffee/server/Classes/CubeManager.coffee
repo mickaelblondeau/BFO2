@@ -10,6 +10,7 @@ SquareEnum = {
 class CubeManager
   constructor: ->
     @map = []
+    @mapTest = []
     @resetMap()
     @updateRate = 0
     @current = 0
@@ -27,7 +28,7 @@ class CubeManager
         special: 'iceExplosion'
       },
       {
-        proba: 3
+        proba: 15
         size: SquareEnum.MEDIUM
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
@@ -109,6 +110,9 @@ class CubeManager
       @levelHeight += level
       @running = true
 
+      if config.debugMap
+        @debug()
+
   reset: ->
     @levelHeight = 0
     @stop()
@@ -127,6 +131,9 @@ class CubeManager
   resetMap: ->
     for i in [0..11]
      @map[i] = 0
+
+    for i in [0..11]
+      @mapTest[i] = []
 
   sendCube: ->
     choices = @checkCols()
@@ -148,6 +155,10 @@ class CubeManager
         networkManager.sendCube(choice.column, type.size, choice.height)
         for columnPosition in [1..type.width]
           @map[choice.column + columnPosition - 1] = choice.height + type.height
+          for h in [0..type.height-1]
+            @mapTest[choice.column + columnPosition - 1][choice.height + h] = 1
+      if config.debug
+        networkManager.sendMap(@mapTest)
       return true
     else
       return false
@@ -177,8 +188,9 @@ class CubeManager
       @current += frameTime
       if @current >= @updateRate
         @current = 0
-        if !@sendCube()
-          @wait()
+        if !config.debugMap
+          if !@sendCube()
+            @wait()
 
   checkCols: ->
     available = []
@@ -208,12 +220,50 @@ class CubeManager
         j = i-1
       else
         j = i
-      index = col + i
-      if index >= 0
-        tmp = parseInt(@map[index]) + parseInt(-5 + Math.abs(j))
-        if @map[index] < height + parseInt(-5 + Math.abs(j))*-1
-          if tmp < 0
-            @map[index] = 0
-          else
-            @map[index] = tmp
-      console.log @map
+      newCol = col + i
+
+      if newCol >= 0 && newCol <= 11
+        deep = (-5 + Math.abs(j))
+        colHeight = 0
+        if @mapTest[newCol] isnt undefined and @mapTest[newCol] isnt null
+          colHeight = @mapTest[newCol].length
+        newColHeight = (height + deep + 1)
+        newColMaxHeight = (height - deep + 1)
+
+        if @mapTest[newCol] isnt undefined and @mapTest[newCol] isnt null
+          for val, k in @mapTest[newCol]
+            if (k > newColHeight and k < newColMaxHeight)
+              @mapTest[newCol][k] = null
+
+        tmp = @mapTest[newCol].lastIndexOf(1)
+        if tmp is -1
+          @mapTest[newCol] = []
+        else
+          @mapTest[newCol] = @mapTest[newCol].slice(0, tmp+1)
+
+    @syncMap()
+
+  syncMap: ->
+    for subMap, i in @mapTest
+      len = 0
+      if subMap isnt undefined and subMap isnt null
+        len = subMap.length
+      @map[i] = len
+
+  debug: ->
+    self = @
+    for i in [0..11]
+      for j in [0..10]
+        networkManager.sendCube(i, SquareEnum.SMALL, j)
+        @mapTest[i][j] = 1
+
+    networkManager.sendMap(@mapTest)
+
+    fn = ->
+      col = Math.floor(Math.random()*10)+1
+      row = Math.floor(Math.random()*10)+1
+
+      networkManager.sendSpecial(col, SquareEnum.MEDIUM, row, 'explosion')
+      self.explodeMap(col, row)
+      networkManager.sendMap(self.mapTest)
+    setTimeout(fn, 1000)

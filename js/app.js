@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ControllablePlayer, Cube, CubeFragment, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, ImageLoader, Keyboard, LevelManager, NetworkManager, Player, RoueMan, SpecialCube, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bossManager, collisionManager, config, dynamicEntities, game, hud, hudLayer, imageLoader, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ControllablePlayer, Cube, CubeFragment, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, ImageLoader, Keyboard, LevelManager, NetworkManager, Player, RoueMan, SpecialCube, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bossManager, collisionManager, config, debugLayer, debugMap, dynamicEntities, game, hud, hudLayer, imageLoader, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -9,7 +9,8 @@
     levelSpeed: 1000,
     playerJumpMax: 1,
     playerJumpHeight: 80,
-    playerSpeed: 0.3
+    playerSpeed: 0.3,
+    debug: false
   };
 
   Keyboard = (function() {
@@ -1141,12 +1142,11 @@
           if (cube.getName() === null) {
             _results = [];
             for (i = _i = -4; _i <= 5; i = ++_i) {
+              j = i;
               if (i > 0) {
                 j = i - 1;
-              } else {
-                j = i;
               }
-              if (cube.getX() === self.shape.getX() + i * 32 && cube.getY() < self.shape.getY() - (-5 + Math.abs(j)) * 32 && cube.getY() > self.shape.getY() + (-5 + Math.abs(j)) * 32) {
+              if (cube.getY() < self.shape.getY() - (-5 + Math.abs(j)) * 32 && cube.getY() > self.shape.getY() + (-5 + Math.abs(j)) * 32) {
                 if (cube.getWidth() > 32 || cube.getHeight() > 32) {
                   for (k = _j = 0, _ref = cube.getWidth() / 32 - 1; 0 <= _ref ? _j <= _ref : _j >= _ref; k = 0 <= _ref ? ++_j : --_j) {
                     for (l = _k = 0, _ref1 = cube.getHeight() / 32 - 1; 0 <= _ref1 ? _k <= _ref1 : _k >= _ref1; l = 0 <= _ref1 ? ++_k : --_k) {
@@ -1168,10 +1168,9 @@
           var i, j, _i, _results;
           _results = [];
           for (i = _i = -4; _i <= 5; i = ++_i) {
+            j = i;
             if (i > 0) {
               j = i - 1;
-            } else {
-              j = i;
             }
             if (cube.getX() === self.shape.getX() + i * 32 && cube.getY() < self.shape.getY() - (-5 + Math.abs(j)) * 32 && cube.getY() > self.shape.getY() + (-5 + Math.abs(j)) * 32) {
               _results.push(cube.destroy());
@@ -1550,6 +1549,11 @@
       });
       this.socket.on('resurection', function() {
         return player.resurection();
+      });
+      this.socket.on('debugMap', function(map) {
+        if (config.debug) {
+          return debugMap(map);
+        }
       });
       this.socket.on('playerList', function(arr) {
         var i, id, _i, _len, _ref, _results;
@@ -2181,6 +2185,33 @@
   player = null;
 
   hud = null;
+
+  if (config.debug) {
+    debugLayer = new Kinetic.Layer();
+    stage.add(debugLayer);
+    debugLayer.setZIndex(100);
+    debugMap = function(map) {
+      var shape, subMap, val, x, y, _i, _j, _len, _len1;
+      debugLayer.destroyChildren();
+      for (x = _i = 0, _len = map.length; _i < _len; x = ++_i) {
+        subMap = map[x];
+        for (y = _j = 0, _len1 = subMap.length; _j < _len1; y = ++_j) {
+          val = subMap[y];
+          if (val !== null) {
+            shape = new Kinetic.Rect({
+              x: x * 32 + 160,
+              y: arena.y - y * 32 - 32,
+              width: 32,
+              height: 32,
+              stroke: "red"
+            });
+            debugLayer.add(shape);
+          }
+        }
+      }
+      return debugLayer.draw();
+    };
+  }
 
   imageLoader.imagesLoaded = function() {
     var launchGame;

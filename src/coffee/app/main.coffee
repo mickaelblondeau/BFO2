@@ -30,6 +30,24 @@ arena = null
 player = null
 hud = null
 
+if config.debug
+  debugLayer = new Kinetic.Layer()
+  stage.add debugLayer
+  debugLayer.setZIndex(100)
+  debugMap = (map) ->
+    debugLayer.destroyChildren()
+    for subMap, x in map
+      for val, y in subMap
+        if val isnt null
+          shape = new Kinetic.Rect
+            x: x * 32 + 160
+            y: arena.y - y * 32 - 32
+            width: 32
+            height: 32
+            stroke: "red"
+          debugLayer.add shape
+    debugLayer.draw()
+
 imageLoader.imagesLoaded = ->
   launchGame = (ip, name) ->
     bg = new Kinetic.Rect
