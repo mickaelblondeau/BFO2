@@ -99,6 +99,12 @@ class Player
         y: 98
         width: 46
         height: 48
+      }],
+      dead: [{
+        x: 290
+        y: 49
+        width: 48
+        height: 48
       }]
     }
 

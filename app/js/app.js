@@ -399,6 +399,14 @@
             width: 46,
             height: 48
           }
+        ],
+        dead: [
+          {
+            x: 290,
+            y: 49,
+            width: 48,
+            height: 48
+          }
         ]
       };
       this.skin = new Kinetic.Sprite({
@@ -507,6 +515,9 @@
     ControllablePlayer.prototype.update = function(frameTime) {
       var collide, moveSide, moveSpeed;
       if (this.alive) {
+        if (frameTime > 200) {
+          frameTime = 200;
+        }
         this.sliding = false;
         this.testMove(this.shape.getX(), 0);
         if (!this.testMove(0, this.shape.getY())) {
@@ -516,59 +527,48 @@
         if (this.shape.getY() > 1000) {
           this.kill();
         }
-        if (this.jump || this.falling || keyboard.keys.left || keyboard.keys.right || keyboard.keys.up || keyboard.keys.down) {
-          if (!this.jump && !this.grabbing) {
-            this.doFall(frameTime);
+        if (!this.jump && !this.grabbing) {
+          this.doFall(frameTime);
+        } else {
+          this.doJump(frameTime);
+        }
+        if (this.couched && !this.jump) {
+          moveSpeed = this.speed * frameTime * this.couchedSpeedRatio;
+        } else {
+          moveSpeed = this.speed * frameTime;
+        }
+        if (keyboard.keys.left) {
+          collide = this.testMove(this.shape.getX() - moveSpeed, 0);
+          if (collide) {
+            this.shape.setX(collide.getX() + collide.getWidth());
           } else {
-            this.doJump(frameTime);
+            moveSide = -1;
           }
-          if (this.couched && !this.jump) {
-            moveSpeed = this.speed * frameTime * this.couchedSpeedRatio;
+        }
+        if (keyboard.keys.right) {
+          collide = this.testMove(this.shape.getX() + moveSpeed, 0);
+          if (collide) {
+            this.shape.setX(collide.getX() - this.shape.getWidth());
           } else {
-            moveSpeed = this.speed * frameTime;
+            moveSide = 1;
           }
-          if (keyboard.keys.left) {
-            collide = this.testMove(this.shape.getX() - moveSpeed, 0);
-            if (collide) {
-              this.shape.setX(collide.getX() + collide.getWidth());
-            } else {
-              moveSide = -1;
-            }
+        }
+        if (keyboard.keys.up) {
+          if (this.canJump) {
+            this.startJump();
           }
-          if (keyboard.keys.right) {
-            collide = this.testMove(this.shape.getX() + moveSpeed, 0);
-            if (collide) {
-              this.shape.setX(collide.getX() - this.shape.getWidth());
-            } else {
-              moveSide = 1;
-            }
-          }
-          if (keyboard.keys.up) {
-            if (this.canJump) {
-              this.startJump();
-            }
-          } else {
-            this.canJump = true;
-          }
-          if (keyboard.keys.down) {
-            this.startCouch();
-          } else {
-            this.stopCouch();
-          }
-          if (this.cached.x !== this.shape.getX() || this.cached.y !== this.shape.getY()) {
-            networkManager.sendMove(this.shape.getX(), this.shape.getY());
-            this.cached.x = this.shape.getX();
-            this.cached.y = this.shape.getY();
-          }
-        } else if (this.couched) {
-          this.stopCouch();
-          if (this.cached.x !== this.shape.getX() || this.cached.y !== this.shape.getY()) {
-            networkManager.sendMove(this.shape.getX(), this.shape.getY());
-            this.cached.x = this.shape.getX();
-            this.cached.y = this.shape.getY();
-          }
-        } else if (!keyboard.keys.up) {
+        } else {
           this.canJump = true;
+        }
+        if (keyboard.keys.down) {
+          this.startCouch();
+        } else {
+          this.stopCouch();
+        }
+        if (this.cached.x !== this.shape.getX() || this.cached.y !== this.shape.getY()) {
+          networkManager.sendMove(this.shape.getX(), this.shape.getY());
+          this.cached.x = this.shape.getX();
+          this.cached.y = this.shape.getY();
         }
         if (this.sliding) {
           if (this.skin.getScaleX() === -1) {
@@ -607,6 +607,8 @@
         }
         this.fixSkinPos();
         return this.getCornerCollisions();
+      } else if (this.skin.getAnimation() !== 'dead') {
+        return this.changeAnimation('dead');
       }
     };
 
