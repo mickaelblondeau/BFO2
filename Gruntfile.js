@@ -57,23 +57,23 @@ module.exports = function(grunt) {
         coffee: {
             app: {
                 files: {
-                    'js/app.js': ['src/tmp/app.coffee']
+                    'app/js/app.js': ['src/tmp/app.coffee']
                 }
             },
             server: {
                 files: {
-                    'js/server.js': ['src/tmp/server.coffee']
+                    'server/server.js': ['src/tmp/server.coffee']
                 }
             }
         },
         uglify: {
             app: {
-                src: 'js/app.js',
-                dest: 'js/app.min.js'
+                src: 'app/js/app.js',
+                dest: 'app/js/app.min.js'
             },
             server: {
-                src: 'js/server.js',
-                dest: 'js/server.min.js'
+                src: 'server/server.js',
+                dest: 'server/server.min.js'
             }
         }
     });
