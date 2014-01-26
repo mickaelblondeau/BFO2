@@ -77,18 +77,6 @@ contentLoader.contentsLoaded = ->
       hud.update(frameTime)
     game.start()
 
-    new FallingCube(0, SquareEnum.LARGE, 0)
-    new FallingCube(4, SquareEnum.LARGE, 0)
-    new FallingCube(8, SquareEnum.LARGE, 0)
-
-    new FallingCube(0, SquareEnum.LARGE, 4)
-    new FallingCube(4, SquareEnum.LARGE, 4)
-    new FallingCube(8, SquareEnum.LARGE, 4)
-
-    fn = ->
-      new SpecialCube(5, SquareEnum.MEDIUM, 3, 'explosion')
-    setTimeout(fn, 1000)
-
   document.getElementById('play').onclick = () ->
     document.getElementById('login').style.display = 'none'
     launchGame(document.getElementById('ip').value, document.getElementById('name').value)

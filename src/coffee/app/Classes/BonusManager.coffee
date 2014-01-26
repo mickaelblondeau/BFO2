@@ -31,6 +31,7 @@ class BonusManager
     @timers = []
 
   getBonus: (bonusName, player, bonusId) ->
+    contentLoader.sounds['pickup'].play()
     for bonus in @bonuses
       if bonusName is bonus.name
         @addBonus(bonus, player)

@@ -205,6 +205,10 @@
         name: 'explosion',
         url: '../assets/sounds/explosion.wav'
       });
+      contentLoader.loadSound({
+        name: 'pickup',
+        url: '../assets/sounds/pickup.wav'
+      });
       return contentLoader.load();
     };
 
@@ -1437,6 +1441,7 @@
 
     BonusManager.prototype.getBonus = function(bonusName, player, bonusId) {
       var bonus, callback, self, thisBonus, _i, _len, _ref, _results;
+      contentLoader.sounds['pickup'].play();
       _ref = this.bonuses;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -2326,7 +2331,7 @@
     contentLoader.sounds['music'].loop = true;
     contentLoader.sounds['music'].play();
     launchGame = function(ip, name) {
-      var bg, fn;
+      var bg;
       bg = new Kinetic.Rect({
         width: stage.getWidth(),
         height: stage.getHeight(),
@@ -2345,17 +2350,7 @@
         bossManager.update(frameTime);
         return hud.update(frameTime);
       };
-      game.start();
-      new FallingCube(0, SquareEnum.LARGE, 0);
-      new FallingCube(4, SquareEnum.LARGE, 0);
-      new FallingCube(8, SquareEnum.LARGE, 0);
-      new FallingCube(0, SquareEnum.LARGE, 4);
-      new FallingCube(4, SquareEnum.LARGE, 4);
-      new FallingCube(8, SquareEnum.LARGE, 4);
-      fn = function() {
-        return new SpecialCube(5, SquareEnum.MEDIUM, 3, 'explosion');
-      };
-      return setTimeout(fn, 1000);
+      return game.start();
     };
     return document.getElementById('play').onclick = function() {
       document.getElementById('login').style.display = 'none';
