@@ -190,12 +190,20 @@
         url: '../assets/playerSpirteSheet.png'
       });
       contentLoader.loadSound({
-        name: 'mainTheme',
-        url: '../assets/sounds/mainTheme.wav'
-      });
-      contentLoader.loadSound({
         name: 'beep',
         url: '../assets/sounds/beep.wav'
+      });
+      contentLoader.loadSound({
+        name: 'death',
+        url: '../assets/sounds/death.wav'
+      });
+      contentLoader.loadSound({
+        name: 'music',
+        url: '../assets/sounds/music.wav'
+      });
+      contentLoader.loadSound({
+        name: 'explosion',
+        url: '../assets/sounds/explosion.wav'
       });
       return contentLoader.load();
     };
@@ -270,6 +278,7 @@
         sound = _ref1[_j];
         audioObj = new Audio();
         audioObj.src = sound.url;
+        audioObj.volume = 0.1;
         this.sounds[sound.name] = audioObj;
         _results.push(audioObj.oncanplaythrough = function() {
           self.count++;
@@ -282,6 +291,49 @@
     };
 
     ContentLoader.prototype.contentsLoaded = function() {};
+
+    ContentLoader.prototype.muteVolume = function() {
+      var sound, _i, _len, _ref, _results;
+      _ref = this.soundsToLoad;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        sound = _ref[_i];
+        _results.push(this.sounds[sound.name].volume = 0);
+      }
+      return _results;
+    };
+
+    ContentLoader.prototype.addVolume = function() {
+      var sound, tmp, _i, _len, _ref, _results;
+      _ref = this.soundsToLoad;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        sound = _ref[_i];
+        tmp = this.sounds[sound.name].volume + 0.05;
+        if (tmp <= 1) {
+          _results.push(this.sounds[sound.name].volume = tmp);
+        } else {
+          _results.push(this.sounds[sound.name].volume = 1);
+        }
+      }
+      return _results;
+    };
+
+    ContentLoader.prototype.lessVolume = function() {
+      var sound, tmp, _i, _len, _ref, _results;
+      _ref = this.soundsToLoad;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        sound = _ref[_i];
+        tmp = this.sounds[sound.name].volume - 0.05;
+        if (tmp >= 0) {
+          _results.push(this.sounds[sound.name].volume = tmp);
+        } else {
+          _results.push(this.sounds[sound.name].volume = 0);
+        }
+      }
+      return _results;
+    };
 
     return ContentLoader;
 
@@ -473,8 +525,10 @@
     };
 
     Player.prototype.kill = function() {
-      this.alive = false;
-      return hud.reset();
+      if (this.alive) {
+        this.alive = false;
+        return contentLoader.sounds['death'].play();
+      }
     };
 
     Player.prototype.fixSkinPos = function() {
@@ -1159,69 +1213,81 @@
     };
 
     SpecialCube.prototype.doEffect = function() {
-      var self;
-      self = this;
       if (this.type === 'iceExplosion') {
-        dynamicEntities.find('Sprite').each(function(cube) {
-          var i, _i, _ref, _results;
-          if (cube.getName() === null) {
-            if (cube.getX() < self.shape.getX() + 128 && cube.getX() > self.shape.getX() - 128 && cube.getY() < self.shape.getY() + 128 && cube.getY() > self.shape.getY() - 128) {
-              _results = [];
-              for (i = _i = 0, _ref = (cube.getWidth() / 32) - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-                _results.push(new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'ice'));
-              }
-              return _results;
-            }
-          }
-        });
+        this.iceExplosionEffect();
       }
       if (this.type === 'explosion') {
-        dynamicEntities.find('Sprite').each(function(cube) {
-          var i, j, k, l, _i, _j, _k, _ref, _ref1, _results;
-          if (cube.getName() === null) {
+        return this.explosionEffet();
+      }
+    };
+
+    SpecialCube.prototype.iceExplosionEffect = function() {
+      var self;
+      contentLoader.sounds['explosion'].play();
+      self = this;
+      return dynamicEntities.find('Sprite').each(function(cube) {
+        var i, _i, _ref, _results;
+        if (cube.getName() === null) {
+          if (cube.getX() < self.shape.getX() + 128 && cube.getX() > self.shape.getX() - 128 && cube.getY() < self.shape.getY() + 128 && cube.getY() > self.shape.getY() - 128) {
             _results = [];
-            for (i = _i = -4; _i <= 5; i = ++_i) {
-              j = i;
-              if (i > 0) {
-                j = i - 1;
-              }
-              if (cube.getY() < self.shape.getY() - (-5 + Math.abs(j)) * 32 && cube.getY() > self.shape.getY() + (-5 + Math.abs(j)) * 32) {
-                if (cube.getWidth() > 32 || cube.getHeight() > 32) {
-                  for (k = _j = 0, _ref = cube.getWidth() / 32 - 1; 0 <= _ref ? _j <= _ref : _j >= _ref; k = 0 <= _ref ? ++_j : --_j) {
-                    for (l = _k = 0, _ref1 = cube.getHeight() / 32 - 1; 0 <= _ref1 ? _k <= _ref1 : _k >= _ref1; l = 0 <= _ref1 ? ++_k : --_k) {
-                      new CubeFragment(cube.getX() + k * 32, cube.getY() + l * 32, SquareEnum.SMALL);
-                    }
-                  }
-                  _results.push(cube.destroy());
-                } else {
-                  _results.push(void 0);
-                }
-              } else {
-                _results.push(void 0);
-              }
+            for (i = _i = 0, _ref = (cube.getWidth() / 32) - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+              _results.push(new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'ice'));
             }
             return _results;
           }
-        });
-        dynamicEntities.find('Sprite').each(function(cube) {
-          var i, j, _i, _results;
+        }
+      });
+    };
+
+    SpecialCube.prototype.explosionEffet = function() {
+      var self;
+      contentLoader.sounds['explosion'].play();
+      self = this;
+      dynamicEntities.find('Sprite').each(function(cube) {
+        var i, j, k, l, _i, _j, _k, _ref, _ref1, _results;
+        if (cube.getName() === null) {
           _results = [];
           for (i = _i = -4; _i <= 5; i = ++_i) {
             j = i;
             if (i > 0) {
               j = i - 1;
             }
-            if (cube.getX() === self.shape.getX() + i * 32 && cube.getY() < self.shape.getY() - (-5 + Math.abs(j)) * 32 && cube.getY() > self.shape.getY() + (-5 + Math.abs(j)) * 32) {
-              _results.push(cube.destroy());
+            if (cube.getY() < self.shape.getY() - (-5 + Math.abs(j)) * 32 && cube.getY() > self.shape.getY() + (-5 + Math.abs(j)) * 32) {
+              if (cube.getWidth() > 32 || cube.getHeight() > 32) {
+                for (k = _j = 0, _ref = cube.getWidth() / 32 - 1; 0 <= _ref ? _j <= _ref : _j >= _ref; k = 0 <= _ref ? ++_j : --_j) {
+                  for (l = _k = 0, _ref1 = cube.getHeight() / 32 - 1; 0 <= _ref1 ? _k <= _ref1 : _k >= _ref1; l = 0 <= _ref1 ? ++_k : --_k) {
+                    new CubeFragment(cube.getX() + k * 32, cube.getY() + l * 32, SquareEnum.SMALL);
+                  }
+                }
+                _results.push(cube.destroy());
+              } else {
+                _results.push(void 0);
+              }
             } else {
               _results.push(void 0);
             }
           }
           return _results;
-        });
-        if (player.shape.getX() < self.shape.getX() + 96 && player.shape.getX() > self.shape.getX() - 96 && player.shape.getY() < self.shape.getY() + 96 && player.shape.getY() > self.shape.getY() - 96) {
-          return player.kill();
         }
+      });
+      dynamicEntities.find('Sprite').each(function(cube) {
+        var i, j, _i, _results;
+        _results = [];
+        for (i = _i = -4; _i <= 5; i = ++_i) {
+          j = i;
+          if (i > 0) {
+            j = i - 1;
+          }
+          if (cube.getX() === self.shape.getX() + i * 32 && cube.getY() < self.shape.getY() - (-5 + Math.abs(j)) * 32 && cube.getY() > self.shape.getY() + (-5 + Math.abs(j)) * 32) {
+            _results.push(cube.destroy());
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
+      });
+      if (player.shape.getX() < self.shape.getX() + 96 && player.shape.getX() > self.shape.getX() - 96 && player.shape.getY() < self.shape.getY() + 96 && player.shape.getY() > self.shape.getY() - 96) {
+        return player.kill();
       }
     };
 
@@ -2257,9 +2323,8 @@
     var launchGame;
     document.getElementById('login-form').style.display = 'block';
     document.getElementById('login-loading').style.display = 'none';
-    contentLoader.sounds['mainTheme'].loop = true;
-    contentLoader.sounds['mainTheme'].volume = 0.5;
-    contentLoader.sounds['mainTheme'].play();
+    contentLoader.sounds['music'].loop = true;
+    contentLoader.sounds['music'].play();
     launchGame = function(ip, name) {
       var bg, fn;
       bg = new Kinetic.Rect({
@@ -2301,6 +2366,18 @@
 
   window.onresize = function() {
     return game.resize();
+  };
+
+  document.getElementById('sound-mute').onclick = function() {
+    return contentLoader.muteVolume();
+  };
+
+  document.getElementById('sound-add').onclick = function() {
+    return contentLoader.addVolume();
+  };
+
+  document.getElementById('sound-sub').onclick = function() {
+    return contentLoader.lessVolume();
   };
 
 }).call(this);

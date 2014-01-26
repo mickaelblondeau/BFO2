@@ -14,3 +14,5 @@ body { overflow: hidden; margin: 0; }
 #chat input { border: 0; background: none; width: 100%; }
 #chat span { word-wrap: break-word; }
 #chat .from { font-weight: bold; }
+
+#sound-controller { position: absolute; right: 0; }

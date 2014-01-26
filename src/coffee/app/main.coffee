@@ -52,9 +52,8 @@ contentLoader.contentsLoaded = ->
   document.getElementById('login-form').style.display = 'block'
   document.getElementById('login-loading').style.display = 'none'
 
-  contentLoader.sounds['mainTheme'].loop = true
-  contentLoader.sounds['mainTheme'].volume = 0.5
-  contentLoader.sounds['mainTheme'].play()
+  contentLoader.sounds['music'].loop = true
+  contentLoader.sounds['music'].play()
 
   launchGame = (ip, name) ->
     bg = new Kinetic.Rect

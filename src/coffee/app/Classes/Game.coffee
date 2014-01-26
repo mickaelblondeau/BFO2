@@ -61,8 +61,10 @@ class Game
     contentLoader.loadImage({ name:'boss', url:'../assets/boss.png'})
     contentLoader.loadImage({ name:'playerSpirteSheet', url:'../assets/playerSpirteSheet.png'})
 
-    contentLoader.loadSound({ name:'mainTheme', url:'../assets/sounds/mainTheme.wav'})
     contentLoader.loadSound({ name:'beep', url:'../assets/sounds/beep.wav'})
+    contentLoader.loadSound({ name:'death', url:'../assets/sounds/death.wav'})
+    contentLoader.loadSound({ name:'music', url:'../assets/sounds/music.wav'})
+    contentLoader.loadSound({ name:'explosion', url:'../assets/sounds/explosion.wav'})
 
     contentLoader.load()
 

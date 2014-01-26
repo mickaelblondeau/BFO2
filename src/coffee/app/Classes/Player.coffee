@@ -137,8 +137,9 @@ class Player
        @reset()
 
   kill: ->
-    @alive = false
-    hud.reset()
+    if @alive
+      @alive = false
+      contentLoader.sounds['death'].play()
 
   fixSkinPos: ->
     if @skin.getScaleX() is -1

@@ -30,6 +30,7 @@ class ContentLoader
     for sound in @soundsToLoad
       audioObj = new Audio();
       audioObj.src = sound.url
+      audioObj.volume = 0.1
       @sounds[sound.name] = audioObj
       audioObj.oncanplaythrough  = ->
         self.count++
@@ -37,3 +38,23 @@ class ContentLoader
           self.contentsLoaded()
 
   contentsLoaded: ->
+
+  muteVolume: ->
+    for sound in @soundsToLoad
+      @sounds[sound.name].volume = 0
+
+  addVolume: ->
+    for sound in @soundsToLoad
+      tmp = @sounds[sound.name].volume + 0.05
+      if tmp <= 1
+        @sounds[sound.name].volume = tmp
+      else
+        @sounds[sound.name].volume = 1
+
+  lessVolume: ->
+    for sound in @soundsToLoad
+      tmp = @sounds[sound.name].volume - 0.05
+      if tmp >= 0
+        @sounds[sound.name].volume = tmp
+      else
+        @sounds[sound.name].volume = 0
