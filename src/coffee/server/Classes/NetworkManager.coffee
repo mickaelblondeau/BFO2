@@ -51,14 +51,14 @@ class NetworkManager
       socket.on 'disconnect', ->
         socket.broadcast.emit 'disconnect', socket.id
 
-  sendCube: (col, size, dest) ->
-    @io.sockets.emit('fallingCube', [col, size, dest])
+  sendCube: (col, size) ->
+    @io.sockets.emit('fallingCube', [col, size])
 
-  sendBonus: (col, bonus, dest, id) ->
-    @io.sockets.emit('fallingBonus', [col, dest, bonus, id])
+  sendBonus: (col, bonus, id) ->
+    @io.sockets.emit('fallingBonus', [col, bonus, id])
 
-  sendSpecial: (col, size, dest, type) ->
-    @io.sockets.emit('fallingSpecial', [col, size, dest, type])
+  sendSpecial: (col, size, type) ->
+    @io.sockets.emit('fallingSpecial', [col, size, type])
 
   sendResetLevel: ->
     @io.sockets.emit 'resetLevel'

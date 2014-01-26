@@ -22,6 +22,7 @@ keyboard = new Keyboard()
 levelManager = new LevelManager()
 bonusManager = new BonusManager()
 bossManager = new BossManager()
+cubeManager = new CubeManager()
 
 game = new Game()
 game.loadAssets()
@@ -72,9 +73,11 @@ contentLoader.contentsLoaded = ->
 
     game.update = (frameTime) ->
       players.draw()
+      dynamicEntities.draw()
       player.update(frameTime)
       bossManager.update(frameTime)
       hud.update(frameTime)
+      cubeManager.update(frameTime)
     game.start()
 
   document.getElementById('play').onclick = () ->

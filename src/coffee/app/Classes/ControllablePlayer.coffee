@@ -28,9 +28,6 @@ class ControllablePlayer extends Player
 
   update: (frameTime) ->
     if @alive
-      if frameTime > 200
-        frameTime = 200
-
       @sliding = false
 
       @testMove(@shape.getX(), 0)
@@ -201,18 +198,19 @@ class ControllablePlayer extends Player
       @shape.setY(y)
     collisions = @getCollisions()
     for collision in collisions
-        if !(collision.getName() isnt undefined and collision.getName() isnt null and (collision.getName() is 'falling' or collision.getName().type is 'bonus' or collision.getName().type is 'boss' or collision.getName().type is 'effect'))
-          return collision
-    for collision in collisions
         if collision.getName() isnt undefined and collision.getName() isnt null
-          if collision.getName() is 'falling'
-            @kill()
           if collision.getName().type is 'bonus'
             @takeBonus(collision)
           if collision.getName().type is 'boss'
             @collideBoss(collision)
           if collision.getName().type is 'effect'
             @collideEffect(collision)
+          if collision.getName().type is 'cube'
+            if collision.getName().falling and collision.getY() + collision.getHeight() - 16 < @shape.getY()
+              @kill()
+            return collision
+        else
+          return collision
     return false
 
   takeBonus: (bonus) ->

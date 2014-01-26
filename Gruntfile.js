@@ -24,6 +24,7 @@ module.exports = function(grunt) {
                     'src/coffee/app/Classes/Bonus.coffee',
                     'src/coffee/app/Classes/BonusManager.coffee',
                     'src/coffee/app/Classes/LevelManager.coffee',
+                    'src/coffee/app/Classes/CubeManager.coffee',
                     'src/coffee/app/Classes/NetworkManager.coffee',
                     'src/coffee/app/Classes/Arena.coffee',
                     'src/coffee/app/Classes/HUD.coffee',

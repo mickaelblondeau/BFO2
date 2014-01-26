@@ -203,15 +203,15 @@
         rand = Math.floor(Math.random() * count);
         choice = choices[typeIndex][rand];
         if (type.bonus !== void 0) {
-          networkManager.sendBonus(choice.column, type.bonus, choice.height, this.bonusId);
+          networkManager.sendBonus(choice.column, type.bonus, this.bonusId);
           this.bonusId++;
         } else if (type.special !== void 0) {
           if (type.special === 'explosion') {
             this.explodeMap(choice.column, choice.height);
           }
-          networkManager.sendSpecial(choice.column, type.size, choice.height, type.special);
+          networkManager.sendSpecial(choice.column, type.size, type.special);
         } else {
-          networkManager.sendCube(choice.column, type.size, choice.height);
+          networkManager.sendCube(choice.column, type.size);
           for (columnPosition = _i = 1, _ref = type.width; 1 <= _ref ? _i <= _ref : _i >= _ref; columnPosition = 1 <= _ref ? ++_i : --_i) {
             this.map[choice.column + columnPosition - 1] = choice.height + type.height;
             for (h = _j = 0, _ref1 = type.height - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; h = 0 <= _ref1 ? ++_j : --_j) {
@@ -318,7 +318,7 @@
     };
 
     CubeManager.prototype.explodeMap = function(col, height) {
-      var colHeight, deep, i, j, k, newCol, newColHeight, newColMaxHeight, tmp, val, _i, _j, _len, _ref;
+      var colHeight, deep, i, j, k, newCol, newColHeight, newColMaxHeight, val, _i, _j, _len, _ref;
       for (i = _i = -4; _i <= 5; i = ++_i) {
         if (i > 0) {
           j = i - 1;
@@ -343,26 +343,29 @@
               }
             }
           }
-          tmp = this.mapTest[newCol].lastIndexOf(1);
-          if (tmp === -1) {
-            this.mapTest[newCol] = [];
-          } else {
-            this.mapTest[newCol] = this.mapTest[newCol].slice(0, tmp + 1);
-          }
         }
       }
       return this.syncMap();
     };
 
     CubeManager.prototype.syncMap = function() {
-      var i, len, subMap, _i, _len, _ref, _results;
+      var i, len, subMap, tmp, _i, _len, _ref, _results;
       _ref = this.mapTest;
       _results = [];
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
         subMap = _ref[i];
+        this.mapTest[i] = this.mapTest[i].filter(function(e) {
+          return e;
+        });
+        tmp = this.mapTest[i].lastIndexOf(1);
+        if (tmp === -1) {
+          this.mapTest[i] = [];
+        } else {
+          this.mapTest[i] = this.mapTest[i].slice(0, tmp + 1);
+        }
         len = 0;
-        if (subMap !== void 0 && subMap !== null) {
-          len = subMap.length;
+        if (this.mapTest[i] !== void 0 && this.mapTest[i] !== null) {
+          len = this.mapTest[i].length;
         }
         _results.push(this.map[i] = len);
       }
@@ -370,24 +373,65 @@
     };
 
     CubeManager.prototype.debug = function() {
-      var fn, i, j, self, _i, _j;
+      var fn, self;
       self = this;
-      for (i = _i = 0; _i <= 11; i = ++_i) {
-        for (j = _j = 0; _j <= 10; j = ++_j) {
-          networkManager.sendCube(i, SquareEnum.SMALL, j);
-          this.mapTest[i][j] = 1;
-        }
-      }
-      networkManager.sendMap(this.mapTest);
+      fn = function() {
+        var i, j;
+        i = 0;
+        j = 0;
+        networkManager.sendCube(i, SquareEnum.MEDIUM);
+        self.mapTest[i][j] = 1;
+        self.mapTest[i + 1][j] = 1;
+        self.mapTest[i][j + 1] = 1;
+        self.mapTest[i + 1][j + 1] = 1;
+        return networkManager.sendMap(self.mapTest);
+      };
+      setTimeout(fn, 200);
+      fn = function() {
+        var i, j;
+        i = 1;
+        j = 2;
+        networkManager.sendCube(i, SquareEnum.MEDIUM);
+        self.mapTest[i][j] = 1;
+        self.mapTest[i + 1][j] = 1;
+        self.mapTest[i][j + 1] = 1;
+        self.mapTest[i + 1][j + 1] = 1;
+        return networkManager.sendMap(self.mapTest);
+      };
+      setTimeout(fn, 400);
+      fn = function() {
+        var i, j;
+        i = 0;
+        j = 4;
+        networkManager.sendCube(i, SquareEnum.MEDIUM);
+        self.mapTest[i][j] = 1;
+        self.mapTest[i + 1][j] = 1;
+        self.mapTest[i][j + 1] = 1;
+        self.mapTest[i + 1][j + 1] = 1;
+        return networkManager.sendMap(self.mapTest);
+      };
+      setTimeout(fn, 600);
+      fn = function() {
+        var i, j;
+        i = 2;
+        j = 4;
+        networkManager.sendCube(i, SquareEnum.MEDIUM);
+        self.mapTest[i][j] = 1;
+        self.mapTest[i + 1][j] = 1;
+        self.mapTest[i][j + 1] = 1;
+        self.mapTest[i + 1][j + 1] = 1;
+        return networkManager.sendMap(self.mapTest);
+      };
+      setTimeout(fn, 600);
       fn = function() {
         var col, row;
-        col = Math.floor(Math.random() * 10) + 1;
-        row = Math.floor(Math.random() * 10) + 1;
-        networkManager.sendSpecial(col, SquareEnum.MEDIUM, row, 'explosion');
+        col = 5;
+        row = 0;
+        networkManager.sendSpecial(col, SquareEnum.MEDIUM, 'explosion');
         self.explodeMap(col, row);
         return networkManager.sendMap(self.mapTest);
       };
-      return setTimeout(fn, 1000);
+      return setTimeout(fn, 3000);
     };
 
     return CubeManager;
@@ -542,16 +586,16 @@
       });
     };
 
-    NetworkManager.prototype.sendCube = function(col, size, dest) {
-      return this.io.sockets.emit('fallingCube', [col, size, dest]);
+    NetworkManager.prototype.sendCube = function(col, size) {
+      return this.io.sockets.emit('fallingCube', [col, size]);
     };
 
-    NetworkManager.prototype.sendBonus = function(col, bonus, dest, id) {
-      return this.io.sockets.emit('fallingBonus', [col, dest, bonus, id]);
+    NetworkManager.prototype.sendBonus = function(col, bonus, id) {
+      return this.io.sockets.emit('fallingBonus', [col, bonus, id]);
     };
 
-    NetworkManager.prototype.sendSpecial = function(col, size, dest, type) {
-      return this.io.sockets.emit('fallingSpecial', [col, size, dest, type]);
+    NetworkManager.prototype.sendSpecial = function(col, size, type) {
+      return this.io.sockets.emit('fallingSpecial', [col, size, type]);
     };
 
     NetworkManager.prototype.sendResetLevel = function() {

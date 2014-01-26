@@ -130,7 +130,7 @@ class CubeManager
 
   resetMap: ->
     for i in [0..11]
-     @map[i] = 0
+      @map[i] = 0
 
     for i in [0..11]
       @mapTest[i] = []
@@ -145,14 +145,14 @@ class CubeManager
       rand = Math.floor(Math.random()*count)
       choice = choices[typeIndex][rand]
       if type.bonus isnt undefined
-        networkManager.sendBonus(choice.column, type.bonus, choice.height, @bonusId)
+        networkManager.sendBonus(choice.column, type.bonus, @bonusId)
         @bonusId++
       else if type.special isnt undefined
         if type.special is 'explosion'
           @explodeMap(choice.column, choice.height)
-        networkManager.sendSpecial(choice.column, type.size, choice.height, type.special)
+        networkManager.sendSpecial(choice.column, type.size, type.special)
       else
-        networkManager.sendCube(choice.column, type.size, choice.height)
+        networkManager.sendCube(choice.column, type.size)
         for columnPosition in [1..type.width]
           @map[choice.column + columnPosition - 1] = choice.height + type.height
           for h in [0..type.height-1]
@@ -232,38 +232,82 @@ class CubeManager
 
         if @mapTest[newCol] isnt undefined and @mapTest[newCol] isnt null
           for val, k in @mapTest[newCol]
-            if (k > newColHeight and k < newColMaxHeight)
+            if k > newColHeight and k < newColMaxHeight
               @mapTest[newCol][k] = null
-
-        tmp = @mapTest[newCol].lastIndexOf(1)
-        if tmp is -1
-          @mapTest[newCol] = []
-        else
-          @mapTest[newCol] = @mapTest[newCol].slice(0, tmp+1)
 
     @syncMap()
 
   syncMap: ->
     for subMap, i in @mapTest
+
+      @mapTest[i] = @mapTest[i].filter(
+        (e)->
+          e
+      )
+
+      tmp = @mapTest[i].lastIndexOf(1)
+      if tmp is -1
+        @mapTest[i] = []
+      else
+        @mapTest[i] = @mapTest[i].slice(0, tmp+1)
+
       len = 0
-      if subMap isnt undefined and subMap isnt null
-        len = subMap.length
+      if @mapTest[i] isnt undefined and @mapTest[i] isnt null
+        len = @mapTest[i].length
       @map[i] = len
 
   debug: ->
     self = @
-    for i in [0..11]
-      for j in [0..10]
-        networkManager.sendCube(i, SquareEnum.SMALL, j)
-        @mapTest[i][j] = 1
-
-    networkManager.sendMap(@mapTest)
 
     fn = ->
-      col = Math.floor(Math.random()*10)+1
-      row = Math.floor(Math.random()*10)+1
+      i = 0
+      j = 0
+      networkManager.sendCube(i, SquareEnum.MEDIUM)
+      self.mapTest[i][j] = 1
+      self.mapTest[i+1][j] = 1
+      self.mapTest[i][j+1] = 1
+      self.mapTest[i+1][j+1] = 1
+      networkManager.sendMap(self.mapTest)
+    setTimeout(fn, 200)
 
-      networkManager.sendSpecial(col, SquareEnum.MEDIUM, row, 'explosion')
+    fn = ->
+      i = 1
+      j = 2
+      networkManager.sendCube(i, SquareEnum.MEDIUM)
+      self.mapTest[i][j] = 1
+      self.mapTest[i+1][j] = 1
+      self.mapTest[i][j+1] = 1
+      self.mapTest[i+1][j+1] = 1
+      networkManager.sendMap(self.mapTest)
+    setTimeout(fn, 400)
+
+    fn = ->
+      i = 0
+      j = 4
+      networkManager.sendCube(i, SquareEnum.MEDIUM)
+      self.mapTest[i][j] = 1
+      self.mapTest[i+1][j] = 1
+      self.mapTest[i][j+1] = 1
+      self.mapTest[i+1][j+1] = 1
+      networkManager.sendMap(self.mapTest)
+    setTimeout(fn, 600)
+
+    fn = ->
+      i = 2
+      j = 4
+      networkManager.sendCube(i, SquareEnum.MEDIUM)
+      self.mapTest[i][j] = 1
+      self.mapTest[i+1][j] = 1
+      self.mapTest[i][j+1] = 1
+      self.mapTest[i+1][j+1] = 1
+      networkManager.sendMap(self.mapTest)
+    setTimeout(fn, 600)
+
+    fn = ->
+      col = 5
+      row = 0
+
+      networkManager.sendSpecial(col, SquareEnum.MEDIUM, 'explosion')
       self.explodeMap(col, row)
       networkManager.sendMap(self.mapTest)
-    setTimeout(fn, 1000)
+    setTimeout(fn, 3000)

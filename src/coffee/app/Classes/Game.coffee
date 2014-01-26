@@ -15,6 +15,8 @@ class Game
     frameTime = thisFrame - @lastFrame
     animFrame(Game.prototype.loop.bind(@))
     @lastFrame = thisFrame
+    if frameTime > 200
+      frameTime = 200
 
     game.statsBegin()
     game.update(frameTime)
