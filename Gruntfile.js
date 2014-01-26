@@ -11,7 +11,7 @@ module.exports = function(grunt) {
                     'src/coffee/app/config.coffee',
                     'src/coffee/app/Classes/Keyboard.coffee',
                     'src/coffee/app/Classes/Game.coffee',
-                    'src/coffee/app/Classes/ImageLoader.coffee',
+                    'src/coffee/app/Classes/ContentLoader.coffee',
                     'src/coffee/app/Classes/CollisionManager.coffee',
                     'src/coffee/app/Classes/Player.coffee',
                     'src/coffee/app/Classes/ControllablePlayer.coffee',

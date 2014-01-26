@@ -78,7 +78,7 @@ class Cube
       y: @y
       width: @size.x
       height: @size.y
-      image: imageLoader.images[@spriteSheet]
+      image: contentLoader.images[@spriteSheet]
       animation: @animation
       animations: @cubesTypes
       frameRate: 0

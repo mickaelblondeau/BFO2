@@ -57,7 +57,7 @@ class Bonus
       y: @y
       width: 32
       height: 32
-      image: imageLoader.images['bonus']
+      image: contentLoader.images['bonus']
       animation: @type
       animations: bonusTypes
       frameRate: 0

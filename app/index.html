@@ -7,19 +7,27 @@
     <body>
         <div id="login">
             <div class="pt-1"></div>
-            <div class="form-line">
-                <label for="ip">IP :</label>
-                <input type="text" id="ip" value="localhost" />
+            <div id="login-form">
+                <div class="form-line">
+                    <label for="ip">IP :</label>
+                    <input type="text" id="ip" value="localhost" />
+                </div>
+                <div class="form-line">
+                    <label for="name">Name :</label>
+                    <input type="text" id="name" value="Chy" />
+                </div>
+                <div class="form-line">
+                    <label for="skin">Skin :</label>
+                    <input type="text" id="skin" value="default" />
+                </div>
+                <button id="play">Play</button>
             </div>
-            <div class="form-line">
-                <label for="name">Name :</label>
-                <input type="text" id="name" value="Chy" />
+            <div id="login-loading">
+                <div class="form-line">
+                    Loading ... <br>
+                    Please wait :-)
+                </div>
             </div>
-            <div class="form-line">
-                <label for="skin">Skin :</label>
-                <input type="text" id="skin" value="default" />
-            </div>
-            <button id="play">Play</button>
         </div>
         <div id="chat">
             <div id="chatMessages"></div>

@@ -109,7 +109,7 @@ class Player
     }
 
     @skin = new Kinetic.Sprite
-      image: imageLoader.images['playerSpirteSheet']
+      image: contentLoader.images['playerSpirteSheet']
       animation: 'run',
       animations: animations,
       frameRate: 7,

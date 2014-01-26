@@ -50,17 +50,21 @@ class Game
       networkManager.sendLaunch()
 
   loadAssets: ->
-    imageLoader.addLoad({ name:'cubes', url:'../assets/cubes.jpg'})
-    imageLoader.addLoad({ name:'cubes_red', url:'../assets/cubes_red.jpg'})
-    imageLoader.addLoad({ name:'cubes_blue', url:'../assets/cubes_blue.jpg'})
-    imageLoader.addLoad({ name:'cubes_green', url:'../assets/cubes_green.jpg'})
-    imageLoader.addLoad({ name:'cubes_special', url:'../assets/cubes_special.jpg'})
-    imageLoader.addLoad({ name:'effects', url:'../assets/effects.png'})
-    imageLoader.addLoad({ name:'bonus', url:'../assets/bonus.png'})
-    imageLoader.addLoad({ name:'bg', url:'../assets/bg.jpg'})
-    imageLoader.addLoad({ name:'boss', url:'../assets/boss.png'})
-    imageLoader.addLoad({ name:'playerSpirteSheet', url:'../assets/playerSpirteSheet.png'})
-    imageLoader.load()
+    contentLoader.loadImage({ name:'cubes', url:'../assets/cubes.jpg'})
+    contentLoader.loadImage({ name:'cubes_red', url:'../assets/cubes_red.jpg'})
+    contentLoader.loadImage({ name:'cubes_blue', url:'../assets/cubes_blue.jpg'})
+    contentLoader.loadImage({ name:'cubes_green', url:'../assets/cubes_green.jpg'})
+    contentLoader.loadImage({ name:'cubes_special', url:'../assets/cubes_special.jpg'})
+    contentLoader.loadImage({ name:'effects', url:'../assets/effects.png'})
+    contentLoader.loadImage({ name:'bonus', url:'../assets/bonus.png'})
+    contentLoader.loadImage({ name:'bg', url:'../assets/bg.jpg'})
+    contentLoader.loadImage({ name:'boss', url:'../assets/boss.png'})
+    contentLoader.loadImage({ name:'playerSpirteSheet', url:'../assets/playerSpirteSheet.png'})
+
+    contentLoader.loadSound({ name:'mainTheme', url:'../assets/sounds/mainTheme.wav'})
+    contentLoader.loadSound({ name:'beep', url:'../assets/sounds/beep.wav'})
+
+    contentLoader.load()
 
   chat: ->
     if document.activeElement.id is 'chatMessage'
@@ -75,6 +79,7 @@ class Game
       document.getElementById('chatMessage').focus()
 
   addMessage: (name, message) ->
+    contentLoader.sounds['beep'].play()
     document.getElementById('chatMessages').innerHTML += '<div class="message"><span class="from">'+name+'</span> : <span class="content">'+message+'</span></div>'
     callback = ->
       document.querySelectorAll('#chatMessages .message')[0].remove()

@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ControllablePlayer, Cube, CubeFragment, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, ImageLoader, Keyboard, LevelManager, NetworkManager, Player, RoueMan, SpecialCube, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bossManager, collisionManager, config, debugLayer, debugMap, dynamicEntities, game, hud, hudLayer, imageLoader, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, Cube, CubeFragment, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, Keyboard, LevelManager, NetworkManager, Player, RoueMan, SpecialCube, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bossManager, collisionManager, config, contentLoader, debugLayer, debugMap, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -149,47 +149,55 @@
     };
 
     Game.prototype.loadAssets = function() {
-      imageLoader.addLoad({
+      contentLoader.loadImage({
         name: 'cubes',
         url: '../assets/cubes.jpg'
       });
-      imageLoader.addLoad({
+      contentLoader.loadImage({
         name: 'cubes_red',
         url: '../assets/cubes_red.jpg'
       });
-      imageLoader.addLoad({
+      contentLoader.loadImage({
         name: 'cubes_blue',
         url: '../assets/cubes_blue.jpg'
       });
-      imageLoader.addLoad({
+      contentLoader.loadImage({
         name: 'cubes_green',
         url: '../assets/cubes_green.jpg'
       });
-      imageLoader.addLoad({
+      contentLoader.loadImage({
         name: 'cubes_special',
         url: '../assets/cubes_special.jpg'
       });
-      imageLoader.addLoad({
+      contentLoader.loadImage({
         name: 'effects',
         url: '../assets/effects.png'
       });
-      imageLoader.addLoad({
+      contentLoader.loadImage({
         name: 'bonus',
         url: '../assets/bonus.png'
       });
-      imageLoader.addLoad({
+      contentLoader.loadImage({
         name: 'bg',
         url: '../assets/bg.jpg'
       });
-      imageLoader.addLoad({
+      contentLoader.loadImage({
         name: 'boss',
         url: '../assets/boss.png'
       });
-      imageLoader.addLoad({
+      contentLoader.loadImage({
         name: 'playerSpirteSheet',
         url: '../assets/playerSpirteSheet.png'
       });
-      return imageLoader.load();
+      contentLoader.loadSound({
+        name: 'mainTheme',
+        url: '../assets/sounds/mainTheme.wav'
+      });
+      contentLoader.loadSound({
+        name: 'beep',
+        url: '../assets/sounds/beep.wav'
+      });
+      return contentLoader.load();
     };
 
     Game.prototype.chat = function() {
@@ -209,6 +217,7 @@
 
     Game.prototype.addMessage = function(name, message) {
       var callback;
+      contentLoader.sounds['beep'].play();
       document.getElementById('chatMessages').innerHTML += '<div class="message"><span class="from">' + name + '</span> : <span class="content">' + message + '</span></div>';
       callback = function() {
         return document.querySelectorAll('#chatMessages .message')[0].remove();
@@ -220,41 +229,61 @@
 
   })();
 
-  ImageLoader = (function() {
-    function ImageLoader() {
+  ContentLoader = (function() {
+    function ContentLoader() {
       this.imagesToLoad = [];
+      this.soundsToLoad = [];
       this.images = [];
+      this.sounds = [];
+      this.count = 0;
+      this.total = 0;
     }
 
-    ImageLoader.prototype.addLoad = function(image) {
+    ContentLoader.prototype.loadImage = function(image) {
       return this.imagesToLoad.push(image);
     };
 
-    ImageLoader.prototype.load = function() {
-      var count, imageObj, img, self, total, _i, _len, _ref, _results;
+    ContentLoader.prototype.loadSound = function(sound) {
+      return this.soundsToLoad.push(sound);
+    };
+
+    ContentLoader.prototype.load = function() {
+      var audioObj, imageObj, img, self, sound, _i, _j, _len, _len1, _ref, _ref1, _results;
       self = this;
-      count = 0;
-      total = this.imagesToLoad.length;
+      this.total = this.imagesToLoad.length + this.soundsToLoad.length;
       _ref = this.imagesToLoad;
-      _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         img = _ref[_i];
         imageObj = new Image();
         imageObj.src = img.url;
         this.images[img.name] = imageObj;
-        _results.push(imageObj.onload = function() {
-          count++;
-          if (count === total) {
-            return self.imagesLoaded();
+        imageObj.onload = function() {
+          self.count++;
+          if (self.count === self.total) {
+            return self.contentsLoaded();
+          }
+        };
+      }
+      _ref1 = this.soundsToLoad;
+      _results = [];
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        sound = _ref1[_j];
+        audioObj = new Audio();
+        audioObj.src = sound.url;
+        this.sounds[sound.name] = audioObj;
+        _results.push(audioObj.oncanplaythrough = function() {
+          self.count++;
+          if (self.count === self.total) {
+            return self.contentsLoaded();
           }
         });
       }
       return _results;
     };
 
-    ImageLoader.prototype.imagesLoaded = function() {};
+    ContentLoader.prototype.contentsLoaded = function() {};
 
-    return ImageLoader;
+    return ContentLoader;
 
   })();
 
@@ -410,7 +439,7 @@
         ]
       };
       this.skin = new Kinetic.Sprite({
-        image: imageLoader.images['playerSpirteSheet'],
+        image: contentLoader.images['playerSpirteSheet'],
         animation: 'run',
         animations: animations,
         frameRate: 7,
@@ -1019,7 +1048,7 @@
         y: this.y,
         width: this.size.x,
         height: this.size.y,
-        image: imageLoader.images[this.spriteSheet],
+        image: contentLoader.images[this.spriteSheet],
         animation: this.animation,
         animations: this.cubesTypes,
         frameRate: 0,
@@ -1293,7 +1322,7 @@
         y: this.y,
         width: 32,
         height: 32,
-        image: imageLoader.images['bonus'],
+        image: contentLoader.images['bonus'],
         animation: this.type,
         animations: bonusTypes,
         frameRate: 0,
@@ -1741,7 +1770,7 @@
             y: 0,
             width: 32,
             height: 32,
-            image: imageLoader.images['bonus'],
+            image: contentLoader.images['bonus'],
             animation: buffType,
             animations: bonusTypes,
             frameRate: 0,
@@ -1910,7 +1939,7 @@
         y: this.y,
         width: this.w,
         height: this.h,
-        image: imageLoader.images['boss'],
+        image: contentLoader.images['boss'],
         animation: this.type,
         animations: this.bossTypes,
         frameRate: 10,
@@ -2175,7 +2204,7 @@
 
   networkManager = new NetworkManager();
 
-  imageLoader = new ImageLoader();
+  contentLoader = new ContentLoader();
 
   collisionManager = new CollisionManager();
 
@@ -2224,14 +2253,19 @@
     };
   }
 
-  imageLoader.imagesLoaded = function() {
+  contentLoader.contentsLoaded = function() {
     var launchGame;
+    document.getElementById('login-form').style.display = 'block';
+    document.getElementById('login-loading').style.display = 'none';
+    contentLoader.sounds['mainTheme'].loop = true;
+    contentLoader.sounds['mainTheme'].volume = 0.5;
+    contentLoader.sounds['mainTheme'].play();
     launchGame = function(ip, name) {
-      var bg;
+      var bg, fn;
       bg = new Kinetic.Rect({
         width: stage.getWidth(),
         height: stage.getHeight(),
-        fillPatternImage: imageLoader.images['bg']
+        fillPatternImage: contentLoader.images['bg']
       });
       staticBg.add(bg);
       bg.setZIndex(-1);
@@ -2246,11 +2280,22 @@
         bossManager.update(frameTime);
         return hud.update(frameTime);
       };
-      return game.start();
+      game.start();
+      new FallingCube(0, SquareEnum.LARGE, 0);
+      new FallingCube(4, SquareEnum.LARGE, 0);
+      new FallingCube(8, SquareEnum.LARGE, 0);
+      new FallingCube(0, SquareEnum.LARGE, 4);
+      new FallingCube(4, SquareEnum.LARGE, 4);
+      new FallingCube(8, SquareEnum.LARGE, 4);
+      fn = function() {
+        return new SpecialCube(5, SquareEnum.MEDIUM, 3, 'explosion');
+      };
+      return setTimeout(fn, 1000);
     };
     return document.getElementById('play').onclick = function() {
       document.getElementById('login').style.display = 'none';
-      return launchGame(document.getElementById('ip').value, document.getElementById('name').value);
+      launchGame(document.getElementById('ip').value, document.getElementById('name').value);
+      return contentLoader.sounds['beep'].play();
     };
   };
 

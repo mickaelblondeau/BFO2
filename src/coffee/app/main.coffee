@@ -16,7 +16,7 @@ stage.add dynamicEntities
 stage.add hudLayer
 
 networkManager = new NetworkManager()
-imageLoader = new ImageLoader()
+contentLoader = new ContentLoader()
 collisionManager = new CollisionManager()
 keyboard = new Keyboard()
 levelManager = new LevelManager()
@@ -48,12 +48,19 @@ if config.debug
           debugLayer.add shape
     debugLayer.draw()
 
-imageLoader.imagesLoaded = ->
+contentLoader.contentsLoaded = ->
+  document.getElementById('login-form').style.display = 'block'
+  document.getElementById('login-loading').style.display = 'none'
+
+  contentLoader.sounds['mainTheme'].loop = true
+  contentLoader.sounds['mainTheme'].volume = 0.5
+  contentLoader.sounds['mainTheme'].play()
+
   launchGame = (ip, name) ->
     bg = new Kinetic.Rect
       width: stage.getWidth()
       height: stage.getHeight()
-      fillPatternImage: imageLoader.images['bg']
+      fillPatternImage: contentLoader.images['bg']
     staticBg.add bg
     bg.setZIndex(-1)
     bg.draw()
@@ -71,6 +78,19 @@ imageLoader.imagesLoaded = ->
       hud.update(frameTime)
     game.start()
 
+    new FallingCube(0, SquareEnum.LARGE, 0)
+    new FallingCube(4, SquareEnum.LARGE, 0)
+    new FallingCube(8, SquareEnum.LARGE, 0)
+
+    new FallingCube(0, SquareEnum.LARGE, 4)
+    new FallingCube(4, SquareEnum.LARGE, 4)
+    new FallingCube(8, SquareEnum.LARGE, 4)
+
+    fn = ->
+      new SpecialCube(5, SquareEnum.MEDIUM, 3, 'explosion')
+    setTimeout(fn, 1000)
+
   document.getElementById('play').onclick = () ->
     document.getElementById('login').style.display = 'none'
     launchGame(document.getElementById('ip').value, document.getElementById('name').value)
+    contentLoader.sounds['beep'].play()

@@ -35,7 +35,7 @@ class HUD
           y: 0
           width: 32
           height: 32
-          image: imageLoader.images['bonus']
+          image: contentLoader.images['bonus']
           animation: buffType
           animations: bonusTypes
           frameRate: 0

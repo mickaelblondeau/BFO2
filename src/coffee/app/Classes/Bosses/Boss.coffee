@@ -38,7 +38,7 @@ class Boss
       y: @y
       width: @w
       height: @h
-      image: imageLoader.images['boss']
+      image: contentLoader.images['boss']
       animation: @type
       animations: @bossTypes
       frameRate: 10
