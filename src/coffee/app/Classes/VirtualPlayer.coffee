@@ -24,3 +24,6 @@ class VirtualPlayer extends Player
     @skin.destroy()
     @name.destroy()
     delete @
+
+  kill: ->
+    contentLoader.sounds['death'].play()

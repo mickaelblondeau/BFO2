@@ -15,4 +15,4 @@ body { overflow: hidden; margin: 0; }
 #chat span { word-wrap: break-word; }
 #chat .from { font-weight: bold; }
 
-#sound-controller { position: absolute; right: 0; }
+#sound-controller { position: absolute; right: 0; top: 0; }

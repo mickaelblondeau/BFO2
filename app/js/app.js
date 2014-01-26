@@ -945,7 +945,9 @@
 
     ControllablePlayer.prototype.kill = function() {
       ControllablePlayer.__super__.kill.call(this);
-      return networkManager.sendDie();
+      if (this.alive) {
+        return networkManager.sendDie();
+      }
     };
 
     return ControllablePlayer;
@@ -983,6 +985,10 @@
       this.skin.destroy();
       this.name.destroy();
       return delete this;
+    };
+
+    VirtualPlayer.prototype.kill = function() {
+      return contentLoader.sounds['death'].play();
     };
 
     return VirtualPlayer;

@@ -285,4 +285,5 @@ class ControllablePlayer extends Player
 
   kill: ->
     super()
-    networkManager.sendDie()
+    if @alive
+      networkManager.sendDie()
