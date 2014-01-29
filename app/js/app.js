@@ -885,7 +885,7 @@
       cubes.each(function(cube) {
         var cubeBoundBox;
         cubeBoundBox = collisionManager.getBoundBox(cube);
-        if (collisionManager.colliding(playerBoundBox, cubeBoundBox)) {
+        if (collisionManager.colliding(playerBoundBox, cubeBoundBox) && ((cubeBoundBox.left < playerBoundBox.left && self.skin.getScaleX() === -1) || (cubeBoundBox.left > playerBoundBox.left && self.skin.getScaleX() === 1))) {
           if (collisionManager.collidingCorners(playerBoundBox, cubeBoundBox)) {
             if (self.canGrab) {
               self.grab(cube);

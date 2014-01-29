@@ -244,7 +244,7 @@ class ControllablePlayer extends Player
     cubes = dynamicEntities.find('Sprite')
     cubes.each (cube) ->
       cubeBoundBox = collisionManager.getBoundBox(cube)
-      if collisionManager.colliding(playerBoundBox, cubeBoundBox)
+      if collisionManager.colliding(playerBoundBox, cubeBoundBox) and ((cubeBoundBox.left < playerBoundBox.left and self.skin.getScaleX() is -1) or (cubeBoundBox.left > playerBoundBox.left and self.skin.getScaleX() is 1))
         if collisionManager.collidingCorners(playerBoundBox, cubeBoundBox)
           if self.canGrab
             self.grab(cube)
