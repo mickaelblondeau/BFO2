@@ -82,5 +82,5 @@ contentLoader.contentsLoaded = ->
 
   document.getElementById('play').onclick = () ->
     document.getElementById('login').style.display = 'none'
-    launchGame(document.getElementById('ip').value, document.getElementById('name').value)
+    launchGame(document.getElementById('ip').value.replace(" ",""), document.getElementById('name').value)
     contentLoader.sounds['beep'].play()
