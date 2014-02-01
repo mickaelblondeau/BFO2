@@ -5,7 +5,7 @@ class Effect extends Cube
     @shape.setName({ type: 'effect', name: anim })
     @shape.draw()
 
-    if anim is 'explosionEffect'
+    if anim is 'explosionEffect' or anim is 'iceExplosionEffect'
       @shape.setFrameRate(20)
 
     @shape.start()

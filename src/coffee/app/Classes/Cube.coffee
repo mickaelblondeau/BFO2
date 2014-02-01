@@ -119,6 +119,57 @@ class Cube
         y: 288
         width: 160
         height: 128
+      }],
+      'iceExplosionEffect': [{
+        x: 0
+        y: 416
+        width: 160
+        height: 128
+      }, {
+        x: 160
+        y: 416
+        width: 160
+        height: 128
+      }, {
+        x: 320
+        y: 416
+        width: 160
+        height: 128
+      }, {
+        x: 480
+        y: 416
+        width: 160
+        height: 128
+      }, {
+        x: 0
+        y: 544
+        width: 160
+        height: 128
+      }, {
+        x: 160
+        y: 544
+        width: 160
+        height: 128
+      }, {
+        x: 320
+        y: 544
+        width: 160
+        height: 128
+      }, {
+        x: 480
+        y: 544
+        width: 160
+        height: 128
+      }, {
+        x: 0
+        y: 672
+        width: 160
+        height: 128
+      }, {
+        x: 160
+        y: 672
+        width: 160
+        height: 128
       }]
     }
     @draw()

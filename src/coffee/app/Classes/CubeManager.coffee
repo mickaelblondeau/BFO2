@@ -73,6 +73,7 @@ class CubeManager
 
   iceExplosionEffect: (shape) ->
     contentLoader.play('explosion')
+    new Effect(shape.getX() - shape.getWidth()/2 - 16, shape.getY() - shape.getHeight()/2 - 32, SquareEnum.SMALL, 'iceExplosionEffect', true)
     dynamicEntities.find('Sprite').each (cube) ->
       if !cube.getName().falling and cube.getName().type is 'cube'
         if cube.getX() < shape.getX() + 128 and cube.getX() > shape.getX() - 128 and cube.getY() < shape.getY() + 128 and cube.getY() > shape.getY() - 128

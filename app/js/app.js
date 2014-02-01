@@ -1160,6 +1160,59 @@
             width: 160,
             height: 128
           }
+        ],
+        'iceExplosionEffect': [
+          {
+            x: 0,
+            y: 416,
+            width: 160,
+            height: 128
+          }, {
+            x: 160,
+            y: 416,
+            width: 160,
+            height: 128
+          }, {
+            x: 320,
+            y: 416,
+            width: 160,
+            height: 128
+          }, {
+            x: 480,
+            y: 416,
+            width: 160,
+            height: 128
+          }, {
+            x: 0,
+            y: 544,
+            width: 160,
+            height: 128
+          }, {
+            x: 160,
+            y: 544,
+            width: 160,
+            height: 128
+          }, {
+            x: 320,
+            y: 544,
+            width: 160,
+            height: 128
+          }, {
+            x: 480,
+            y: 544,
+            width: 160,
+            height: 128
+          }, {
+            x: 0,
+            y: 672,
+            width: 160,
+            height: 128
+          }, {
+            x: 160,
+            y: 672,
+            width: 160,
+            height: 128
+          }
         ]
       };
       this.draw();
@@ -1647,6 +1700,7 @@
 
     CubeManager.prototype.iceExplosionEffect = function(shape) {
       contentLoader.play('explosion');
+      new Effect(shape.getX() - shape.getWidth() / 2 - 16, shape.getY() - shape.getHeight() / 2 - 32, SquareEnum.SMALL, 'iceExplosionEffect', true);
       dynamicEntities.find('Sprite').each(function(cube) {
         var i, _i, _ref, _results;
         if (!cube.getName().falling && cube.getName().type === 'cube') {
@@ -2087,7 +2141,7 @@
         name: anim
       });
       this.shape.draw();
-      if (anim === 'explosionEffect') {
+      if (anim === 'explosionEffect' || anim === 'iceExplosionEffect') {
         this.shape.setFrameRate(20);
       }
       this.shape.start();
