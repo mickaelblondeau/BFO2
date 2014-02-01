@@ -27,26 +27,27 @@ class ControllablePlayer extends Player
     @cached = {}
 
   update: (frameTime) ->
+    @sliding = false
+
+    if !@testMove(0, @shape.getY())
+      @falling = true
+
+    if !@jump and !@grabbing
+      @doFall(frameTime)
+    else
+      @doJump(frameTime)
+
+    if @couched and !@jump
+      moveSpeed = @speed*frameTime*@couchedSpeedRatio
+    else
+      moveSpeed = @speed*frameTime
+
     if @alive
-      @sliding = false
-
-      @testMove(@shape.getX(), 0)
-      if !@testMove(0, @shape.getY())
-        @falling = true
-
       moveSide = 0
 
       if @shape.getY() > 1000
         @kill()
 
-      if !@jump and !@grabbing
-        @doFall(frameTime)
-      else
-        @doJump(frameTime)
-      if @couched and !@jump
-        moveSpeed = @speed*frameTime*@couchedSpeedRatio
-      else
-        moveSpeed = @speed*frameTime
       if keyboard.keys.left
         collide = @testMove(@shape.getX() - moveSpeed, 0)
         if collide
@@ -68,25 +69,6 @@ class ControllablePlayer extends Player
         @startCouch()
       else
         @stopCouch()
-      if @cached.x != @shape.getX() or @cached.y != @shape.getY()
-        networkManager.sendMove(@shape.getX(), @shape.getY())
-        @cached.x = @shape.getX()
-        @cached.y = @shape.getY()
-
-      if @sliding
-        if @skin.getScaleX() is -1
-          collide = @testMove(@shape.getX() - (@speed*frameTime)/2, 0)
-          if collide
-            @shape.setX(collide.getX() + collide.getWidth())
-        else
-          collide = @testMove(@shape.getX() + (@speed*frameTime)/2, 0)
-          if collide
-            @shape.setX(collide.getX() - @shape.getWidth())
-
-      if moveSide is -1 and @skin.getScaleX() != -1
-        @changeSide(-1)
-      else if moveSide is 1 and @skin.getScaleX() != 1
-        @changeSide(1)
 
       if @jump
         @changeAnimation('jump')
@@ -104,10 +86,31 @@ class ControllablePlayer extends Player
       else
         @changeAnimation('idle')
 
-      @fixSkinPos()
       @getCornerCollisions()
-    else if @skin.getAnimation() isnt 'dead'
+
+      if moveSide is -1 and @skin.getScaleX() != -1
+        @changeSide(-1)
+      else if moveSide is 1 and @skin.getScaleX() != 1
+        @changeSide(1)
+    else
       @changeAnimation('dead')
+
+    @fixSkinPos()
+
+    if @cached.x != @shape.getX() or @cached.y != @shape.getY()
+      networkManager.sendMove(@shape.getX(), @shape.getY())
+      @cached.x = @shape.getX()
+      @cached.y = @shape.getY()
+
+    if @sliding
+      if @skin.getScaleX() is -1
+        collide = @testMove(@shape.getX() - (@speed*frameTime)/2, 0)
+        if collide
+          @shape.setX(collide.getX() + collide.getWidth())
+      else
+        collide = @testMove(@shape.getX() + (@speed*frameTime)/2, 0)
+        if collide
+          @shape.setX(collide.getX() - @shape.getWidth())
 
   doFall: (frameTime) ->
     if @jumpCount is 0

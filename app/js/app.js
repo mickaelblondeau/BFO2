@@ -604,25 +604,24 @@
 
     ControllablePlayer.prototype.update = function(frameTime) {
       var collide, moveSide, moveSpeed;
+      this.sliding = false;
+      if (!this.testMove(0, this.shape.getY())) {
+        this.falling = true;
+      }
+      if (!this.jump && !this.grabbing) {
+        this.doFall(frameTime);
+      } else {
+        this.doJump(frameTime);
+      }
+      if (this.couched && !this.jump) {
+        moveSpeed = this.speed * frameTime * this.couchedSpeedRatio;
+      } else {
+        moveSpeed = this.speed * frameTime;
+      }
       if (this.alive) {
-        this.sliding = false;
-        this.testMove(this.shape.getX(), 0);
-        if (!this.testMove(0, this.shape.getY())) {
-          this.falling = true;
-        }
         moveSide = 0;
         if (this.shape.getY() > 1000) {
           this.kill();
-        }
-        if (!this.jump && !this.grabbing) {
-          this.doFall(frameTime);
-        } else {
-          this.doJump(frameTime);
-        }
-        if (this.couched && !this.jump) {
-          moveSpeed = this.speed * frameTime * this.couchedSpeedRatio;
-        } else {
-          moveSpeed = this.speed * frameTime;
         }
         if (keyboard.keys.left) {
           collide = this.testMove(this.shape.getX() - moveSpeed, 0);
@@ -652,29 +651,6 @@
         } else {
           this.stopCouch();
         }
-        if (this.cached.x !== this.shape.getX() || this.cached.y !== this.shape.getY()) {
-          networkManager.sendMove(this.shape.getX(), this.shape.getY());
-          this.cached.x = this.shape.getX();
-          this.cached.y = this.shape.getY();
-        }
-        if (this.sliding) {
-          if (this.skin.getScaleX() === -1) {
-            collide = this.testMove(this.shape.getX() - (this.speed * frameTime) / 2, 0);
-            if (collide) {
-              this.shape.setX(collide.getX() + collide.getWidth());
-            }
-          } else {
-            collide = this.testMove(this.shape.getX() + (this.speed * frameTime) / 2, 0);
-            if (collide) {
-              this.shape.setX(collide.getX() - this.shape.getWidth());
-            }
-          }
-        }
-        if (moveSide === -1 && this.skin.getScaleX() !== -1) {
-          this.changeSide(-1);
-        } else if (moveSide === 1 && this.skin.getScaleX() !== 1) {
-          this.changeSide(1);
-        }
         if (this.jump) {
           this.changeAnimation('jump');
         } else if (this.grabbing) {
@@ -692,10 +668,33 @@
         } else {
           this.changeAnimation('idle');
         }
-        this.fixSkinPos();
-        return this.getCornerCollisions();
-      } else if (this.skin.getAnimation() !== 'dead') {
-        return this.changeAnimation('dead');
+        this.getCornerCollisions();
+        if (moveSide === -1 && this.skin.getScaleX() !== -1) {
+          this.changeSide(-1);
+        } else if (moveSide === 1 && this.skin.getScaleX() !== 1) {
+          this.changeSide(1);
+        }
+      } else {
+        this.changeAnimation('dead');
+      }
+      this.fixSkinPos();
+      if (this.cached.x !== this.shape.getX() || this.cached.y !== this.shape.getY()) {
+        networkManager.sendMove(this.shape.getX(), this.shape.getY());
+        this.cached.x = this.shape.getX();
+        this.cached.y = this.shape.getY();
+      }
+      if (this.sliding) {
+        if (this.skin.getScaleX() === -1) {
+          collide = this.testMove(this.shape.getX() - (this.speed * frameTime) / 2, 0);
+          if (collide) {
+            return this.shape.setX(collide.getX() + collide.getWidth());
+          }
+        } else {
+          collide = this.testMove(this.shape.getX() + (this.speed * frameTime) / 2, 0);
+          if (collide) {
+            return this.shape.setX(collide.getX() - this.shape.getWidth());
+          }
+        }
       }
     };
 
