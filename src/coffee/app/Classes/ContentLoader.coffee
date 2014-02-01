@@ -58,3 +58,8 @@ class ContentLoader
         @sounds[sound.name].volume = tmp
       else
         @sounds[sound.name].volume = 0
+
+  play: (sound) ->
+    @sounds[sound].pause()
+    @sounds[sound].currentTime = 0
+    @sounds[sound].play()

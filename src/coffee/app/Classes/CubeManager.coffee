@@ -72,7 +72,7 @@ class CubeManager
       @explosionEffet(shape)
 
   iceExplosionEffect: (shape) ->
-    contentLoader.sounds['explosion'].play()
+    contentLoader.play('explosion')
     dynamicEntities.find('Sprite').each (cube) ->
       if !cube.getName().falling and cube.getName().type is 'cube'
         if cube.getX() < shape.getX() + 128 and cube.getX() > shape.getX() - 128 and cube.getY() < shape.getY() + 128 and cube.getY() > shape.getY() - 128
@@ -81,10 +81,11 @@ class CubeManager
     shape.destroy()
 
   explosionEffet: (shape) ->
-    contentLoader.sounds['explosion'].play()
+    contentLoader.play('explosion')
+    new Effect(shape.getX() - shape.getWidth()/2 - 16, shape.getY() - shape.getHeight()/2 - 32, SquareEnum.SMALL, 'explosionEffect', true)
     arr = []
     dynamicEntities.find('Sprite').each (cube) ->
-      if !cube.getName().falling
+      if !cube.getName().falling and cube.getName().type is 'cube'
         if cube.getWidth() > 32 or cube.getHeight() > 32
           for i in [0..(cube.getWidth()/32-1)]
             for j in [0..(cube.getHeight()/32-1)]
@@ -93,12 +94,14 @@ class CubeManager
                 new CubeFragment(cube.getX() + i*32, cube.getY() + j*32, SquareEnum.SMALL)
           cube.destroy()
     dynamicEntities.find('Sprite').each (cube) ->
-      for i in [-4..5]
-        j = i
-        if i > 0
-          j = i-1
-        if cube.getX() is shape.getX() + i*32 and cube.getY() < shape.getY() - (-5 + Math.abs(j))*32 and cube.getY() > shape.getY() + (-5 + Math.abs(j))*32
-          cube.destroy()
+      if cube.getName().type is 'cube'
+        for i in [-4..5]
+          j = i
+          if i > 0
+            j = i-1
+          if cube.getX() is shape.getX() + i*32 and cube.getY() < shape.getY() - (-5 + Math.abs(j))*32 and cube.getY() > shape.getY() + (-5 + Math.abs(j))*32
+            cube.destroy()
     if player.shape.getX() < shape.getX() + 96 and player.shape.getX() > shape.getX() - 96 and player.shape.getY() < shape.getY() + 96 and player.shape.getY() > shape.getY() - 96
       player.kill()
+    shape.destroy()
     @reinitAllPhys()

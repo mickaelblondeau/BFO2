@@ -202,7 +202,7 @@ class ControllablePlayer extends Player
     collisions = @getCollisions()
     for collision in collisions
         if collision.getName() isnt undefined and collision.getName() isnt null
-          if collision.getName().type is 'bonus'
+          if collision.getName().type is 'bonus' and @alive
             @takeBonus(collision)
           if collision.getName().type is 'boss'
             @collideBoss(collision)

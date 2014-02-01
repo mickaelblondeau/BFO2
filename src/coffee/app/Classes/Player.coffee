@@ -139,7 +139,7 @@ class Player
   kill: ->
     if @alive
       @alive = false
-      contentLoader.sounds['death'].play()
+      contentLoader.play('death')
 
   fixSkinPos: ->
     if @skin.getScaleX() is -1

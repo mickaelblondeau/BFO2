@@ -342,6 +342,12 @@
       return _results;
     };
 
+    ContentLoader.prototype.play = function(sound) {
+      this.sounds[sound].pause();
+      this.sounds[sound].currentTime = 0;
+      return this.sounds[sound].play();
+    };
+
     return ContentLoader;
 
   })();
@@ -534,7 +540,7 @@
     Player.prototype.kill = function() {
       if (this.alive) {
         this.alive = false;
-        return contentLoader.sounds['death'].play();
+        return contentLoader.play('death');
       }
     };
 
@@ -822,7 +828,7 @@
       for (_i = 0, _len = collisions.length; _i < _len; _i++) {
         collision = collisions[_i];
         if (collision.getName() !== void 0 && collision.getName() !== null) {
-          if (collision.getName().type === 'bonus') {
+          if (collision.getName().type === 'bonus' && this.alive) {
             this.takeBonus(collision);
           }
           if (collision.getName().type === 'boss') {
@@ -1101,6 +1107,59 @@
             width: 32,
             height: 32
           }
+        ],
+        'explosionEffect': [
+          {
+            x: 0,
+            y: 32,
+            width: 160,
+            height: 128
+          }, {
+            x: 160,
+            y: 32,
+            width: 160,
+            height: 128
+          }, {
+            x: 320,
+            y: 32,
+            width: 160,
+            height: 128
+          }, {
+            x: 480,
+            y: 32,
+            width: 160,
+            height: 128
+          }, {
+            x: 0,
+            y: 160,
+            width: 160,
+            height: 128
+          }, {
+            x: 160,
+            y: 160,
+            width: 160,
+            height: 128
+          }, {
+            x: 320,
+            y: 160,
+            width: 160,
+            height: 128
+          }, {
+            x: 480,
+            y: 160,
+            width: 160,
+            height: 128
+          }, {
+            x: 0,
+            y: 288,
+            width: 160,
+            height: 128
+          }, {
+            x: 160,
+            y: 288,
+            width: 160,
+            height: 128
+          }
         ]
       };
       this.draw();
@@ -1115,7 +1174,7 @@
         image: contentLoader.images[this.spriteSheet],
         animation: this.animation,
         animations: this.cubesTypes,
-        frameRate: 0,
+        frameRate: 7,
         index: 0
       });
     };
@@ -1319,7 +1378,7 @@
 
     BonusManager.prototype.getBonus = function(bonusName, player, bonusId) {
       var bonus, callback, self, thisBonus, _i, _len, _ref, _results;
-      contentLoader.sounds['pickup'].play();
+      contentLoader.play('pickup');
       _ref = this.bonuses;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -1587,7 +1646,7 @@
     };
 
     CubeManager.prototype.iceExplosionEffect = function(shape) {
-      contentLoader.sounds['explosion'].play();
+      contentLoader.play('explosion');
       dynamicEntities.find('Sprite').each(function(cube) {
         var i, _i, _ref, _results;
         if (!cube.getName().falling && cube.getName().type === 'cube') {
@@ -1605,11 +1664,12 @@
 
     CubeManager.prototype.explosionEffet = function(shape) {
       var arr;
-      contentLoader.sounds['explosion'].play();
+      contentLoader.play('explosion');
+      new Effect(shape.getX() - shape.getWidth() / 2 - 16, shape.getY() - shape.getHeight() / 2 - 32, SquareEnum.SMALL, 'explosionEffect', true);
       arr = [];
       dynamicEntities.find('Sprite').each(function(cube) {
         var i, j, _i, _j, _ref, _ref1;
-        if (!cube.getName().falling) {
+        if (!cube.getName().falling && cube.getName().type === 'cube') {
           if (cube.getWidth() > 32 || cube.getHeight() > 32) {
             for (i = _i = 0, _ref = cube.getWidth() / 32 - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
               for (j = _j = 0, _ref1 = cube.getHeight() / 32 - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; j = 0 <= _ref1 ? ++_j : --_j) {
@@ -1625,23 +1685,26 @@
       });
       dynamicEntities.find('Sprite').each(function(cube) {
         var i, j, _i, _results;
-        _results = [];
-        for (i = _i = -4; _i <= 5; i = ++_i) {
-          j = i;
-          if (i > 0) {
-            j = i - 1;
+        if (cube.getName().type === 'cube') {
+          _results = [];
+          for (i = _i = -4; _i <= 5; i = ++_i) {
+            j = i;
+            if (i > 0) {
+              j = i - 1;
+            }
+            if (cube.getX() === shape.getX() + i * 32 && cube.getY() < shape.getY() - (-5 + Math.abs(j)) * 32 && cube.getY() > shape.getY() + (-5 + Math.abs(j)) * 32) {
+              _results.push(cube.destroy());
+            } else {
+              _results.push(void 0);
+            }
           }
-          if (cube.getX() === shape.getX() + i * 32 && cube.getY() < shape.getY() - (-5 + Math.abs(j)) * 32 && cube.getY() > shape.getY() + (-5 + Math.abs(j)) * 32) {
-            _results.push(cube.destroy());
-          } else {
-            _results.push(void 0);
-          }
+          return _results;
         }
-        return _results;
       });
       if (player.shape.getX() < shape.getX() + 96 && player.shape.getX() > shape.getX() - 96 && player.shape.getY() < shape.getY() + 96 && player.shape.getY() > shape.getY() - 96) {
         player.kill();
       }
+      shape.destroy();
       return this.reinitAllPhys();
     };
 
@@ -2015,7 +2078,8 @@
   Effect = (function(_super) {
     __extends(Effect, _super);
 
-    function Effect(x, y, size, anim) {
+    function Effect(x, y, size, anim, hasCycle) {
+      var len, self;
       Effect.__super__.constructor.call(this, x, y, size, 'effects', anim);
       dynamicEntities.add(this.shape);
       this.shape.setName({
@@ -2023,6 +2087,17 @@
         name: anim
       });
       this.shape.draw();
+      if (anim === 'explosionEffect') {
+        this.shape.setFrameRate(20);
+      }
+      this.shape.start();
+      if (hasCycle !== void 0) {
+        self = this;
+        len = this.shape.getAnimations()[this.shape.getAnimation()].length - 1;
+        this.shape.afterFrame(len, function() {
+          return self.shape.destroy();
+        });
+      }
     }
 
     return Effect;

@@ -68,6 +68,57 @@ class Cube
         y: 0
         width: 32
         height: 32
+      }],
+      'explosionEffect': [{
+        x: 0
+        y: 32
+        width: 160
+        height: 128
+      }, {
+        x: 160
+        y: 32
+        width: 160
+        height: 128
+      }, {
+        x: 320
+        y: 32
+        width: 160
+        height: 128
+      }, {
+        x: 480
+        y: 32
+        width: 160
+        height: 128
+      }, {
+        x: 0
+        y: 160
+        width: 160
+        height: 128
+      }, {
+         x: 160
+         y: 160
+         width: 160
+         height: 128
+      }, {
+        x: 320
+        y: 160
+        width: 160
+        height: 128
+      }, {
+        x: 480
+        y: 160
+        width: 160
+        height: 128
+      }, {
+        x: 0
+        y: 288
+        width: 160
+        height: 128
+      }, {
+        x: 160
+        y: 288
+        width: 160
+        height: 128
       }]
     }
     @draw()
@@ -81,5 +132,5 @@ class Cube
       image: contentLoader.images[@spriteSheet]
       animation: @animation
       animations: @cubesTypes
-      frameRate: 0
+      frameRate: 7
       index: 0
