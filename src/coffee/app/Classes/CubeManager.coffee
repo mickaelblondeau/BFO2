@@ -5,21 +5,23 @@ class CubeManager
   reinitAllPhys: ->
     cubes = dynamicEntities.find('Sprite')
     cubes.each (cube) ->
-      obj = cube.getName()
-      if obj is null or obj is undefined
-        obj = {}
-      obj.falling = true
-      cube.setName(obj)
-
-  reinitPhys: (oldCube) ->
-    cubes = dynamicEntities.find('Sprite')
-    cubes.each (cube) ->
-      if cube.getY() < oldCube.getY() && cube.getX() >= oldCube.getX() && cube.getX() <= oldCube.getX() + oldCube.getWidth()
+      if cube.getName().type is 'cube'
         obj = cube.getName()
         if obj is null or obj is undefined
           obj = {}
         obj.falling = true
         cube.setName(obj)
+
+  reinitPhys: (oldCube) ->
+    cubes = dynamicEntities.find('Sprite')
+    cubes.each (cube) ->
+      if cube.getName().type is 'cube'
+        if cube.getY() < oldCube.getY() && cube.getX() >= oldCube.getX() && cube.getX() <= oldCube.getX() + oldCube.getWidth()
+          obj = cube.getName()
+          if obj is null or obj is undefined
+            obj = {}
+          obj.falling = true
+          cube.setName(obj)
 
   update: (frameTime) ->
     self = @

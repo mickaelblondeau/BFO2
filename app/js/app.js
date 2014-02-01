@@ -1485,12 +1485,14 @@
       cubes = dynamicEntities.find('Sprite');
       return cubes.each(function(cube) {
         var obj;
-        obj = cube.getName();
-        if (obj === null || obj === void 0) {
-          obj = {};
+        if (cube.getName().type === 'cube') {
+          obj = cube.getName();
+          if (obj === null || obj === void 0) {
+            obj = {};
+          }
+          obj.falling = true;
+          return cube.setName(obj);
         }
-        obj.falling = true;
-        return cube.setName(obj);
       });
     };
 
@@ -1499,13 +1501,15 @@
       cubes = dynamicEntities.find('Sprite');
       return cubes.each(function(cube) {
         var obj;
-        if (cube.getY() < oldCube.getY() && cube.getX() >= oldCube.getX() && cube.getX() <= oldCube.getX() + oldCube.getWidth()) {
-          obj = cube.getName();
-          if (obj === null || obj === void 0) {
-            obj = {};
+        if (cube.getName().type === 'cube') {
+          if (cube.getY() < oldCube.getY() && cube.getX() >= oldCube.getX() && cube.getX() <= oldCube.getX() + oldCube.getWidth()) {
+            obj = cube.getName();
+            if (obj === null || obj === void 0) {
+              obj = {};
+            }
+            obj.falling = true;
+            return cube.setName(obj);
           }
-          obj.falling = true;
-          return cube.setName(obj);
         }
       });
     };
