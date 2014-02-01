@@ -246,22 +246,23 @@ class ControllablePlayer extends Player
     playerBoundBox.right += 4
     cubes = dynamicEntities.find('Sprite')
     cubes.each (cube) ->
-      cubeBoundBox = collisionManager.getBoundBox(cube)
-      if collisionManager.colliding(playerBoundBox, cubeBoundBox) and ((cubeBoundBox.left < playerBoundBox.left and self.skin.getScaleX() is -1) or (cubeBoundBox.left > playerBoundBox.left and self.skin.getScaleX() is 1))
-        if collisionManager.collidingCorners(playerBoundBox, cubeBoundBox)
-          if self.canGrab
-            self.grab(cube)
-            count++
-          else
-            players.find('Rect').each (plr) ->
-              skin = players.find('#skin-' + plr.getId())[0]
-              if plr.getId() isnt undefined
-                if plr.getName() is 'otherPlayer' and skin.getAnimation() is 'couch'
-                  otherPlayerBoundBox = collisionManager.getBoundBox(plr)
-                  otherPlayerBoundBox.bottom += 4
-                  if collisionManager.colliding(playerBoundBox, otherPlayerBoundBox)
-                    self.grab(cube)
-                    count++
+      if !cube.getName().falling and cube.getName().type is 'cube'
+        cubeBoundBox = collisionManager.getBoundBox(cube)
+        if collisionManager.colliding(playerBoundBox, cubeBoundBox) and ((cubeBoundBox.left < playerBoundBox.left and self.skin.getScaleX() is -1) or (cubeBoundBox.left > playerBoundBox.left and self.skin.getScaleX() is 1))
+          if collisionManager.collidingCorners(playerBoundBox, cubeBoundBox)
+            if self.canGrab
+              self.grab(cube)
+              count++
+            else
+              players.find('Rect').each (plr) ->
+                skin = players.find('#skin-' + plr.getId())[0]
+                if plr.getId() isnt undefined
+                  if plr.getName() is 'otherPlayer' and skin.getAnimation() is 'couch'
+                    otherPlayerBoundBox = collisionManager.getBoundBox(plr)
+                    otherPlayerBoundBox.bottom += 4
+                    if collisionManager.colliding(playerBoundBox, otherPlayerBoundBox)
+                      self.grab(cube)
+                      count++
     if count is 0
       @grabbing = false
 

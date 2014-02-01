@@ -883,27 +883,29 @@
       cubes = dynamicEntities.find('Sprite');
       cubes.each(function(cube) {
         var cubeBoundBox;
-        cubeBoundBox = collisionManager.getBoundBox(cube);
-        if (collisionManager.colliding(playerBoundBox, cubeBoundBox) && ((cubeBoundBox.left < playerBoundBox.left && self.skin.getScaleX() === -1) || (cubeBoundBox.left > playerBoundBox.left && self.skin.getScaleX() === 1))) {
-          if (collisionManager.collidingCorners(playerBoundBox, cubeBoundBox)) {
-            if (self.canGrab) {
-              self.grab(cube);
-              return count++;
-            } else {
-              return players.find('Rect').each(function(plr) {
-                var otherPlayerBoundBox, skin;
-                skin = players.find('#skin-' + plr.getId())[0];
-                if (plr.getId() !== void 0) {
-                  if (plr.getName() === 'otherPlayer' && skin.getAnimation() === 'couch') {
-                    otherPlayerBoundBox = collisionManager.getBoundBox(plr);
-                    otherPlayerBoundBox.bottom += 4;
-                    if (collisionManager.colliding(playerBoundBox, otherPlayerBoundBox)) {
-                      self.grab(cube);
-                      return count++;
+        if (!cube.getName().falling && cube.getName().type === 'cube') {
+          cubeBoundBox = collisionManager.getBoundBox(cube);
+          if (collisionManager.colliding(playerBoundBox, cubeBoundBox) && ((cubeBoundBox.left < playerBoundBox.left && self.skin.getScaleX() === -1) || (cubeBoundBox.left > playerBoundBox.left && self.skin.getScaleX() === 1))) {
+            if (collisionManager.collidingCorners(playerBoundBox, cubeBoundBox)) {
+              if (self.canGrab) {
+                self.grab(cube);
+                return count++;
+              } else {
+                return players.find('Rect').each(function(plr) {
+                  var otherPlayerBoundBox, skin;
+                  skin = players.find('#skin-' + plr.getId())[0];
+                  if (plr.getId() !== void 0) {
+                    if (plr.getName() === 'otherPlayer' && skin.getAnimation() === 'couch') {
+                      otherPlayerBoundBox = collisionManager.getBoundBox(plr);
+                      otherPlayerBoundBox.bottom += 4;
+                      if (collisionManager.colliding(playerBoundBox, otherPlayerBoundBox)) {
+                        self.grab(cube);
+                        return count++;
+                      }
                     }
                   }
-                }
-              });
+                });
+              }
             }
           }
         }
