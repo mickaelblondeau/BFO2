@@ -44,6 +44,7 @@ class LevelManager
   clearLevel: ->
     @level++
     arena.clearOutOfScreen()
+    arena.createGround()
     cubes = dynamicEntities.find('Sprite')
     cubes.each (cube) ->
       if cube.getY() > stage.getY()*-1 + stage.getHeight()

@@ -67,7 +67,7 @@
   CubeManager = (function() {
     function CubeManager() {
       this.map = [];
-      this.mapTest = [];
+      this.cubeMap = [];
       this.resetMap();
       this.updateRate = 0;
       this.current = 0;
@@ -154,7 +154,7 @@
         }
         this.updateRate = rate;
         this.current = 0;
-        this.levelHeight += level;
+        this.levelHeight = level;
         this.running = true;
         if (config.debugMap) {
           return this.debug();
@@ -177,7 +177,8 @@
     CubeManager.prototype.wait = function() {
       this.stop();
       this.waiting = true;
-      return levelManager.update();
+      levelManager.update();
+      return this.fillMap();
     };
 
     CubeManager.prototype.resetMap = function() {
@@ -187,7 +188,7 @@
       }
       _results = [];
       for (i = _j = 0; _j <= 11; i = ++_j) {
-        _results.push(this.mapTest[i] = []);
+        _results.push(this.cubeMap[i] = []);
       }
       return _results;
     };
@@ -215,12 +216,12 @@
           for (columnPosition = _i = 1, _ref = type.width; 1 <= _ref ? _i <= _ref : _i >= _ref; columnPosition = 1 <= _ref ? ++_i : --_i) {
             this.map[choice.column + columnPosition - 1] = choice.height + type.height;
             for (h = _j = 0, _ref1 = type.height - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; h = 0 <= _ref1 ? ++_j : --_j) {
-              this.mapTest[choice.column + columnPosition - 1][choice.height + h] = 1;
+              this.cubeMap[choice.column + columnPosition - 1][choice.height + h] = 1;
             }
           }
         }
         if (config.debug) {
-          networkManager.sendMap(this.mapTest);
+          networkManager.sendMap(this.cubeMap);
         }
         return true;
       } else {
@@ -329,17 +330,17 @@
         if (newCol >= 0 && newCol <= 11) {
           deep = -5 + Math.abs(j);
           colHeight = 0;
-          if (this.mapTest[newCol] !== void 0 && this.mapTest[newCol] !== null) {
-            colHeight = this.mapTest[newCol].length;
+          if (this.cubeMap[newCol] !== void 0 && this.cubeMap[newCol] !== null) {
+            colHeight = this.cubeMap[newCol].length;
           }
           newColHeight = height + deep + 1;
           newColMaxHeight = height - deep + 1;
-          if (this.mapTest[newCol] !== void 0 && this.mapTest[newCol] !== null) {
-            _ref = this.mapTest[newCol];
+          if (this.cubeMap[newCol] !== void 0 && this.cubeMap[newCol] !== null) {
+            _ref = this.cubeMap[newCol];
             for (k = _j = 0, _len = _ref.length; _j < _len; k = ++_j) {
               val = _ref[k];
               if (k > newColHeight && k < newColMaxHeight) {
-                this.mapTest[newCol][k] = null;
+                this.cubeMap[newCol][k] = null;
               }
             }
           }
@@ -350,24 +351,34 @@
 
     CubeManager.prototype.syncMap = function() {
       var i, len, subMap, tmp, _i, _len, _ref, _results;
-      _ref = this.mapTest;
+      _ref = this.cubeMap;
       _results = [];
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
         subMap = _ref[i];
-        this.mapTest[i] = this.mapTest[i].filter(function(e) {
+        this.cubeMap[i] = this.cubeMap[i].filter(function(e) {
           return e;
         });
-        tmp = this.mapTest[i].lastIndexOf(1);
+        tmp = this.cubeMap[i].lastIndexOf(1);
         if (tmp === -1) {
-          this.mapTest[i] = [];
+          this.cubeMap[i] = [];
         } else {
-          this.mapTest[i] = this.mapTest[i].slice(0, tmp + 1);
+          this.cubeMap[i] = this.cubeMap[i].slice(0, tmp + 1);
         }
         len = 0;
-        if (this.mapTest[i] !== void 0 && this.mapTest[i] !== null) {
-          len = this.mapTest[i].length;
+        if (this.cubeMap[i] !== void 0 && this.cubeMap[i] !== null) {
+          len = this.cubeMap[i].length;
         }
         _results.push(this.map[i] = len);
+      }
+      return _results;
+    };
+
+    CubeManager.prototype.fillMap = function() {
+      var i, _i, _results;
+      _results = [];
+      for (i = _i = 0; _i <= 11; i = ++_i) {
+        this.map[i] = 0;
+        _results.push(this.cubeMap[i] = []);
       }
       return _results;
     };
@@ -380,11 +391,11 @@
         i = 0;
         j = 0;
         networkManager.sendCube(i, SquareEnum.MEDIUM);
-        self.mapTest[i][j] = 1;
-        self.mapTest[i + 1][j] = 1;
-        self.mapTest[i][j + 1] = 1;
-        self.mapTest[i + 1][j + 1] = 1;
-        return networkManager.sendMap(self.mapTest);
+        self.cubeMap[i][j] = 1;
+        self.cubeMap[i + 1][j] = 1;
+        self.cubeMap[i][j + 1] = 1;
+        self.cubeMap[i + 1][j + 1] = 1;
+        return networkManager.sendMap(self.cubeMap);
       };
       setTimeout(fn, 200);
       fn = function() {
@@ -392,11 +403,11 @@
         i = 1;
         j = 2;
         networkManager.sendCube(i, SquareEnum.MEDIUM);
-        self.mapTest[i][j] = 1;
-        self.mapTest[i + 1][j] = 1;
-        self.mapTest[i][j + 1] = 1;
-        self.mapTest[i + 1][j + 1] = 1;
-        return networkManager.sendMap(self.mapTest);
+        self.cubeMap[i][j] = 1;
+        self.cubeMap[i + 1][j] = 1;
+        self.cubeMap[i][j + 1] = 1;
+        self.cubeMap[i + 1][j + 1] = 1;
+        return networkManager.sendMap(self.cubeMap);
       };
       setTimeout(fn, 400);
       fn = function() {
@@ -404,11 +415,11 @@
         i = 0;
         j = 4;
         networkManager.sendCube(i, SquareEnum.MEDIUM);
-        self.mapTest[i][j] = 1;
-        self.mapTest[i + 1][j] = 1;
-        self.mapTest[i][j + 1] = 1;
-        self.mapTest[i + 1][j + 1] = 1;
-        return networkManager.sendMap(self.mapTest);
+        self.cubeMap[i][j] = 1;
+        self.cubeMap[i + 1][j] = 1;
+        self.cubeMap[i][j + 1] = 1;
+        self.cubeMap[i + 1][j + 1] = 1;
+        return networkManager.sendMap(self.cubeMap);
       };
       setTimeout(fn, 600);
       fn = function() {
@@ -416,11 +427,11 @@
         i = 2;
         j = 4;
         networkManager.sendCube(i, SquareEnum.MEDIUM);
-        self.mapTest[i][j] = 1;
-        self.mapTest[i + 1][j] = 1;
-        self.mapTest[i][j + 1] = 1;
-        self.mapTest[i + 1][j + 1] = 1;
-        return networkManager.sendMap(self.mapTest);
+        self.cubeMap[i][j] = 1;
+        self.cubeMap[i + 1][j] = 1;
+        self.cubeMap[i][j + 1] = 1;
+        self.cubeMap[i + 1][j + 1] = 1;
+        return networkManager.sendMap(self.cubeMap);
       };
       setTimeout(fn, 600);
       fn = function() {
@@ -429,7 +440,7 @@
         row = 0;
         networkManager.sendSpecial(col, SquareEnum.MEDIUM, 'explosion');
         self.explodeMap(col, row);
-        return networkManager.sendMap(self.mapTest);
+        return networkManager.sendMap(self.cubeMap);
       };
       return setTimeout(fn, 3000);
     };

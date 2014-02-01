@@ -202,7 +202,7 @@
       });
       contentLoader.loadSound({
         name: 'music',
-        url: '../assets/sounds/music.wav'
+        url: '../assets/sounds/music.ogg'
       });
       contentLoader.loadSound({
         name: 'explosion',
@@ -1458,6 +1458,7 @@
       var cubes;
       this.level++;
       arena.clearOutOfScreen();
+      arena.createGround();
       cubes = dynamicEntities.find('Sprite');
       cubes.each(function(cube) {
         if (cube.getY() > stage.getY() * -1 + stage.getHeight()) {
@@ -1785,7 +1786,7 @@
   Arena = (function() {
     function Arena() {
       this.y = stage.getHeight() - 32;
-      this.initHeight = 31;
+      this.initHeight = 32;
       this.height = this.initHeight;
       this.draw();
     }
@@ -1835,6 +1836,17 @@
           return cube.destroy();
         }
       });
+    };
+
+    Arena.prototype.createGround = function() {
+      var i, _i, _results;
+      if (levelManager.level > 0) {
+        _results = [];
+        for (i = _i = 1; _i <= 12; i = ++_i) {
+          _results.push(new StaticCube(i * 32 + 128, stage.getY() * -1 + stage.getHeight() - 32, SquareEnum.SMALL));
+        }
+        return _results;
+      }
     };
 
     return Arena;

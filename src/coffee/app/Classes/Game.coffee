@@ -65,7 +65,7 @@ class Game
 
     contentLoader.loadSound({ name:'beep', url:'../assets/sounds/beep.wav'})
     contentLoader.loadSound({ name:'death', url:'../assets/sounds/death.wav'})
-    contentLoader.loadSound({ name:'music', url:'../assets/sounds/music.wav'})
+    contentLoader.loadSound({ name:'music', url:'../assets/sounds/music.ogg'})
     contentLoader.loadSound({ name:'explosion', url:'../assets/sounds/explosion.wav'})
     contentLoader.loadSound({ name:'pickup', url:'../assets/sounds/pickup.wav'})
 

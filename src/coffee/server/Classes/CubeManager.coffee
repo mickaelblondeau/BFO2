@@ -10,7 +10,7 @@ SquareEnum = {
 class CubeManager
   constructor: ->
     @map = []
-    @mapTest = []
+    @cubeMap = []
     @resetMap()
     @updateRate = 0
     @current = 0
@@ -107,7 +107,7 @@ class CubeManager
         @bonusId++
       @updateRate = rate
       @current = 0
-      @levelHeight += level
+      @levelHeight = level
       @running = true
 
       if config.debugMap
@@ -127,13 +127,14 @@ class CubeManager
     @stop()
     @waiting = true
     levelManager.update()
+    @fillMap()
 
   resetMap: ->
     for i in [0..11]
       @map[i] = 0
 
     for i in [0..11]
-      @mapTest[i] = []
+      @cubeMap[i] = []
 
   sendCube: ->
     choices = @checkCols()
@@ -156,9 +157,9 @@ class CubeManager
         for columnPosition in [1..type.width]
           @map[choice.column + columnPosition - 1] = choice.height + type.height
           for h in [0..type.height-1]
-            @mapTest[choice.column + columnPosition - 1][choice.height + h] = 1
+            @cubeMap[choice.column + columnPosition - 1][choice.height + h] = 1
       if config.debug
-        networkManager.sendMap(@mapTest)
+        networkManager.sendMap(@cubeMap)
       return true
     else
       return false
@@ -225,36 +226,41 @@ class CubeManager
       if newCol >= 0 && newCol <= 11
         deep = (-5 + Math.abs(j))
         colHeight = 0
-        if @mapTest[newCol] isnt undefined and @mapTest[newCol] isnt null
-          colHeight = @mapTest[newCol].length
+        if @cubeMap[newCol] isnt undefined and @cubeMap[newCol] isnt null
+          colHeight = @cubeMap[newCol].length
         newColHeight = (height + deep + 1)
         newColMaxHeight = (height - deep + 1)
 
-        if @mapTest[newCol] isnt undefined and @mapTest[newCol] isnt null
-          for val, k in @mapTest[newCol]
+        if @cubeMap[newCol] isnt undefined and @cubeMap[newCol] isnt null
+          for val, k in @cubeMap[newCol]
             if k > newColHeight and k < newColMaxHeight
-              @mapTest[newCol][k] = null
+              @cubeMap[newCol][k] = null
 
     @syncMap()
 
   syncMap: ->
-    for subMap, i in @mapTest
+    for subMap, i in @cubeMap
 
-      @mapTest[i] = @mapTest[i].filter(
+      @cubeMap[i] = @cubeMap[i].filter(
         (e)->
           e
       )
 
-      tmp = @mapTest[i].lastIndexOf(1)
+      tmp = @cubeMap[i].lastIndexOf(1)
       if tmp is -1
-        @mapTest[i] = []
+        @cubeMap[i] = []
       else
-        @mapTest[i] = @mapTest[i].slice(0, tmp+1)
+        @cubeMap[i] = @cubeMap[i].slice(0, tmp+1)
 
       len = 0
-      if @mapTest[i] isnt undefined and @mapTest[i] isnt null
-        len = @mapTest[i].length
+      if @cubeMap[i] isnt undefined and @cubeMap[i] isnt null
+        len = @cubeMap[i].length
       @map[i] = len
+
+  fillMap: ->
+    for i in [0..11]
+      @map[i] = 0
+      @cubeMap[i] = []
 
   debug: ->
     self = @
@@ -263,44 +269,44 @@ class CubeManager
       i = 0
       j = 0
       networkManager.sendCube(i, SquareEnum.MEDIUM)
-      self.mapTest[i][j] = 1
-      self.mapTest[i+1][j] = 1
-      self.mapTest[i][j+1] = 1
-      self.mapTest[i+1][j+1] = 1
-      networkManager.sendMap(self.mapTest)
+      self.cubeMap[i][j] = 1
+      self.cubeMap[i+1][j] = 1
+      self.cubeMap[i][j+1] = 1
+      self.cubeMap[i+1][j+1] = 1
+      networkManager.sendMap(self.cubeMap)
     setTimeout(fn, 200)
 
     fn = ->
       i = 1
       j = 2
       networkManager.sendCube(i, SquareEnum.MEDIUM)
-      self.mapTest[i][j] = 1
-      self.mapTest[i+1][j] = 1
-      self.mapTest[i][j+1] = 1
-      self.mapTest[i+1][j+1] = 1
-      networkManager.sendMap(self.mapTest)
+      self.cubeMap[i][j] = 1
+      self.cubeMap[i+1][j] = 1
+      self.cubeMap[i][j+1] = 1
+      self.cubeMap[i+1][j+1] = 1
+      networkManager.sendMap(self.cubeMap)
     setTimeout(fn, 400)
 
     fn = ->
       i = 0
       j = 4
       networkManager.sendCube(i, SquareEnum.MEDIUM)
-      self.mapTest[i][j] = 1
-      self.mapTest[i+1][j] = 1
-      self.mapTest[i][j+1] = 1
-      self.mapTest[i+1][j+1] = 1
-      networkManager.sendMap(self.mapTest)
+      self.cubeMap[i][j] = 1
+      self.cubeMap[i+1][j] = 1
+      self.cubeMap[i][j+1] = 1
+      self.cubeMap[i+1][j+1] = 1
+      networkManager.sendMap(self.cubeMap)
     setTimeout(fn, 600)
 
     fn = ->
       i = 2
       j = 4
       networkManager.sendCube(i, SquareEnum.MEDIUM)
-      self.mapTest[i][j] = 1
-      self.mapTest[i+1][j] = 1
-      self.mapTest[i][j+1] = 1
-      self.mapTest[i+1][j+1] = 1
-      networkManager.sendMap(self.mapTest)
+      self.cubeMap[i][j] = 1
+      self.cubeMap[i+1][j] = 1
+      self.cubeMap[i][j+1] = 1
+      self.cubeMap[i+1][j+1] = 1
+      networkManager.sendMap(self.cubeMap)
     setTimeout(fn, 600)
 
     fn = ->
@@ -309,5 +315,5 @@ class CubeManager
 
       networkManager.sendSpecial(col, SquareEnum.MEDIUM, 'explosion')
       self.explodeMap(col, row)
-      networkManager.sendMap(self.mapTest)
+      networkManager.sendMap(self.cubeMap)
     setTimeout(fn, 3000)
