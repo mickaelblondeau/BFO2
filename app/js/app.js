@@ -2551,7 +2551,7 @@
     };
     return document.getElementById('play').onclick = function() {
       document.getElementById('login').style.display = 'none';
-      launchGame(document.getElementById('ip').value, document.getElementById('name').value);
+      launchGame(document.getElementById('ip').value.replace(" ", ""), document.getElementById('name').value);
       return contentLoader.sounds['beep'].play();
     };
   };
