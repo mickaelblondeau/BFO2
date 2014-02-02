@@ -21,7 +21,6 @@ class SkinManager
   createSheet: (images, parts) ->
     self = @
     tmpLayer = new Kinetic.Layer()
-    tmpLayer.setZIndex(-10)
     stage.add tmpLayer
     for image in images
       shape = new Kinetic.Image
@@ -31,6 +30,7 @@ class SkinManager
       callback: (img) ->
         self.setSkin(img, parts)
         self.callback.call()
+        tmpLayer.setZIndex(-10)
 
   setSkin: (img, parts) ->
     @skins[parts.skin + ":" + parts.hair + ":" + parts.head + ":" + parts.body + ":" + parts.leg + ":" + parts.shoes] = img

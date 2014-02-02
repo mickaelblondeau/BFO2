@@ -2001,7 +2001,6 @@
       var image, self, shape, tmpLayer, _i, _len;
       self = this;
       tmpLayer = new Kinetic.Layer();
-      tmpLayer.setZIndex(-10);
       stage.add(tmpLayer);
       for (_i = 0, _len = images.length; _i < _len; _i++) {
         image = images[_i];
@@ -2013,7 +2012,8 @@
       return tmpLayer.toImage({
         callback: function(img) {
           self.setSkin(img, parts);
-          return self.callback.call();
+          self.callback.call();
+          return tmpLayer.setZIndex(-10);
         }
       });
     };
