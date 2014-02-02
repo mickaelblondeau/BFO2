@@ -537,14 +537,6 @@
       }
     };
 
-    Player.prototype.kill = function() {
-      if (this.alive) {
-        this.alive = false;
-        contentLoader.play('death');
-        return new Effect(this.shape.getX() - 16, this.shape.getY(), SquareEnum.SMALL, 'blood', true);
-      }
-    };
-
     Player.prototype.fixSkinPos = function() {
       if (this.skin.getScaleX() === -1) {
         this.skin.setX(this.shape.getX() - 12 + 48);
@@ -955,8 +947,10 @@
     };
 
     ControllablePlayer.prototype.kill = function() {
-      ControllablePlayer.__super__.kill.call(this);
       if (this.alive) {
+        this.alive = false;
+        contentLoader.play('death');
+        new Effect(this.shape.getX() - 16, this.shape.getY(), SquareEnum.SMALL, 'blood', true);
         return networkManager.sendDie();
       }
     };
@@ -999,7 +993,8 @@
     };
 
     VirtualPlayer.prototype.kill = function() {
-      return contentLoader.play('death');
+      contentLoader.play('death');
+      return new Effect(this.shape.getX() - 16, this.shape.getY(), SquareEnum.SMALL, 'blood', true);
     };
 
     return VirtualPlayer;

@@ -136,12 +136,6 @@ class Player
      if !@alive
        @reset()
 
-  kill: ->
-    if @alive
-      @alive = false
-      contentLoader.play('death')
-      new Effect(@shape.getX() - 16, @shape.getY(), SquareEnum.SMALL, 'blood', true)
-
   fixSkinPos: ->
     if @skin.getScaleX() is -1
       @skin.setX(@shape.getX() - 12 + 48)

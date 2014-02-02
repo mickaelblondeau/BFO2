@@ -288,6 +288,8 @@ class ControllablePlayer extends Player
       @shape.setY(cube.getY())
 
   kill: ->
-    super()
     if @alive
+      @alive = false
+      contentLoader.play('death')
+      new Effect(@shape.getX() - 16, @shape.getY(), SquareEnum.SMALL, 'blood', true)
       networkManager.sendDie()
