@@ -1573,7 +1573,7 @@
       var cubes;
       this.level++;
       arena.clearOutOfScreen();
-      arena.createGround();
+      cubeManager.convertToStatic();
       cubes = dynamicEntities.find('Sprite');
       cubes.each(function(cube) {
         if (cube.getY() > stage.getY() * -1 + stage.getHeight()) {
@@ -1689,6 +1689,17 @@
         return collision;
       }
       return false;
+    };
+
+    CubeManager.prototype.convertToStatic = function() {
+      var cubes;
+      cubes = dynamicEntities.find('Sprite');
+      return cubes.each(function(cube) {
+        if (cube.getName().type === 'cube') {
+          cube.moveTo(staticCubes);
+          return cube.draw();
+        }
+      });
     };
 
     CubeManager.prototype.doEffect = function(shape, type) {
@@ -1818,10 +1829,14 @@
         }
       });
       this.socket.on('changeAnimation', function(arr) {
-        return self.players[arr[0]].changeAnimation(arr[1]);
+        if (self.players[arr[0]] !== void 0) {
+          return self.players[arr[0]].changeAnimation(arr[1]);
+        }
       });
       this.socket.on('changeAnimationSide', function(arr) {
-        return self.players[arr[0]].changeSide(arr[1]);
+        if (self.players[arr[0]] !== void 0) {
+          return self.players[arr[0]].changeSide(arr[1]);
+        }
       });
       this.socket.on('kill', function(id) {
         return self.players[id].kill();
@@ -1960,17 +1975,6 @@
           return cube.destroy();
         }
       });
-    };
-
-    Arena.prototype.createGround = function() {
-      var i, _i, _results;
-      if (levelManager.level > 0) {
-        _results = [];
-        for (i = _i = 1; _i <= 12; i = ++_i) {
-          _results.push(new StaticCube(i * 32 + 128, stage.getY() * -1 + stage.getHeight() - 32, SquareEnum.SMALL));
-        }
-        return _results;
-      }
     };
 
     return Arena;

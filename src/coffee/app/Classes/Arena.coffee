@@ -34,8 +34,3 @@ class Arena
     cubes.each (cube) ->
       if cube.getY() > stage.getY()*-1 + stage.getHeight()
         cube.destroy()
-
-  createGround: ->
-    if levelManager.level > 0
-      for i in [1..12]
-        new StaticCube(i*32 + 128, stage.getY()*-1 + stage.getHeight() - 32, SquareEnum.SMALL)

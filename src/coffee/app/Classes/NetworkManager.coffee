@@ -44,10 +44,12 @@ class NetworkManager
         self.players[arr[0]].move(arr[1], arr[2])
 
     @socket.on 'changeAnimation', (arr) ->
-      self.players[arr[0]].changeAnimation(arr[1])
+      if self.players[arr[0]] isnt undefined
+        self.players[arr[0]].changeAnimation(arr[1])
 
     @socket.on 'changeAnimationSide', (arr) ->
-      self.players[arr[0]].changeSide(arr[1])
+      if self.players[arr[0]] isnt undefined
+        self.players[arr[0]].changeSide(arr[1])
 
     @socket.on 'kill', (id) ->
       self.players[id].kill()

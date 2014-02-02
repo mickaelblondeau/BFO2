@@ -65,6 +65,13 @@ class CubeManager
       return collision
     return false
 
+  convertToStatic: ->
+    cubes = dynamicEntities.find('Sprite')
+    cubes.each (cube) ->
+      if cube.getName().type is 'cube'
+        cube.moveTo(staticCubes)
+        cube.draw()
+
   doEffect: (shape, type) ->
     if type is 'iceExplosion'
       @iceExplosionEffect(shape)
