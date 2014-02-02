@@ -170,6 +170,37 @@ class Cube
         y: 672
         width: 160
         height: 128
+      }],
+      'blood': [{
+        x: 160
+        y: 0
+        width: 64
+        height: 64
+      }, {
+        x: 224
+        y: 0
+        width: 64
+        height: 64
+      }, {
+        x: 288
+        y: 0
+        width: 64
+        height: 64
+      }, {
+        x: 352
+        y: 0
+        width: 64
+        height: 64
+      }, {
+        x: 416
+        y: 0
+        width: 64
+        height: 64
+      }, {
+        x: 480
+        y: 0
+        width: 64
+        height: 64
       }]
     }
     @draw()

@@ -540,7 +540,8 @@
     Player.prototype.kill = function() {
       if (this.alive) {
         this.alive = false;
-        return contentLoader.play('death');
+        contentLoader.play('death');
+        return new Effect(this.shape.getX() - 16, this.shape.getY(), SquareEnum.SMALL, 'blood', true);
       }
     };
 
@@ -1216,6 +1217,39 @@
             y: 672,
             width: 160,
             height: 128
+          }
+        ],
+        'blood': [
+          {
+            x: 160,
+            y: 0,
+            width: 64,
+            height: 64
+          }, {
+            x: 224,
+            y: 0,
+            width: 64,
+            height: 64
+          }, {
+            x: 288,
+            y: 0,
+            width: 64,
+            height: 64
+          }, {
+            x: 352,
+            y: 0,
+            width: 64,
+            height: 64
+          }, {
+            x: 416,
+            y: 0,
+            width: 64,
+            height: 64
+          }, {
+            x: 480,
+            y: 0,
+            width: 64,
+            height: 64
           }
         ]
       };
@@ -2148,6 +2182,8 @@
       this.shape.draw();
       if (anim === 'explosionEffect' || anim === 'iceExplosionEffect') {
         this.shape.setFrameRate(20);
+      } else if (anim === 'blood') {
+        this.shape.setFrameRate(16);
       }
       this.shape.start();
       if (hasCycle !== void 0) {

@@ -140,6 +140,7 @@ class Player
     if @alive
       @alive = false
       contentLoader.play('death')
+      new Effect(@shape.getX() - 16, @shape.getY(), SquareEnum.SMALL, 'blood', true)
 
   fixSkinPos: ->
     if @skin.getScaleX() is -1
