@@ -30,7 +30,6 @@ class SkinManager
       callback: (img) ->
         self.setSkin(img, parts)
         self.callback.call()
-        document.querySelector('body').appendChild(img)
 
   setSkin: (img, parts) ->
     @skins[parts.skin + ":" + parts.hair + ":" + parts.head + ":" + parts.body + ":" + parts.leg + ":" + parts.shoes] = img
