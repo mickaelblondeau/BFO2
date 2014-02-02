@@ -3,9 +3,9 @@ class NetworkManager
     @players = []
     @playersId = []
 
-  connect: (ip, name) ->
+  connect: (ip, name, skin) ->
     @socket = io.connect('http://'+ip+':8080')
-    @socket.emit 'login', name
+    @socket.emit 'login', [name, skin]
     @listener()
 
   listener: ->
@@ -33,7 +33,7 @@ class NetworkManager
       bonusManager.remove(id)
 
     @socket.on 'connection', (arr) ->
-      self.players[arr[0]] = new VirtualPlayer(arr[0], arr[1])
+      self.players[arr[0]] = new VirtualPlayer(arr[0], arr[1], arr[2])
       self.playersId.push arr[0]
 
     @socket.on 'disconnect', (id) ->

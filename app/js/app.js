@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, Cube, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, Keyboard, LevelManager, NetworkManager, Player, RoueMan, SpecialCube, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bossManager, collisionManager, config, contentLoader, cubeManager, debugLayer, debugMap, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, players, stage, staticBg, staticCubes,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, Cube, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, Keyboard, LevelManager, NetworkManager, Player, RoueMan, SkinManager, SpecialCube, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bossManager, collisionManager, config, contentLoader, cubeManager, debugLayer, debugMap, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, players, skin, skinManager, stage, staticBg, staticCubes, _i, _len,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -10,7 +10,15 @@
     playerJumpMax: 1,
     playerJumpHeight: 82,
     playerSpeed: 0.17,
-    debug: false
+    debug: false,
+    skins: {
+      body: 3,
+      hair: 3,
+      head: 1,
+      leg: 3,
+      shoes: 3,
+      skin: 3
+    }
   };
 
   Keyboard = (function() {
@@ -377,11 +385,20 @@
   })();
 
   Player = (function() {
-    function Player() {
+    function Player(skin) {
+      var callback, self;
       this.heightCouched = 30;
       this.height = 46;
+      this.active = false;
+      this.playerSkin = skin;
       this.draw();
       this.spawn();
+      self = this;
+      callback = function() {
+        self.skin.setImage(skinManager.getSkin(self.playerSkin));
+        return self.fixSkinPos();
+      };
+      skinManager.createSkin(this.playerSkin, callback);
     }
 
     Player.prototype.draw = function() {
@@ -574,8 +591,8 @@
   ControllablePlayer = (function(_super) {
     __extends(ControllablePlayer, _super);
 
-    function ControllablePlayer() {
-      ControllablePlayer.__super__.constructor.call(this);
+    function ControllablePlayer(skin) {
+      ControllablePlayer.__super__.constructor.call(this, skin);
       this.speed = config.playerSpeed;
       this.couchedSpeedRatio = 0.5;
       this.fallMinAcceleration = 0.1;
@@ -962,8 +979,8 @@
   VirtualPlayer = (function(_super) {
     __extends(VirtualPlayer, _super);
 
-    function VirtualPlayer(id, name) {
-      VirtualPlayer.__super__.constructor.call(this);
+    function VirtualPlayer(id, name, skin) {
+      VirtualPlayer.__super__.constructor.call(this, skin);
       this.skin.setFill('white');
       this.shape.setName('otherPlayer');
       this.shape.setId(id);
@@ -1813,9 +1830,9 @@
       this.playersId = [];
     }
 
-    NetworkManager.prototype.connect = function(ip, name) {
+    NetworkManager.prototype.connect = function(ip, name, skin) {
       this.socket = io.connect('http://' + ip + ':8080');
-      this.socket.emit('login', name);
+      this.socket.emit('login', [name, skin]);
       return this.listener();
     };
 
@@ -1845,7 +1862,7 @@
         return bonusManager.remove(id);
       });
       this.socket.on('connection', function(arr) {
-        self.players[arr[0]] = new VirtualPlayer(arr[0], arr[1]);
+        self.players[arr[0]] = new VirtualPlayer(arr[0], arr[1], arr[2]);
         return self.playersId.push(arr[0]);
       });
       this.socket.on('disconnect', function(id) {
@@ -1947,6 +1964,69 @@
     };
 
     return NetworkManager;
+
+  })();
+
+  SkinManager = (function() {
+    function SkinManager() {
+      this.parts = ['skin', 'hair', 'head', 'body', 'leg', 'shoes'];
+      this.skins = [];
+    }
+
+    SkinManager.prototype.createSkin = function(parts, callback) {
+      var count, images, img, part, self, skin, _i, _len, _ref, _results;
+      this.callback = callback;
+      self = this;
+      count = 0;
+      images = [];
+      img = null;
+      _ref = this.parts;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        part = _ref[_i];
+        skin = new Image();
+        skin.src = '../assets/player/' + part + '/' + parts[part] + '.png';
+        images.push(skin);
+        _results.push(skin.onload = function() {
+          count++;
+          if (count === self.parts.length) {
+            return self.createSheet(images, parts);
+          }
+        });
+      }
+      return _results;
+    };
+
+    SkinManager.prototype.createSheet = function(images, parts) {
+      var image, self, shape, tmpLayer, _i, _len;
+      self = this;
+      tmpLayer = new Kinetic.Layer();
+      stage.add(tmpLayer);
+      for (_i = 0, _len = images.length; _i < _len; _i++) {
+        image = images[_i];
+        shape = new Kinetic.Image({
+          image: image
+        });
+        tmpLayer.add(shape);
+      }
+      return tmpLayer.toImage({
+        callback: function(img) {
+          self.setSkin(img, parts);
+          self.callback.call();
+          return document.querySelector('body').appendChild(img);
+        }
+      });
+    };
+
+    SkinManager.prototype.setSkin = function(img, parts) {
+      return this.skins[parts.skin + ":" + parts.hair + ":" + parts.head + ":" + parts.body + ":" + parts.leg + ":" + parts.shoes] = img;
+    };
+
+    SkinManager.prototype.getSkin = function(parts) {
+      return this.skins[parts.skin + ":" + parts.hair + ":" + parts.head + ":" + parts.body + ":" + parts.leg + ":" + parts.shoes];
+    };
+
+    return SkinManager;
 
   })();
 
@@ -2518,6 +2598,8 @@
 
   cubeManager = new CubeManager();
 
+  skinManager = new SkinManager();
+
   game = new Game();
 
   game.loadAssets();
@@ -2527,6 +2609,15 @@
   player = null;
 
   hud = null;
+
+  skin = {
+    body: 1,
+    hair: 1,
+    head: 1,
+    leg: 1,
+    shoes: 1,
+    skin: 1
+  };
 
   if (config.debug) {
     debugLayer = new Kinetic.Layer();
@@ -2557,8 +2648,8 @@
 
   contentLoader.contentsLoaded = function() {
     var launchGame;
-    document.getElementById('login-form').style.display = 'block';
-    document.getElementById('login-loading').style.display = 'none';
+    document.querySelector('#login-form').style.display = 'block';
+    document.querySelector('#login-loading').style.display = 'none';
     contentLoader.sounds['music'].loop = true;
     contentLoader.sounds['music'].play();
     launchGame = function(ip, name) {
@@ -2572,9 +2663,9 @@
       bg.setZIndex(-1);
       bg.draw();
       arena = new Arena();
-      player = new ControllablePlayer();
+      player = new ControllablePlayer(skin);
       hud = new HUD();
-      networkManager.connect(ip, name);
+      networkManager.connect(ip, name, skin);
       game.update = function(frameTime) {
         players.draw();
         dynamicEntities.draw();
@@ -2585,9 +2676,9 @@
       };
       return game.start();
     };
-    return document.getElementById('play').onclick = function() {
-      document.getElementById('login').style.display = 'none';
-      launchGame(document.getElementById('ip').value.replace(" ", ""), document.getElementById('name').value);
+    return document.querySelector('#play').onclick = function() {
+      document.querySelector('#login').style.display = 'none';
+      launchGame(document.querySelector('#ip').value.replace(" ", ""), document.querySelector('#name').value);
       return contentLoader.play('beep');
     };
   };
@@ -2596,16 +2687,40 @@
     return game.resize();
   };
 
-  document.getElementById('sound-mute').onclick = function() {
+  document.querySelector('#sound-mute').onclick = function() {
     return contentLoader.muteVolume();
   };
 
-  document.getElementById('sound-add').onclick = function() {
+  document.querySelector('#sound-add').onclick = function() {
     return contentLoader.addVolume();
   };
 
-  document.getElementById('sound-sub').onclick = function() {
+  document.querySelector('#sound-sub').onclick = function() {
     return contentLoader.lessVolume();
   };
+
+  divs = document.querySelectorAll('#skin-control div a');
+
+  for (_i = 0, _len = divs.length; _i < _len; _i++) {
+    div = divs[_i];
+    div.onclick = function(e) {
+      var elm, num;
+      contentLoader.play('beep');
+      e.preventDefault();
+      elm = document.querySelector('#skin-preview .' + this.getAttribute("data-type"));
+      if (elm.style.background === "") {
+        num = 2;
+      } else {
+        num = parseInt(elm.style.background.split('/')[4].split('.png')[0]) + parseInt(this.getAttribute("data-add"));
+      }
+      if (num < 1) {
+        num = config.skins[this.getAttribute("data-type")];
+      } else if (num > config.skins[this.getAttribute("data-type")]) {
+        num = 1;
+      }
+      elm.style.background = 'url("../assets/player/' + this.getAttribute("data-type") + '/' + num + '.png") 140px 0';
+      return skin[this.getAttribute("data-type")] = num;
+    };
+  }
 
 }).call(this);

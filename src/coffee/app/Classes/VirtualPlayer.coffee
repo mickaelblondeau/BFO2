@@ -1,6 +1,6 @@
 class VirtualPlayer extends Player
-  constructor: (id, name) ->
-    super()
+  constructor: (id, name, skin) ->
+    super(skin)
     @skin.setFill('white')
     @shape.setName('otherPlayer')
     @shape.setId(id)

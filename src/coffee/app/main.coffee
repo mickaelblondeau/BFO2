@@ -23,6 +23,7 @@ levelManager = new LevelManager()
 bonusManager = new BonusManager()
 bossManager = new BossManager()
 cubeManager = new CubeManager()
+skinManager = new SkinManager()
 
 game = new Game()
 game.loadAssets()
@@ -30,6 +31,7 @@ game.loadAssets()
 arena = null
 player = null
 hud = null
+skin = { body: 1, hair: 1, head: 1, leg: 1, shoes: 1, skin: 1 }
 
 if config.debug
   debugLayer = new Kinetic.Layer()
@@ -50,8 +52,8 @@ if config.debug
     debugLayer.draw()
 
 contentLoader.contentsLoaded = ->
-  document.getElementById('login-form').style.display = 'block'
-  document.getElementById('login-loading').style.display = 'none'
+  document.querySelector('#login-form').style.display = 'block'
+  document.querySelector('#login-loading').style.display = 'none'
 
   contentLoader.sounds['music'].loop = true
   contentLoader.sounds['music'].play()
@@ -66,10 +68,10 @@ contentLoader.contentsLoaded = ->
     bg.draw()
 
     arena = new Arena()
-    player = new ControllablePlayer()
+    player = new ControllablePlayer(skin)
     hud = new HUD()
 
-    networkManager.connect(ip, name)
+    networkManager.connect(ip, name, skin)
 
     game.update = (frameTime) ->
       players.draw()
@@ -80,7 +82,7 @@ contentLoader.contentsLoaded = ->
       cubeManager.update(frameTime)
     game.start()
 
-  document.getElementById('play').onclick = () ->
-    document.getElementById('login').style.display = 'none'
-    launchGame(document.getElementById('ip').value.replace(" ",""), document.getElementById('name').value)
+  document.querySelector('#play').onclick = () ->
+    document.querySelector('#login').style.display = 'none'
+    launchGame(document.querySelector('#ip').value.replace(" ",""), document.querySelector('#name').value)
     contentLoader.play('beep')

@@ -1,6 +1,6 @@
 class ControllablePlayer extends Player
-  constructor: () ->
-    super()
+  constructor: (skin) ->
+    super(skin)
     @speed = config.playerSpeed
     @couchedSpeedRatio = 0.5
     @fallMinAcceleration = 0.1

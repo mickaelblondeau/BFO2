@@ -23,7 +23,47 @@
                 </div>
                 <div class="form-line">
                     <label for="skin">Skin :</label>
-                    <input type="text" id="skin" value="default" />
+                    <input type="text" id="skin" value="default" style="display: none" />
+                    <div id="skin-control">
+                        <div class="skin">
+                            <a href="#" data-add="-1" data-type="skin"><</a>
+                            <span> Skin </span>
+                            <a href="#" data-add="1" data-type="skin">></a>
+                        </div>
+                        <div class="hair">
+                            <a href="#" data-add="-1" data-type="hair"><</a>
+                            <span> Hair </span>
+                            <a href="#" data-add="1" data-type="hair">></a>
+                        </div>
+                        <div class="head">
+                            <a href="#" data-add="-1" data-type="head"><</a>
+                            <span> Head </span>
+                            <a href="#" data-add="1" data-type="head">></a>
+                        </div>
+                        <div class="body">
+                            <a href="#" data-add="-1" data-type="body"><</a>
+                            <span> Body </span>
+                            <a href="#" data-add="1" data-type="body">></a>
+                        </div>
+                        <div class="leg">
+                            <a href="#" data-add="-1" data-type="leg"><</a>
+                            <span> Leg </span>
+                            <a href="#" data-add="1" data-type="leg">></a>
+                        </div>
+                        <div class="shoes">
+                            <a href="#" data-add="-1" data-type="shoes"><</a>
+                            <span> Shoes </span>
+                            <a href="#" data-add="1" data-type="shoes">></a>
+                        </div>
+                    </div>
+                    <div id="skin-preview">
+                        <div class="skin"></div>
+                        <div class="hair"></div>
+                        <div class="head"></div>
+                        <div class="body"></div>
+                        <div class="leg"></div>
+                        <div class="shoes"></div>
+                    </div>
                 </div>
                 <button id="play">Play</button>
             </div>

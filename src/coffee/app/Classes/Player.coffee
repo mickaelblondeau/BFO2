@@ -1,11 +1,20 @@
 class Player
-  constructor: () ->
+  constructor: (skin) ->
     @heightCouched = 30
     @height = 46
+    @active = false
+    @playerSkin = skin
+
     @draw()
     @spawn()
 
-  draw: ->
+    self = @
+    callback = ->
+      self.skin.setImage(skinManager.getSkin(self.playerSkin))
+      self.fixSkinPos()
+    skinManager.createSkin(@playerSkin, callback)
+
+  draw: () ->
     @shape = new Kinetic.Rect
       width: 22
       height: @height

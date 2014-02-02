@@ -13,7 +13,8 @@ class NetworkManager
       for player in players
         if player.id != socket.id
           player.get 'name', (error, name) ->
-            socket.emit 'connection', [player.id, name]
+            player.get 'skin', (error, skin) ->
+              socket.emit 'connection', [player.id, name, skin]
           player.get 'position', (error, position) ->
             if position isnt null
               socket.emit 'move', [player.id, position.x, position.y]
@@ -24,9 +25,10 @@ class NetworkManager
             if animationSide isnt null
               socket.emit 'changeAnimationSide', [player.id, animationSide]
 
-      socket.on 'login', (name) ->
-        socket.set('name', name)
-        socket.broadcast.emit 'connection', [socket.id, name]
+      socket.on 'login', (arr) ->
+        socket.set('name', arr[0])
+        socket.set('skin', arr[1])
+        socket.broadcast.emit 'connection', [socket.id, arr[0], arr[1]]
 
       socket.on 'launch', ->
         game.launch()

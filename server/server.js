@@ -535,7 +535,9 @@
           player = players[_i];
           if (player.id !== socket.id) {
             player.get('name', function(error, name) {
-              return socket.emit('connection', [player.id, name]);
+              return player.get('skin', function(error, skin) {
+                return socket.emit('connection', [player.id, name, skin]);
+              });
             });
             player.get('position', function(error, position) {
               if (position !== null) {
@@ -554,9 +556,10 @@
             });
           }
         }
-        socket.on('login', function(name) {
-          socket.set('name', name);
-          return socket.broadcast.emit('connection', [socket.id, name]);
+        socket.on('login', function(arr) {
+          socket.set('name', arr[0]);
+          socket.set('skin', arr[1]);
+          return socket.broadcast.emit('connection', [socket.id, arr[0], arr[1]]);
         });
         socket.on('launch', function() {
           return game.launch();
