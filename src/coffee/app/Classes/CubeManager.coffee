@@ -102,14 +102,12 @@ class CubeManager
                 new CubeFragment(cube.getX() + i*32, cube.getY() + j*32, SquareEnum.SMALL)
           cube.destroy()
     dynamicEntities.find('Sprite').each (cube) ->
-      if cube.getName().type is 'cube'
-        for i in [-4..5]
-          j = i
-          if i > 0
-            j = i-1
-          if cube.getX() is shape.getX() + i*32 and cube.getY() < shape.getY() - (-5 + Math.abs(j))*32 and cube.getY() > shape.getY() + (-5 + Math.abs(j))*32
-            cube.destroy()
+      for i in [-4..5]
+        j = i
+        if i > 0
+          j = i-1
+        if cube.getX() is shape.getX() + i*32 and cube.getY() < shape.getY() - (-5 + Math.abs(j))*32 and cube.getY() > shape.getY() + (-5 + Math.abs(j))*32
+          cube.destroy()
     if player.shape.getX() < shape.getX() + 96 and player.shape.getX() > shape.getX() - 96 and player.shape.getY() < shape.getY() + 96 and player.shape.getY() > shape.getY() - 96
       player.kill()
-    shape.destroy()
     @reinitAllPhys()

@@ -27,91 +27,92 @@ class ControllablePlayer extends Player
     @cached = {}
 
   update: (frameTime) ->
-    @sliding = false
+    if !(!@alive and @shape.getY() > stage.getY()*-1 + stage.getHeight())
+      @sliding = false
 
-    if !@testMove(0, @shape.getY())
-      @falling = true
+      if !@testMove(0, @shape.getY())
+        @falling = true
 
-    if !@jump and !@grabbing
-      @doFall(frameTime)
-    else
-      @doJump(frameTime)
+      if !@jump and !@grabbing
+        @doFall(frameTime)
+      else
+        @doJump(frameTime)
 
-    if @couched and !@jump
-      moveSpeed = @speed*frameTime*@couchedSpeedRatio
-    else
-      moveSpeed = @speed*frameTime
+      if @couched and !@jump
+        moveSpeed = @speed*frameTime*@couchedSpeedRatio
+      else
+        moveSpeed = @speed*frameTime
 
-    if @alive
-      moveSide = 0
+      if @alive
+        moveSide = 0
 
-      if @shape.getY() > 1000
-        @kill()
+        if @shape.getY() > 1000
+          @kill()
 
-      if keyboard.keys.left
-        collide = @testMove(@shape.getX() - moveSpeed, 0)
-        if collide
-          @shape.setX(collide.getX() + collide.getWidth())
+        if keyboard.keys.left
+          collide = @testMove(@shape.getX() - moveSpeed, 0)
+          if collide
+            @shape.setX(collide.getX() + collide.getWidth())
+          else
+            moveSide = -1
+        if keyboard.keys.right
+          collide = @testMove(@shape.getX() + moveSpeed, 0)
+          if collide
+            @shape.setX(collide.getX() - @shape.getWidth())
+          else
+            moveSide = 1
+        if keyboard.keys.up
+          if @canJump
+            @startJump()
         else
-          moveSide = -1
-      if keyboard.keys.right
-        collide = @testMove(@shape.getX() + moveSpeed, 0)
-        if collide
-          @shape.setX(collide.getX() - @shape.getWidth())
+          @canJump = true
+        if keyboard.keys.down and !@falling and !@jump
+          @startCouch()
         else
-          moveSide = 1
-      if keyboard.keys.up
-        if @canJump
-          @startJump()
-      else
-        @canJump = true
-      if keyboard.keys.down and !@falling and !@jump
-        @startCouch()
-      else
-        @stopCouch()
+          @stopCouch()
 
-      if @jump
-        @changeAnimation('jump')
-      else if @grabbing
-        @changeAnimation('grabbing')
-      else if @falling
-        @changeAnimation('fall')
-      else if @couched
-        if moveSide isnt 0
-          @changeAnimation('couchMove')
+        if @jump
+          @changeAnimation('jump')
+        else if @grabbing
+          @changeAnimation('grabbing')
+        else if @falling
+          @changeAnimation('fall')
+        else if @couched
+          if moveSide isnt 0
+            @changeAnimation('couchMove')
+          else
+            @changeAnimation('couch')
+        else if moveSide isnt 0
+          @changeAnimation('run')
         else
-          @changeAnimation('couch')
-      else if moveSide isnt 0
-        @changeAnimation('run')
+          @changeAnimation('idle')
+
+        @getCornerCollisions()
+
+        if moveSide is -1 and @skin.getScaleX() != -1
+          @changeSide(-1)
+        else if moveSide is 1 and @skin.getScaleX() != 1
+          @changeSide(1)
       else
-        @changeAnimation('idle')
+        @changeAnimation('dead')
 
-      @getCornerCollisions()
+      @fixSkinPos()
 
-      if moveSide is -1 and @skin.getScaleX() != -1
-        @changeSide(-1)
-      else if moveSide is 1 and @skin.getScaleX() != 1
-        @changeSide(1)
-    else
-      @changeAnimation('dead')
+      if @cached.x != @shape.getX() or @cached.y != @shape.getY() or @cached.animation != @skin.getAnimation()
+        networkManager.sendMove(@shape.getX(), @shape.getY())
+        @cached.x = @shape.getX()
+        @cached.y = @shape.getY()
+        @cached.animation = @skin.getAnimation()
 
-    @fixSkinPos()
-
-    if @cached.x != @shape.getX() or @cached.y != @shape.getY() or @cached.animation != @skin.getAnimation()
-      networkManager.sendMove(@shape.getX(), @shape.getY())
-      @cached.x = @shape.getX()
-      @cached.y = @shape.getY()
-      @cached.animation = @skin.getAnimation()
-
-    if @sliding
-      if @skin.getScaleX() is -1
-        collide = @testMove(@shape.getX() - (@speed*frameTime)/2, 0)
-        if collide
-          @shape.setX(collide.getX() + collide.getWidth())
-      else
-        collide = @testMove(@shape.getX() + (@speed*frameTime)/2, 0)
-        if collide
-          @shape.setX(collide.getX() - @shape.getWidth())
+      if @sliding
+        if @skin.getScaleX() is -1
+          collide = @testMove(@shape.getX() - (@speed*frameTime)/2, 0)
+          if collide
+            @shape.setX(collide.getX() + collide.getWidth())
+        else
+          collide = @testMove(@shape.getX() + (@speed*frameTime)/2, 0)
+          if collide
+            @shape.setX(collide.getX() - @shape.getWidth())
 
   doFall: (frameTime) ->
     if @jumpCount is 0

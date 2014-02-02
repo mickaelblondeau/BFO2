@@ -232,7 +232,7 @@
 
     Game.prototype.addMessage = function(name, message) {
       var callback;
-      contentLoader.sounds['beep'].play();
+      contentLoader.play('beep');
       document.getElementById('chatMessages').innerHTML += '<div class="message"><span class="from">' + name + '</span> : <span class="content">' + message + '</span></div>';
       callback = function() {
         return document.querySelectorAll('#chatMessages .message')[0].remove();
@@ -611,96 +611,98 @@
 
     ControllablePlayer.prototype.update = function(frameTime) {
       var collide, moveSide, moveSpeed;
-      this.sliding = false;
-      if (!this.testMove(0, this.shape.getY())) {
-        this.falling = true;
-      }
-      if (!this.jump && !this.grabbing) {
-        this.doFall(frameTime);
-      } else {
-        this.doJump(frameTime);
-      }
-      if (this.couched && !this.jump) {
-        moveSpeed = this.speed * frameTime * this.couchedSpeedRatio;
-      } else {
-        moveSpeed = this.speed * frameTime;
-      }
-      if (this.alive) {
-        moveSide = 0;
-        if (this.shape.getY() > 1000) {
-          this.kill();
+      if (!(!this.alive && this.shape.getY() > stage.getY() * -1 + stage.getHeight())) {
+        this.sliding = false;
+        if (!this.testMove(0, this.shape.getY())) {
+          this.falling = true;
         }
-        if (keyboard.keys.left) {
-          collide = this.testMove(this.shape.getX() - moveSpeed, 0);
-          if (collide) {
-            this.shape.setX(collide.getX() + collide.getWidth());
+        if (!this.jump && !this.grabbing) {
+          this.doFall(frameTime);
+        } else {
+          this.doJump(frameTime);
+        }
+        if (this.couched && !this.jump) {
+          moveSpeed = this.speed * frameTime * this.couchedSpeedRatio;
+        } else {
+          moveSpeed = this.speed * frameTime;
+        }
+        if (this.alive) {
+          moveSide = 0;
+          if (this.shape.getY() > 1000) {
+            this.kill();
+          }
+          if (keyboard.keys.left) {
+            collide = this.testMove(this.shape.getX() - moveSpeed, 0);
+            if (collide) {
+              this.shape.setX(collide.getX() + collide.getWidth());
+            } else {
+              moveSide = -1;
+            }
+          }
+          if (keyboard.keys.right) {
+            collide = this.testMove(this.shape.getX() + moveSpeed, 0);
+            if (collide) {
+              this.shape.setX(collide.getX() - this.shape.getWidth());
+            } else {
+              moveSide = 1;
+            }
+          }
+          if (keyboard.keys.up) {
+            if (this.canJump) {
+              this.startJump();
+            }
           } else {
-            moveSide = -1;
+            this.canJump = true;
           }
-        }
-        if (keyboard.keys.right) {
-          collide = this.testMove(this.shape.getX() + moveSpeed, 0);
-          if (collide) {
-            this.shape.setX(collide.getX() - this.shape.getWidth());
+          if (keyboard.keys.down && !this.falling && !this.jump) {
+            this.startCouch();
           } else {
-            moveSide = 1;
+            this.stopCouch();
           }
-        }
-        if (keyboard.keys.up) {
-          if (this.canJump) {
-            this.startJump();
-          }
-        } else {
-          this.canJump = true;
-        }
-        if (keyboard.keys.down && !this.falling && !this.jump) {
-          this.startCouch();
-        } else {
-          this.stopCouch();
-        }
-        if (this.jump) {
-          this.changeAnimation('jump');
-        } else if (this.grabbing) {
-          this.changeAnimation('grabbing');
-        } else if (this.falling) {
-          this.changeAnimation('fall');
-        } else if (this.couched) {
-          if (moveSide !== 0) {
-            this.changeAnimation('couchMove');
+          if (this.jump) {
+            this.changeAnimation('jump');
+          } else if (this.grabbing) {
+            this.changeAnimation('grabbing');
+          } else if (this.falling) {
+            this.changeAnimation('fall');
+          } else if (this.couched) {
+            if (moveSide !== 0) {
+              this.changeAnimation('couchMove');
+            } else {
+              this.changeAnimation('couch');
+            }
+          } else if (moveSide !== 0) {
+            this.changeAnimation('run');
           } else {
-            this.changeAnimation('couch');
+            this.changeAnimation('idle');
           }
-        } else if (moveSide !== 0) {
-          this.changeAnimation('run');
-        } else {
-          this.changeAnimation('idle');
-        }
-        this.getCornerCollisions();
-        if (moveSide === -1 && this.skin.getScaleX() !== -1) {
-          this.changeSide(-1);
-        } else if (moveSide === 1 && this.skin.getScaleX() !== 1) {
-          this.changeSide(1);
-        }
-      } else {
-        this.changeAnimation('dead');
-      }
-      this.fixSkinPos();
-      if (this.cached.x !== this.shape.getX() || this.cached.y !== this.shape.getY() || this.cached.animation !== this.skin.getAnimation()) {
-        networkManager.sendMove(this.shape.getX(), this.shape.getY());
-        this.cached.x = this.shape.getX();
-        this.cached.y = this.shape.getY();
-        this.cached.animation = this.skin.getAnimation();
-      }
-      if (this.sliding) {
-        if (this.skin.getScaleX() === -1) {
-          collide = this.testMove(this.shape.getX() - (this.speed * frameTime) / 2, 0);
-          if (collide) {
-            return this.shape.setX(collide.getX() + collide.getWidth());
+          this.getCornerCollisions();
+          if (moveSide === -1 && this.skin.getScaleX() !== -1) {
+            this.changeSide(-1);
+          } else if (moveSide === 1 && this.skin.getScaleX() !== 1) {
+            this.changeSide(1);
           }
         } else {
-          collide = this.testMove(this.shape.getX() + (this.speed * frameTime) / 2, 0);
-          if (collide) {
-            return this.shape.setX(collide.getX() - this.shape.getWidth());
+          this.changeAnimation('dead');
+        }
+        this.fixSkinPos();
+        if (this.cached.x !== this.shape.getX() || this.cached.y !== this.shape.getY() || this.cached.animation !== this.skin.getAnimation()) {
+          networkManager.sendMove(this.shape.getX(), this.shape.getY());
+          this.cached.x = this.shape.getX();
+          this.cached.y = this.shape.getY();
+          this.cached.animation = this.skin.getAnimation();
+        }
+        if (this.sliding) {
+          if (this.skin.getScaleX() === -1) {
+            collide = this.testMove(this.shape.getX() - (this.speed * frameTime) / 2, 0);
+            if (collide) {
+              return this.shape.setX(collide.getX() + collide.getWidth());
+            }
+          } else {
+            collide = this.testMove(this.shape.getX() + (this.speed * frameTime) / 2, 0);
+            if (collide) {
+              return this.shape.setX(collide.getX() - this.shape.getWidth());
+            }
           }
         }
       }
@@ -1572,17 +1574,17 @@
     LevelManager.prototype.clearLevel = function() {
       var cubes;
       this.level++;
-      arena.clearOutOfScreen();
-      cubeManager.convertToStatic();
       cubes = dynamicEntities.find('Sprite');
       cubes.each(function(cube) {
-        if (cube.getY() > stage.getY() * -1 + stage.getHeight()) {
+        if (cube.getY() > stage.getY() * -1 + stage.getHeight() || cube.getName().type === 'bonus') {
           return cube.destroy();
         }
       });
       if (player.shape.getY() > stage.getY() * -1 + stage.getHeight()) {
-        return player.kill();
+        player.kill();
       }
+      arena.clearOutOfScreen();
+      return cubeManager.convertToStatic();
     };
 
     return LevelManager;
@@ -1752,26 +1754,23 @@
       });
       dynamicEntities.find('Sprite').each(function(cube) {
         var i, j, _i, _results;
-        if (cube.getName().type === 'cube') {
-          _results = [];
-          for (i = _i = -4; _i <= 5; i = ++_i) {
-            j = i;
-            if (i > 0) {
-              j = i - 1;
-            }
-            if (cube.getX() === shape.getX() + i * 32 && cube.getY() < shape.getY() - (-5 + Math.abs(j)) * 32 && cube.getY() > shape.getY() + (-5 + Math.abs(j)) * 32) {
-              _results.push(cube.destroy());
-            } else {
-              _results.push(void 0);
-            }
+        _results = [];
+        for (i = _i = -4; _i <= 5; i = ++_i) {
+          j = i;
+          if (i > 0) {
+            j = i - 1;
           }
-          return _results;
+          if (cube.getX() === shape.getX() + i * 32 && cube.getY() < shape.getY() - (-5 + Math.abs(j)) * 32 && cube.getY() > shape.getY() + (-5 + Math.abs(j)) * 32) {
+            _results.push(cube.destroy());
+          } else {
+            _results.push(void 0);
+          }
         }
+        return _results;
       });
       if (player.shape.getX() < shape.getX() + 96 && player.shape.getX() > shape.getX() - 96 && player.shape.getY() < shape.getY() + 96 && player.shape.getY() > shape.getY() - 96) {
         player.kill();
       }
-      shape.destroy();
       return this.reinitAllPhys();
     };
 
@@ -2464,9 +2463,9 @@
 
   stage.add(staticBg);
 
-  stage.add(staticCubes);
-
   stage.add(players);
+
+  stage.add(staticCubes);
 
   stage.add(dynamicEntities);
 
@@ -2558,7 +2557,7 @@
     return document.getElementById('play').onclick = function() {
       document.getElementById('login').style.display = 'none';
       launchGame(document.getElementById('ip').value.replace(" ", ""), document.getElementById('name').value);
-      return contentLoader.sounds['beep'].play();
+      return contentLoader.play('beep');
     };
   };
 

@@ -10,8 +10,8 @@ staticBg = new Kinetic.Layer()
 hudLayer = new Kinetic.Layer()
 
 stage.add staticBg
-stage.add staticCubes
 stage.add players
+stage.add staticCubes
 stage.add dynamicEntities
 stage.add hudLayer
 
@@ -83,4 +83,4 @@ contentLoader.contentsLoaded = ->
   document.getElementById('play').onclick = () ->
     document.getElementById('login').style.display = 'none'
     launchGame(document.getElementById('ip').value.replace(" ",""), document.getElementById('name').value)
-    contentLoader.sounds['beep'].play()
+    contentLoader.play('beep')

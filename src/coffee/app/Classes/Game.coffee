@@ -84,7 +84,7 @@ class Game
       document.getElementById('chatMessage').focus()
 
   addMessage: (name, message) ->
-    contentLoader.sounds['beep'].play()
+    contentLoader.play('beep')
     document.getElementById('chatMessages').innerHTML += '<div class="message"><span class="from">'+name+'</span> : <span class="content">'+message+'</span></div>'
     callback = ->
       document.querySelectorAll('#chatMessages .message')[0].remove()

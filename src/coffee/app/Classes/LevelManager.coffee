@@ -43,11 +43,11 @@ class LevelManager
 
   clearLevel: ->
     @level++
-    arena.clearOutOfScreen()
-    cubeManager.convertToStatic()
     cubes = dynamicEntities.find('Sprite')
     cubes.each (cube) ->
-      if cube.getY() > stage.getY()*-1 + stage.getHeight()
+      if cube.getY() > stage.getY()*-1 + stage.getHeight() or cube.getName().type is 'bonus'
         cube.destroy()
     if player.shape.getY() > stage.getY()*-1 + stage.getHeight()
       player.kill()
+    arena.clearOutOfScreen()
+    cubeManager.convertToStatic()
