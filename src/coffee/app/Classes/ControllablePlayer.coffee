@@ -3,13 +3,13 @@ class ControllablePlayer extends Player
     super()
     @speed = config.playerSpeed
     @couchedSpeedRatio = 0.5
-    @fallMinAcceleration = 0.01
+    @fallMinAcceleration = 0.1
     @fallMaxAcceleration = 0.6
-    @fallAcceleration = 1.05
+    @fallAcceleration = 1.10
     @fallCurrentAcceleration = @fallMinAcceleration
-    @jumpMinAcceleration = 0.01
-    @jumpMaxAcceleration = 0.4
-    @jumpDeceleration = 0.95
+    @jumpMinAcceleration = 0.1
+    @jumpMaxAcceleration = 0.6
+    @jumpDeceleration = 0.90
     @jumpCurrentAcceleration = 0
     @jumpHeight = config.playerJumpHeight
     @jumpMax = config.playerJumpMax

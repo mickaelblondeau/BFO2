@@ -8,7 +8,7 @@
     levelWidth: 704,
     levelSpeed: 1000,
     playerJumpMax: 1,
-    playerJumpHeight: 80,
+    playerJumpHeight: 82,
     playerSpeed: 0.17,
     debug: false
   };
@@ -585,13 +585,13 @@
       ControllablePlayer.__super__.constructor.call(this);
       this.speed = config.playerSpeed;
       this.couchedSpeedRatio = 0.5;
-      this.fallMinAcceleration = 0.01;
+      this.fallMinAcceleration = 0.1;
       this.fallMaxAcceleration = 0.6;
-      this.fallAcceleration = 1.05;
+      this.fallAcceleration = 1.10;
       this.fallCurrentAcceleration = this.fallMinAcceleration;
-      this.jumpMinAcceleration = 0.01;
-      this.jumpMaxAcceleration = 0.4;
-      this.jumpDeceleration = 0.95;
+      this.jumpMinAcceleration = 0.1;
+      this.jumpMaxAcceleration = 0.6;
+      this.jumpDeceleration = 0.90;
       this.jumpCurrentAcceleration = 0;
       this.jumpHeight = config.playerJumpHeight;
       this.jumpMax = config.playerJumpMax;
