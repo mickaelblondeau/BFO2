@@ -14,95 +14,95 @@ class Player
 
     animations = {
       idle: [{
-        x: 290
-        y: 2
-        width: 46
-        height: 45
+        x: 288
+        y: 0
+        width: 48
+        height: 48
       }],
       jump: [{
-        x: 339
-        y: 2
-        width: 45
-        height: 45
+        x: 336
+        y: 0
+        width: 48
+        height: 48
       }],
       fall: [{
-        x: 387
-        y: 2
-        width: 46
-        height: 45
+        x: 384
+        y: 0
+        width: 48
+        height: 48
       }],
       run: [{
         x: 0
-        y: 2
-        width: 46
-        height: 45
+        y: 0
+        width: 48
+        height: 48
       }, {
-        x: 49
-        y: 2
-        width: 46
-        height: 45
+        x: 48
+        y: 0
+        width: 48
+        height: 48
       }, {
-        x: 97
-        y: 2
-        width: 46
-        height: 45
+        x: 96
+        y: 0
+        width: 48
+        height: 48
       }, {
-        x: 145
-        y: 2
-        width: 46
-        height: 45
+        x: 144
+        y: 0
+        width: 48
+        height: 48
       }, {
-        x: 193
-        y: 2
-        width: 46
-        height: 45
+        x: 192
+        y: 0
+        width: 48
+        height: 48
       }, {
-        x: 241
-        y: 2
-        width: 46
-        height: 45
+        x: 240
+        y: 0
+        width: 48
+        height: 48
       }],
       couch: [{
         x: 0
-        y: 63
-        width: 46
-        height: 34
+        y: 48
+        width: 48
+        height: 48
       }],
       couchMove: [{
-        x: 50
-        y: 67
-        width: 46
-        height: 30
+        x: 48
+        y: 48
+        width: 48
+        height: 48
       }, {
-        x: 98
-        y: 67
-        width: 46
-        height: 30
+        x: 96
+        y: 48
+        width: 48
+        height: 48
       }, {
-        x: 146
-        y: 67
-        width: 46
-        height: 30
+        x: 144
+        y: 48
+        width: 48
+        height: 48
       }, {
-        x: 194
-        y: 67
-        width: 46
-        height: 30
+        x: 192
+        y: 48
+        width: 48
+        height: 48
       }, {
-        x: 242
-        y: 67
-        width: 46
-        height: 30
+        x: 240
+        y: 48
+        width: 48
+        height: 48
       }],
       grabbing: [{
         x: 0
-        y: 98
-        width: 46
+        y: 96
+        width: 48
         height: 48
       }],
       dead: [{
-        x: 290
-        y: 49
+        x: 288
+        y: 48
         width: 48
         height: 48
       }]
@@ -146,14 +146,15 @@ class Player
       @skin.setX(@shape.getX() - 12 + 48)
     else
       @skin.setX(@shape.getX() - 12)
-    if @skin.getAnimation() is 'couch'
-      @skin.setY(@shape.getY() - 4)
+    if @skin.getAnimation() is 'couch' or @skin.getAnimation() is 'couchMove'
+      @skin.setY(@shape.getY() - 18)
     else
       @skin.setY(@shape.getY())
 
   changeAnimation: (animation) ->
     if @skin.getAnimation() != animation
       @skin.setAnimation(animation)
+      @fixSkinPos()
 
   changeSide: (side) ->
     if side is -1

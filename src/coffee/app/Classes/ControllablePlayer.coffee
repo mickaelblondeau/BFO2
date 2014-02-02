@@ -3,12 +3,12 @@ class ControllablePlayer extends Player
     super()
     @speed = config.playerSpeed
     @couchedSpeedRatio = 0.5
-    @fallMinAcceleration = 0.2
+    @fallMinAcceleration = 0.01
     @fallMaxAcceleration = 0.6
     @fallAcceleration = 1.05
     @fallCurrentAcceleration = @fallMinAcceleration
-    @jumpMinAcceleration = 0.1
-    @jumpMaxAcceleration = 0.6
+    @jumpMinAcceleration = 0.01
+    @jumpMaxAcceleration = 0.4
     @jumpDeceleration = 0.95
     @jumpCurrentAcceleration = 0
     @jumpHeight = config.playerJumpHeight
@@ -65,7 +65,7 @@ class ControllablePlayer extends Player
           @startJump()
       else
         @canJump = true
-      if keyboard.keys.down
+      if keyboard.keys.down and !@falling and !@jump
         @startCouch()
       else
         @stopCouch()
@@ -97,10 +97,11 @@ class ControllablePlayer extends Player
 
     @fixSkinPos()
 
-    if @cached.x != @shape.getX() or @cached.y != @shape.getY()
+    if @cached.x != @shape.getX() or @cached.y != @shape.getY() or @cached.animation != @skin.getAnimation()
       networkManager.sendMove(@shape.getX(), @shape.getY())
       @cached.x = @shape.getX()
       @cached.y = @shape.getY()
+      @cached.animation = @skin.getAnimation()
 
     if @sliding
       if @skin.getScaleX() is -1

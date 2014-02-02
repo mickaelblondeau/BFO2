@@ -17,37 +17,55 @@ class NetworkManager
           player.get 'position', (error, position) ->
             if position isnt null
               socket.emit 'move', [player.id, position.x, position.y]
+          player.get 'animation', (error, animation) ->
+            if animation isnt null
+              socket.emit 'changeAnimation', [player.id, animation]
+          player.get 'animationSide', (error, animationSide) ->
+            if animationSide isnt null
+              socket.emit 'changeAnimationSide', [player.id, animationSide]
 
       socket.on 'login', (name) ->
         socket.set('name', name)
         socket.broadcast.emit 'connection', [socket.id, name]
+
       socket.on 'launch', ->
         game.launch()
+
       socket.on 'reset', ->
         game.reset()
         self.sendResetLevel()
-      socket.on 'move', (arr) ->
-        socket.set('position', {x: parseInt(arr[0]), y: parseInt(arr[1])})
+
       socket.on 'die', ->
         socket.broadcast.emit 'kill', socket.id
+
+      socket.on 'move', (arr) ->
+        socket.set('position', {x: parseInt(arr[0]), y: parseInt(arr[1])})
+
       socket.on 'changeAnimation', (animation) ->
-        socket.broadcast.emit 'changeAnimation', [socket.id, animation]
+        socket.set('animation', animation)
+
       socket.on 'changeAnimationSide', (side) ->
-        socket.broadcast.emit 'changeAnimationSide', [socket.id, side]
+        socket.set('animationSide', side)
+
       socket.on 'moveLevelOk', ->
         self.responseOk++
         if self.responseOk >= self.waitingFor
           levelManager.nextBoss()
+
       socket.on 'bonusTaken', (bonusId) ->
         socket.broadcast.emit 'bonusTaken', bonusId
+
       socket.on 'bossBeaten', ->
         self.responseOk++
         if self.responseOk >= self.waitingFor
           levelManager.passNextLevel()
+
       socket.on 'resurection', ->
         socket.broadcast.emit 'resurection'
+
       socket.on 'message', (message) ->
         socket.broadcast.emit 'message', [socket.id, message]
+
       socket.on 'disconnect', ->
         socket.broadcast.emit 'disconnect', socket.id
 
@@ -79,12 +97,25 @@ class NetworkManager
     self = @
     players = @io.sockets.clients()
     for player in players
-      player.get 'position', (error, position) ->
-        if position isnt null
-          player.get 'oldPosition', (error, oldPosition) ->
-            if oldPosition is null or oldPosition isnt position
-              self.io.sockets.emit 'move', [player.id, position.x, position.y]
-              player.set 'oldPosition', position
+      player.get 'cachedData', (error, cachedData) ->
+        player.get 'position', (error, position) ->
+          if cachedData is null
+            cachedData = { }
+          if position isnt null and cachedData.position isnt position
+            self.io.sockets.emit 'move', [player.id, position.x, position.y]
+            cachedData.position = position
+
+        player.get 'animation', (error, animation) ->
+          if animation isnt null and cachedData.animation isnt animation
+            self.io.sockets.emit 'changeAnimation', [player.id, animation]
+            cachedData.animation = animation
+
+        player.get 'animationSide', (error, animationSide) ->
+          if animationSide isnt null and cachedData.animationSide isnt animationSide
+            self.io.sockets.emit 'changeAnimationSide', [player.id, animationSide]
+            cachedData.animationSide = animationSide
+
+        player.set 'cachedData', cachedData
 
   waitForAll: (callback, time) ->
     @waitingFor = @io.sockets.clients().length

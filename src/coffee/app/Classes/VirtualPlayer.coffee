@@ -26,4 +26,4 @@ class VirtualPlayer extends Player
     delete @
 
   kill: ->
-    contentLoader.sounds['death'].play()
+    contentLoader.play('death')

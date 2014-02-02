@@ -542,6 +542,16 @@
                 return socket.emit('move', [player.id, position.x, position.y]);
               }
             });
+            player.get('animation', function(error, animation) {
+              if (animation !== null) {
+                return socket.emit('changeAnimation', [player.id, animation]);
+              }
+            });
+            player.get('animationSide', function(error, animationSide) {
+              if (animationSide !== null) {
+                return socket.emit('changeAnimationSide', [player.id, animationSide]);
+              }
+            });
           }
         }
         socket.on('login', function(name) {
@@ -555,20 +565,20 @@
           game.reset();
           return self.sendResetLevel();
         });
+        socket.on('die', function() {
+          return socket.broadcast.emit('kill', socket.id);
+        });
         socket.on('move', function(arr) {
           return socket.set('position', {
             x: parseInt(arr[0]),
             y: parseInt(arr[1])
           });
         });
-        socket.on('die', function() {
-          return socket.broadcast.emit('kill', socket.id);
-        });
         socket.on('changeAnimation', function(animation) {
-          return socket.broadcast.emit('changeAnimation', [socket.id, animation]);
+          return socket.set('animation', animation);
         });
         socket.on('changeAnimationSide', function(side) {
-          return socket.broadcast.emit('changeAnimationSide', [socket.id, side]);
+          return socket.set('animationSide', side);
         });
         socket.on('moveLevelOk', function() {
           self.responseOk++;
@@ -635,15 +645,29 @@
       _results = [];
       for (_i = 0, _len = players.length; _i < _len; _i++) {
         player = players[_i];
-        _results.push(player.get('position', function(error, position) {
-          if (position !== null) {
-            return player.get('oldPosition', function(error, oldPosition) {
-              if (oldPosition === null || oldPosition !== position) {
-                self.io.sockets.emit('move', [player.id, position.x, position.y]);
-                return player.set('oldPosition', position);
-              }
-            });
-          }
+        _results.push(player.get('cachedData', function(error, cachedData) {
+          player.get('position', function(error, position) {
+            if (cachedData === null) {
+              cachedData = {};
+            }
+            if (position !== null && cachedData.position !== position) {
+              self.io.sockets.emit('move', [player.id, position.x, position.y]);
+              return cachedData.position = position;
+            }
+          });
+          player.get('animation', function(error, animation) {
+            if (animation !== null && cachedData.animation !== animation) {
+              self.io.sockets.emit('changeAnimation', [player.id, animation]);
+              return cachedData.animation = animation;
+            }
+          });
+          player.get('animationSide', function(error, animationSide) {
+            if (animationSide !== null && cachedData.animationSide !== animationSide) {
+              self.io.sockets.emit('changeAnimationSide', [player.id, animationSide]);
+              return cachedData.animationSide = animationSide;
+            }
+          });
+          return player.set('cachedData', cachedData);
         }));
       }
       return _results;

@@ -9,7 +9,7 @@
     levelSpeed: 1000,
     playerJumpMax: 1,
     playerJumpHeight: 80,
-    playerSpeed: 0.3,
+    playerSpeed: 0.17,
     debug: false
   };
 
@@ -395,109 +395,109 @@
       animations = {
         idle: [
           {
-            x: 290,
-            y: 2,
-            width: 46,
-            height: 45
+            x: 288,
+            y: 0,
+            width: 48,
+            height: 48
           }
         ],
         jump: [
           {
-            x: 339,
-            y: 2,
-            width: 45,
-            height: 45
+            x: 336,
+            y: 0,
+            width: 48,
+            height: 48
           }
         ],
         fall: [
           {
-            x: 387,
-            y: 2,
-            width: 46,
-            height: 45
+            x: 384,
+            y: 0,
+            width: 48,
+            height: 48
           }
         ],
         run: [
           {
             x: 0,
-            y: 2,
-            width: 46,
-            height: 45
+            y: 0,
+            width: 48,
+            height: 48
           }, {
-            x: 49,
-            y: 2,
-            width: 46,
-            height: 45
+            x: 48,
+            y: 0,
+            width: 48,
+            height: 48
           }, {
-            x: 97,
-            y: 2,
-            width: 46,
-            height: 45
+            x: 96,
+            y: 0,
+            width: 48,
+            height: 48
           }, {
-            x: 145,
-            y: 2,
-            width: 46,
-            height: 45
+            x: 144,
+            y: 0,
+            width: 48,
+            height: 48
           }, {
-            x: 193,
-            y: 2,
-            width: 46,
-            height: 45
+            x: 192,
+            y: 0,
+            width: 48,
+            height: 48
           }, {
-            x: 241,
-            y: 2,
-            width: 46,
-            height: 45
+            x: 240,
+            y: 0,
+            width: 48,
+            height: 48
           }
         ],
         couch: [
           {
             x: 0,
-            y: 63,
-            width: 46,
-            height: 34
+            y: 48,
+            width: 48,
+            height: 48
           }
         ],
         couchMove: [
           {
-            x: 50,
-            y: 67,
-            width: 46,
-            height: 30
+            x: 48,
+            y: 48,
+            width: 48,
+            height: 48
           }, {
-            x: 98,
-            y: 67,
-            width: 46,
-            height: 30
+            x: 96,
+            y: 48,
+            width: 48,
+            height: 48
           }, {
-            x: 146,
-            y: 67,
-            width: 46,
-            height: 30
+            x: 144,
+            y: 48,
+            width: 48,
+            height: 48
           }, {
-            x: 194,
-            y: 67,
-            width: 46,
-            height: 30
+            x: 192,
+            y: 48,
+            width: 48,
+            height: 48
           }, {
-            x: 242,
-            y: 67,
-            width: 46,
-            height: 30
+            x: 240,
+            y: 48,
+            width: 48,
+            height: 48
           }
         ],
         grabbing: [
           {
             x: 0,
-            y: 98,
-            width: 46,
+            y: 96,
+            width: 48,
             height: 48
           }
         ],
         dead: [
           {
-            x: 290,
-            y: 49,
+            x: 288,
+            y: 48,
             width: 48,
             height: 48
           }
@@ -550,8 +550,8 @@
       } else {
         this.skin.setX(this.shape.getX() - 12);
       }
-      if (this.skin.getAnimation() === 'couch') {
-        return this.skin.setY(this.shape.getY() - 4);
+      if (this.skin.getAnimation() === 'couch' || this.skin.getAnimation() === 'couchMove') {
+        return this.skin.setY(this.shape.getY() - 18);
       } else {
         return this.skin.setY(this.shape.getY());
       }
@@ -559,7 +559,8 @@
 
     Player.prototype.changeAnimation = function(animation) {
       if (this.skin.getAnimation() !== animation) {
-        return this.skin.setAnimation(animation);
+        this.skin.setAnimation(animation);
+        return this.fixSkinPos();
       }
     };
 
@@ -584,12 +585,12 @@
       ControllablePlayer.__super__.constructor.call(this);
       this.speed = config.playerSpeed;
       this.couchedSpeedRatio = 0.5;
-      this.fallMinAcceleration = 0.2;
+      this.fallMinAcceleration = 0.01;
       this.fallMaxAcceleration = 0.6;
       this.fallAcceleration = 1.05;
       this.fallCurrentAcceleration = this.fallMinAcceleration;
-      this.jumpMinAcceleration = 0.1;
-      this.jumpMaxAcceleration = 0.6;
+      this.jumpMinAcceleration = 0.01;
+      this.jumpMaxAcceleration = 0.4;
       this.jumpDeceleration = 0.95;
       this.jumpCurrentAcceleration = 0;
       this.jumpHeight = config.playerJumpHeight;
@@ -652,7 +653,7 @@
         } else {
           this.canJump = true;
         }
-        if (keyboard.keys.down) {
+        if (keyboard.keys.down && !this.falling && !this.jump) {
           this.startCouch();
         } else {
           this.stopCouch();
@@ -684,10 +685,11 @@
         this.changeAnimation('dead');
       }
       this.fixSkinPos();
-      if (this.cached.x !== this.shape.getX() || this.cached.y !== this.shape.getY()) {
+      if (this.cached.x !== this.shape.getX() || this.cached.y !== this.shape.getY() || this.cached.animation !== this.skin.getAnimation()) {
         networkManager.sendMove(this.shape.getX(), this.shape.getY());
         this.cached.x = this.shape.getX();
         this.cached.y = this.shape.getY();
+        this.cached.animation = this.skin.getAnimation();
       }
       if (this.sliding) {
         if (this.skin.getScaleX() === -1) {
@@ -994,7 +996,7 @@
     };
 
     VirtualPlayer.prototype.kill = function() {
-      return contentLoader.sounds['death'].play();
+      return contentLoader.play('death');
     };
 
     return VirtualPlayer;
