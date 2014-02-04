@@ -210,7 +210,7 @@ class ControllablePlayer extends Player
             @collideBoss(collision)
           if collision.getName().type is 'effect'
             @collideEffect(collision)
-          if collision.getName().type is 'cube'
+          if collision.getName().type is 'cube' or collision.getName().type is 'special'
             if collision.getName().falling and collision.getY() + collision.getHeight() - 16 < @shape.getY()
               @kill()
             return collision

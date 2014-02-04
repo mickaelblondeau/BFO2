@@ -851,7 +851,7 @@
           if (collision.getName().type === 'effect') {
             this.collideEffect(collision);
           }
-          if (collision.getName().type === 'cube') {
+          if (collision.getName().type === 'cube' || collision.getName().type === 'special') {
             if (collision.getName().falling && collision.getY() + collision.getHeight() - 16 < this.shape.getY()) {
               this.kill();
             }
@@ -1339,6 +1339,7 @@
       SpecialCube.__super__.constructor.call(this, x, y, size, 'cubes_special', type);
       dynamicEntities.add(this.shape);
       this.shape.setName({
+        type: 'special',
         falling: true
       });
       this.shape.setId(type);

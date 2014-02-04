@@ -5,6 +5,6 @@ class SpecialCube extends Cube
     @type = type
     super(x, y, size, 'cubes_special', type)
     dynamicEntities.add @shape
-    @shape.setName({ falling: true })
+    @shape.setName({ type: 'special', falling: true })
     @shape.setId(type)
     @shape.draw()
