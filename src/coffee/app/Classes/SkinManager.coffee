@@ -2,9 +2,10 @@ class SkinManager
   constructor: ->
     @parts = ['skin', 'hair', 'head', 'body', 'leg', 'shoes']
     @skins = []
+    @callback = []
 
-  createSkin: (parts, callback) ->
-    @callback = callback
+  createSkin: (parts, callback, id) ->
+    @callback[id] = callback
     self = @
     count = 0
     images = []
@@ -16,9 +17,9 @@ class SkinManager
       skin.onload = ->
         count++
         if count == self.parts.length
-          self.createSheet(images, parts)
+          self.createSheet(images, id)
 
-  createSheet: (images, parts) ->
+  createSheet: (images, id) ->
     self = @
     tmpLayer = new Kinetic.Layer()
     stage.add tmpLayer
@@ -27,13 +28,7 @@ class SkinManager
         image: image
       tmpLayer.add shape
     tmpLayer.toImage
-      callback: (img) ->
-        self.setSkin(img, parts)
-        self.callback.call()
-        tmpLayer.setZIndex(-10)
-
-  setSkin: (img, parts) ->
-    @skins[parts.skin + ":" + parts.hair + ":" + parts.head + ":" + parts.body + ":" + parts.leg + ":" + parts.shoes] = img
-
-  getSkin: (parts) ->
-    return @skins[parts.skin + ":" + parts.hair + ":" + parts.head + ":" + parts.body + ":" + parts.leg + ":" + parts.shoes]
+      callback: (image) ->
+        self.callback[id](image)
+        delete self.callback[id]
+    tmpLayer.destroy()

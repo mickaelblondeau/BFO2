@@ -394,11 +394,11 @@
       this.draw();
       this.spawn();
       self = this;
-      callback = function() {
-        self.skin.setImage(skinManager.getSkin(self.playerSkin));
+      callback = function(image) {
+        self.skin.setImage(image);
         return self.fixSkinPos();
       };
-      skinManager.createSkin(this.playerSkin, callback);
+      skinManager.createSkin(skin, callback, self.skin._id);
     }
 
     Player.prototype.draw = function() {
@@ -1971,11 +1971,12 @@
     function SkinManager() {
       this.parts = ['skin', 'hair', 'head', 'body', 'leg', 'shoes'];
       this.skins = [];
+      this.callback = [];
     }
 
-    SkinManager.prototype.createSkin = function(parts, callback) {
+    SkinManager.prototype.createSkin = function(parts, callback, id) {
       var count, images, img, part, self, skin, _i, _len, _ref, _results;
-      this.callback = callback;
+      this.callback[id] = callback;
       self = this;
       count = 0;
       images = [];
@@ -1990,14 +1991,14 @@
         _results.push(skin.onload = function() {
           count++;
           if (count === self.parts.length) {
-            return self.createSheet(images, parts);
+            return self.createSheet(images, id);
           }
         });
       }
       return _results;
     };
 
-    SkinManager.prototype.createSheet = function(images, parts) {
+    SkinManager.prototype.createSheet = function(images, id) {
       var image, self, shape, tmpLayer, _i, _len;
       self = this;
       tmpLayer = new Kinetic.Layer();
@@ -2009,21 +2010,13 @@
         });
         tmpLayer.add(shape);
       }
-      return tmpLayer.toImage({
-        callback: function(img) {
-          self.setSkin(img, parts);
-          self.callback.call();
-          return tmpLayer.setZIndex(-10);
+      tmpLayer.toImage({
+        callback: function(image) {
+          self.callback[id](image);
+          return delete self.callback[id];
         }
       });
-    };
-
-    SkinManager.prototype.setSkin = function(img, parts) {
-      return this.skins[parts.skin + ":" + parts.hair + ":" + parts.head + ":" + parts.body + ":" + parts.leg + ":" + parts.shoes] = img;
-    };
-
-    SkinManager.prototype.getSkin = function(parts) {
-      return this.skins[parts.skin + ":" + parts.hair + ":" + parts.head + ":" + parts.body + ":" + parts.leg + ":" + parts.shoes];
+      return tmpLayer.destroy();
     };
 
     return SkinManager;

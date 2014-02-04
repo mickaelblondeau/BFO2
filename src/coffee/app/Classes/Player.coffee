@@ -9,12 +9,12 @@ class Player
     @spawn()
 
     self = @
-    callback = ->
-      self.skin.setImage(skinManager.getSkin(self.playerSkin))
+    callback = (image) ->
+      self.skin.setImage(image)
       self.fixSkinPos()
-    skinManager.createSkin(@playerSkin, callback)
+    skinManager.createSkin(skin, callback, self.skin._id)
 
-  draw: () ->
+  draw: ->
     @shape = new Kinetic.Rect
       width: 22
       height: @height
