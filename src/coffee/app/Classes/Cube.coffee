@@ -201,6 +201,49 @@ class Cube
         y: 0
         width: 64
         height: 64
+      }],
+      'slowblock': [{
+        x: 0
+        y: 64
+        width: 64
+        height: 64
+      }],
+      'slow': [{
+        x: 32
+        y: 0
+        width: 32
+        height: 32
+      }],
+      'bioExplosion': [{
+        x: 0
+        y: 834
+        width: 128
+        height: 128
+      }, {
+        x: 128
+        y: 834
+        width: 128
+        height: 128
+      }, {
+        x: 256
+        y: 834
+        width: 128
+        height: 128
+      }, {
+        x: 384
+        y: 834
+        width: 128
+        height: 128
+      }, {
+        x: 512
+        y: 834
+        width: 128
+        height: 128
+      }, {
+        x: 640
+        y: 834
+        width: 128
+        height: 128
       }]
     }
     @draw()

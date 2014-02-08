@@ -7,7 +7,7 @@ class Effect extends Cube
 
     if anim is 'explosionEffect' or anim is 'iceExplosionEffect'
       @shape.setFrameRate(20)
-    else if anim is 'blood'
+    else if anim is 'blood' or anim is 'bioExplosion'
       @shape.setFrameRate(16)
 
     @shape.start()

@@ -777,6 +777,7 @@
       var collide, moveSide, moveSpeed;
       if (!(!this.alive && this.shape.getY() > stage.getY() * -1 + stage.getHeight())) {
         this.sliding = false;
+        this.slowed = false;
         if (!this.testMove(0, this.shape.getY())) {
           this.falling = true;
         }
@@ -790,6 +791,10 @@
         } else {
           moveSpeed = this.speed * frameTime;
         }
+        if (this.slowed) {
+          moveSpeed = moveSpeed / 2;
+          this.canJump = false;
+        }
         if (this.alive) {
           moveSide = 0;
           if (this.shape.getY() > 1000) {
@@ -802,8 +807,7 @@
             } else {
               moveSide = -1;
             }
-          }
-          if (keyboard.keys.right) {
+          } else if (keyboard.keys.right) {
             collide = this.testMove(this.shape.getX() + moveSpeed, 0);
             if (collide) {
               this.shape.setX(collide.getX() - this.shape.getWidth());
@@ -1043,7 +1047,10 @@
 
     ControllablePlayer.prototype.collideEffect = function(effect) {
       if (effect.getName().name === 'ice') {
-        return this.sliding = true;
+        this.sliding = true;
+      }
+      if (effect.getName().name === 'slow') {
+        return this.slowed = true;
       }
     };
 
@@ -1416,6 +1423,55 @@
             y: 0,
             width: 64,
             height: 64
+          }
+        ],
+        'slowblock': [
+          {
+            x: 0,
+            y: 64,
+            width: 64,
+            height: 64
+          }
+        ],
+        'slow': [
+          {
+            x: 32,
+            y: 0,
+            width: 32,
+            height: 32
+          }
+        ],
+        'bioExplosion': [
+          {
+            x: 0,
+            y: 834,
+            width: 128,
+            height: 128
+          }, {
+            x: 128,
+            y: 834,
+            width: 128,
+            height: 128
+          }, {
+            x: 256,
+            y: 834,
+            width: 128,
+            height: 128
+          }, {
+            x: 384,
+            y: 834,
+            width: 128,
+            height: 128
+          }, {
+            x: 512,
+            y: 834,
+            width: 128,
+            height: 128
+          }, {
+            x: 640,
+            y: 834,
+            width: 128,
+            height: 128
           }
         ]
       };
@@ -1945,7 +2001,10 @@
         this.iceExplosionEffect(shape);
       }
       if (type === 'explosion') {
-        return this.explosionEffet(shape);
+        this.explosionEffet(shape);
+      }
+      if (type === 'slowblock') {
+        return this.slowExplosionEffet(shape);
       }
     };
 
@@ -1957,11 +2016,27 @@
         if (!cube.getName().falling && cube.getName().type === 'cube') {
           if (cube.getX() < shape.getX() + 128 && cube.getX() > shape.getX() - 128 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 128) {
             _results = [];
-            for (i = _i = 0, _ref = (cube.getWidth() / 32) - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+            for (i = _i = 1, _ref = (cube.getWidth() / 32) - 1; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
               _results.push(new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'ice'));
             }
             return _results;
           }
+        }
+      });
+      return shape.destroy();
+    };
+
+    CubeManager.prototype.slowExplosionEffet = function(shape) {
+      contentLoader.play('death');
+      new Effect(shape.getX() - shape.getWidth() / 2, shape.getY() - shape.getHeight() / 2, SquareEnum.SMALL, 'bioExplosion', true);
+      staticCubes.find('Sprite').each(function(cube) {
+        var i, _i, _ref, _results;
+        if (cube.getX() < shape.getX() + 96 && cube.getX() > shape.getX() - 96 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 128) {
+          _results = [];
+          for (i = _i = 1, _ref = (cube.getWidth() / 32) - 1; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
+            _results.push(new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'slow'));
+          }
+          return _results;
         }
       });
       return shape.destroy();
@@ -2440,7 +2515,7 @@
       this.shape.draw();
       if (anim === 'explosionEffect' || anim === 'iceExplosionEffect') {
         this.shape.setFrameRate(20);
-      } else if (anim === 'blood') {
+      } else if (anim === 'blood' || anim === 'bioExplosion') {
         this.shape.setFrameRate(16);
       }
       this.shape.start();
@@ -3065,7 +3140,7 @@
           return debugLayer.draw();
         };
         fn = function() {
-          return bossManager.spawn(3, [[0.3, 0.5, 500], [0, 2, 4, 6, 8, 10]]);
+          return new SpecialCube(5, SquareEnum.MEDIUM, 'slowblock');
         };
         return setTimeout(fn, 1000);
       }

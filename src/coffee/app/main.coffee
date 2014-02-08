@@ -82,7 +82,7 @@ contentLoader.contentsLoaded = ->
         debugLayer.draw()
 
       fn = ->
-        bossManager.spawn(3, [[0.3, 0.5, 500], [0, 2, 4, 6, 8, 10]])
+        new SpecialCube(5, SquareEnum.MEDIUM, 'slowblock')
       setTimeout(fn, 1000)
 
   document.querySelector('#play').onclick = () ->

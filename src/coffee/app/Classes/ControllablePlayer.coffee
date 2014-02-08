@@ -29,6 +29,7 @@ class ControllablePlayer extends Player
   update: (frameTime) ->
     if !(!@alive and @shape.getY() > stage.getY()*-1 + stage.getHeight())
       @sliding = false
+      @slowed = false
 
       if !@testMove(0, @shape.getY())
         @falling = true
@@ -43,6 +44,10 @@ class ControllablePlayer extends Player
       else
         moveSpeed = @speed*frameTime
 
+      if @slowed
+        moveSpeed = moveSpeed / 2
+        @canJump = false
+
       if @alive
         moveSide = 0
 
@@ -55,7 +60,7 @@ class ControllablePlayer extends Player
             @shape.setX(collide.getX() + collide.getWidth())
           else
             moveSide = -1
-        if keyboard.keys.right
+        else if keyboard.keys.right
           collide = @testMove(@shape.getX() + moveSpeed, 0)
           if collide
             @shape.setX(collide.getX() - @shape.getWidth())
@@ -239,6 +244,8 @@ class ControllablePlayer extends Player
   collideEffect: (effect) ->
     if effect.getName().name is 'ice'
       @sliding = true
+    if effect.getName().name is 'slow'
+      @slowed = true
 
   getCornerCollisions: ->
     self = @
