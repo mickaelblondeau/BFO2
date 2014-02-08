@@ -33,30 +33,12 @@ player = null
 hud = null
 skin = { body: 1, hair: 1, head: 1, leg: 1, shoes: 1, skin: 1 }
 
-if config.debug
-  debugLayer = new Kinetic.Layer()
-  stage.add debugLayer
-  debugLayer.setZIndex(100)
-  debugMap = (map) ->
-    debugLayer.destroyChildren()
-    for subMap, x in map
-      for val, y in subMap
-        if val isnt null
-          shape = new Kinetic.Rect
-            x: x * 32 + 160
-            y: arena.y - y * 32 - 32
-            width: 32
-            height: 32
-            stroke: "red"
-          debugLayer.add shape
-    debugLayer.draw()
-
 contentLoader.contentsLoaded = ->
   document.querySelector('#login-form').style.display = 'block'
   document.querySelector('#login-loading').style.display = 'none'
 
   contentLoader.sounds['music'].loop = true
-  contentLoader.sounds['music'].play()
+  ###contentLoader.sounds['music'].play()###
 
   launchGame = (ip, name) ->
     bg = new Kinetic.Rect
@@ -81,6 +63,28 @@ contentLoader.contentsLoaded = ->
       hud.update(frameTime)
       cubeManager.update(frameTime)
     game.start()
+
+    if config.debug
+      debugLayer = new Kinetic.Layer()
+      stage.add debugLayer
+      debugLayer.setZIndex(100)
+      debugMap = (map) ->
+        debugLayer.destroyChildren()
+        for subMap, x in map
+          for val, y in subMap
+            if val isnt null
+              shape = new Kinetic.Rect
+                x: x * 32 + 160
+                y: arena.y - y * 32 - 32
+                width: 32
+                height: 32
+                stroke: "red"
+              debugLayer.add shape
+        debugLayer.draw()
+
+      fn = ->
+        bossManager.spawn('poingman', [0, 2, 4, 6, 8, 10])
+      setTimeout(fn, 1000)
 
   document.querySelector('#play').onclick = () ->
     document.querySelector('#login').style.display = 'none'

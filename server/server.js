@@ -1,5 +1,5 @@
 (function() {
-  var Boss, BossManager, CubeManager, FreezeMan, Game, LevelManager, NetworkManager, RoueMan, SquareEnum, bossManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
+  var Boss, BossManager, CubeManager, FreezeMan, Game, LevelManager, NetworkManager, PoingMan, RoueMan, SquareEnum, bossManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -715,7 +715,7 @@
   BossManager = (function() {
     function BossManager() {
       this.launched = false;
-      this.boss = ['roueman', 'freezeman'];
+      this.boss = ['roueman', 'freezeman', 'poingman'];
     }
 
     BossManager.prototype.launch = function() {
@@ -736,6 +736,8 @@
         return new RoueMan();
       } else if (boss === 'freezeman') {
         return new FreezeMan();
+      } else if (boss === 'poingman') {
+        return new PoingMan();
       }
     };
 
@@ -786,6 +788,27 @@
     };
 
     return FreezeMan;
+
+  })(Boss);
+
+  PoingMan = (function(_super) {
+    __extends(PoingMan, _super);
+
+    function PoingMan() {
+      PoingMan.__super__.constructor.call(this, 'poingman', 15000, this.getPattern());
+    }
+
+    PoingMan.prototype.getPattern = function() {
+      var attack, attacks, i, _i;
+      attacks = [];
+      for (i = _i = 0; _i <= 5; i = ++_i) {
+        attack = Math.floor(Math.random() * 10);
+        attacks.push(attack);
+      }
+      return attacks;
+    };
+
+    return PoingMan;
 
   })(Boss);
 

@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, Cube, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, Keyboard, LevelManager, NetworkManager, Player, RoueMan, SkinManager, SpecialCube, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bossManager, collisionManager, config, contentLoader, cubeManager, debugLayer, debugMap, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, players, skin, skinManager, stage, staticBg, staticCubes, _i, _len,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, Cube, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, Keyboard, LevelManager, MultiPartBoss, NetworkManager, Player, PoingMan, PoingManPart, RoueMan, SkinManager, SpecialCube, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bossManager, collisionManager, config, contentLoader, cubeManager, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, players, skin, skinManager, stage, staticBg, staticCubes, _i, _len,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -2269,8 +2269,7 @@
   })(Cube);
 
   Boss = (function() {
-    function Boss(id, type, x, y, w, h) {
-      this.id = id;
+    function Boss(type, x, y, w, h) {
       this.type = type;
       this.x = x;
       this.y = y;
@@ -2302,6 +2301,14 @@
             width: 544,
             height: 32
           }
+        ],
+        poingman: [
+          {
+            x: 128,
+            y: 128,
+            width: 64,
+            height: 64
+          }
         ]
       };
       this.draw();
@@ -2322,7 +2329,6 @@
           type: 'boss',
           name: this.type
         },
-        id: 'boss' + this.id,
         stroke: 'black',
         strokeWidth: 1,
         strokeEnabled: true
@@ -2345,6 +2351,36 @@
 
   })();
 
+  MultiPartBoss = (function(_super) {
+    __extends(MultiPartBoss, _super);
+
+    function MultiPartBoss(type, x, y, w, h) {
+      MultiPartBoss.__super__.constructor.call(this, type, x, y, w, h);
+      this.parts = [];
+    }
+
+    MultiPartBoss.prototype.reset = function() {
+      var part, _i, _len, _ref, _results;
+      MultiPartBoss.__super__.reset.call(this);
+      _ref = this.parts;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        part = _ref[_i];
+        _results.push(part.reset());
+      }
+      return _results;
+    };
+
+    MultiPartBoss.prototype.finish = function() {
+      this.reset();
+      bossManager.stopUpdate();
+      return networkManager.sendBossBeaten();
+    };
+
+    return MultiPartBoss;
+
+  })(Boss);
+
   BossManager = (function() {
     function BossManager() {
       this.currentBoss;
@@ -2352,10 +2388,13 @@
 
     BossManager.prototype.spawn = function(boss, options) {
       if (boss === 'roueman') {
-        this.currentBoss = new RoueMan(0, options);
+        this.currentBoss = new RoueMan(options);
       }
       if (boss === 'freezeman') {
-        return this.currentBoss = new FreezeMan(0, options);
+        this.currentBoss = new FreezeMan(options);
+      }
+      if (boss === 'poingman') {
+        return this.currentBoss = new PoingMan(options);
       }
     };
 
@@ -2379,10 +2418,10 @@
   RoueMan = (function(_super) {
     __extends(RoueMan, _super);
 
-    function RoueMan(id, pattern) {
+    function RoueMan(pattern) {
       var y;
       y = stage.getY() * -1;
-      RoueMan.__super__.constructor.call(this, id, 'roueman', 0, y, 64, 64);
+      RoueMan.__super__.constructor.call(this, 'roueman', 0, y, 64, 64);
       this.attacks = pattern;
       this.attackIndex = 0;
       this.attackSpeed = 0.6;
@@ -2457,7 +2496,7 @@
   })(Boss);
 
   FreezeMan = (function() {
-    function FreezeMan(id, pattern) {
+    function FreezeMan(pattern) {
       this.speed = 0.4;
       this.counter = 0;
       this.interval = 1500;
@@ -2543,10 +2582,166 @@
     function FreezeManPart(x) {
       var y;
       y = stage.getY() * -1;
-      FreezeManPart.__super__.constructor.call(this, 0, 'freezeman', x, y, 544, 32);
+      FreezeManPart.__super__.constructor.call(this, 'freezeman', x, y, 544, 32);
     }
 
     return FreezeManPart;
+
+  })(Boss);
+
+  PoingMan = (function(_super) {
+    __extends(PoingMan, _super);
+
+    function PoingMan(pattern) {
+      var x;
+      x = 900;
+      this.levelHeight = arena.y - levelManager.levelHeight;
+      this.y = this.levelHeight - 256;
+      PoingMan.__super__.constructor.call(this, 'poingman', x, this.y, 64, 64);
+      this.attacking = false;
+      this.comeBack = false;
+      this.finishing = false;
+      this.starting = true;
+      this.speed = 0.4;
+      this.attackSpeed = 0.6;
+      this.attacks = pattern;
+      this.index = 0;
+      this.oldPos = 0;
+      this.start();
+    }
+
+    PoingMan.prototype.start = function() {
+      var self;
+      self = this;
+      this.parts.push(new PoingManPart(128 - 128, this.levelHeight - 64));
+      this.parts.push(new PoingManPart(512 + 128, this.levelHeight - 64));
+      return bossManager.update = function(frameTime) {
+        if (self.attacking && !self.finishing && !self.starting) {
+          return self.attack(frameTime);
+        } else if (!self.finishing && !self.starting) {
+          return self.moveToPosition(frameTime);
+        } else if (!self.starting) {
+          return self.finishingPhase(frameTime);
+        } else {
+          return self.startingPhase(frameTime);
+        }
+      };
+    };
+
+    PoingMan.prototype.moveToPosition = function(frameTime) {
+      var dest, tmp;
+      dest = this.attacks[this.index] * 32 + 160;
+      if (this.shape.getX() >= dest && this.oldPos >= dest) {
+        tmp = this.shape.getX() - this.speed * frameTime;
+        if (tmp < dest) {
+          this.shape.setX(dest);
+          this.oldPos = this.shape.getX();
+          return this.attacking = true;
+        } else {
+          return this.shape.setX(tmp);
+        }
+      } else if (this.shape.getX() < dest && this.oldPos < dest) {
+        tmp = this.shape.getX() + this.speed * frameTime;
+        if (tmp > dest) {
+          this.shape.setX(dest);
+          this.oldPos = this.shape.getX();
+          return this.attacking = true;
+        } else {
+          return this.shape.setX(tmp);
+        }
+      }
+    };
+
+    PoingMan.prototype.attack = function(frameTime) {
+      var collision, collisions, ground, tmp, _i, _len;
+      ground = this.levelHeight - 62;
+      if (this.shape.getY() < ground && !this.comeBack) {
+        tmp = this.shape.getY() + this.attackSpeed * frameTime;
+        if (tmp > ground) {
+          return this.shape.setY(ground);
+        } else {
+          return this.shape.setY(tmp);
+        }
+      } else if (this.shape.getY() > this.y && this.comeBack) {
+        tmp = this.shape.getY() - this.attackSpeed * frameTime;
+        if (tmp < this.y) {
+          return this.shape.setY(this.y);
+        } else {
+          return this.shape.setY(tmp);
+        }
+      } else {
+        if (this.comeBack) {
+          this.index++;
+          this.attacking = false;
+          this.comeBack = false;
+          if (this.attacks[this.index] === void 0) {
+            this.finishing = true;
+            return this.regenMap();
+          }
+        } else {
+          contentLoader.play('explosion');
+          this.comeBack = true;
+          collisions = cubeManager.getCollisions(this.shape);
+          for (_i = 0, _len = collisions.length; _i < _len; _i++) {
+            collision = collisions[_i];
+            collision.destroy();
+          }
+          return staticCubes.draw();
+        }
+      }
+    };
+
+    PoingMan.prototype.startingPhase = function(frameTime) {
+      var tmp;
+      tmp = this.parts[0].shape.getX() + this.speed * frameTime;
+      if (tmp > 128) {
+        this.parts[0].shape.setX(128);
+      } else {
+        this.parts[0].shape.setX(tmp);
+      }
+      tmp = this.parts[1].shape.getX() - this.speed * frameTime;
+      if (tmp < 512) {
+        this.parts[1].shape.setX(512);
+      } else {
+        this.parts[1].shape.setX(tmp);
+      }
+      this.shape.setX(this.shape.getX() - this.speed * frameTime);
+      if (this.shape.getX() < 64) {
+        return this.starting = false;
+      }
+    };
+
+    PoingMan.prototype.finishingPhase = function(frameTime) {
+      this.parts[0].shape.setX(this.parts[0].shape.getX() - this.speed * frameTime);
+      this.parts[1].shape.setX(this.parts[1].shape.getX() + this.speed * frameTime);
+      this.shape.setX(this.shape.getX() + this.speed * frameTime);
+      if (this.shape.getX() > 800) {
+        return this.finish();
+      }
+    };
+
+    PoingMan.prototype.regenMap = function() {
+      var i, _i, _results;
+      _results = [];
+      for (i = _i = 1; _i <= 12; i = ++_i) {
+        _results.push(new StaticCube(i * 32 + 128, this.levelHeight, SquareEnum.SMALL));
+      }
+      return _results;
+    };
+
+    return PoingMan;
+
+  })(MultiPartBoss);
+
+  PoingManPart = (function(_super) {
+    __extends(PoingManPart, _super);
+
+    function PoingManPart(x, y) {
+      PoingManPart.__super__.constructor.call(this, 'roueman', x, y, 64, 64);
+      this.attached = true;
+    }
+
+    return PoingManPart;
 
   })(Boss);
 
@@ -2613,41 +2808,15 @@
     skin: 1
   };
 
-  if (config.debug) {
-    debugLayer = new Kinetic.Layer();
-    stage.add(debugLayer);
-    debugLayer.setZIndex(100);
-    debugMap = function(map) {
-      var shape, subMap, val, x, y, _i, _j, _len, _len1;
-      debugLayer.destroyChildren();
-      for (x = _i = 0, _len = map.length; _i < _len; x = ++_i) {
-        subMap = map[x];
-        for (y = _j = 0, _len1 = subMap.length; _j < _len1; y = ++_j) {
-          val = subMap[y];
-          if (val !== null) {
-            shape = new Kinetic.Rect({
-              x: x * 32 + 160,
-              y: arena.y - y * 32 - 32,
-              width: 32,
-              height: 32,
-              stroke: "red"
-            });
-            debugLayer.add(shape);
-          }
-        }
-      }
-      return debugLayer.draw();
-    };
-  }
-
   contentLoader.contentsLoaded = function() {
     var launchGame;
     document.querySelector('#login-form').style.display = 'block';
     document.querySelector('#login-loading').style.display = 'none';
     contentLoader.sounds['music'].loop = true;
-    contentLoader.sounds['music'].play();
+    /*contentLoader.sounds['music'].play()*/
+
     launchGame = function(ip, name) {
-      var bg;
+      var bg, debugLayer, debugMap, fn;
       bg = new Kinetic.Rect({
         width: stage.getWidth(),
         height: stage.getHeight(),
@@ -2668,7 +2837,37 @@
         hud.update(frameTime);
         return cubeManager.update(frameTime);
       };
-      return game.start();
+      game.start();
+      if (config.debug) {
+        debugLayer = new Kinetic.Layer();
+        stage.add(debugLayer);
+        debugLayer.setZIndex(100);
+        debugMap = function(map) {
+          var shape, subMap, val, x, y, _i, _j, _len, _len1;
+          debugLayer.destroyChildren();
+          for (x = _i = 0, _len = map.length; _i < _len; x = ++_i) {
+            subMap = map[x];
+            for (y = _j = 0, _len1 = subMap.length; _j < _len1; y = ++_j) {
+              val = subMap[y];
+              if (val !== null) {
+                shape = new Kinetic.Rect({
+                  x: x * 32 + 160,
+                  y: arena.y - y * 32 - 32,
+                  width: 32,
+                  height: 32,
+                  stroke: "red"
+                });
+                debugLayer.add(shape);
+              }
+            }
+          }
+          return debugLayer.draw();
+        };
+        fn = function() {
+          return bossManager.spawn('poingman', [0, 2, 4, 6, 8, 10]);
+        };
+        return setTimeout(fn, 1000);
+      }
     };
     return document.querySelector('#play').onclick = function() {
       document.querySelector('#login').style.display = 'none';

@@ -1,5 +1,5 @@
 class FreezeMan
-  constructor: (id, pattern) ->
+  constructor: (pattern) ->
     @speed = 0.4
     @counter = 0
     @interval = 1500

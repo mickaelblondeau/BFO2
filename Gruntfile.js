@@ -2,8 +2,14 @@ module.exports = function(grunt) {
 
     grunt.initConfig({
         watch: {
-            files: ['src/coffee/app/*.coffee', 'src/coffee/app/Classes/*.coffee', 'src/coffee/app/Classes/Bosses/*.coffee', 'src/coffee/server/*.coffee', 'src/coffee/server/Classes/*.coffee', 'src/coffee/server/Classes/Bosses/*.coffee'],
-            tasks: ['concat', 'coffee', 'uglify']
+            app: {
+                files: ['src/coffee/app/*.coffee', 'src/coffee/app/Classes/*.coffee', 'src/coffee/app/Classes/Bosses/*.coffee'],
+                tasks: ['concat:app', 'coffee:app', 'uglify:app']
+            },
+            server: {
+                files: ['src/coffee/server/*.coffee', 'src/coffee/server/Classes/*.coffee', 'src/coffee/server/Classes/Bosses/*.coffee'],
+                tasks: ['concat:server', 'coffee:server', 'uglify:server']
+            }
         },
         concat: {
             app: {
@@ -31,10 +37,13 @@ module.exports = function(grunt) {
                     'src/coffee/app/Classes/HUD.coffee',
                     'src/coffee/app/Classes/Effect.coffee',
                     'src/coffee/app/Classes/Bosses/Boss.coffee',
+                    'src/coffee/app/Classes/Bosses/MultiPartBoss.coffee',
                     'src/coffee/app/Classes/Bosses/BossManager.coffee',
                     'src/coffee/app/Classes/Bosses/RoueMan.coffee',
                     'src/coffee/app/Classes/Bosses/FreezeMan.coffee',
                     'src/coffee/app/Classes/Bosses/FreezeManPart.coffee',
+                    'src/coffee/app/Classes/Bosses/PoingMan.coffee',
+                    'src/coffee/app/Classes/Bosses/PoingManPart.coffee',
                     'src/coffee/app/main.coffee',
                     'src/coffee/app/events.coffee'
                 ],
@@ -51,6 +60,7 @@ module.exports = function(grunt) {
                     'src/coffee/server/Classes/Bosses/BossManager.coffee',
                     'src/coffee/server/Classes/Bosses/RoueMan.coffee',
                     'src/coffee/server/Classes/Bosses/FreezeMan.coffee',
+                    'src/coffee/server/Classes/Bosses/PoingMan.coffee',
                     'src/coffee/server/main.coffee'
                 ],
                 dest: 'src/tmp/server.coffee'

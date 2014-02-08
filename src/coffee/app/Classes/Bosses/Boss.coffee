@@ -1,6 +1,5 @@
 class Boss
-  constructor: (id, type, x, y, w, h) ->
-    @id = id
+  constructor: (type, x, y, w, h) ->
     @type = type
     @x = x
     @y = y
@@ -28,6 +27,12 @@ class Boss
         y: 64
         width: 544
         height: 32
+      }],
+      poingman: [{
+        x: 128
+        y: 128
+        width: 64
+        height: 64
       }]
     }
     @draw()
@@ -44,7 +49,6 @@ class Boss
       frameRate: 10
       index: 0
       name: { type: 'boss', name: @type }
-      id: 'boss' + @id
       stroke: 'black'
       strokeWidth: 1
       strokeEnabled: true
