@@ -1,6 +1,7 @@
 class PoingMan extends Boss
   constructor: ->
     super('poingman', 15000, @getPattern())
+    @id = 3
 
   getPattern: ->
     speed = Math.round((0.4 + 0.1 * levelManager.level) * 100) / 100

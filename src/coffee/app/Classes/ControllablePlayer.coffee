@@ -219,7 +219,7 @@ class ControllablePlayer extends Player
     return false
 
   takeBonus: (bonus) ->
-    bonusManager.getBonus(bonus.getName().name, @, bonus.getId())
+    bonusManager.getBonus(bonus.getName().name, @)
     bonus.destroy()
     dynamicEntities.draw()
     networkManager.sendBonusTaken(bonus.getId())
@@ -227,7 +227,7 @@ class ControllablePlayer extends Player
   changeAnimation: (animation) ->
     if @skin.getAnimation() != animation
       @skin.setAnimation(animation)
-      networkManager.sendAnimation(animation)
+      networkManager.sendAnimation(@getIndexByAnimation(animation))
 
   changeSide: (side) ->
     super(side)

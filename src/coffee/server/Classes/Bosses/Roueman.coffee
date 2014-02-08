@@ -1,6 +1,7 @@
 class RoueMan extends Boss
   constructor: ->
     super('roueman', 15000, @getPattern())
+    @id = 1
 
   getPattern: ->
     speed = Math.round((0.6 + 0.1 * levelManager.level) * 100) / 100

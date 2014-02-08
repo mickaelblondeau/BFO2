@@ -1,40 +1,69 @@
 bonusTypes = {
+  speed: [{
+    id: 1
+    name: 'speed'
+    x: 96
+    y: 0
+    width: 32
+    height: 32
+  }],
+  jumpHeight: [{
+    id: 2
+    name: 'jumpHeight'
+    x: 0
+    y: 0
+    width: 32
+    height: 32
+  }],
   doubleJump: [{
+    id: 3
+    name: 'doubleJump'
     x: 0
     y: 0
     width: 32
     height: 32
   }],
   grabbing: [{
+    id: 4
+    name: 'grabbing'
     x: 32
     y: 0
     width: 32
     height: 32
   }],
   resurection: [{
+    id: 5
+    name: 'resurection'
     x: 64
     y: 0
     width: 32
     height: 32
-  }],
-  jumpHeight: [{
-    x: 0
-    y: 0
-    width: 32
-    height: 32
-  }],
-  speed: [{
-    x: 96
-    y: 0
-    width: 32
-    height: 32
-  }],
+  }]
 }
 
+bonusTypesId = [{
+  id: 1
+  name: 'speed'
+}, {
+  id: 2
+  name: 'jumpHeight'
+}, {
+  id: 3
+  name: 'doubleJump'
+}, {
+  id: 4
+  name: 'grabbing'
+}, {
+  id: 5
+  name: 'resurection'
+}]
+
 class Bonus
-  constructor: (col, type, id) ->
+  constructor: (col, typeId, id) ->
+    for type in bonusTypesId
+      if typeId is type.id
+        @type = type.name
     @id = id
-    @type = type
     @x = col * 32 + 160
     @y = stage.getY() * -1
     @draw()

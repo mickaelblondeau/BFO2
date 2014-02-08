@@ -5,7 +5,7 @@ class BossManager
 
   launch: ->
     boss = @getBoss()
-    networkManager.sendBoss(boss.name, boss.options, boss.timeout)
+    networkManager.sendBoss(boss.id, boss.options, boss.timeout)
     @launched = true
 
   reset: ->

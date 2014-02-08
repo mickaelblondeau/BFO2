@@ -1,6 +1,7 @@
 class FreezeMan extends Boss
   constructor: ->
     super('freezeman', 15000, @getPattern())
+    @id = 2
 
   getPattern: ->
     speed = Math.round((0.4 + 0.1 * levelManager.level) * 100) / 100

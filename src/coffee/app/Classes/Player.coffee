@@ -117,6 +117,34 @@ class Player
       }]
     }
 
+    @animationsIndex = [
+      {
+        id: 1
+        name: 'idle'
+      }, {
+        id: 2
+        name: 'jump'
+      }, {
+        id: 3
+        name: 'fall'
+      }, {
+        id: 4
+        name: 'run'
+      }, {
+        id: 5
+        name: 'couch'
+      }, {
+        id: 6
+        name: 'couchMove'
+      }, {
+        id: 7
+        name: 'grabbing'
+      }, {
+        id: 8
+        name: 'dead'
+      }
+    ]
+
     @skin = new Kinetic.Sprite
       image: contentLoader.images['playerSpirteSheet']
       animation: 'run',
@@ -155,7 +183,8 @@ class Player
     else
       @skin.setY(@shape.getY())
 
-  changeAnimation: (animation) ->
+  changeAnimation: (id) ->
+    animation = @getAnimationByIndex(id)
     if @skin.getAnimation() != animation
       @skin.setAnimation(animation)
       @fixSkinPos()
@@ -167,3 +196,13 @@ class Player
     else if side is 1
       @skin.setScaleX(1)
       @skin.setX(@skin.getX() - 48)
+
+  getAnimationByIndex: (index) ->
+    for anim in @animationsIndex
+      if anim.id is index
+        return anim.name
+
+  getIndexByAnimation: (animation) ->
+    for anim in @animationsIndex
+      if anim.name is animation
+        return anim.id

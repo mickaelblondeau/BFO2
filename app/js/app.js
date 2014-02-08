@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, Cube, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, Keyboard, LevelManager, MultiPartBoss, NetworkManager, Player, PoingMan, PoingManPart, RoueMan, SkinManager, SpecialCube, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bossManager, collisionManager, config, contentLoader, cubeManager, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, players, skin, skinManager, stage, staticBg, staticCubes, _i, _len,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, Cube, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, Keyboard, LevelManager, MultiPartBoss, NetworkManager, Player, PoingMan, PoingManPart, RoueMan, SkinManager, SpecialCube, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, players, skin, skinManager, stage, staticBg, staticCubes, _i, _len,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -586,6 +586,33 @@
           }
         ]
       };
+      this.animationsIndex = [
+        {
+          id: 1,
+          name: 'idle'
+        }, {
+          id: 2,
+          name: 'jump'
+        }, {
+          id: 3,
+          name: 'fall'
+        }, {
+          id: 4,
+          name: 'run'
+        }, {
+          id: 5,
+          name: 'couch'
+        }, {
+          id: 6,
+          name: 'couchMove'
+        }, {
+          id: 7,
+          name: 'grabbing'
+        }, {
+          id: 8,
+          name: 'dead'
+        }
+      ];
       this.skin = new Kinetic.Sprite({
         image: contentLoader.images['playerSpirteSheet'],
         animation: 'run',
@@ -633,7 +660,9 @@
       }
     };
 
-    Player.prototype.changeAnimation = function(animation) {
+    Player.prototype.changeAnimation = function(id) {
+      var animation;
+      animation = this.getAnimationByIndex(id);
       if (this.skin.getAnimation() !== animation) {
         this.skin.setAnimation(animation);
         return this.fixSkinPos();
@@ -647,6 +676,28 @@
       } else if (side === 1) {
         this.skin.setScaleX(1);
         return this.skin.setX(this.skin.getX() - 48);
+      }
+    };
+
+    Player.prototype.getAnimationByIndex = function(index) {
+      var anim, _i, _len, _ref;
+      _ref = this.animationsIndex;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        anim = _ref[_i];
+        if (anim.id === index) {
+          return anim.name;
+        }
+      }
+    };
+
+    Player.prototype.getIndexByAnimation = function(animation) {
+      var anim, _i, _len, _ref;
+      _ref = this.animationsIndex;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        anim = _ref[_i];
+        if (anim.name === animation) {
+          return anim.id;
+        }
       }
     };
 
@@ -931,7 +982,7 @@
     };
 
     ControllablePlayer.prototype.takeBonus = function(bonus) {
-      bonusManager.getBonus(bonus.getName().name, this, bonus.getId());
+      bonusManager.getBonus(bonus.getName().name, this);
       bonus.destroy();
       dynamicEntities.draw();
       return networkManager.sendBonusTaken(bonus.getId());
@@ -940,7 +991,7 @@
     ControllablePlayer.prototype.changeAnimation = function(animation) {
       if (this.skin.getAnimation() !== animation) {
         this.skin.setAnimation(animation);
-        return networkManager.sendAnimation(animation);
+        return networkManager.sendAnimation(this.getIndexByAnimation(animation));
       }
     };
 
@@ -1441,8 +1492,30 @@
   })(Cube);
 
   bonusTypes = {
+    speed: [
+      {
+        id: 1,
+        name: 'speed',
+        x: 96,
+        y: 0,
+        width: 32,
+        height: 32
+      }
+    ],
+    jumpHeight: [
+      {
+        id: 2,
+        name: 'jumpHeight',
+        x: 0,
+        y: 0,
+        width: 32,
+        height: 32
+      }
+    ],
     doubleJump: [
       {
+        id: 3,
+        name: 'doubleJump',
         x: 0,
         y: 0,
         width: 32,
@@ -1451,6 +1524,8 @@
     ],
     grabbing: [
       {
+        id: 4,
+        name: 'grabbing',
         x: 32,
         y: 0,
         width: 32,
@@ -1459,23 +1534,9 @@
     ],
     resurection: [
       {
+        id: 5,
+        name: 'resurection',
         x: 64,
-        y: 0,
-        width: 32,
-        height: 32
-      }
-    ],
-    jumpHeight: [
-      {
-        x: 0,
-        y: 0,
-        width: 32,
-        height: 32
-      }
-    ],
-    speed: [
-      {
-        x: 96,
         y: 0,
         width: 32,
         height: 32
@@ -1483,10 +1544,35 @@
     ]
   };
 
+  bonusTypesId = [
+    {
+      id: 1,
+      name: 'speed'
+    }, {
+      id: 2,
+      name: 'jumpHeight'
+    }, {
+      id: 3,
+      name: 'doubleJump'
+    }, {
+      id: 4,
+      name: 'grabbing'
+    }, {
+      id: 5,
+      name: 'resurection'
+    }
+  ];
+
   Bonus = (function() {
-    function Bonus(col, type, id) {
+    function Bonus(col, typeId, id) {
+      var type, _i, _len;
+      for (_i = 0, _len = bonusTypesId.length; _i < _len; _i++) {
+        type = bonusTypesId[_i];
+        if (typeId === type.id) {
+          this.type = type.name;
+        }
+      }
       this.id = id;
-      this.type = type;
       this.x = col * 32 + 160;
       this.y = stage.getY() * -1;
       this.draw();
@@ -1546,7 +1632,7 @@
       this.timers = [];
     }
 
-    BonusManager.prototype.getBonus = function(bonusName, player, bonusId) {
+    BonusManager.prototype.getBonus = function(bonusName, player) {
       var bonus, callback, self, thisBonus, _i, _len, _ref, _results;
       contentLoader.play('pickup');
       _ref = this.bonuses;
@@ -2453,13 +2539,13 @@
     }
 
     BossManager.prototype.spawn = function(boss, options) {
-      if (boss === 'roueman') {
+      if (boss === 1) {
         this.currentBoss = new RoueMan(options);
       }
-      if (boss === 'freezeman') {
+      if (boss === 2) {
         this.currentBoss = new FreezeMan(options);
       }
-      if (boss === 'poingman') {
+      if (boss === 3) {
         return this.currentBoss = new PoingMan(options);
       }
     };
@@ -2929,7 +3015,7 @@
           return debugLayer.draw();
         };
         fn = function() {
-          return bossManager.spawn('freezeman', [[1, 1200], [[0, 10], [0, 10]]]);
+          return new Bonus(5, 1, 0);
         };
         return setTimeout(fn, 1000);
       }

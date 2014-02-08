@@ -40,6 +40,7 @@ class CubeManager
         width: SquareEnum.SMALL.x/32
         height: SquareEnum.SMALL.y/32
         bonus: 'speed'
+        bonusId: 1
       },
       {
         proba: 2
@@ -47,6 +48,7 @@ class CubeManager
         width: SquareEnum.SMALL.x/32
         height: SquareEnum.SMALL.y/32
         bonus: 'jumpHeight'
+        bonusId: 2
       },
       {
         proba: 2
@@ -54,6 +56,7 @@ class CubeManager
         width: SquareEnum.SMALL.x/32
         height: SquareEnum.SMALL.y/32
         bonus: 'doubleJump'
+        bonusId: 3
       },
       {
         proba: 2
@@ -61,6 +64,7 @@ class CubeManager
         width: SquareEnum.SMALL.x/32
         height: SquareEnum.SMALL.y/32
         bonus: 'grabbing'
+        bonusId: 4
       },
       {
         proba: 5
@@ -103,7 +107,7 @@ class CubeManager
   start: (level, rate) ->
     if !@running and !@waiting
       if levelManager.level != 0
-        networkManager.sendBonus(4, 'resurection', @map[4], @bonusId)
+        networkManager.sendBonus(4, 5, @map[4], @bonusId)
         @bonusId++
       @updateRate = rate
       @current = 0
@@ -146,7 +150,7 @@ class CubeManager
       rand = Math.floor(Math.random()*count)
       choice = choices[typeIndex][rand]
       if type.bonus isnt undefined
-        networkManager.sendBonus(choice.column, type.bonus, @bonusId)
+        networkManager.sendBonus(choice.column, type.bonusId, @bonusId)
         @bonusId++
       else if type.special isnt undefined
         if type.special is 'explosion'

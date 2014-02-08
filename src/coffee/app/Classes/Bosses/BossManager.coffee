@@ -3,11 +3,11 @@ class BossManager
     @currentBoss
 
   spawn: (boss, options) ->
-    if boss == 'roueman'
+    if boss == 1
       @currentBoss = new RoueMan(options)
-    if boss == 'freezeman'
+    if boss == 2
       @currentBoss = new FreezeMan(options)
-    if boss == 'poingman'
+    if boss == 3
       @currentBoss = new PoingMan(options)
 
   reset: ->

@@ -94,25 +94,29 @@
           size: SquareEnum.SMALL,
           width: SquareEnum.SMALL.x / 32,
           height: SquareEnum.SMALL.y / 32,
-          bonus: 'speed'
+          bonus: 'speed',
+          bonusId: 1
         }, {
           proba: 2,
           size: SquareEnum.SMALL,
           width: SquareEnum.SMALL.x / 32,
           height: SquareEnum.SMALL.y / 32,
-          bonus: 'jumpHeight'
+          bonus: 'jumpHeight',
+          bonusId: 2
         }, {
           proba: 2,
           size: SquareEnum.SMALL,
           width: SquareEnum.SMALL.x / 32,
           height: SquareEnum.SMALL.y / 32,
-          bonus: 'doubleJump'
+          bonus: 'doubleJump',
+          bonusId: 3
         }, {
           proba: 2,
           size: SquareEnum.SMALL,
           width: SquareEnum.SMALL.x / 32,
           height: SquareEnum.SMALL.y / 32,
-          bonus: 'grabbing'
+          bonus: 'grabbing',
+          bonusId: 4
         }, {
           proba: 5,
           size: SquareEnum.LARGE,
@@ -150,7 +154,7 @@
     CubeManager.prototype.start = function(level, rate) {
       if (!this.running && !this.waiting) {
         if (levelManager.level !== 0) {
-          networkManager.sendBonus(4, 'resurection', this.map[4], this.bonusId);
+          networkManager.sendBonus(4, 5, this.map[4], this.bonusId);
           this.bonusId++;
         }
         this.updateRate = rate;
@@ -205,7 +209,7 @@
         rand = Math.floor(Math.random() * count);
         choice = choices[typeIndex][rand];
         if (type.bonus !== void 0) {
-          networkManager.sendBonus(choice.column, type.bonus, this.bonusId);
+          networkManager.sendBonus(choice.column, type.bonusId, this.bonusId);
           this.bonusId++;
         } else if (type.special !== void 0) {
           if (type.special === 'explosion') {
@@ -725,7 +729,7 @@
     BossManager.prototype.launch = function() {
       var boss;
       boss = this.getBoss();
-      networkManager.sendBoss(boss.name, boss.options, boss.timeout);
+      networkManager.sendBoss(boss.id, boss.options, boss.timeout);
       return this.launched = true;
     };
 
@@ -754,6 +758,7 @@
 
     function RoueMan() {
       RoueMan.__super__.constructor.call(this, 'roueman', 15000, this.getPattern());
+      this.id = 1;
     }
 
     RoueMan.prototype.getPattern = function() {
@@ -781,6 +786,7 @@
 
     function FreezeMan() {
       FreezeMan.__super__.constructor.call(this, 'freezeman', 15000, this.getPattern());
+      this.id = 2;
     }
 
     FreezeMan.prototype.getPattern = function() {
@@ -805,6 +811,7 @@
 
     function PoingMan() {
       PoingMan.__super__.constructor.call(this, 'poingman', 15000, this.getPattern());
+      this.id = 3;
     }
 
     PoingMan.prototype.getPattern = function() {

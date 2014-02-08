@@ -83,7 +83,7 @@ contentLoader.contentsLoaded = ->
         debugLayer.draw()
 
       fn = ->
-        bossManager.spawn('freezeman', [[1, 1200], [[0, 10], [0, 10]]])
+        new Bonus(5, 1, 0)
       setTimeout(fn, 1000)
 
   document.querySelector('#play').onclick = () ->
