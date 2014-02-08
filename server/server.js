@@ -815,9 +815,10 @@
     }
 
     PoingMan.prototype.getPattern = function() {
-      var attack, attackSpeed, attacks, i, options, speed, _i;
+      var attack, attackSpeed, attacks, i, options, speed, waitTime, _i;
       speed = Math.round((0.4 + 0.1 * levelManager.level) * 100) / 100;
       attackSpeed = Math.round((0.6 + 0.1 * levelManager.level) * 100) / 100;
+      waitTime = 500 - 30 * levelManager.level;
       options = [speed, attackSpeed];
       attacks = [];
       for (i = _i = 0; _i <= 5; i = ++_i) {

@@ -2791,8 +2791,11 @@
       this.comeBack = false;
       this.finishing = false;
       this.starting = true;
+      this.waiting = false;
+      this.time = 0;
       this.speed = pattern[0][0];
       this.attackSpeed = pattern[0][1];
+      this.waitTime = pattern[0][2];
       this.attacks = pattern[1];
       this.index = 0;
       this.oldPos = 0;
@@ -2805,14 +2808,16 @@
       this.parts.push(new PoingManPart(128 - 128, this.levelHeight - 64));
       this.parts.push(new PoingManPart(512 + 128, this.levelHeight - 64));
       return bossManager.update = function(frameTime) {
-        if (self.attacking && !self.finishing && !self.starting) {
+        if (self.attacking && !self.finishing && !self.starting && !self.waiting) {
           return self.attack(frameTime);
-        } else if (!self.finishing && !self.starting) {
+        } else if (!self.finishing && !self.starting && !self.waiting) {
           return self.moveToPosition(frameTime);
-        } else if (!self.starting) {
+        } else if (!self.starting && !self.waiting) {
           return self.finishingPhase(frameTime);
-        } else {
+        } else if (!self.waiting) {
           return self.startingPhase(frameTime);
+        } else {
+          return self.wait(frameTime);
         }
       };
     };
@@ -2863,6 +2868,7 @@
           this.index++;
           this.attacking = false;
           this.comeBack = false;
+          this.waiting = true;
           if (this.attacks[this.index] === void 0) {
             this.finishing = true;
             return this.regenMap();
@@ -2916,6 +2922,14 @@
         _results.push(new StaticCube(i * 32 + 128, this.levelHeight, SquareEnum.SMALL));
       }
       return _results;
+    };
+
+    PoingMan.prototype.wait = function(frameTime) {
+      this.time += frameTime;
+      if (this.time >= this.waitTime) {
+        this.time = 0;
+        return this.waiting = false;
+      }
     };
 
     return PoingMan;
@@ -3051,7 +3065,7 @@
           return debugLayer.draw();
         };
         fn = function() {
-          return new Bonus(5, 1, 0);
+          return bossManager.spawn(3, [[0.3, 0.5, 500], [0, 2, 4, 6, 8, 10]]);
         };
         return setTimeout(fn, 1000);
       }

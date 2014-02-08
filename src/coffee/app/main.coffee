@@ -82,7 +82,7 @@ contentLoader.contentsLoaded = ->
         debugLayer.draw()
 
       fn = ->
-        new Bonus(5, 1, 0)
+        bossManager.spawn(3, [[0.3, 0.5, 500], [0, 2, 4, 6, 8, 10]])
       setTimeout(fn, 1000)
 
   document.querySelector('#play').onclick = () ->

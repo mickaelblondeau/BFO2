@@ -9,8 +9,11 @@ class PoingMan extends MultiPartBoss
     @comeBack = false
     @finishing = false
     @starting = true
+    @waiting = false
+    @time = 0
     @speed = pattern[0][0]
     @attackSpeed = pattern[0][1]
+    @waitTime = pattern[0][2]
     @attacks = pattern[1]
     @index = 0
 
@@ -23,14 +26,16 @@ class PoingMan extends MultiPartBoss
     @parts.push(new PoingManPart(128 - 128, @levelHeight - 64))
     @parts.push(new PoingManPart(512 + 128, @levelHeight - 64))
     bossManager.update = (frameTime) ->
-      if self.attacking and !self.finishing and !self.starting
+      if self.attacking and !self.finishing and !self.starting and !self.waiting
         self.attack(frameTime)
-      else if !self.finishing and !self.starting
+      else if !self.finishing and !self.starting and !self.waiting
         self.moveToPosition(frameTime)
-      else if !self.starting
+      else if !self.starting and !self.waiting
         self.finishingPhase(frameTime)
-      else
+      else if !self.waiting
         self.startingPhase(frameTime)
+      else
+        self.wait(frameTime)
 
   moveToPosition: (frameTime) ->
     dest = @attacks[@index]*32 + 160
@@ -71,6 +76,7 @@ class PoingMan extends MultiPartBoss
         @index++
         @attacking = false
         @comeBack = false
+        @waiting = true
         if @attacks[@index] is undefined
           @finishing = true
           @regenMap()
@@ -109,3 +115,9 @@ class PoingMan extends MultiPartBoss
   regenMap: ->
     for i in [1..12]
       new StaticCube(i*32 + 128, @levelHeight, SquareEnum.SMALL)
+
+  wait: (frameTime) ->
+    @time += frameTime
+    if @time >= @waitTime
+      @time = 0
+      @waiting = false
