@@ -16,7 +16,14 @@ body { overflow: hidden; margin: 0; }
 #chat span { word-wrap: break-word; }
 #chat .from { font-weight: bold; }
 
-#sound-controller { position: absolute; right: 0; top: 0; }
+#sound-controller { position: absolute; top: 20px; right: 20px; background: #ffffff; padding: 10px; border: 1px solid #000000; text-align: center; }
+#sound-controller span { display: block; }
+#sound-controller div { display: inline-block; }
+#sound-controller .un-muted, #sound-controller .muted, #sound-controller .add, #sound-controller .sub { width: 23px; height: 23px; cursor: pointer; }
+#sound-controller .un-muted { background: url("../assets/sound.jpg") repeat scroll 23px 0; }
+#sound-controller .muted { background: url("../assets/sound.jpg") repeat scroll 62px 0; }
+#sound-controller .add { background: url("../assets/sound.jpg") repeat scroll 0 0; }
+#sound-controller .sub { background: url("../assets/sound.jpg") repeat scroll 100px 0; }
 
 #skin-control div { text-align: center; }
 #skin-control a { text-decoration: none; }

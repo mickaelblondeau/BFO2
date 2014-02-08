@@ -39,25 +39,65 @@ class ContentLoader
 
   contentsLoaded: ->
 
-  muteVolume: ->
+  muteEffect: ->
     for sound in @soundsToLoad
-      @sounds[sound.name].volume = 0
-
-  addVolume: ->
-    for sound in @soundsToLoad
-      tmp = @sounds[sound.name].volume + 0.05
-      if tmp <= 1
-        @sounds[sound.name].volume = tmp
-      else
-        @sounds[sound.name].volume = 1
-
-  lessVolume: ->
-    for sound in @soundsToLoad
-      tmp = @sounds[sound.name].volume - 0.05
-      if tmp >= 0
-        @sounds[sound.name].volume = tmp
-      else
+      if sound.type is 'effect'
         @sounds[sound.name].volume = 0
+    document.querySelector('#sound-effect').innerHTML = 0
+
+  muteMusic: ->
+    for sound in @soundsToLoad
+      if sound.type is 'music'
+        @sounds[sound.name].volume = 0
+    document.querySelector('#sound-music').innerHTML = 0
+
+  addVolumeEffect: ->
+    for sound in @soundsToLoad
+      if sound.type is 'effect'
+        tmp = @sounds[sound.name].volume + 0.05
+        if tmp <= 1
+          @sounds[sound.name].volume = tmp
+        else
+          tmp = 1
+          @sounds[sound.name].volume = tmp
+      document.querySelector('#sound-effect').innerHTML = Math.floor(tmp*100)
+      document.querySelector('#sound-mute-effect').className = 'un-muted'
+
+  addVolumeMusic: ->
+    for sound in @soundsToLoad
+      if sound.type is 'music'
+        tmp = @sounds[sound.name].volume + 0.05
+        if tmp <= 1
+          @sounds[sound.name].volume = tmp
+        else
+          tmp = 1
+          @sounds[sound.name].volume = tmp
+    document.querySelector('#sound-music').innerHTML = Math.floor(tmp*100)
+    document.querySelector('#sound-mute-music').className = 'un-muted'
+
+  lessVolumeEffect: ->
+    for sound in @soundsToLoad
+      if sound.type is 'effect'
+        tmp = @sounds[sound.name].volume - 0.05
+        if tmp >= 0
+          @sounds[sound.name].volume = tmp
+        else
+          tmp = 0
+          @sounds[sound.name].volume = tmp
+          document.querySelector('#sound-mute-effect').className = 'muted'
+      document.querySelector('#sound-effect').innerHTML = Math.floor(tmp*100)
+
+  lessVolumeMusic: ->
+    for sound in @soundsToLoad
+      if sound.type is 'music'
+        tmp = @sounds[sound.name].volume - 0.05
+        if tmp >= 0
+          @sounds[sound.name].volume = tmp
+        else
+          tmp = 0
+          @sounds[sound.name].volume = tmp
+          document.querySelector('#sound-mute-music').className = 'muted'
+    document.querySelector('#sound-music').innerHTML = Math.floor(tmp*100)
 
   play: (sound) ->
     @sounds[sound].pause()

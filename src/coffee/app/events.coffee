@@ -1,14 +1,22 @@
 window.onresize = ->
   game.resize()
 
-document.querySelector('#sound-mute').onclick = ->
-  contentLoader.muteVolume()
+document.querySelector('#sound-mute-effect').onclick = ->
+  @className = 'muted'
+  contentLoader.muteEffect()
+document.querySelector('#sound-mute-music').onclick = ->
+  @className = 'muted'
+  contentLoader.muteMusic()
 
-document.querySelector('#sound-add').onclick = ->
-  contentLoader.addVolume()
+document.querySelector('#sound-add-effect').onclick = ->
+  contentLoader.addVolumeEffect()
+document.querySelector('#sound-add-music').onclick = ->
+  contentLoader.addVolumeMusic()
 
-document.querySelector('#sound-sub').onclick = ->
-  contentLoader.lessVolume()
+document.querySelector('#sound-sub-effect').onclick = ->
+  contentLoader.lessVolumeEffect()
+document.querySelector('#sound-sub-music').onclick = ->
+  contentLoader.lessVolumeMusic()
 
 divs = document.querySelectorAll('#skin-control div a')
 for div in divs
