@@ -7,6 +7,8 @@ class ContentLoader
 
     @count = 0
     @total = 0
+    @musics = 0
+    @currentSong
 
   loadImage: (image) ->
     @imagesToLoad.push(image)
@@ -28,7 +30,7 @@ class ContentLoader
           self.contentsLoaded()
 
     for sound in @soundsToLoad
-      audioObj = new Audio();
+      audioObj = new Audio()
       audioObj.src = sound.url
       audioObj.volume = 0.1
       @sounds[sound.name] = audioObj
@@ -36,6 +38,10 @@ class ContentLoader
         self.count++
         if self.count is self.total
           self.contentsLoaded()
+      if sound.type is 'music'
+        @musics++
+        audioObj.addEventListener "ended", ->
+          self.nextSong()
 
   contentsLoaded: ->
 
@@ -103,3 +109,16 @@ class ContentLoader
     @sounds[sound].pause()
     @sounds[sound].currentTime = 0
     @sounds[sound].play()
+
+  playSong: ->
+    songNumber = Math.floor((Math.random()*@musics)+1)
+    @currentSong = songNumber
+    @sounds['music' + songNumber].play()
+
+  nextSong: ->
+    tmp = @currentSong + 1
+    if tmp > @musics
+      songNumber = 1
+    else
+      songNumber = tmp
+    @sounds['music' + songNumber].play()

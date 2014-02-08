@@ -221,8 +221,18 @@
         type: 'effect'
       });
       contentLoader.loadSound({
-        name: 'music',
-        url: '../assets/sounds/music.ogg',
+        name: 'music1',
+        url: '../assets/sounds/music/music.ogg',
+        type: 'music'
+      });
+      contentLoader.loadSound({
+        name: 'music2',
+        url: '../assets/sounds/music/music2.ogg',
+        type: 'music'
+      });
+      contentLoader.loadSound({
+        name: 'music3',
+        url: '../assets/sounds/music/music3.ogg',
         type: 'music'
       });
       return contentLoader.load();
@@ -265,6 +275,8 @@
       this.sounds = [];
       this.count = 0;
       this.total = 0;
+      this.musics = 0;
+      this.currentSong;
     }
 
     ContentLoader.prototype.loadImage = function(image) {
@@ -300,12 +312,20 @@
         audioObj.src = sound.url;
         audioObj.volume = 0.1;
         this.sounds[sound.name] = audioObj;
-        _results.push(audioObj.oncanplaythrough = function() {
+        audioObj.oncanplaythrough = function() {
           self.count++;
           if (self.count === self.total) {
             return self.contentsLoaded();
           }
-        });
+        };
+        if (sound.type === 'music') {
+          this.musics++;
+          _results.push(audioObj.addEventListener("ended", function() {
+            return self.nextSong();
+          }));
+        } else {
+          _results.push(void 0);
+        }
       }
       return _results;
     };
@@ -420,6 +440,24 @@
       this.sounds[sound].pause();
       this.sounds[sound].currentTime = 0;
       return this.sounds[sound].play();
+    };
+
+    ContentLoader.prototype.playSong = function() {
+      var songNumber;
+      songNumber = Math.floor((Math.random() * this.musics) + 1);
+      this.currentSong = songNumber;
+      return this.sounds['music' + songNumber].play();
+    };
+
+    ContentLoader.prototype.nextSong = function() {
+      var songNumber, tmp;
+      tmp = this.currentSong + 1;
+      if (tmp > this.musics) {
+        songNumber = 1;
+      } else {
+        songNumber = tmp;
+      }
+      return this.sounds['music' + songNumber].play();
     };
 
     return ContentLoader;
@@ -2964,8 +3002,7 @@
     var launchGame;
     document.querySelector('#login-form').style.display = 'block';
     document.querySelector('#login-loading').style.display = 'none';
-    contentLoader.sounds['music'].loop = true;
-    contentLoader.sounds['music'].play();
+    contentLoader.playSong();
     launchGame = function(ip, name) {
       var bg, debugLayer, debugMap, fn;
       bg = new Kinetic.Rect({

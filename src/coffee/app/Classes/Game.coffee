@@ -67,7 +67,9 @@ class Game
     contentLoader.loadSound({ name:'death', url:'../assets/sounds/death.wav', type: 'effect' })
     contentLoader.loadSound({ name:'explosion', url:'../assets/sounds/explosion.wav', type: 'effect' })
     contentLoader.loadSound({ name:'pickup', url:'../assets/sounds/pickup.wav', type: 'effect' })
-    contentLoader.loadSound({ name:'music', url:'../assets/sounds/music.ogg', type: 'music' })
+    contentLoader.loadSound({ name:'music1', url:'../assets/sounds/music/music.ogg', type: 'music' })
+    contentLoader.loadSound({ name:'music2', url:'../assets/sounds/music/music2.ogg', type: 'music' })
+    contentLoader.loadSound({ name:'music3', url:'../assets/sounds/music/music3.ogg', type: 'music' })
 
     contentLoader.load()
 

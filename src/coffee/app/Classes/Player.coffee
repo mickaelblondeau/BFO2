@@ -169,9 +169,9 @@ class Player
     @canGrab = false
     @coopJump = false
 
-   resurection: ->
-     if !@alive
-       @reset()
+  resurection: ->
+    if !@alive
+      @reset()
 
   fixSkinPos: ->
     if @skin.getScaleX() is -1
