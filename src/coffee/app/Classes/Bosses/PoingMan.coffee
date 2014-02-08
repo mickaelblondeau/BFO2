@@ -9,9 +9,9 @@ class PoingMan extends MultiPartBoss
     @comeBack = false
     @finishing = false
     @starting = true
-    @speed = 0.4
-    @attackSpeed = 0.6
-    @attacks = pattern
+    @speed = pattern[0][0]
+    @attackSpeed = pattern[0][1]
+    @attacks = pattern[1]
     @index = 0
 
     @oldPos = 0

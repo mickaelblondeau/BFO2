@@ -23,11 +23,13 @@ class LevelManager
 
   update: ->
     @level++
-    @speed -= 50
+    @speed -= config.speedPerLevel
     @moveStage()
 
   randomizeHeight: ->
-    return Math.floor((Math.random()*3)+4)
+    min = Math.round(4+@level/2)
+    max = Math.round(8+@level/2)
+    return Math.floor((Math.random()*(max-min))+min)
 
   nextLevel: ->
     if !cubeManager.running

@@ -2,9 +2,9 @@ class RoueMan extends Boss
   constructor: (pattern) ->
     y = stage.getY() * -1
     super('roueman', 0, y, 64, 64)
-    @attacks = pattern
+    @attacks = pattern[1]
     @attackIndex = 0
-    @attackSpeed = 0.6
+    @attackSpeed = pattern[0]
     @start()
 
   start: ->

@@ -83,7 +83,7 @@ contentLoader.contentsLoaded = ->
         debugLayer.draw()
 
       fn = ->
-        bossManager.spawn('poingman', [0, 2, 4, 6, 8, 10])
+        bossManager.spawn('freezeman', [[1, 1200], [[0, 10], [0, 10]]])
       setTimeout(fn, 1000)
 
   document.querySelector('#play').onclick = () ->

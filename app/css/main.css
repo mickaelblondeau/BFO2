@@ -16,7 +16,7 @@ body { overflow: hidden; margin: 0; }
 #chat span { word-wrap: break-word; }
 #chat .from { font-weight: bold; }
 
-#sound-controller { position: absolute; top: 20px; right: 20px; background: #ffffff; padding: 10px; border: 1px solid #000000; text-align: center; }
+#sound-controller { position: absolute; top: 0px; right: 0px; background: #ffffff; padding: 10px; text-align: center; }
 #sound-controller span { display: block; }
 #sound-controller div { display: inline-block; }
 #sound-controller .un-muted, #sound-controller .muted, #sound-controller .add, #sound-controller .sub { width: 23px; height: 23px; cursor: pointer; }

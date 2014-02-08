@@ -7,6 +7,7 @@
     FPS: 60,
     lowFPS: 0.1,
     levelSpeed: 1000,
+    speedPerLevel: 50,
     timeout: 5000,
     debug: false,
     debugMap: false
@@ -479,12 +480,15 @@
 
     LevelManager.prototype.update = function() {
       this.level++;
-      this.speed -= 50;
+      this.speed -= config.speedPerLevel;
       return this.moveStage();
     };
 
     LevelManager.prototype.randomizeHeight = function() {
-      return Math.floor((Math.random() * 3) + 4);
+      var max, min;
+      min = Math.round(4 + this.level / 2);
+      max = Math.round(8 + this.level / 2);
+      return Math.floor((Math.random() * (max - min)) + min);
     };
 
     LevelManager.prototype.nextLevel = function() {
@@ -753,7 +757,9 @@
     }
 
     RoueMan.prototype.getPattern = function() {
-      var attacks, i, rand, _i;
+      var attacks, i, options, rand, speed, _i;
+      speed = Math.round((0.6 + 0.1 * levelManager.level) * 100) / 100;
+      options = speed;
       attacks = [];
       for (i = _i = 0; _i <= 5; i = ++_i) {
         rand = Math.floor((Math.random() * 100) + 1);
@@ -763,7 +769,7 @@
           attacks.push(1);
         }
       }
-      return attacks;
+      return [options, attacks];
     };
 
     return RoueMan;
@@ -778,13 +784,16 @@
     }
 
     FreezeMan.prototype.getPattern = function() {
-      var attack, attacks, i, _i;
+      var attack, attacks, i, interval, options, speed, _i;
+      speed = Math.round((0.4 + 0.1 * levelManager.level) * 100) / 100;
+      interval = 1500 - 50 * levelManager.level;
+      options = [speed, interval];
       attacks = [];
       for (i = _i = 0; _i <= 5; i = ++_i) {
         attack = Math.floor((Math.random() * 10) + 1);
         attacks.push([4 + attack, 4 + attack - 20]);
       }
-      return attacks;
+      return [options, attacks];
     };
 
     return FreezeMan;
@@ -799,13 +808,16 @@
     }
 
     PoingMan.prototype.getPattern = function() {
-      var attack, attacks, i, _i;
+      var attack, attackSpeed, attacks, i, options, speed, _i;
+      speed = Math.round((0.4 + 0.1 * levelManager.level) * 100) / 100;
+      attackSpeed = Math.round((0.6 + 0.1 * levelManager.level) * 100) / 100;
+      options = [speed, attackSpeed];
       attacks = [];
       for (i = _i = 0; _i <= 5; i = ++_i) {
         attack = Math.floor(Math.random() * 10);
         attacks.push(attack);
       }
-      return attacks;
+      return [options, attacks];
     };
 
     return PoingMan;

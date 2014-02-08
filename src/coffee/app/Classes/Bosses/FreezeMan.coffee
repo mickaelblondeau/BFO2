@@ -1,9 +1,9 @@
 class FreezeMan
   constructor: (pattern) ->
-    @speed = 0.4
+    @speed = pattern[0][0]
     @counter = 0
-    @interval = 1500
-    @attacks = pattern
+    @interval = pattern[0][1]
+    @attacks = pattern[1]
     @attackIndex = 0
     @count = 0
     @parts = []

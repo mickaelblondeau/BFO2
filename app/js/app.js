@@ -2488,9 +2488,9 @@
       var y;
       y = stage.getY() * -1;
       RoueMan.__super__.constructor.call(this, 'roueman', 0, y, 64, 64);
-      this.attacks = pattern;
+      this.attacks = pattern[1];
       this.attackIndex = 0;
-      this.attackSpeed = 0.6;
+      this.attackSpeed = pattern[0];
       this.start();
     }
 
@@ -2563,10 +2563,10 @@
 
   FreezeMan = (function() {
     function FreezeMan(pattern) {
-      this.speed = 0.4;
+      this.speed = pattern[0][0];
       this.counter = 0;
-      this.interval = 1500;
-      this.attacks = pattern;
+      this.interval = pattern[0][1];
+      this.attacks = pattern[1];
       this.attackIndex = 0;
       this.count = 0;
       this.parts = [];
@@ -2668,9 +2668,9 @@
       this.comeBack = false;
       this.finishing = false;
       this.starting = true;
-      this.speed = 0.4;
-      this.attackSpeed = 0.6;
-      this.attacks = pattern;
+      this.speed = pattern[0][0];
+      this.attackSpeed = pattern[0][1];
+      this.attacks = pattern[1];
       this.index = 0;
       this.oldPos = 0;
       this.start();
@@ -2929,7 +2929,7 @@
           return debugLayer.draw();
         };
         fn = function() {
-          return bossManager.spawn('poingman', [0, 2, 4, 6, 8, 10]);
+          return bossManager.spawn('freezeman', [[1, 1200], [[0, 10], [0, 10]]]);
         };
         return setTimeout(fn, 1000);
       }

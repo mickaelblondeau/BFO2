@@ -3,6 +3,8 @@ class RoueMan extends Boss
     super('roueman', 15000, @getPattern())
 
   getPattern: ->
+    speed = Math.round((0.6 + 0.1 * levelManager.level) * 100) / 100
+    options = speed
     attacks = []
     for i in [0..5]
       rand = Math.floor((Math.random()*100)+1)
@@ -10,4 +12,4 @@ class RoueMan extends Boss
         attacks.push 3
       else
         attacks.push 1
-    return attacks
+    return [options, attacks]
