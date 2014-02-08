@@ -116,9 +116,9 @@ class ContentLoader
     @sounds['music' + songNumber].play()
 
   nextSong: ->
-    tmp = @currentSong + 1
-    if tmp > @musics
-      songNumber = 1
+    @currentSong++
+    if @sounds['music' + @currentSong] isnt undefined
+      @sounds['music' + @currentSong].play()
     else
-      songNumber = tmp
-    @sounds['music' + songNumber].play()
+      @sounds['music1'].play()
+      @currentSong = 1

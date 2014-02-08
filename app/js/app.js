@@ -450,14 +450,13 @@
     };
 
     ContentLoader.prototype.nextSong = function() {
-      var songNumber, tmp;
-      tmp = this.currentSong + 1;
-      if (tmp > this.musics) {
-        songNumber = 1;
+      this.currentSong++;
+      if (this.sounds['music' + this.currentSong] !== void 0) {
+        return this.sounds['music' + this.currentSong].play();
       } else {
-        songNumber = tmp;
+        this.sounds['music1'].play();
+        return this.currentSong = 1;
       }
-      return this.sounds['music' + songNumber].play();
     };
 
     return ContentLoader;
