@@ -250,6 +250,12 @@ class Cube
         y: 0
         width: 64
         height: 64
+      }],
+      'swapblock': [{
+        x: 64
+        y: 64
+        width: 64
+        height: 64
       }]
     }
     @draw()

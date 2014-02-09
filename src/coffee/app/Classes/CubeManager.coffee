@@ -81,6 +81,8 @@ class CubeManager
       @slowExplosionEffet(shape)
     if type is 'stompblock'
       @stompEffet(shape)
+    if type is 'swapblock'
+      @swapEffet(shape)
 
   iceExplosionEffect: (shape) ->
     contentLoader.play('explosion')
@@ -152,4 +154,18 @@ class CubeManager
       player.jumpCount = player.jumpMax
       player.stomped = true
       player.jump = true
+    shape.destroy()
+
+  swapEffet: (shape) ->
+    contentLoader.play('explosion')
+    positions = []
+    players.find('Rect').each (plr) ->
+      if plr._id isnt player.shape._id
+        skin = players.find('#skin-' + plr.getId())[0]
+        if skin.getAnimation() isnt 'dead'
+          positions.push({ x: plr.getX(), y: plr.getY() })
+    if positions.length > 0
+      rand = Math.floor((Math.random()*positions.length))
+      player.shape.setX(positions[rand].x)
+      player.shape.setY(positions[rand].y)
     shape.destroy()
