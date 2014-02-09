@@ -2208,6 +2208,7 @@
         rand = Math.floor(Math.random() * positions.length);
         player.shape.setX(positions[rand].x);
         player.shape.setY(positions[rand].y);
+        player.jump = false;
       }
       return shape.destroy();
     };
@@ -2221,7 +2222,8 @@
       };
       shape.destroy();
       player.shape.setX(pos.x);
-      return player.shape.setY(pos.y);
+      player.shape.setY(pos.y);
+      return player.jump = false;
     };
 
     return CubeManager;

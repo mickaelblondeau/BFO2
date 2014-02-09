@@ -174,6 +174,7 @@ class CubeManager
       rand = Math.floor((Math.random()*positions.length))
       player.shape.setX(positions[rand].x)
       player.shape.setY(positions[rand].y)
+      player.jump = false
     shape.destroy()
 
   tpEffet: (shape) ->
@@ -182,3 +183,4 @@ class CubeManager
     shape.destroy()
     player.shape.setX(pos.x)
     player.shape.setY(pos.y)
+    player.jump = false
