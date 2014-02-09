@@ -100,12 +100,12 @@ class CubeManager
     contentLoader.play('death')
     new Effect(shape.getX() - shape.getWidth()/2, shape.getY() - shape.getHeight()/2, SquareEnum.SMALL, 'bioExplosion', true)
     staticCubes.find('Sprite').each (cube) ->
-      if cube.getX() < shape.getX() + 96 and cube.getX() > shape.getX() - 96 and cube.getY() < shape.getY() + 128 and cube.getY() > shape.getY() - 128
+      if cube.getX() < shape.getX() + 128 and cube.getX() > shape.getX() - 128 and cube.getY() < shape.getY() + 128 and cube.getY() > shape.getY() - 128
         for i in [1..(cube.getWidth()/32)-1]
           new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'slow')
     dynamicEntities.find('Sprite').each (cube) ->
       if !cube.getName().falling and cube.getName().type is 'cube'
-        if cube.getX() < shape.getX() + 96 and cube.getX() > shape.getX() - 96 and cube.getY() < shape.getY() + 128 and cube.getY() > shape.getY() - 128
+        if cube.getX() < shape.getX() + 128 and cube.getX() > shape.getX() - 128 and cube.getY() < shape.getY() + 128 and cube.getY() > shape.getY() - 128
           for i in [1..(cube.getWidth()/32)-1]
             new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'slow')
     shape.destroy()

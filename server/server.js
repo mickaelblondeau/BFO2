@@ -97,6 +97,12 @@
           special: 'slowblock'
         }, {
           proba: 2,
+          size: SquareEnum.MEDIUM,
+          width: SquareEnum.MEDIUM.x / 32,
+          height: SquareEnum.MEDIUM.y / 32,
+          special: 'stompblock'
+        }, {
+          proba: 2,
           size: SquareEnum.SMALL,
           width: SquareEnum.SMALL.x / 32,
           height: SquareEnum.SMALL.y / 32,
@@ -825,7 +831,7 @@
       speed = Math.round((0.4 + 0.05 * levelManager.level) * 100) / 100;
       attackSpeed = Math.round((0.6 + 0.05 * levelManager.level) * 100) / 100;
       waitTime = 500 - 30 * levelManager.level;
-      options = [speed, attackSpeed];
+      options = [speed, attackSpeed, waitTime];
       attacks = [];
       for (i = _i = 0; _i <= 5; i = ++_i) {
         attack = Math.floor(Math.random() * 10);
