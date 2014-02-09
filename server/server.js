@@ -115,6 +115,12 @@
           special: 'tpblock'
         }, {
           proba: 2,
+          size: SquareEnum.MEDIUM,
+          width: SquareEnum.MEDIUM.x / 32,
+          height: SquareEnum.MEDIUM.y / 32,
+          special: 'randblock'
+        }, {
+          proba: 2,
           size: SquareEnum.SMALL,
           width: SquareEnum.SMALL.x / 32,
           height: SquareEnum.SMALL.y / 32,

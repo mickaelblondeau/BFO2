@@ -85,7 +85,10 @@ class CubeManager
       @swapEffet(shape)
     if type is 'tpblock'
       @tpEffet(shape)
-
+    if type is 'randblock'
+      arr = ['iceExplosion', 'explosion', 'slowblock', 'swapblock', 'tpblock']
+      rand = Math.floor((Math.random()*arr.length))
+      @doEffect(shape, arr[rand])
 
   iceExplosionEffect: (shape) ->
     contentLoader.play('explosion')

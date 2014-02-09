@@ -10,7 +10,7 @@
     playerJumpMax: 1,
     playerJumpHeight: 82,
     playerSpeed: 0.17,
-    debug: true,
+    debug: false,
     skins: {
       body: 3,
       hair: 3,
@@ -1509,6 +1509,14 @@
             width: 64,
             height: 64
           }
+        ],
+        'randblock': [
+          {
+            x: 0,
+            y: 128,
+            width: 64,
+            height: 64
+          }
         ]
       };
       this.draw();
@@ -2033,6 +2041,7 @@
     };
 
     CubeManager.prototype.doEffect = function(shape, type) {
+      var arr, rand;
       if (type === 'iceExplosion') {
         this.iceExplosionEffect(shape);
       }
@@ -2049,7 +2058,12 @@
         this.swapEffet(shape);
       }
       if (type === 'tpblock') {
-        return this.tpEffet(shape);
+        this.tpEffet(shape);
+      }
+      if (type === 'randblock') {
+        arr = ['iceExplosion', 'explosion', 'slowblock', 'swapblock', 'tpblock'];
+        rand = Math.floor(Math.random() * arr.length);
+        return this.doEffect(shape, arr[rand]);
       }
     };
 
@@ -3265,7 +3279,7 @@
           return debugLayer.draw();
         };
         fn = function() {
-          return new SpecialCube(5, SquareEnum.MEDIUM, 'tpblock');
+          return new SpecialCube(5, SquareEnum.MEDIUM, 'randblock');
         };
         return setTimeout(fn, 1000);
       }

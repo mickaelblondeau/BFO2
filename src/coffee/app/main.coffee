@@ -82,7 +82,7 @@ contentLoader.contentsLoaded = ->
         debugLayer.draw()
 
       fn = ->
-        new SpecialCube(5, SquareEnum.MEDIUM, 'tpblock')
+        new SpecialCube(5, SquareEnum.MEDIUM, 'randblock')
       setTimeout(fn, 1000)
 
   document.querySelector('#play').onclick = () ->

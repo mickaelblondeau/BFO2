@@ -262,6 +262,12 @@ class Cube
         y: 64
         width: 64
         height: 64
+      }],
+      'randblock': [{
+        x: 0
+        y: 128
+        width: 64
+        height: 64
       }]
     }
     @draw()
