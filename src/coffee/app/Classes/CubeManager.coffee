@@ -79,6 +79,8 @@ class CubeManager
       @explosionEffet(shape)
     if type is 'slowblock'
       @slowExplosionEffet(shape)
+    if type is 'stompblock'
+      @stompEffet(shape)
 
   iceExplosionEffect: (shape) ->
     contentLoader.play('explosion')
@@ -131,3 +133,23 @@ class CubeManager
     if player.shape.getX() < shape.getX() + 96 and player.shape.getX() > shape.getX() - 96 and player.shape.getY() < shape.getY() + 96 and player.shape.getY() > shape.getY() - 96
       player.kill()
     @reinitAllPhys()
+
+  stompEffet: (shape) ->
+    contentLoader.play('explosion')
+    if !player.jump
+      player.oldStats = {
+        jumpHeight: player.jumpHeight
+        jumpMinAcceleration: player.jumpMinAcceleration
+        jumpMaxAcceleration: player.jumpMaxAcceleration
+        jumpDeceleration: player.jumpDeceleration
+      }
+      player.jumpStart = player.shape.getY()
+      player.jumpHeight = 300
+      player.jumpMinAcceleration = 0.1
+      player.jumpMaxAcceleration = 1.5
+      player.jumpCurrentAcceleration = player.jumpMaxAcceleration
+      player.jumpDeceleration = 0.92
+      player.jumpCount = player.jumpMax
+      player.stomped = true
+      player.jump = true
+    shape.destroy()

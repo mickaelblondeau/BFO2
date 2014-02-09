@@ -10,7 +10,7 @@
     playerJumpMax: 1,
     playerJumpHeight: 82,
     playerSpeed: 0.17,
-    debug: true,
+    debug: false,
     skins: {
       body: 3,
       hair: 3,
@@ -769,6 +769,7 @@
       this.canGrab = false;
       this.coopJump = false;
       this.alive = true;
+      this.stomped = false;
       this.actualCollisions = [];
       this.cached = {};
     }
@@ -941,8 +942,19 @@
       this.falling = true;
       if (this.coopJump) {
         this.coopJump = false;
-        return this.jumpHeight -= 40;
+        this.jumpHeight -= 40;
       }
+      if (this.stomped) {
+        return this.reinitJump();
+      }
+    };
+
+    ControllablePlayer.prototype.reinitJump = function() {
+      this.jumpHeight = this.oldStats.jumpHeight;
+      this.jumpMinAcceleration = this.oldStats.jumpMinAcceleration;
+      this.jumpMaxAcceleration = this.oldStats.jumpMaxAcceleration;
+      this.jumpDeceleration = this.oldStats.jumpDeceleration;
+      return this.stomped = false;
     };
 
     ControllablePlayer.prototype.startCouch = function() {
@@ -1472,6 +1484,14 @@
             y: 834,
             width: 128,
             height: 128
+          }
+        ],
+        'stompblock': [
+          {
+            x: 128,
+            y: 0,
+            width: 64,
+            height: 64
           }
         ]
       };
@@ -2004,7 +2024,10 @@
         this.explosionEffet(shape);
       }
       if (type === 'slowblock') {
-        return this.slowExplosionEffet(shape);
+        this.slowExplosionEffet(shape);
+      }
+      if (type === 'stompblock') {
+        return this.stompEffet(shape);
       }
     };
 
@@ -2105,6 +2128,28 @@
         player.kill();
       }
       return this.reinitAllPhys();
+    };
+
+    CubeManager.prototype.stompEffet = function(shape) {
+      contentLoader.play('explosion');
+      if (!player.jump) {
+        player.oldStats = {
+          jumpHeight: player.jumpHeight,
+          jumpMinAcceleration: player.jumpMinAcceleration,
+          jumpMaxAcceleration: player.jumpMaxAcceleration,
+          jumpDeceleration: player.jumpDeceleration
+        };
+        player.jumpStart = player.shape.getY();
+        player.jumpHeight = 300;
+        player.jumpMinAcceleration = 0.1;
+        player.jumpMaxAcceleration = 1.5;
+        player.jumpCurrentAcceleration = player.jumpMaxAcceleration;
+        player.jumpDeceleration = 0.92;
+        player.jumpCount = player.jumpMax;
+        player.stomped = true;
+        player.jump = true;
+      }
+      return shape.destroy();
     };
 
     return CubeManager;
@@ -3162,7 +3207,7 @@
           return debugLayer.draw();
         };
         fn = function() {
-          return new SpecialCube(5, SquareEnum.MEDIUM, 'slowblock');
+          return new SpecialCube(5, SquareEnum.MEDIUM, 'stompblock');
         };
         return setTimeout(fn, 1000);
       }

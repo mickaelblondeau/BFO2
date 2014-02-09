@@ -244,6 +244,12 @@ class Cube
         y: 834
         width: 128
         height: 128
+      }],
+      'stompblock': [{
+        x: 128
+        y: 0
+        width: 64
+        height: 64
       }]
     }
     @draw()

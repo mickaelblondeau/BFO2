@@ -23,6 +23,7 @@ class ControllablePlayer extends Player
     @canGrab = false
     @coopJump = false
     @alive = true
+    @stomped = false
     @actualCollisions = []
     @cached = {}
 
@@ -171,6 +172,15 @@ class ControllablePlayer extends Player
     if @coopJump
       @coopJump = false
       @jumpHeight -= 40
+    if @stomped
+      @reinitJump()
+
+  reinitJump: ->
+    @jumpHeight = @oldStats.jumpHeight
+    @jumpMinAcceleration = @oldStats.jumpMinAcceleration
+    @jumpMaxAcceleration = @oldStats.jumpMaxAcceleration
+    @jumpDeceleration = @oldStats.jumpDeceleration
+    @stomped = false
 
   startCouch: ->
     if !@couched and !@grabbing
