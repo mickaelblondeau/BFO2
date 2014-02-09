@@ -1,5 +1,5 @@
 (function() {
-  var Boss, BossManager, CubeManager, FreezeMan, Game, LevelManager, NetworkManager, PoingMan, RoueMan, SquareEnum, bossManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
+  var Boss, BossManager, CubeManager, FreezeMan, Game, LabiMan, LevelManager, NetworkManager, PoingMan, RoueMan, SquareEnum, bossManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -753,7 +753,7 @@
   BossManager = (function() {
     function BossManager() {
       this.launched = false;
-      this.boss = ['roueman', 'freezeman', 'poingman'];
+      this.boss = ['roueman', 'freezeman', 'poingman', 'labiman'];
     }
 
     BossManager.prototype.launch = function() {
@@ -776,6 +776,8 @@
         return new FreezeMan();
       } else if (boss === 'poingman') {
         return new PoingMan();
+      } else if (boss === 'labiman') {
+        return new LabiMan();
       }
     };
 
@@ -859,6 +861,69 @@
     };
 
     return PoingMan;
+
+  })(Boss);
+
+  LabiMan = (function(_super) {
+    __extends(LabiMan, _super);
+
+    function LabiMan() {
+      LabiMan.__super__.constructor.call(this, 'labiman', 15000, this.getPattern());
+      this.id = 4;
+    }
+
+    LabiMan.prototype.getPattern = function() {
+      var attackSpeed, attacks, options, speed;
+      speed = Math.round((0.3 + 0.05 * levelManager.level) * 100) / 100;
+      attackSpeed = Math.round((0.05 + 0.02 * (levelManager.level - 1)) * 100) / 100;
+      options = [speed, attackSpeed];
+      attacks = this.makeLevel();
+      return [options, attacks];
+    };
+
+    LabiMan.prototype.makeLevel = function() {
+      var i, level, _i;
+      level = [];
+      level.push([Math.floor(Math.random() * 10), 2]);
+      for (i = _i = 0; _i <= 10; i = ++_i) {
+        level.push(this.nextPossibility(level));
+      }
+      return level;
+    };
+
+    LabiMan.prototype.nextPossibility = function(level) {
+      var lastLevel, next, nextIndex, possibilities, postLastLevel;
+      lastLevel = level[level.length - 1];
+      postLastLevel = level[level.length - 2];
+      possibilities = [];
+      if (level.length === 1) {
+        possibilities = [[2, 2], [-2, 2]];
+      } else {
+        if (lastLevel[1] === postLastLevel[1] + 1) {
+          if (lastLevel[0] >= postLastLevel[0]) {
+            possibilities.push([1, 2], [2, 2], [-2, 2]);
+          } else {
+            possibilities.push([-1, 2], [-2, 2], [2, 2]);
+          }
+        } else {
+          if (lastLevel[0] >= postLastLevel[0]) {
+            possibilities.push([1, 2], [2, 2], [-2, 2]);
+          } else {
+            possibilities.push([-1, 2], [-2, 2], [2, 2]);
+          }
+        }
+      }
+      while (true) {
+        nextIndex = Math.floor(Math.random() * possibilities.length);
+        next = [lastLevel[0] + possibilities[nextIndex][0], lastLevel[1] + possibilities[nextIndex][1]];
+        if (next[0] >= 0 && next[0] <= 10) {
+          break;
+        }
+      }
+      return next;
+    };
+
+    return LabiMan;
 
   })(Boss);
 

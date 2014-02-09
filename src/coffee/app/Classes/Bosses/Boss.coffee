@@ -24,13 +24,19 @@ class Boss
       }],
       freezeman: [{
         x: 0
-        y: 64
+        y: 65
         width: 544
         height: 32
       }],
       poingman: [{
-        x: 128
-        y: 128
+        x: 256
+        y: 0
+        width: 64
+        height: 64
+      }],
+      labiman: [{
+        x: 192
+        y: 0
         width: 64
         height: 64
       }]

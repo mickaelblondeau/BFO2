@@ -9,6 +9,8 @@ class BossManager
       @currentBoss = new FreezeMan(options)
     if boss == 3
       @currentBoss = new PoingMan(options)
+    if boss == 4
+      @currentBoss = new LabiMan(options)
 
   reset: ->
     @stopUpdate()

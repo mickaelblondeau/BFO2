@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, Cube, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, Keyboard, LevelManager, MultiPartBoss, NetworkManager, Player, PoingMan, PoingManPart, RoueMan, SkinManager, SpecialCube, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, players, skin, skinManager, stage, staticBg, staticCubes, _i, _len,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, Cube, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, Keyboard, LabiMan, LabiManPart, LevelManager, MultiPartBoss, NetworkManager, Player, PoingMan, PoingManPart, RoueMan, SkinManager, SpecialCube, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, players, skin, skinManager, stage, staticBg, staticCubes, _i, _len,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -10,7 +10,7 @@
     playerJumpMax: 1,
     playerJumpHeight: 82,
     playerSpeed: 0.17,
-    debug: true,
+    debug: false,
     skins: {
       body: 3,
       hair: 3,
@@ -2700,15 +2700,23 @@
         freezeman: [
           {
             x: 0,
-            y: 64,
+            y: 65,
             width: 544,
             height: 32
           }
         ],
         poingman: [
           {
-            x: 128,
-            y: 128,
+            x: 256,
+            y: 0,
+            width: 64,
+            height: 64
+          }
+        ],
+        labiman: [
+          {
+            x: 192,
+            y: 0,
             width: 64,
             height: 64
           }
@@ -2797,7 +2805,10 @@
         this.currentBoss = new FreezeMan(options);
       }
       if (boss === 3) {
-        return this.currentBoss = new PoingMan(options);
+        this.currentBoss = new PoingMan(options);
+      }
+      if (boss === 4) {
+        return this.currentBoss = new LabiMan(options);
       }
     };
 
@@ -3162,6 +3173,158 @@
 
   })(Boss);
 
+  LabiMan = (function(_super) {
+    __extends(LabiMan, _super);
+
+    function LabiMan(pattern) {
+      var x, y;
+      this.levelHeight = arena.y - levelManager.levelHeight;
+      x = 256;
+      y = stage.getY() * -1;
+      this.oldPos = {
+        x: x,
+        y: y
+      };
+      LabiMan.__super__.constructor.call(this, 'labiman', x, y, 64, 64);
+      this.attacks = pattern[1];
+      this.speed = pattern[0][0];
+      this.attackSpeed = pattern[0][1];
+      this.maxHeight = this.getMaxHeight();
+      this.waiting = false;
+      this.attacking = false;
+      this.count = 0;
+      this.index = 0;
+      this.start();
+    }
+
+    LabiMan.prototype.getMaxHeight = function() {
+      var attack, max, _i, _len, _ref;
+      max = 0;
+      _ref = this.attacks;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        attack = _ref[_i];
+        if (attack[1] > max) {
+          max = attack[1];
+        }
+      }
+      return max;
+    };
+
+    LabiMan.prototype.start = function() {
+      var self;
+      self = this;
+      this.parts.push(new LabiManPart());
+      return bossManager.update = function(frameTime) {
+        if (!self.waiting) {
+          self.moveToPosition(frameTime);
+        } else {
+          self.bossEscape(frameTime);
+        }
+        if (self.attacking) {
+          return self.attack(frameTime);
+        }
+      };
+    };
+
+    LabiMan.prototype.moveToPosition = function(frameTime) {
+      var destX, destY, tmp;
+      destX = this.attacks[this.index][0] * 32 + 160;
+      if (this.shape.getX() > destX && this.oldPos.x > destX) {
+        tmp = this.shape.getX() - this.speed * frameTime;
+        if (tmp < destX) {
+          this.shape.setX(destX);
+          this.oldPos.x = this.shape.getX();
+        } else {
+          this.shape.setX(tmp);
+        }
+      } else if (this.shape.getX() < destX && this.oldPos.x < destX) {
+        tmp = this.shape.getX() + this.speed * frameTime;
+        if (tmp > destX) {
+          this.shape.setX(destX);
+          this.oldPos.x = this.shape.getX();
+        } else {
+          this.shape.setX(tmp);
+        }
+      }
+      destY = this.levelHeight - this.attacks[this.index][1] * 32;
+      if (this.shape.getY() > destY && this.oldPos.y > destY) {
+        tmp = this.shape.getY() - this.speed * frameTime;
+        if (tmp < destY) {
+          this.shape.setY(destY);
+          this.oldPos.y = this.shape.getY();
+        } else {
+          this.shape.setY(tmp);
+        }
+      } else if (this.shape.getY() < destY && this.oldPos.y < destY) {
+        tmp = this.shape.getY() + this.speed * frameTime;
+        if (tmp > destY) {
+          this.shape.setY(destY);
+          this.oldPos.y = this.shape.getY();
+        } else {
+          this.shape.setY(tmp);
+        }
+      }
+      if (this.shape.getY() === destY && this.shape.getX() === destX) {
+        this.index++;
+        this.count++;
+        this.placeBlock();
+        if (this.attacks[this.index] === void 0) {
+          this.waiting = true;
+        }
+        if (this.count === 5) {
+          return this.attacking = true;
+        }
+      }
+    };
+
+    LabiMan.prototype.attack = function(frameTime) {
+      var maxH, tmp;
+      tmp = this.parts[0].shape.getY() - this.attackSpeed * frameTime;
+      maxH = this.levelHeight - this.maxHeight * 32 + 8;
+      if (tmp > maxH) {
+        return this.parts[0].shape.setY(tmp);
+      } else {
+        this.parts[0].shape.setY(maxH);
+        return this.finish();
+      }
+    };
+
+    LabiMan.prototype.placeBlock = function() {
+      return new CubeFragment(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL);
+    };
+
+    LabiMan.prototype.bossEscape = function(frameTime) {
+      var tmp;
+      tmp = this.shape.getX() + this.speed * frameTime;
+      if (tmp < 800) {
+        return this.shape.setX(tmp);
+      }
+    };
+
+    LabiMan.prototype.finish = function() {
+      LabiMan.__super__.finish.call(this);
+      return dynamicEntities.find('Sprite').each(function(cube) {
+        return cube.destroy();
+      });
+    };
+
+    return LabiMan;
+
+  })(MultiPartBoss);
+
+  LabiManPart = (function(_super) {
+    __extends(LabiManPart, _super);
+
+    function LabiManPart() {
+      var y;
+      y = arena.y - levelManager.levelHeight + 32;
+      LabiManPart.__super__.constructor.call(this, 'freezeman', 80, y, 544, 32);
+    }
+
+    return LabiManPart;
+
+  })(Boss);
+
   stage = new Kinetic.Stage({
     container: 'container',
     width: config.levelWidth,
@@ -3279,7 +3442,7 @@
           return debugLayer.draw();
         };
         fn = function() {
-          return new SpecialCube(5, SquareEnum.MEDIUM, 'slowblock');
+          return bossManager.spawn(4, []);
         };
         return setTimeout(fn, 1000);
       }
