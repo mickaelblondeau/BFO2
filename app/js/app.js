@@ -1501,6 +1501,14 @@
             width: 64,
             height: 64
           }
+        ],
+        'tpblock': [
+          {
+            x: 128,
+            y: 64,
+            width: 64,
+            height: 64
+          }
         ]
       };
       this.draw();
@@ -2038,7 +2046,10 @@
         this.stompEffet(shape);
       }
       if (type === 'swapblock') {
-        return this.swapEffet(shape);
+        this.swapEffet(shape);
+      }
+      if (type === 'tpblock') {
+        return this.tpEffet(shape);
       }
     };
 
@@ -2185,6 +2196,18 @@
         player.shape.setY(positions[rand].y);
       }
       return shape.destroy();
+    };
+
+    CubeManager.prototype.tpEffet = function(shape) {
+      var pos;
+      contentLoader.play('explosion');
+      pos = {
+        x: shape.getX() + 16,
+        y: shape.getY()
+      };
+      shape.destroy();
+      player.shape.setX(pos.x);
+      return player.shape.setY(pos.y);
     };
 
     return CubeManager;
@@ -3242,7 +3265,7 @@
           return debugLayer.draw();
         };
         fn = function() {
-          return new SpecialCube(5, SquareEnum.MEDIUM, 'swapblock');
+          return new SpecialCube(5, SquareEnum.MEDIUM, 'tpblock');
         };
         return setTimeout(fn, 1000);
       }

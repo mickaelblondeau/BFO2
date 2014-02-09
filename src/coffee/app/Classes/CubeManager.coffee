@@ -83,6 +83,9 @@ class CubeManager
       @stompEffet(shape)
     if type is 'swapblock'
       @swapEffet(shape)
+    if type is 'tpblock'
+      @tpEffet(shape)
+
 
   iceExplosionEffect: (shape) ->
     contentLoader.play('explosion')
@@ -169,3 +172,10 @@ class CubeManager
       player.shape.setX(positions[rand].x)
       player.shape.setY(positions[rand].y)
     shape.destroy()
+
+  tpEffet: (shape) ->
+    contentLoader.play('explosion')
+    pos = { x: shape.getX() + 16, y: shape.getY() }
+    shape.destroy()
+    player.shape.setX(pos.x)
+    player.shape.setY(pos.y)

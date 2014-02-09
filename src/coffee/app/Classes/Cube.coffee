@@ -256,6 +256,12 @@ class Cube
         y: 64
         width: 64
         height: 64
+      }],
+      'tpblock': [{
+        x: 128
+        y: 64
+        width: 64
+        height: 64
       }]
     }
     @draw()
