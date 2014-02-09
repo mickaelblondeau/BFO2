@@ -10,7 +10,7 @@
     playerJumpMax: 1,
     playerJumpHeight: 82,
     playerSpeed: 0.17,
-    debug: false,
+    debug: true,
     skins: {
       body: 3,
       hair: 3,
@@ -2072,9 +2072,9 @@
       new Effect(shape.getX() - shape.getWidth() / 2 - 16, shape.getY() - shape.getHeight() / 2 - 32, SquareEnum.SMALL, 'iceExplosionEffect', true);
       staticCubes.find('Sprite').each(function(cube) {
         var i, _i, _ref, _results;
-        if (cube.getX() < shape.getX() + 128 && cube.getX() > shape.getX() - 128 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 128) {
+        if (cube.getX() < shape.getX() + 128 && cube.getX() > shape.getX() - 96 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 128) {
           _results = [];
-          for (i = _i = 1, _ref = (cube.getWidth() / 32) - 1; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
+          for (i = _i = 0, _ref = (cube.getWidth() / 32) - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
             _results.push(new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'ice'));
           }
           return _results;
@@ -2083,9 +2083,9 @@
       dynamicEntities.find('Sprite').each(function(cube) {
         var i, _i, _ref, _results;
         if (!cube.getName().falling && cube.getName().type === 'cube') {
-          if (cube.getX() < shape.getX() + 128 && cube.getX() > shape.getX() - 128 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 128) {
+          if (cube.getX() < shape.getX() + 128 && cube.getX() > shape.getX() - 96 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 128) {
             _results = [];
-            for (i = _i = 1, _ref = (cube.getWidth() / 32) - 1; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
+            for (i = _i = 0, _ref = (cube.getWidth() / 32) - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
               _results.push(new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'ice'));
             }
             return _results;
@@ -2100,9 +2100,9 @@
       new Effect(shape.getX() - shape.getWidth() / 2, shape.getY() - shape.getHeight() / 2, SquareEnum.SMALL, 'bioExplosion', true);
       staticCubes.find('Sprite').each(function(cube) {
         var i, _i, _ref, _results;
-        if (cube.getX() < shape.getX() + 128 && cube.getX() > shape.getX() - 128 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 128) {
+        if (cube.getX() < shape.getX() + 96 && cube.getX() > shape.getX() - 64 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 128) {
           _results = [];
-          for (i = _i = 1, _ref = (cube.getWidth() / 32) - 1; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
+          for (i = _i = 0, _ref = (cube.getWidth() / 32) - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
             _results.push(new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'slow'));
           }
           return _results;
@@ -2111,9 +2111,9 @@
       dynamicEntities.find('Sprite').each(function(cube) {
         var i, _i, _ref, _results;
         if (!cube.getName().falling && cube.getName().type === 'cube') {
-          if (cube.getX() < shape.getX() + 128 && cube.getX() > shape.getX() - 128 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 128) {
+          if (cube.getX() < shape.getX() + 96 && cube.getX() > shape.getX() - 64 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 128) {
             _results = [];
-            for (i = _i = 1, _ref = (cube.getWidth() / 32) - 1; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
+            for (i = _i = 0, _ref = (cube.getWidth() / 32) - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
               _results.push(new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'slow'));
             }
             return _results;
@@ -3279,7 +3279,7 @@
           return debugLayer.draw();
         };
         fn = function() {
-          return new SpecialCube(5, SquareEnum.MEDIUM, 'randblock');
+          return new SpecialCube(5, SquareEnum.MEDIUM, 'slowblock');
         };
         return setTimeout(fn, 1000);
       }
