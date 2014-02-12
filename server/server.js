@@ -65,7 +65,7 @@
     }
   };
 
-  SpecialCubes = ['iceExplosion', 'explosion', 'slowblock', 'swapblock', 'tpblock'];
+  SpecialCubes = ['iceExplosion', 'explosion', 'slowblock', 'stompblock', 'swapblock', 'tpblock'];
 
   CubeManager = (function() {
     function CubeManager() {
@@ -84,71 +84,78 @@
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
-          special: 'iceExplosion'
+          special: 'iceExplosion',
+          id: 0
         }, {
           proba: 2,
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
-          special: 'explosion'
+          special: 'explosion',
+          id: 1
         }, {
           proba: 2,
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
-          special: 'slowblock'
+          special: 'slowblock',
+          id: 2
         }, {
           proba: 2,
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
-          special: 'stompblock'
+          special: 'stompblock',
+          id: 3
         }, {
           proba: 2,
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
-          special: 'swapblock'
+          special: 'swapblock',
+          id: 4
         }, {
           proba: 2,
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
-          special: 'tpblock'
+          special: 'tpblock',
+          id: 5
         }, {
           proba: 2,
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
-          special: 'randblock'
+          special: 'randblock',
+          id: 6
         }, {
           proba: 2,
           size: SquareEnum.SMALL,
           width: SquareEnum.SMALL.x / 32,
           height: SquareEnum.SMALL.y / 32,
           bonus: 'speed',
-          bonusId: 1
+          id: 1
         }, {
           proba: 2,
           size: SquareEnum.SMALL,
           width: SquareEnum.SMALL.x / 32,
           height: SquareEnum.SMALL.y / 32,
           bonus: 'jumpHeight',
-          bonusId: 2
+          id: 2
         }, {
           proba: 2,
           size: SquareEnum.SMALL,
           width: SquareEnum.SMALL.x / 32,
           height: SquareEnum.SMALL.y / 32,
           bonus: 'doubleJump',
-          bonusId: 3
+          id: 3
         }, {
           proba: 2,
           size: SquareEnum.SMALL,
           width: SquareEnum.SMALL.x / 32,
           height: SquareEnum.SMALL.y / 32,
           bonus: 'grabbing',
-          bonusId: 4
+          id: 4
         }, {
           proba: 5,
           size: SquareEnum.LARGE,
@@ -231,7 +238,7 @@
     };
 
     CubeManager.prototype.sendCube = function() {
-      var choice, choices, columnPosition, count, h, rand, randType, tmp, type, typeIndex, _i, _j, _ref, _ref1;
+      var choice, choices, columnPosition, count, h, id, rand, randType, tmp, type, typeIndex, _i, _j, _ref, _ref1;
       choices = this.checkCols();
       if (choices.length > 0) {
         tmp = this.randomizeType(choices);
@@ -241,19 +248,20 @@
         rand = Math.floor(Math.random() * count);
         choice = choices[typeIndex][rand];
         if (type.bonus !== void 0) {
-          networkManager.sendBonus(choice.column, type.bonusId, this.bonusId);
+          networkManager.sendBonus(choice.column, type.id, this.bonusId);
           this.bonusId++;
         } else if (type.special !== void 0) {
           if (type.special === 'explosion') {
             this.explodeMap(choice.column, choice.height);
           } else if (type.special === 'randblock') {
-            randType = SpecialCubes[Math.floor(Math.random() * SpecialCubes.length)];
+            id = Math.floor(Math.random() * SpecialCubes.length);
+            randType = SpecialCubes[id];
             if (randType === 'explosion') {
               this.explodeMap(choice.column, choice.height);
             }
-            networkManager.sendRanSpecial(choice.column, type.size, randType);
+            networkManager.sendRanSpecial(choice.column, type.size, id);
           } else {
-            networkManager.sendSpecial(choice.column, type.size, type.special);
+            networkManager.sendSpecial(choice.column, type.size, type.id);
           }
         } else {
           networkManager.sendCube(choice.column, type.size);

@@ -11,6 +11,7 @@ SpecialCubes = [
   'iceExplosion',
   'explosion',
   'slowblock',
+  'stompblock',
   'swapblock',
   'tpblock'
 ]
@@ -34,6 +35,7 @@ class CubeManager
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
         special: 'iceExplosion'
+        id: 0
       },
       {
         proba: 2
@@ -41,6 +43,7 @@ class CubeManager
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
         special: 'explosion'
+        id: 1
       },
       {
         proba: 2
@@ -48,6 +51,7 @@ class CubeManager
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
         special: 'slowblock'
+        id: 2
       },
       {
         proba: 2
@@ -55,6 +59,7 @@ class CubeManager
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
         special: 'stompblock'
+        id: 3
       },
       {
         proba: 2
@@ -62,6 +67,7 @@ class CubeManager
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
         special: 'swapblock'
+        id: 4
       },
       {
         proba: 2
@@ -69,6 +75,7 @@ class CubeManager
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
         special: 'tpblock'
+        id: 5
       },
       {
         proba: 2
@@ -76,6 +83,7 @@ class CubeManager
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
         special: 'randblock'
+        id: 6
       },
       {
         proba: 2
@@ -83,7 +91,7 @@ class CubeManager
         width: SquareEnum.SMALL.x/32
         height: SquareEnum.SMALL.y/32
         bonus: 'speed'
-        bonusId: 1
+        id: 1
       },
       {
         proba: 2
@@ -91,7 +99,7 @@ class CubeManager
         width: SquareEnum.SMALL.x/32
         height: SquareEnum.SMALL.y/32
         bonus: 'jumpHeight'
-        bonusId: 2
+        id: 2
       },
       {
         proba: 2
@@ -99,7 +107,7 @@ class CubeManager
         width: SquareEnum.SMALL.x/32
         height: SquareEnum.SMALL.y/32
         bonus: 'doubleJump'
-        bonusId: 3
+        id: 3
       },
       {
         proba: 2
@@ -107,7 +115,7 @@ class CubeManager
         width: SquareEnum.SMALL.x/32
         height: SquareEnum.SMALL.y/32
         bonus: 'grabbing'
-        bonusId: 4
+        id: 4
       },
       {
         proba: 5
@@ -193,18 +201,19 @@ class CubeManager
       rand = Math.floor(Math.random()*count)
       choice = choices[typeIndex][rand]
       if type.bonus isnt undefined
-        networkManager.sendBonus(choice.column, type.bonusId, @bonusId)
+        networkManager.sendBonus(choice.column, type.id, @bonusId)
         @bonusId++
       else if type.special isnt undefined
         if type.special is 'explosion'
           @explodeMap(choice.column, choice.height)
         else if type.special is 'randblock'
-          randType = SpecialCubes[Math.floor((Math.random()*SpecialCubes.length))]
+          id = Math.floor((Math.random()*SpecialCubes.length))
+          randType = SpecialCubes[id]
           if randType is 'explosion'
             @explodeMap(choice.column, choice.height)
-          networkManager.sendRanSpecial(choice.column, type.size, randType)
+          networkManager.sendRanSpecial(choice.column, type.size, id)
         else
-          networkManager.sendSpecial(choice.column, type.size, type.special)
+          networkManager.sendSpecial(choice.column, type.size, type.id)
       else
         networkManager.sendCube(choice.column, type.size)
         for columnPosition in [1..type.width]
