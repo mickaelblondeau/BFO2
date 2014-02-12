@@ -105,6 +105,7 @@
     function Game() {
       this.statsInit();
       this.writting = false;
+      this.maxFrameTime = 200;
     }
 
     Game.prototype.loop = function() {
@@ -113,10 +114,11 @@
       frameTime = thisFrame - this.lastFrame;
       animFrame(Game.prototype.loop.bind(this));
       this.lastFrame = thisFrame;
-      if (frameTime > 200) {
-        frameTime = 200;
-      }
       game.statsBegin();
+      while (frameTime > this.maxFrameTime) {
+        frameTime -= this.maxFrameTime;
+        game.update(this.maxFrameTime);
+      }
       game.update(frameTime);
       return game.statsEnd();
     };

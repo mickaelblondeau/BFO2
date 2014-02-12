@@ -9,17 +9,21 @@ class Game
   constructor: ->
     @statsInit()
     @writting = false
+    @maxFrameTime = 200
 
   loop: ->
     thisFrame = Date.now()
     frameTime = thisFrame - @lastFrame
     animFrame(Game.prototype.loop.bind(@))
     @lastFrame = thisFrame
-    if frameTime > 200
-      frameTime = 200
 
     game.statsBegin()
+
+    while(frameTime > @maxFrameTime)
+      frameTime -= @maxFrameTime
+      game.update(@maxFrameTime)
     game.update(frameTime)
+
     game.statsEnd()
 
   update: (frameTime) ->
