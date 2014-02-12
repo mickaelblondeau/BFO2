@@ -7,6 +7,14 @@ SquareEnum = {
   LONG_RECT : { x: 32, y: 128 }
 }
 
+SpecialCubes = [
+  'iceExplosion',
+  'explosion',
+  'slowblock',
+  'swapblock',
+  'tpblock'
+]
+
 class CubeManager
   constructor: ->
     @map = []
@@ -190,7 +198,13 @@ class CubeManager
       else if type.special isnt undefined
         if type.special is 'explosion'
           @explodeMap(choice.column, choice.height)
-        networkManager.sendSpecial(choice.column, type.size, type.special)
+        else if type.special is 'randblock'
+          randType = SpecialCubes[Math.floor((Math.random()*SpecialCubes.length))]
+          if randType is 'explosion'
+            @explodeMap(choice.column, choice.height)
+          networkManager.sendRanSpecial(choice.column, type.size, randType)
+        else
+          networkManager.sendSpecial(choice.column, type.size, type.special)
       else
         networkManager.sendCube(choice.column, type.size)
         for columnPosition in [1..type.width]

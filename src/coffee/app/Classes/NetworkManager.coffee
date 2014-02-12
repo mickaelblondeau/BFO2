@@ -19,6 +19,9 @@ class NetworkManager
     @socket.on 'fallingSpecial', (data) ->
       new SpecialCube(data[0], data[1], data[2])
 
+    @socket.on 'fallingRandSpecial', (data) ->
+      new SpecialCube(data[0], data[1], 'randblock', data[2])
+
     @socket.on 'resetLevel', ->
       levelManager.reset()
       player.reset()

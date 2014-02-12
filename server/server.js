@@ -1,5 +1,5 @@
 (function() {
-  var Boss, BossManager, CubeManager, FreezeMan, Game, LabiMan, LevelManager, NetworkManager, PoingMan, RoueMan, SquareEnum, bossManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
+  var Boss, BossManager, CubeManager, FreezeMan, Game, LabiMan, LevelManager, NetworkManager, PoingMan, RoueMan, SpecialCubes, SquareEnum, bossManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -64,6 +64,8 @@
       y: 128
     }
   };
+
+  SpecialCubes = ['iceExplosion', 'explosion', 'slowblock', 'swapblock', 'tpblock'];
 
   CubeManager = (function() {
     function CubeManager() {
@@ -229,7 +231,7 @@
     };
 
     CubeManager.prototype.sendCube = function() {
-      var choice, choices, columnPosition, count, h, rand, tmp, type, typeIndex, _i, _j, _ref, _ref1;
+      var choice, choices, columnPosition, count, h, rand, randType, tmp, type, typeIndex, _i, _j, _ref, _ref1;
       choices = this.checkCols();
       if (choices.length > 0) {
         tmp = this.randomizeType(choices);
@@ -244,8 +246,15 @@
         } else if (type.special !== void 0) {
           if (type.special === 'explosion') {
             this.explodeMap(choice.column, choice.height);
+          } else if (type.special === 'randblock') {
+            randType = SpecialCubes[Math.floor(Math.random() * SpecialCubes.length)];
+            if (randType === 'explosion') {
+              this.explodeMap(choice.column, choice.height);
+            }
+            networkManager.sendRanSpecial(choice.column, type.size, randType);
+          } else {
+            networkManager.sendSpecial(choice.column, type.size, type.special);
           }
-          networkManager.sendSpecial(choice.column, type.size, type.special);
         } else {
           networkManager.sendCube(choice.column, type.size);
           for (columnPosition = _i = 1, _ref = type.width; 1 <= _ref ? _i <= _ref : _i >= _ref; columnPosition = 1 <= _ref ? ++_i : --_i) {
@@ -658,6 +667,10 @@
 
     NetworkManager.prototype.sendSpecial = function(col, size, type) {
       return this.io.sockets.emit('fallingSpecial', [col, size, type]);
+    };
+
+    NetworkManager.prototype.sendRanSpecial = function(col, size, type) {
+      return this.io.sockets.emit('fallingRandSpecial', [col, size, type]);
     };
 
     NetworkManager.prototype.sendResetLevel = function() {

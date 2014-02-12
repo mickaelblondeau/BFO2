@@ -1585,17 +1585,25 @@
   SpecialCube = (function(_super) {
     __extends(SpecialCube, _super);
 
-    function SpecialCube(col, size, type) {
+    function SpecialCube(col, size, type, randType) {
       var x, y;
       x = col * 32 + 160;
       y = stage.getY() * -1;
       this.type = type;
       SpecialCube.__super__.constructor.call(this, x, y, size, 'cubes_special', type);
       dynamicEntities.add(this.shape);
-      this.shape.setName({
-        type: 'special',
-        falling: true
-      });
+      if (randType !== void 0) {
+        this.shape.setName({
+          type: 'special',
+          falling: true,
+          randType: randType
+        });
+      } else {
+        this.shape.setName({
+          type: 'special',
+          falling: true
+        });
+      }
       this.shape.setId(type);
       this.shape.draw();
     }
@@ -2041,7 +2049,6 @@
     };
 
     CubeManager.prototype.doEffect = function(shape, type) {
-      var arr, rand;
       if (type === 'iceExplosion') {
         this.iceExplosionEffect(shape);
       }
@@ -2061,9 +2068,7 @@
         this.tpEffet(shape);
       }
       if (type === 'randblock') {
-        arr = ['iceExplosion', 'explosion', 'slowblock', 'swapblock', 'tpblock'];
-        rand = Math.floor(Math.random() * arr.length);
-        return this.doEffect(shape, arr[rand]);
+        return this.doEffect(shape, shape.getName().randType);
       }
     };
 
@@ -2253,6 +2258,9 @@
       });
       this.socket.on('fallingSpecial', function(data) {
         return new SpecialCube(data[0], data[1], data[2]);
+      });
+      this.socket.on('fallingRandSpecial', function(data) {
+        return new SpecialCube(data[0], data[1], 'randblock', data[2]);
       });
       this.socket.on('resetLevel', function() {
         levelManager.reset();
