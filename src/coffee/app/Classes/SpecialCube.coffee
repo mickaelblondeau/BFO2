@@ -4,7 +4,8 @@ SpecialCubes = [
   'slowblock',
   'stompblock',
   'swapblock',
-  'tpblock'
+  'tpblock',
+  'randblock'
 ]
 
 class SpecialCube extends Cube
@@ -15,7 +16,8 @@ class SpecialCube extends Cube
     super(x, y, size, 'cubes_special', @type)
     dynamicEntities.add @shape
     if randType isnt undefined
-      @shape.setName({ type: 'special', falling: true, randType: randType })
+      rType = SpecialCubes[randType]
+      @shape.setName({ type: 'special', falling: true, randType: rType })
     else
       @shape.setName({ type: 'special', falling: true })
     @shape.setId(@type)
