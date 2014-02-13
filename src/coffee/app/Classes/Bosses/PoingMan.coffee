@@ -1,4 +1,4 @@
-class PoingMan extends MultiPartBoss
+class PoingMan extends Boss
   constructor: (pattern) ->
     x = 900
     @levelHeight = arena.y - levelManager.levelHeight
@@ -23,8 +23,6 @@ class PoingMan extends MultiPartBoss
 
   start: ->
     self = @
-    @parts.push(new PoingManPart(128 - 128, @levelHeight - 64))
-    @parts.push(new PoingManPart(512 + 128, @levelHeight - 64))
     bossManager.update = (frameTime) ->
       if self.attacking and !self.finishing and !self.starting and !self.waiting
         self.attack(frameTime)
@@ -85,29 +83,20 @@ class PoingMan extends MultiPartBoss
         @comeBack = true
         collisions = cubeManager.getCollisions(@shape)
         for collision in collisions
+          if collision.getName() is undefined or collision.getName().broken isnt true
+            for i in [0..(collision.getWidth()/32)-1]
+              cube = new Cube(collision.getX() + i * 32, collision.getY(), SquareEnum.SMALL, 'cubes', 'brokenCube')
+              cube.shape.setName({ type: 'cube', broken: true })
+              staticCubes.add cube.shape
           collision.destroy()
         staticCubes.draw()
 
   startingPhase: (frameTime) ->
-    tmp = @parts[0].shape.getX() + @speed * frameTime
-    if tmp > 128
-      @parts[0].shape.setX(128)
-    else
-      @parts[0].shape.setX(tmp)
-
-    tmp = @parts[1].shape.getX() - @speed * frameTime
-    if tmp < 512
-      @parts[1].shape.setX(512)
-    else
-      @parts[1].shape.setX(tmp)
-
     @shape.setX(@shape.getX() - @speed * frameTime)
     if(@shape.getX() < 64)
       @starting = false
 
   finishingPhase: (frameTime) ->
-    @parts[0].shape.setX(@parts[0].shape.getX() - @speed * frameTime)
-    @parts[1].shape.setX(@parts[1].shape.getX() + @speed * frameTime)
     @shape.setX(@shape.getX() + @speed * frameTime)
     if(@shape.getX() > 800)
       @finish()

@@ -51,6 +51,12 @@ class Cube
         width: 32
         height: 128
       }],
+      'brokenCube': [{
+        x: 224
+        y: 96
+        width: 32
+        height: 32
+      }],
       'iceExplosion': [{
         x: 0
         y: 0

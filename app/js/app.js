@@ -1276,6 +1276,14 @@
             height: 128
           }
         ],
+        'brokenCube': [
+          {
+            x: 224,
+            y: 96,
+            width: 32,
+            height: 32
+          }
+        ],
         'iceExplosion': [
           {
             x: 0,
@@ -3045,8 +3053,6 @@
     PoingMan.prototype.start = function() {
       var self;
       self = this;
-      this.parts.push(new PoingManPart(128 - 128, this.levelHeight - 64));
-      this.parts.push(new PoingManPart(512 + 128, this.levelHeight - 64));
       return bossManager.update = function(frameTime) {
         if (self.attacking && !self.finishing && !self.starting && !self.waiting) {
           return self.attack(frameTime);
@@ -3087,7 +3093,7 @@
     };
 
     PoingMan.prototype.attack = function(frameTime) {
-      var collision, collisions, ground, tmp, _i, _len;
+      var collision, collisions, cube, ground, i, tmp, _i, _j, _len, _ref;
       ground = this.levelHeight - 62;
       if (this.shape.getY() < ground && !this.comeBack) {
         tmp = this.shape.getY() + this.attackSpeed * frameTime;
@@ -3119,6 +3125,16 @@
           collisions = cubeManager.getCollisions(this.shape);
           for (_i = 0, _len = collisions.length; _i < _len; _i++) {
             collision = collisions[_i];
+            if (collision.getName() === void 0 || collision.getName().broken !== true) {
+              for (i = _j = 0, _ref = (collision.getWidth() / 32) - 1; 0 <= _ref ? _j <= _ref : _j >= _ref; i = 0 <= _ref ? ++_j : --_j) {
+                cube = new Cube(collision.getX() + i * 32, collision.getY(), SquareEnum.SMALL, 'cubes', 'brokenCube');
+                cube.shape.setName({
+                  type: 'cube',
+                  broken: true
+                });
+                staticCubes.add(cube.shape);
+              }
+            }
             collision.destroy();
           }
           return staticCubes.draw();
@@ -3127,19 +3143,6 @@
     };
 
     PoingMan.prototype.startingPhase = function(frameTime) {
-      var tmp;
-      tmp = this.parts[0].shape.getX() + this.speed * frameTime;
-      if (tmp > 128) {
-        this.parts[0].shape.setX(128);
-      } else {
-        this.parts[0].shape.setX(tmp);
-      }
-      tmp = this.parts[1].shape.getX() - this.speed * frameTime;
-      if (tmp < 512) {
-        this.parts[1].shape.setX(512);
-      } else {
-        this.parts[1].shape.setX(tmp);
-      }
       this.shape.setX(this.shape.getX() - this.speed * frameTime);
       if (this.shape.getX() < 64) {
         return this.starting = false;
@@ -3147,8 +3150,6 @@
     };
 
     PoingMan.prototype.finishingPhase = function(frameTime) {
-      this.parts[0].shape.setX(this.parts[0].shape.getX() - this.speed * frameTime);
-      this.parts[1].shape.setX(this.parts[1].shape.getX() + this.speed * frameTime);
       this.shape.setX(this.shape.getX() + this.speed * frameTime);
       if (this.shape.getX() > 800) {
         return this.finish();
@@ -3174,7 +3175,7 @@
 
     return PoingMan;
 
-  })(MultiPartBoss);
+  })(Boss);
 
   PoingManPart = (function(_super) {
     __extends(PoingManPart, _super);
@@ -3457,7 +3458,10 @@
         hud.update(frameTime);
         return cubeManager.update(frameTime);
       };
-      return game.start();
+      game.start();
+      if (config.debug) {
+        return bossManager.spawn(3, [[0.4, 0.6, 500], [0, 0, 2, 4, 6, 8, 10]]);
+      }
     };
     return document.querySelector('#play').onclick = function() {
       document.querySelector('#login').style.display = 'none';
