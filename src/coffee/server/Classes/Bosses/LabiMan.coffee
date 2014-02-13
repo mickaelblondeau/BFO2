@@ -5,7 +5,7 @@ class LabiMan extends Boss
 
   getPattern: ->
     speed = Math.round((0.3 + 0.05 * levelManager.level) * 100) / 100
-    attackSpeed = Math.round((0.05 + 0.02 * (levelManager.level - 1)) * 100) / 100
+    attackSpeed = Math.round((0.08 + 0.015 * (levelManager.level - 1)) * 100) / 100
     options = [speed, attackSpeed]
     attacks = @makeLevel()
     return [options, attacks]

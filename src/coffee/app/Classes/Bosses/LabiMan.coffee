@@ -75,7 +75,7 @@ class LabiMan extends MultiPartBoss
       @placeBlock()
       if @attacks[@index] is undefined
         @waiting = true
-      if @count is 5
+      if @count is 7
         @attacking = true
 
   attack: (frameTime) ->

@@ -3287,7 +3287,7 @@
         if (this.attacks[this.index] === void 0) {
           this.waiting = true;
         }
-        if (this.count === 5) {
+        if (this.count === 7) {
           return this.attacking = true;
         }
       }
