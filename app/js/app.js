@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, Cube, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, Keyboard, LabiMan, LabiManPart, LevelManager, MultiPartBoss, NetworkManager, Player, PoingMan, PoingManPart, RoueMan, SkinManager, SpecialCube, SpecialCubes, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, players, skin, skinManager, stage, staticBg, staticCubes, _i, _len,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, Cube, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, Keyboard, LabiMan, LabiManPart, LevelManager, MultiPartBoss, NetworkManager, Player, PoingMan, PoingManPart, RoueMan, SkinManager, SpecialCube, SpecialCubes, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, debugLayer, debugMap, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, players, skin, skinManager, stage, staticBg, staticCubes, _i, _len,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -3403,13 +3403,40 @@
     skin: 1
   };
 
+  if (config.debug) {
+    debugLayer = new Kinetic.Layer();
+    stage.add(debugLayer);
+    debugLayer.setZIndex(100);
+    debugMap = function(map) {
+      var shape, subMap, val, x, y, _i, _j, _len, _len1;
+      debugLayer.destroyChildren();
+      for (x = _i = 0, _len = map.length; _i < _len; x = ++_i) {
+        subMap = map[x];
+        for (y = _j = 0, _len1 = subMap.length; _j < _len1; y = ++_j) {
+          val = subMap[y];
+          if (val !== null) {
+            shape = new Kinetic.Rect({
+              x: x * 32 + 160,
+              y: arena.y - y * 32 - 32,
+              width: 32,
+              height: 32,
+              stroke: "red"
+            });
+            debugLayer.add(shape);
+          }
+        }
+      }
+      return debugLayer.draw();
+    };
+  }
+
   contentLoader.contentsLoaded = function() {
     var launchGame;
     document.querySelector('#login-form').style.display = 'block';
     document.querySelector('#login-loading').style.display = 'none';
     contentLoader.playSong();
     launchGame = function(ip, name) {
-      var bg, debugLayer, debugMap, fn;
+      var bg;
       bg = new Kinetic.Rect({
         width: stage.getWidth(),
         height: stage.getHeight(),
@@ -3430,37 +3457,7 @@
         hud.update(frameTime);
         return cubeManager.update(frameTime);
       };
-      game.start();
-      if (config.debug) {
-        debugLayer = new Kinetic.Layer();
-        stage.add(debugLayer);
-        debugLayer.setZIndex(100);
-        debugMap = function(map) {
-          var shape, subMap, val, x, y, _i, _j, _len, _len1;
-          debugLayer.destroyChildren();
-          for (x = _i = 0, _len = map.length; _i < _len; x = ++_i) {
-            subMap = map[x];
-            for (y = _j = 0, _len1 = subMap.length; _j < _len1; y = ++_j) {
-              val = subMap[y];
-              if (val !== null) {
-                shape = new Kinetic.Rect({
-                  x: x * 32 + 160,
-                  y: arena.y - y * 32 - 32,
-                  width: 32,
-                  height: 32,
-                  stroke: "red"
-                });
-                debugLayer.add(shape);
-              }
-            }
-          }
-          return debugLayer.draw();
-        };
-        fn = function() {
-          return bossManager.spawn(4, []);
-        };
-        return setTimeout(fn, 1000);
-      }
+      return game.start();
     };
     return document.querySelector('#play').onclick = function() {
       document.querySelector('#login').style.display = 'none';

@@ -206,8 +206,8 @@ class CubeManager
       else if type.special isnt undefined
         if type.special is 'explosion'
           @explodeMap(choice.column, choice.height)
-        else if type.special is 'randblock'
-          id = Math.floor((Math.random()*SpecialCubes.length))
+        if type.special is 'randblock'
+          id = Math.floor(Math.random()*(SpecialCubes.length - 1))
           randType = SpecialCubes[id]
           if randType is 'explosion'
             @explodeMap(choice.column, choice.height)

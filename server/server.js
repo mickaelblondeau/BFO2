@@ -253,8 +253,9 @@
         } else if (type.special !== void 0) {
           if (type.special === 'explosion') {
             this.explodeMap(choice.column, choice.height);
-          } else if (type.special === 'randblock') {
-            id = Math.floor(Math.random() * SpecialCubes.length);
+          }
+          if (type.special === 'randblock') {
+            id = Math.floor(Math.random() * (SpecialCubes.length - 1));
             randType = SpecialCubes[id];
             if (randType === 'explosion') {
               this.explodeMap(choice.column, choice.height);
