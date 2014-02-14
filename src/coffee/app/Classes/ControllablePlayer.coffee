@@ -148,7 +148,19 @@ class ControllablePlayer extends Player
         @availableDoubleJump--
       if @playerCollision()
         @coopJump = true
+
+        @oldStats = {
+          jumpHeight: @jumpHeight
+          jumpMinAcceleration: @jumpMinAcceleration
+          jumpMaxAcceleration: @jumpMaxAcceleration
+          jumpDeceleration: @jumpDeceleration
+        }
+
         @jumpHeight += 40
+        @jumpMinAcceleration = 0.1
+        @jumpMaxAcceleration = 0.7
+        @jumpDeceleration = 0.92
+
       @jumpCount++
       @jump = true
       @jumpCurrentAcceleration = @jumpMaxAcceleration
@@ -172,10 +184,7 @@ class ControllablePlayer extends Player
   stopJump: ->
     @jump = false
     @falling = true
-    if @coopJump
-      @coopJump = false
-      @jumpHeight -= 40
-    if @stomped
+    if @stomped or @coopJump
       @reinitJump()
 
   reinitJump: ->
@@ -184,6 +193,7 @@ class ControllablePlayer extends Player
     @jumpMaxAcceleration = @oldStats.jumpMaxAcceleration
     @jumpDeceleration = @oldStats.jumpDeceleration
     @stomped = false
+    @coopJump = false
 
   startCouch: ->
     if !@couched and !@grabbing

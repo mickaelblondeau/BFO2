@@ -917,7 +917,16 @@
         }
         if (this.playerCollision()) {
           this.coopJump = true;
+          this.oldStats = {
+            jumpHeight: this.jumpHeight,
+            jumpMinAcceleration: this.jumpMinAcceleration,
+            jumpMaxAcceleration: this.jumpMaxAcceleration,
+            jumpDeceleration: this.jumpDeceleration
+          };
           this.jumpHeight += 40;
+          this.jumpMinAcceleration = 0.1;
+          this.jumpMaxAcceleration = 0.7;
+          this.jumpDeceleration = 0.92;
         }
         this.jumpCount++;
         this.jump = true;
@@ -949,11 +958,7 @@
     ControllablePlayer.prototype.stopJump = function() {
       this.jump = false;
       this.falling = true;
-      if (this.coopJump) {
-        this.coopJump = false;
-        this.jumpHeight -= 40;
-      }
-      if (this.stomped) {
+      if (this.stomped || this.coopJump) {
         return this.reinitJump();
       }
     };
@@ -963,7 +968,8 @@
       this.jumpMinAcceleration = this.oldStats.jumpMinAcceleration;
       this.jumpMaxAcceleration = this.oldStats.jumpMaxAcceleration;
       this.jumpDeceleration = this.oldStats.jumpDeceleration;
-      return this.stomped = false;
+      this.stomped = false;
+      return this.coopJump = false;
     };
 
     ControllablePlayer.prototype.startCouch = function() {
