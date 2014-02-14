@@ -43,6 +43,7 @@ class PoingMan extends Boss
         @shape.setX(dest)
         @oldPos = @shape.getX()
         @attacking = true
+        @waiting = true
       else
         @shape.setX(tmp)
     else if @shape.getX() < dest and @oldPos < dest
@@ -51,6 +52,7 @@ class PoingMan extends Boss
         @shape.setX(dest)
         @oldPos = @shape.getX()
         @attacking = true
+        @waiting = true
       else
         @shape.setX(tmp)
 
@@ -62,7 +64,6 @@ class PoingMan extends Boss
         @shape.setY(ground)
       else
         @shape.setY(tmp)
-
     else if @shape.getY() > @y and @comeBack
       tmp = @shape.getY() - @attackSpeed * frameTime
       if tmp < @y
@@ -74,7 +75,6 @@ class PoingMan extends Boss
         @index++
         @attacking = false
         @comeBack = false
-        @waiting = true
         if @attacks[@index] is undefined
           @finishing = true
           @regenMap()

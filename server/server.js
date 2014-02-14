@@ -876,7 +876,7 @@
       var attack, attackSpeed, attacks, i, options, speed, waitTime, _i;
       speed = Math.round((0.4 + 0.05 * levelManager.level) * 100) / 100;
       attackSpeed = Math.round((0.6 + 0.05 * levelManager.level) * 100) / 100;
-      waitTime = 500 - 30 * levelManager.level;
+      waitTime = 300 - 15 * levelManager.level;
       options = [speed, attackSpeed, waitTime];
       attacks = [];
       for (i = _i = 0; _i <= 5; i = ++_i) {
@@ -906,7 +906,7 @@
     LabiMan.prototype.getPattern = function() {
       var attackSpeed, attacks, options, speed;
       speed = Math.round((0.3 + 0.05 * levelManager.level) * 100) / 100;
-      attackSpeed = Math.round((0.08 + 0.015 * (levelManager.level - 1)) * 100) / 100;
+      attackSpeed = Math.round((0.075 + 0.005 * (levelManager.level - 1)) * 100) / 100;
       options = [speed, attackSpeed];
       attacks = this.makeLevel();
       return [options, attacks];

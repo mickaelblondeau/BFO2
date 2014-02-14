@@ -12,7 +12,7 @@ class HUD
     if text != @jump.getText()
       @jump.setText(text)
 
-    text = 'Speed : ' + Math.floor(player.speed*100)/100
+    text = 'Speed : ' + Math.floor(player.speed/config.playerSpeed*100) + "%"
     if text != @speed.getText()
       @speed.setText(text)
 

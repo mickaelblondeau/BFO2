@@ -2089,7 +2089,7 @@
       new Effect(shape.getX() - shape.getWidth() / 2 - 16, shape.getY() - shape.getHeight() / 2 - 32, SquareEnum.SMALL, 'iceExplosionEffect', true);
       staticCubes.find('Sprite').each(function(cube) {
         var i, _i, _ref, _results;
-        if (cube.getX() < shape.getX() + 128 && cube.getX() > shape.getX() - 96 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 128) {
+        if (cube.getX() < shape.getX() + 128 && cube.getX() > shape.getX() - 96 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 96) {
           _results = [];
           for (i = _i = 0, _ref = (cube.getWidth() / 32) - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
             _results.push(new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'ice'));
@@ -2100,7 +2100,7 @@
       dynamicEntities.find('Sprite').each(function(cube) {
         var i, _i, _ref, _results;
         if (!cube.getName().falling && cube.getName().type === 'cube') {
-          if (cube.getX() < shape.getX() + 128 && cube.getX() > shape.getX() - 96 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 128) {
+          if (cube.getX() < shape.getX() + 128 && cube.getX() > shape.getX() - 96 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 96) {
             _results = [];
             for (i = _i = 0, _ref = (cube.getWidth() / 32) - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
               _results.push(new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'ice'));
@@ -2524,7 +2524,7 @@
       if (text !== this.jump.getText()) {
         this.jump.setText(text);
       }
-      text = 'Speed : ' + Math.floor(player.speed * 100) / 100;
+      text = 'Speed : ' + Math.floor(player.speed / config.playerSpeed * 100) + "%";
       if (text !== this.speed.getText()) {
         this.speed.setText(text);
       }
@@ -2999,7 +2999,8 @@
         if (tmp < dest) {
           this.shape.setX(dest);
           this.oldPos = this.shape.getX();
-          return this.attacking = true;
+          this.attacking = true;
+          return this.waiting = true;
         } else {
           return this.shape.setX(tmp);
         }
@@ -3008,7 +3009,8 @@
         if (tmp > dest) {
           this.shape.setX(dest);
           this.oldPos = this.shape.getX();
-          return this.attacking = true;
+          this.attacking = true;
+          return this.waiting = true;
         } else {
           return this.shape.setX(tmp);
         }
@@ -3037,7 +3039,6 @@
           this.index++;
           this.attacking = false;
           this.comeBack = false;
-          this.waiting = true;
           if (this.attacks[this.index] === void 0) {
             this.finishing = true;
             return this.regenMap();
