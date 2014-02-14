@@ -237,13 +237,23 @@ class CubeManager
         possibleType.proba *= ratio
     randomMap = []
     randomCount = 0
+
+    biggest = { width: 0, height: 0 }
     for possibleType, index in possibleTypes
+      if possibleType.type.width > biggest.width or possibleType.type.height > biggest.height
+        biggest.width = possibleType.type.width
+        biggest.height = possibleType.type.height
       randomCount += possibleType.proba
-      randomMap.push { index: index, percent: randomCount }
+      randomMap.push { index: index, percent: randomCount, type: possibleType.type }
     rand = Math.floor(Math.random()*randomCount)+1
+
+    if biggest.width is 1 and biggest.height is 1
+      @updateRate = config.fastLevelSpeed
+
     for item in randomMap
-      if rand <= item.percent
-        return possibleTypes[item.index]
+      if !(biggest.width is 1 and biggest.height is 1 and item.type.bonus isnt undefined)
+        if rand <= item.percent
+          return possibleTypes[item.index]
     return possibleTypes[randomMap.length - 1]
 
   update: (frameTime) ->

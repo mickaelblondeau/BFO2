@@ -7,6 +7,7 @@
     FPS: 60,
     lowFPS: 0.1,
     levelSpeed: 1000,
+    fastLevelSpeed: 500,
     speedPerLevel: 50,
     timeout: 5000,
     debug: false,
@@ -283,7 +284,7 @@
     };
 
     CubeManager.prototype.randomizeType = function(choices) {
-      var index, item, possibleType, possibleTypes, rand, randomCount, randomMap, ratio, type, typeIndex, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref;
+      var biggest, index, item, possibleType, possibleTypes, rand, randomCount, randomMap, ratio, type, typeIndex, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref;
       possibleTypes = [];
       _ref = this.types;
       for (typeIndex = _i = 0, _len = _ref.length; _i < _len; typeIndex = ++_i) {
@@ -305,19 +306,33 @@
       }
       randomMap = [];
       randomCount = 0;
+      biggest = {
+        width: 0,
+        height: 0
+      };
       for (index = _k = 0, _len2 = possibleTypes.length; _k < _len2; index = ++_k) {
         possibleType = possibleTypes[index];
+        if (possibleType.type.width > biggest.width || possibleType.type.height > biggest.height) {
+          biggest.width = possibleType.type.width;
+          biggest.height = possibleType.type.height;
+        }
         randomCount += possibleType.proba;
         randomMap.push({
           index: index,
-          percent: randomCount
+          percent: randomCount,
+          type: possibleType.type
         });
       }
       rand = Math.floor(Math.random() * randomCount) + 1;
+      if (biggest.width === 1 && biggest.height === 1) {
+        this.updateRate = config.fastLevelSpeed;
+      }
       for (_l = 0, _len3 = randomMap.length; _l < _len3; _l++) {
         item = randomMap[_l];
-        if (rand <= item.percent) {
-          return possibleTypes[item.index];
+        if (!(biggest.width === 1 && biggest.height === 1 && item.type.bonus !== void 0)) {
+          if (rand <= item.percent) {
+            return possibleTypes[item.index];
+          }
         }
       }
       return possibleTypes[randomMap.length - 1];
@@ -532,7 +547,7 @@
 
     LevelManager.prototype.update = function() {
       this.level++;
-      this.speed -= config.speedPerLevel;
+      this.speed = config.levelSpeed - config.speedPerLevel * this.level;
       return this.moveStage();
     };
 

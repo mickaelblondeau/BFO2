@@ -23,7 +23,7 @@ class LevelManager
 
   update: ->
     @level++
-    @speed -= config.speedPerLevel
+    @speed = config.levelSpeed - config.speedPerLevel * @level
     @moveStage()
 
   randomizeHeight: ->
