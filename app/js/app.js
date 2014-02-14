@@ -275,6 +275,7 @@
       this.soundsToLoad = [];
       this.images = [];
       this.sounds = [];
+      this.volumeStep = 0.01;
       this.count = 0;
       this.total = 0;
       this.musics = 0;
@@ -365,7 +366,7 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         sound = _ref[_i];
         if (sound.type === 'effect') {
-          tmp = this.sounds[sound.name].volume + 0.05;
+          tmp = this.sounds[sound.name].volume + this.volumeStep;
           if (tmp <= 1) {
             this.sounds[sound.name].volume = tmp;
           } else {
@@ -385,7 +386,7 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         sound = _ref[_i];
         if (sound.type === 'music') {
-          tmp = this.sounds[sound.name].volume + 0.05;
+          tmp = this.sounds[sound.name].volume + this.volumeStep;
           if (tmp <= 1) {
             this.sounds[sound.name].volume = tmp;
           } else {
@@ -405,7 +406,7 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         sound = _ref[_i];
         if (sound.type === 'effect') {
-          tmp = this.sounds[sound.name].volume - 0.05;
+          tmp = this.sounds[sound.name].volume - this.volumeStep;
           if (tmp >= 0) {
             this.sounds[sound.name].volume = tmp;
           } else {
@@ -425,7 +426,7 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         sound = _ref[_i];
         if (sound.type === 'music') {
-          tmp = this.sounds[sound.name].volume - 0.05;
+          tmp = this.sounds[sound.name].volume - this.volumeStep;
           if (tmp >= 0) {
             this.sounds[sound.name].volume = tmp;
           } else {
@@ -3520,7 +3521,8 @@
         num = 1;
       }
       elm.style.background = 'url("../assets/player/' + this.getAttribute("data-type") + '/' + num + '.png") 140px 0';
-      return skin[this.getAttribute("data-type")] = num;
+      skin[this.getAttribute("data-type")] = num;
+      return document.querySelector('#skin-control .' + this.getAttribute("data-type") + ' .number').innerHTML = num;
     };
   }
 

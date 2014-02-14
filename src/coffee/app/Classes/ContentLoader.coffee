@@ -5,6 +5,8 @@ class ContentLoader
     @images = []
     @sounds = []
 
+    @volumeStep = 0.01
+
     @count = 0
     @total = 0
     @musics = 0
@@ -60,7 +62,7 @@ class ContentLoader
   addVolumeEffect: ->
     for sound in @soundsToLoad
       if sound.type is 'effect'
-        tmp = @sounds[sound.name].volume + 0.05
+        tmp = @sounds[sound.name].volume + @volumeStep
         if tmp <= 1
           @sounds[sound.name].volume = tmp
         else
@@ -72,7 +74,7 @@ class ContentLoader
   addVolumeMusic: ->
     for sound in @soundsToLoad
       if sound.type is 'music'
-        tmp = @sounds[sound.name].volume + 0.05
+        tmp = @sounds[sound.name].volume + @volumeStep
         if tmp <= 1
           @sounds[sound.name].volume = tmp
         else
@@ -84,7 +86,7 @@ class ContentLoader
   lessVolumeEffect: ->
     for sound in @soundsToLoad
       if sound.type is 'effect'
-        tmp = @sounds[sound.name].volume - 0.05
+        tmp = @sounds[sound.name].volume - @volumeStep
         if tmp >= 0
           @sounds[sound.name].volume = tmp
         else
@@ -96,7 +98,7 @@ class ContentLoader
   lessVolumeMusic: ->
     for sound in @soundsToLoad
       if sound.type is 'music'
-        tmp = @sounds[sound.name].volume - 0.05
+        tmp = @sounds[sound.name].volume - @volumeStep
         if tmp >= 0
           @sounds[sound.name].volume = tmp
         else

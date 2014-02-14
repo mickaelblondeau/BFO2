@@ -34,3 +34,4 @@ for div in divs
       num = 1
     elm.style.background = 'url("../assets/player/'+ @getAttribute("data-type")+'/'+num+'.png") 140px 0'
     skin[@getAttribute("data-type")] = num
+    document.querySelector('#skin-control .' + @getAttribute("data-type") + ' .number').innerHTML = num
