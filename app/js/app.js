@@ -7,7 +7,7 @@
     levelHeight: 976,
     levelWidth: 704,
     levelSpeed: 1000,
-    playerJumpMax: 1,
+    playerJumpMax: 2,
     playerJumpHeight: 82,
     playerSpeed: 0.17,
     debug: false,
@@ -256,13 +256,14 @@
     };
 
     Game.prototype.addMessage = function(name, message) {
-      var callback;
+      var callback, timeout;
       contentLoader.play('beep');
       document.getElementById('chatMessages').innerHTML += '<div class="message"><span class="from">' + name + '</span> : <span class="content">' + message + '</span></div>';
       callback = function() {
         return document.querySelectorAll('#chatMessages .message')[0].remove();
       };
-      return setTimeout(callback, 3000);
+      timeout = 3000 + message.length * 30;
+      return setTimeout(callback, timeout);
     };
 
     return Game;
@@ -775,6 +776,8 @@
       this.stomped = false;
       this.actualCollisions = [];
       this.cached = {};
+      this.availableDoubleJump = 0;
+      this.availableGrab = 0;
     }
 
     ControllablePlayer.prototype.update = function(frameTime) {
@@ -908,7 +911,10 @@
 
     ControllablePlayer.prototype.startJump = function() {
       this.canJump = false;
-      if (this.jumpCount < this.jumpMax && !this.couched) {
+      if (!this.couched && this.jumpCount === 0 || (this.jumpCount < this.jumpMax && this.availableDoubleJump > 0)) {
+        if (this.jumpCount > 0) {
+          this.availableDoubleJump--;
+        }
         if (this.playerCollision()) {
           this.coopJump = true;
           this.jumpHeight += 40;
@@ -1083,7 +1089,8 @@
           cubeBoundBox = collisionManager.getBoundBox(cube);
           if (collisionManager.colliding(playerBoundBox, cubeBoundBox) && ((cubeBoundBox.left < playerBoundBox.left && self.skin.getScaleX() === -1) || (cubeBoundBox.left > playerBoundBox.left && self.skin.getScaleX() === 1))) {
             if (collisionManager.collidingCorners(playerBoundBox, cubeBoundBox)) {
-              if (self.canGrab) {
+              if (self.canGrab && self.availableGrab > 0) {
+                self.availableGrab--;
                 self.grab(cube);
                 return count++;
               } else {
@@ -1768,13 +1775,11 @@
         {
           name: 'doubleJump',
           attribute: 'jumpCount',
-          value: 1,
-          time: 3000
+          value: 2
         }, {
           name: 'grabbing',
-          attribute: 'canGrab',
-          value: true,
-          time: 10000
+          attribute: 'grab',
+          value: 70
         }, {
           name: 'resurection',
           attribute: 'resurection'
@@ -1792,26 +1797,14 @@
     }
 
     BonusManager.prototype.getBonus = function(bonusName, player) {
-      var bonus, callback, self, thisBonus, _i, _len, _ref, _results;
+      var bonus, _i, _len, _ref, _results;
       contentLoader.play('pickup');
       _ref = this.bonuses;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         bonus = _ref[_i];
         if (bonusName === bonus.name) {
-          this.addBonus(bonus, player);
-          hud.addBuff(bonusName, bonus.time);
-          if (bonus.time !== void 0) {
-            self = this;
-            thisBonus = bonus;
-            callback = function() {
-              self.removeBonus(thisBonus, player);
-              return hud.deleteBuff(bonusName);
-            };
-            _results.push(this.timers.push(setTimeout(callback, bonus.time)));
-          } else {
-            _results.push(void 0);
-          }
+          _results.push(this.addBonus(bonus, player));
         } else {
           _results.push(void 0);
         }
@@ -1826,8 +1819,9 @@
         case "jumpHeight":
           return player.jumpHeight += bonus.value;
         case "jumpCount":
-          return player.jumpMax += bonus.value;
-        case "canGrab":
+          return player.availableDoubleJump += bonus.value;
+        case "grab":
+          player.availableGrab += bonus.value;
           return player.canGrab = true;
         case "resurection":
           networkManager.sendResurection();
@@ -1896,7 +1890,6 @@
       arena.reset();
       bonusManager.reset();
       bossManager.reset();
-      hud.reset();
       dynamicEntities.destroyChildren();
       stage.draw();
       this.level = 0;
@@ -2119,7 +2112,7 @@
       new Effect(shape.getX() - shape.getWidth() / 2, shape.getY() - shape.getHeight() / 2, SquareEnum.SMALL, 'bioExplosion', true);
       staticCubes.find('Sprite').each(function(cube) {
         var i, _i, _ref, _results;
-        if (cube.getX() < shape.getX() + 96 && cube.getX() > shape.getX() - 64 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 128) {
+        if (cube.getX() < shape.getX() + 96 && cube.getX() > shape.getX() - 64 && cube.getY() < shape.getY() + 64 && cube.getY() > shape.getY() - 64) {
           _results = [];
           for (i = _i = 0, _ref = (cube.getWidth() / 32) - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
             _results.push(new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'slow'));
@@ -2130,7 +2123,7 @@
       dynamicEntities.find('Sprite').each(function(cube) {
         var i, _i, _ref, _results;
         if (!cube.getName().falling && cube.getName().type === 'cube') {
-          if (cube.getX() < shape.getX() + 96 && cube.getX() > shape.getX() - 64 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 128) {
+          if (cube.getX() < shape.getX() + 96 && cube.getX() > shape.getX() - 64 && cube.getY() < shape.getY() + 64 && cube.getY() > shape.getY() - 64) {
             _results = [];
             for (i = _i = 0, _ref = (cube.getWidth() / 32) - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
               _results.push(new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'slow'));
@@ -2512,152 +2505,76 @@
 
   HUD = (function() {
     function HUD() {
-      this.level;
       this.buffs = [];
-      this.drawLevel();
+      this.drawHUD();
     }
 
     HUD.prototype.update = function(frameTime) {
-      var levelText;
-      levelText = 'Level : ' + levelManager.level;
-      if (levelText !== this.level.getText()) {
-        this.level.setText(levelText);
+      var text;
+      text = 'Level : ' + Math.round(levelManager.level / 2);
+      if (text !== this.level.getText()) {
+        this.level.setText(text);
       }
-      this.updateBuffs(frameTime);
+      text = 'Jump : ' + Math.floor(player.jumpHeight / 32 * 100) / 100;
+      if (text !== this.jump.getText()) {
+        this.jump.setText(text);
+      }
+      text = 'Speed : ' + Math.floor(player.speed * 100) / 100;
+      if (text !== this.speed.getText()) {
+        this.speed.setText(text);
+      }
+      text = 'Double Jumps : ' + player.availableDoubleJump;
+      if (text !== this.doubleJump.getText()) {
+        this.doubleJump.setText(text);
+      }
+      text = 'Hook time : ' + Math.round(player.availableGrab / 10);
+      if (text !== this.grabbing.getText()) {
+        this.grabbing.setText(text);
+      }
       return hudLayer.draw();
     };
 
-    HUD.prototype.drawLevel = function() {
+    HUD.prototype.drawHUD = function() {
       this.level = new Kinetic.Text({
-        text: 'Level : 0',
+        y: arena.y,
         fill: 'black',
         fontFamily: 'Calibri',
         fontSize: 18
       });
-      return hudLayer.add(this.level);
-    };
-
-    HUD.prototype.addBuff = function(buffType, time) {
-      var buff, count, timer;
-      if (buffType !== 'resurection') {
-        this.buffs.push({
-          buff: buffType,
-          time: time
-        });
-        if (hudLayer.find('#' + buffType)[0] !== void 0) {
-          count = hudLayer.find('#count' + buffType)[0];
-          count.setText((parseInt(count.getText().split(' x ')) + 1) + ' x ');
-          if (time !== void 0) {
-            timer = hudLayer.find('#timer' + buffType)[0];
-            return timer.setText(time / 1000);
-          }
-        } else {
-          buff = new Kinetic.Sprite({
-            x: 618,
-            y: 0,
-            width: 32,
-            height: 32,
-            image: contentLoader.images['bonus'],
-            animation: buffType,
-            animations: bonusTypes,
-            frameRate: 0,
-            index: 0,
-            id: buffType
-          });
-          hudLayer.add(buff);
-          if (time !== void 0) {
-            timer = new Kinetic.Text({
-              x: 658,
-              y: 0,
-              text: time / 1000,
-              fill: 'black',
-              fontFamily: 'Calibri',
-              fontSize: 18,
-              id: 'timer' + buffType,
-              name: 'timer'
-            });
-            hudLayer.add(timer);
-            timer.setAttr('currentTime', time / 1000);
-          }
-          count = new Kinetic.Text({
-            x: 590,
-            y: 0,
-            text: '1 x ',
-            fill: 'black',
-            fontFamily: 'Calibri',
-            fontSize: 18,
-            id: 'count' + buffType,
-            name: 'count'
-          });
-          return hudLayer.add(count);
-        }
-      }
-    };
-
-    HUD.prototype.deleteBuff = function(buffType) {
-      var buff, count, text;
-      buff = hudLayer.find('#' + buffType)[0];
-      count = hudLayer.find('#count' + buffType)[0];
-      text = hudLayer.find('#timer' + buffType)[0];
-      if (buff !== void 0) {
-        if (count !== void 0) {
-          if (count.getText() === '1 x ') {
-            buff.destroy();
-            count.destroy();
-            if (text !== void 0) {
-              return text.destroy();
-            }
-          } else {
-            return count.setText((parseInt(count.getText().split(' x ')) - 1) + ' x ');
-          }
-        } else {
-          buff.destroy();
-          count.destroy();
-          if (text !== void 0) {
-            return text.destroy();
-          }
-        }
-      }
-    };
-
-    HUD.prototype.updateBuffs = function(frameTime) {
-      var y;
-      y = 0;
-      hudLayer.find('Sprite').each(function(icon) {
-        var count, timer;
-        timer = hudLayer.find('#timer' + icon.getId())[0];
-        if (timer !== void 0) {
-          timer.setY(y + 8);
-        }
-        count = hudLayer.find('#count' + icon.getId())[0];
-        if (count !== void 0) {
-          count.setY(y + 8);
-        }
-        icon.setY(y);
-        return y += 40;
+      hudLayer.add(this.level);
+      this.jump = new Kinetic.Text({
+        y: arena.y,
+        x: stage.getWidth() - 128,
+        fill: 'black',
+        fontFamily: 'Calibri',
+        fontSize: 18
       });
-      return hudLayer.find('Text').each(function(timer) {
-        var newTime;
-        if (timer.getName() === 'timer') {
-          newTime = timer.getAttr('currentTime') - frameTime / 1000;
-          if (newTime < 0) {
-            newTime = 0;
-          }
-          timer.setAttr('currentTime', newTime);
-          return timer.setText(Math.round(newTime * 100) / 100);
-        }
+      hudLayer.add(this.jump);
+      this.speed = new Kinetic.Text({
+        y: arena.y - 20,
+        x: stage.getWidth() - 128,
+        fill: 'black',
+        fontFamily: 'Calibri',
+        fontSize: 18
       });
-    };
-
-    HUD.prototype.reset = function() {
-      hudLayer.find('Text').each(function(timer) {
-        if (timer.getName() === 'timer' || timer.getName() === 'count') {
-          return timer.destroy();
-        }
+      hudLayer.add(this.speed);
+      this.doubleJump = new Kinetic.Text({
+        y: arena.y - 40,
+        x: stage.getWidth() - 128,
+        fill: 'black',
+        fontFamily: 'Calibri',
+        fontSize: 18
       });
-      return hudLayer.find('Sprite').each(function(icon) {
-        return icon.destroy();
+      hudLayer.add(this.doubleJump);
+      this.grabbing = new Kinetic.Text({
+        y: arena.y - 60,
+        x: stage.getWidth() - 128,
+        text: 'Grab corner : 0',
+        fill: 'black',
+        fontFamily: 'Calibri',
+        fontSize: 18
       });
+      return hudLayer.add(this.grabbing);
     };
 
     return HUD;
@@ -3459,13 +3376,11 @@
         hud.update(frameTime);
         return cubeManager.update(frameTime);
       };
-      game.start();
-      if (config.debug) {
-        return bossManager.spawn(3, [[0.4, 0.6, 500], [0, 0, 2, 4, 6, 8, 10]]);
-      }
+      return game.start();
     };
     return document.querySelector('#play').onclick = function() {
       document.querySelector('#login').style.display = 'none';
+      document.querySelector('#container').style.display = 'block';
       launchGame(document.querySelector('#ip').value.replace(" ", ""), document.querySelector('#name').value);
       return contentLoader.play('beep');
     };

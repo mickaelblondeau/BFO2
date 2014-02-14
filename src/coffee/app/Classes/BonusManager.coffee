@@ -4,14 +4,12 @@ class BonusManager
       {
         name: 'doubleJump'
         attribute: 'jumpCount'
-        value: 1
-        time: 3000
+        value: 2
       },
       {
         name: 'grabbing'
-        attribute: 'canGrab'
-        value: true
-        time: 10000
+        attribute: 'grab'
+        value: 70
       },
       {
         name: 'resurection'
@@ -35,14 +33,6 @@ class BonusManager
     for bonus in @bonuses
       if bonusName is bonus.name
         @addBonus(bonus, player)
-        hud.addBuff(bonusName, bonus.time)
-        if bonus.time isnt undefined
-          self = @
-          thisBonus = bonus
-          callback = () ->
-            self.removeBonus(thisBonus, player)
-            hud.deleteBuff(bonusName)
-          @timers.push setTimeout(callback, bonus.time)
 
   addBonus: (bonus, player) ->
     switch bonus.attribute
@@ -51,8 +41,9 @@ class BonusManager
       when "jumpHeight"
         player.jumpHeight += bonus.value
       when "jumpCount"
-        player.jumpMax += bonus.value
-      when "canGrab"
+        player.availableDoubleJump += bonus.value
+      when "grab"
+        player.availableGrab += bonus.value
         player.canGrab = true
       when "resurection"
         networkManager.sendResurection()

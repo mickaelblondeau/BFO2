@@ -94,4 +94,5 @@ class Game
     document.getElementById('chatMessages').innerHTML += '<div class="message"><span class="from">'+name+'</span> : <span class="content">'+message+'</span></div>'
     callback = ->
       document.querySelectorAll('#chatMessages .message')[0].remove()
-    setTimeout(callback, 3000)
+    timeout = 3000 + message.length * 30
+    setTimeout(callback, timeout)

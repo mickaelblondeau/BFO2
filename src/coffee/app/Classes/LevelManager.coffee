@@ -14,7 +14,6 @@ class LevelManager
     arena.reset()
     bonusManager.reset()
     bossManager.reset()
-    hud.reset()
     dynamicEntities.destroyChildren()
     stage.draw()
     @level = 0

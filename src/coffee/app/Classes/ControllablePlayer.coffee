@@ -26,6 +26,8 @@ class ControllablePlayer extends Player
     @stomped = false
     @actualCollisions = []
     @cached = {}
+    @availableDoubleJump = 0
+    @availableGrab = 0
 
   update: (frameTime) ->
     if !(!@alive and @shape.getY() > stage.getY()*-1 + stage.getHeight())
@@ -142,7 +144,9 @@ class ControllablePlayer extends Player
 
   startJump: ->
     @canJump = false
-    if @jumpCount < @jumpMax and !@couched
+    if !@couched and @jumpCount is 0 or (@jumpCount < @jumpMax and @availableDoubleJump > 0)
+      if @jumpCount > 0
+        @availableDoubleJump--
       if @playerCollision()
         @coopJump = true
         @jumpHeight += 40
@@ -269,7 +273,8 @@ class ControllablePlayer extends Player
         cubeBoundBox = collisionManager.getBoundBox(cube)
         if collisionManager.colliding(playerBoundBox, cubeBoundBox) and ((cubeBoundBox.left < playerBoundBox.left and self.skin.getScaleX() is -1) or (cubeBoundBox.left > playerBoundBox.left and self.skin.getScaleX() is 1))
           if collisionManager.collidingCorners(playerBoundBox, cubeBoundBox)
-            if self.canGrab
+            if self.canGrab and self.availableGrab > 0
+              self.availableGrab--
               self.grab(cube)
               count++
             else

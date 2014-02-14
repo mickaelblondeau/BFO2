@@ -10,6 +10,10 @@ class PoingMan extends Boss
     options = [speed, attackSpeed, waitTime]
     attacks = []
     for i in [0..5]
-      attack = Math.floor((Math.random()*10))
+      attack = Math.floor((Math.random()*12)-1)
+      if attack is -1
+        attack = 0
+      else if attack is 11
+        attack = 10
       attacks.push attack
     return [options, attacks]

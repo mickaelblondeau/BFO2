@@ -81,10 +81,8 @@ contentLoader.contentsLoaded = ->
       cubeManager.update(frameTime)
     game.start()
 
-    if config.debug
-      bossManager.spawn(3, [[0.4, 0.6, 500], [0, 0, 2, 4, 6, 8, 10]])
-
   document.querySelector('#play').onclick = () ->
     document.querySelector('#login').style.display = 'none'
+    document.querySelector('#container').style.display = 'block'
     launchGame(document.querySelector('#ip').value.replace(" ",""), document.querySelector('#name').value)
     contentLoader.play('beep')

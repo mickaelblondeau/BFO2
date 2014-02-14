@@ -880,7 +880,12 @@
       options = [speed, attackSpeed, waitTime];
       attacks = [];
       for (i = _i = 0; _i <= 5; i = ++_i) {
-        attack = Math.floor(Math.random() * 10);
+        attack = Math.floor((Math.random() * 12) - 1);
+        if (attack === -1) {
+          attack = 0;
+        } else if (attack === 11) {
+          attack = 10;
+        }
         attacks.push(attack);
       }
       return [options, attacks];
