@@ -10,6 +10,9 @@ class NetworkManager
 
   listener: ->
     self = @
+    @socket.on 'connect', ->
+      game.start()
+
     @socket.on 'fallingCube', (data) ->
       new FallingCube(data[0], data[1])
 

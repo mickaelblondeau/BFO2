@@ -82,10 +82,12 @@ contentLoader.contentsLoaded = ->
       bossManager.update(frameTime)
       hud.update(frameTime)
       cubeManager.update(frameTime)
-    game.start()
 
   document.querySelector('#play').onclick = () ->
-    document.querySelector('#login').style.display = 'none'
-    document.querySelector('#container').style.display = 'block'
-    launchGame(document.querySelector('#ip').value.replace(" ",""), document.querySelector('#name').value)
+    ip = document.querySelector('#ip').value.replace(" ","")
+    name = document.querySelector('#name').value
+    document.querySelector('#login-form').style.display = 'none'
+    document.querySelector('#login-loading').style.display = 'block'
+    document.querySelector('#login-loading').innerHTML = 'Connecting to '+ip+'...'
+    launchGame(ip, name)
     contentLoader.play('beep')

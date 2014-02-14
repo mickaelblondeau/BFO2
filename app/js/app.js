@@ -130,6 +130,8 @@
     Game.prototype.update = function(frameTime) {};
 
     Game.prototype.start = function() {
+      document.querySelector('#login').style.display = 'none';
+      document.querySelector('#container').style.display = 'block';
       this.lastFrame = Date.now();
       this.resize();
       return this.loop();
@@ -2289,6 +2291,9 @@
     NetworkManager.prototype.listener = function() {
       var self;
       self = this;
+      this.socket.on('connect', function() {
+        return game.start();
+      });
       this.socket.on('fallingCube', function(data) {
         return new FallingCube(data[0], data[1]);
       });
@@ -3415,7 +3420,7 @@
       player = new ControllablePlayer(skin);
       hud = new HUD();
       networkManager.connect(ip, name, skin);
-      game.update = function(frameTime) {
+      return game.update = function(frameTime) {
         players.draw();
         dynamicEntities.draw();
         player.update(frameTime);
@@ -3423,12 +3428,15 @@
         hud.update(frameTime);
         return cubeManager.update(frameTime);
       };
-      return game.start();
     };
     return document.querySelector('#play').onclick = function() {
-      document.querySelector('#login').style.display = 'none';
-      document.querySelector('#container').style.display = 'block';
-      launchGame(document.querySelector('#ip').value.replace(" ", ""), document.querySelector('#name').value);
+      var ip, name;
+      ip = document.querySelector('#ip').value.replace(" ", "");
+      name = document.querySelector('#name').value;
+      document.querySelector('#login-form').style.display = 'none';
+      document.querySelector('#login-loading').style.display = 'block';
+      document.querySelector('#login-loading').innerHTML = 'Connecting to ' + ip + '...';
+      launchGame(ip, name);
       return contentLoader.play('beep');
     };
   };

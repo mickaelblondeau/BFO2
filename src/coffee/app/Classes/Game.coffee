@@ -31,6 +31,8 @@ class Game
   update: (frameTime) ->
 
   start: ->
+    document.querySelector('#login').style.display = 'none'
+    document.querySelector('#container').style.display = 'block'
     @lastFrame = Date.now()
     @resize()
     @loop()
