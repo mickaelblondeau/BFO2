@@ -31,11 +31,13 @@ class NetworkManager
         socket.broadcast.emit 'connection', [socket.id, arr[0], arr[1]]
 
       socket.on 'launch', ->
-        game.launch()
+        if socket.id is self.io.sockets.clients()[0].id
+          game.launch()
 
       socket.on 'reset', ->
-        game.reset()
-        self.sendResetLevel()
+        if socket.id is self.io.sockets.clients()[0].id
+          game.reset()
+          self.sendResetLevel()
 
       socket.on 'die', ->
         socket.broadcast.emit 'kill', socket.id

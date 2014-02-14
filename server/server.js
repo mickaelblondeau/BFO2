@@ -618,11 +618,15 @@
           return socket.broadcast.emit('connection', [socket.id, arr[0], arr[1]]);
         });
         socket.on('launch', function() {
-          return game.launch();
+          if (socket.id === self.io.sockets.clients()[0].id) {
+            return game.launch();
+          }
         });
         socket.on('reset', function() {
-          game.reset();
-          return self.sendResetLevel();
+          if (socket.id === self.io.sockets.clients()[0].id) {
+            game.reset();
+            return self.sendResetLevel();
+          }
         });
         socket.on('die', function() {
           return socket.broadcast.emit('kill', socket.id);
