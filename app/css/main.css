@@ -1,7 +1,6 @@
 body { overflow: hidden; margin: 0; }
 .clear { clear: both; }
 #container { margin: auto; display: none; }
-#stats { position: absolute; top: 0; left: 0; }
 #login { width: 704px; height: 100%; margin: auto; background: url('../assets/bg.jpg'); background-size: 100% 100%; }
 #login label { display: block; }
 #login .form-line { margin: auto; width: 300px; padding-top: 20px; }

@@ -7,9 +7,11 @@ null
 
 class Game
   constructor: ->
-    @statsInit()
     @writting = false
     @maxFrameTime = 200
+    @fps = 0
+    @refreshFPSInterval = 1000
+    @fpsTimer = 0
 
   loop: ->
     thisFrame = Date.now()
@@ -17,14 +19,12 @@ class Game
     animFrame(Game.prototype.loop.bind(@))
     @lastFrame = thisFrame
 
-    game.statsBegin()
-
-    while(frameTime > @maxFrameTime)
-      frameTime -= @maxFrameTime
-      game.update(@maxFrameTime)
     game.update(frameTime)
 
-    game.statsEnd()
+    @fpsTimer += frameTime
+    if @fpsTimer >= @refreshFPSInterval
+      @fpsTimer = 0
+      @fps = frameTime
 
   update: (frameTime) ->
 
@@ -36,16 +36,6 @@ class Game
   resize: ->
     document.getElementById("container").style.margin = "-"+(config.levelHeight-window.innerHeight)+" auto"
     document.getElementById("container").style.width = config.levelWidth
-
-  statsInit: ->
-    @fps = new Stats()
-    document.body.appendChild( @fps.domElement )
-
-  statsBegin: ->
-    @fps.begin()
-
-  statsEnd: ->
-    @fps.end()
 
   reset: ->
     if networkManager.socket isnt undefined

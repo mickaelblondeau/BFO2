@@ -103,9 +103,11 @@
 
   Game = (function() {
     function Game() {
-      this.statsInit();
       this.writting = false;
       this.maxFrameTime = 200;
+      this.fps = 0;
+      this.refreshFPSInterval = 1000;
+      this.fpsTimer = 0;
     }
 
     Game.prototype.loop = function() {
@@ -114,13 +116,12 @@
       frameTime = thisFrame - this.lastFrame;
       animFrame(Game.prototype.loop.bind(this));
       this.lastFrame = thisFrame;
-      game.statsBegin();
-      while (frameTime > this.maxFrameTime) {
-        frameTime -= this.maxFrameTime;
-        game.update(this.maxFrameTime);
-      }
       game.update(frameTime);
-      return game.statsEnd();
+      this.fpsTimer += frameTime;
+      if (this.fpsTimer >= this.refreshFPSInterval) {
+        this.fpsTimer = 0;
+        return this.fps = frameTime;
+      }
     };
 
     Game.prototype.update = function(frameTime) {};
@@ -134,19 +135,6 @@
     Game.prototype.resize = function() {
       document.getElementById("container").style.margin = "-" + (config.levelHeight - window.innerHeight) + " auto";
       return document.getElementById("container").style.width = config.levelWidth;
-    };
-
-    Game.prototype.statsInit = function() {
-      this.fps = new Stats();
-      return document.body.appendChild(this.fps.domElement);
-    };
-
-    Game.prototype.statsBegin = function() {
-      return this.fps.begin();
-    };
-
-    Game.prototype.statsEnd = function() {
-      return this.fps.end();
     };
 
     Game.prototype.reset = function() {
@@ -2536,6 +2524,10 @@
       if (text !== this.grabbing.getText()) {
         this.grabbing.setText(text);
       }
+      text = 'FPS : ' + Math.round(1000 / game.fps);
+      if (text !== this.fps.getText()) {
+        this.fps.setText(text);
+      }
       return hudLayer.draw();
     };
 
@@ -2574,12 +2566,19 @@
       this.grabbing = new Kinetic.Text({
         y: arena.y - 60,
         x: stage.getWidth() - 128,
-        text: 'Grab corner : 0',
         fill: 'black',
         fontFamily: 'Calibri',
         fontSize: 18
       });
-      return hudLayer.add(this.grabbing);
+      hudLayer.add(this.grabbing);
+      this.fps = new Kinetic.Text({
+        y: arena.y - 20,
+        x: 0,
+        fill: 'black',
+        fontFamily: 'Calibri',
+        fontSize: 18
+      });
+      return hudLayer.add(this.fps);
     };
 
     return HUD;
