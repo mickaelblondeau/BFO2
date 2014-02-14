@@ -165,8 +165,9 @@ class Player
     @jumpMax = config.playerJumpMax
     @speed = config.playerSpeed
     @jumpHeight = config.playerJumpHeight
+    @availableDoubleJump = 0
+    @availableGrab = 0
     @grabbing = false
-    @canGrab = false
     @coopJump = false
 
   resurection: ->

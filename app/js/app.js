@@ -677,8 +677,9 @@
       this.jumpMax = config.playerJumpMax;
       this.speed = config.playerSpeed;
       this.jumpHeight = config.playerJumpHeight;
+      this.availableDoubleJump = 0;
+      this.availableGrab = 0;
       this.grabbing = false;
-      this.canGrab = false;
       return this.coopJump = false;
     };
 
@@ -770,7 +771,6 @@
       this.couched = false;
       this.falling = true;
       this.grabbing = false;
-      this.canGrab = false;
       this.coopJump = false;
       this.alive = true;
       this.stomped = false;
@@ -1089,7 +1089,7 @@
           cubeBoundBox = collisionManager.getBoundBox(cube);
           if (collisionManager.colliding(playerBoundBox, cubeBoundBox) && ((cubeBoundBox.left < playerBoundBox.left && self.skin.getScaleX() === -1) || (cubeBoundBox.left > playerBoundBox.left && self.skin.getScaleX() === 1))) {
             if (collisionManager.collidingCorners(playerBoundBox, cubeBoundBox)) {
-              if (self.canGrab && self.availableGrab > 0) {
+              if (self.availableGrab > 0) {
                 self.availableGrab--;
                 self.grab(cube);
                 return count++;
@@ -1821,8 +1821,7 @@
         case "jumpCount":
           return player.availableDoubleJump += bonus.value;
         case "grab":
-          player.availableGrab += bonus.value;
-          return player.canGrab = true;
+          return player.availableGrab += bonus.value;
         case "resurection":
           networkManager.sendResurection();
           return player.resurection();
@@ -2112,7 +2111,7 @@
       new Effect(shape.getX() - shape.getWidth() / 2, shape.getY() - shape.getHeight() / 2, SquareEnum.SMALL, 'bioExplosion', true);
       staticCubes.find('Sprite').each(function(cube) {
         var i, _i, _ref, _results;
-        if (cube.getX() < shape.getX() + 96 && cube.getX() > shape.getX() - 64 && cube.getY() < shape.getY() + 64 && cube.getY() > shape.getY() - 64) {
+        if (cube.getX() < shape.getX() + 96 && cube.getX() > shape.getX() - 64 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 64) {
           _results = [];
           for (i = _i = 0, _ref = (cube.getWidth() / 32) - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
             _results.push(new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'slow'));
@@ -2123,7 +2122,7 @@
       dynamicEntities.find('Sprite').each(function(cube) {
         var i, _i, _ref, _results;
         if (!cube.getName().falling && cube.getName().type === 'cube') {
-          if (cube.getX() < shape.getX() + 96 && cube.getX() > shape.getX() - 64 && cube.getY() < shape.getY() + 64 && cube.getY() > shape.getY() - 64) {
+          if (cube.getX() < shape.getX() + 96 && cube.getX() > shape.getX() - 64 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 64) {
             _results = [];
             for (i = _i = 0, _ref = (cube.getWidth() / 32) - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
               _results.push(new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'slow'));

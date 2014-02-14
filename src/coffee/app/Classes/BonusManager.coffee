@@ -44,7 +44,6 @@ class BonusManager
         player.availableDoubleJump += bonus.value
       when "grab"
         player.availableGrab += bonus.value
-        player.canGrab = true
       when "resurection"
         networkManager.sendResurection()
         player.resurection()

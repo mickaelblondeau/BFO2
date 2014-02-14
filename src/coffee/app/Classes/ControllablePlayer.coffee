@@ -20,7 +20,6 @@ class ControllablePlayer extends Player
     @couched = false
     @falling = true
     @grabbing = false
-    @canGrab = false
     @coopJump = false
     @alive = true
     @stomped = false
@@ -273,7 +272,7 @@ class ControllablePlayer extends Player
         cubeBoundBox = collisionManager.getBoundBox(cube)
         if collisionManager.colliding(playerBoundBox, cubeBoundBox) and ((cubeBoundBox.left < playerBoundBox.left and self.skin.getScaleX() is -1) or (cubeBoundBox.left > playerBoundBox.left and self.skin.getScaleX() is 1))
           if collisionManager.collidingCorners(playerBoundBox, cubeBoundBox)
-            if self.canGrab and self.availableGrab > 0
+            if self.availableGrab > 0
               self.availableGrab--
               self.grab(cube)
               count++
