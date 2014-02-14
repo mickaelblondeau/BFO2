@@ -4,12 +4,12 @@ class BonusManager
       {
         name: 'doubleJump'
         attribute: 'jumpCount'
-        value: 2
+        value: 1
       },
       {
         name: 'grabbing'
         attribute: 'grab'
-        value: 70
+        value: 20
       },
       {
         name: 'resurection'
@@ -18,12 +18,12 @@ class BonusManager
       {
         name: 'speed'
         attribute: 'speed'
-        value: 0.03
+        value: 0.015
       },
       {
         name: 'jumpHeight'
         attribute: 'jumpHeight'
-        value: 5
+        value: 3
       },
     ]
     @timers = []

@@ -116,6 +116,9 @@
       frameTime = thisFrame - this.lastFrame;
       animFrame(Game.prototype.loop.bind(this));
       this.lastFrame = thisFrame;
+      if (frameTime > 100) {
+        frameTime = 100;
+      }
       game.update(frameTime);
       this.fpsTimer += frameTime;
       if (this.fpsTimer >= this.refreshFPSInterval) {
@@ -473,6 +476,42 @@
 
     CollisionManager.prototype.collidingCorners = function(a, b) {
       return ((b.right >= a.left && b.right < a.right && b.top >= a.top && b.top < a.bottom) || (b.left >= a.left && b.left < a.right && b.top >= a.top && b.top < a.bottom)) && a.top > b.top - 5;
+    };
+
+    CollisionManager.prototype.isCubeGrabbable = function(cube, player) {
+      var tmp;
+      if (player.getX() > cube.getX()) {
+        tmp = dynamicEntities.getIntersection({
+          x: cube.getX() + cube.getWidth(),
+          y: cube.getY() + 64
+        });
+        if (tmp !== void 0 && tmp !== null && tmp.shape._id !== cube._id) {
+          return false;
+        }
+        tmp = staticCubes.getIntersection({
+          x: cube.getX() + cube.getWidth(),
+          y: cube.getY() + 64
+        });
+        if (tmp !== void 0 && tmp !== null && tmp.shape._id !== cube._id) {
+          return false;
+        }
+      } else {
+        tmp = dynamicEntities.getIntersection({
+          x: cube.getX(),
+          y: cube.getY() + 64
+        });
+        if (tmp !== void 0 && tmp !== null && tmp.shape._id !== cube._id) {
+          return false;
+        }
+        tmp = staticCubes.getIntersection({
+          x: cube.getX(),
+          y: cube.getY() + 64
+        });
+        if (tmp !== void 0 && tmp !== null && tmp.shape._id !== cube._id) {
+          return false;
+        }
+      }
+      return true;
     };
 
     return CollisionManager;
@@ -1082,7 +1121,7 @@
         if (!cube.getName().falling && cube.getName().type === 'cube') {
           cubeBoundBox = collisionManager.getBoundBox(cube);
           if (collisionManager.colliding(playerBoundBox, cubeBoundBox) && ((cubeBoundBox.left < playerBoundBox.left && self.skin.getScaleX() === -1) || (cubeBoundBox.left > playerBoundBox.left && self.skin.getScaleX() === 1))) {
-            if (collisionManager.collidingCorners(playerBoundBox, cubeBoundBox)) {
+            if (collisionManager.collidingCorners(playerBoundBox, cubeBoundBox) && collisionManager.isCubeGrabbable(cube, self.shape)) {
               if (self.availableGrab > 0) {
                 self.availableGrab--;
                 self.grab(cube);
@@ -1769,22 +1808,22 @@
         {
           name: 'doubleJump',
           attribute: 'jumpCount',
-          value: 2
+          value: 1
         }, {
           name: 'grabbing',
           attribute: 'grab',
-          value: 70
+          value: 20
         }, {
           name: 'resurection',
           attribute: 'resurection'
         }, {
           name: 'speed',
           attribute: 'speed',
-          value: 0.03
+          value: 0.015
         }, {
           name: 'jumpHeight',
           attribute: 'jumpHeight',
-          value: 5
+          value: 3
         }
       ];
       this.timers = [];
@@ -2533,7 +2572,7 @@
 
     HUD.prototype.drawHUD = function() {
       this.level = new Kinetic.Text({
-        y: arena.y,
+        y: arena.y - 20,
         fill: 'black',
         fontFamily: 'Calibri',
         fontSize: 18
@@ -2572,7 +2611,7 @@
       });
       hudLayer.add(this.grabbing);
       this.fps = new Kinetic.Text({
-        y: arena.y - 20,
+        y: arena.y,
         x: 0,
         fill: 'black',
         fontFamily: 'Calibri',

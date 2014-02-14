@@ -32,7 +32,7 @@ class HUD
 
   drawHUD: ->
     @level = new Kinetic.Text
-      y: arena.y
+      y: arena.y - 20
       fill: 'black'
       fontFamily: 'Calibri'
       fontSize: 18
@@ -71,7 +71,7 @@ class HUD
     hudLayer.add @grabbing
 
     @fps = new Kinetic.Text
-      y: arena.y - 20
+      y: arena.y
       x: 0
       fill: 'black'
       fontFamily: 'Calibri'

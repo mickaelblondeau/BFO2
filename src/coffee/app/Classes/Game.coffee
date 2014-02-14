@@ -19,6 +19,8 @@ class Game
     animFrame(Game.prototype.loop.bind(@))
     @lastFrame = thisFrame
 
+    if frameTime > 100
+      frameTime = 100
     game.update(frameTime)
 
     @fpsTimer += frameTime

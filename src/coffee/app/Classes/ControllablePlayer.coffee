@@ -281,7 +281,7 @@ class ControllablePlayer extends Player
       if !cube.getName().falling and cube.getName().type is 'cube'
         cubeBoundBox = collisionManager.getBoundBox(cube)
         if collisionManager.colliding(playerBoundBox, cubeBoundBox) and ((cubeBoundBox.left < playerBoundBox.left and self.skin.getScaleX() is -1) or (cubeBoundBox.left > playerBoundBox.left and self.skin.getScaleX() is 1))
-          if collisionManager.collidingCorners(playerBoundBox, cubeBoundBox)
+          if collisionManager.collidingCorners(playerBoundBox, cubeBoundBox) and collisionManager.isCubeGrabbable(cube, self.shape)
             if self.availableGrab > 0
               self.availableGrab--
               self.grab(cube)
