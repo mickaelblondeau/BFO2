@@ -11,6 +11,8 @@ class BossManager
       @currentBoss = new PoingMan(options)
     if boss == 4
       @currentBoss = new LabiMan(options)
+    if boss == 5
+      @currentBoss = new SparkMan(options)
 
   reset: ->
     @stopUpdate()

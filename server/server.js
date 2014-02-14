@@ -1,5 +1,5 @@
 (function() {
-  var Boss, BossManager, CubeManager, FreezeMan, Game, LabiMan, LevelManager, NetworkManager, PoingMan, RoueMan, SpecialCubes, SquareEnum, bossManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
+  var Boss, BossManager, CubeManager, FreezeMan, Game, LabiMan, LevelManager, NetworkManager, PoingMan, RoueMan, SparkMan, SpecialCubes, SquareEnum, bossManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -794,7 +794,7 @@
   BossManager = (function() {
     function BossManager() {
       this.launched = false;
-      this.boss = ['roueman', 'freezeman', 'poingman', 'labiman'];
+      this.boss = ['sparkman'];
     }
 
     BossManager.prototype.launch = function() {
@@ -819,6 +819,8 @@
         return new PoingMan();
       } else if (boss === 'labiman') {
         return new LabiMan();
+      } else if (boss === 'sparkman') {
+        return new SparkMan();
       }
     };
 
@@ -970,6 +972,43 @@
     };
 
     return LabiMan;
+
+  })(Boss);
+
+  SparkMan = (function(_super) {
+    __extends(SparkMan, _super);
+
+    function SparkMan() {
+      SparkMan.__super__.constructor.call(this, 'sparkman', 30000, this.getPattern());
+      this.id = 5;
+    }
+
+    SparkMan.prototype.getPattern = function() {
+      var attackSpeed, attacks, interval, options, speed;
+      speed = Math.round((0.5 + 0.03 * levelManager.level) * 100) / 100;
+      attackSpeed = Math.round((0.2 + 0.005 * (levelManager.level - 1)) * 100) / 100;
+      interval = 4000 - 50 * levelManager.level;
+      options = [speed, attackSpeed, interval];
+      attacks = this.makeLevel();
+      return [options, attacks];
+    };
+
+    SparkMan.prototype.makeLevel = function() {
+      var attacks, i, xSide, ySide, ySpeed, _i;
+      attacks = [];
+      for (i = _i = 0; _i <= 7; i = ++_i) {
+        ySpeed = (Math.round(Math.random() * 25 + 10)) / 100;
+        xSide = Math.round(Math.random() * 2 - 1);
+        ySide = 1;
+        if (xSide === 0) {
+          xSide = 1;
+        }
+        attacks.push([xSide, ySide, ySpeed]);
+      }
+      return attacks;
+    };
+
+    return SparkMan;
 
   })(Boss);
 

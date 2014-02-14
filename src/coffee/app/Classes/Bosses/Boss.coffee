@@ -39,6 +39,12 @@ class Boss
         y: 0
         width: 64
         height: 64
+      }],
+      sparkman: [{
+        x: 320
+        y: 0
+        width: 64
+        height: 64
       }]
     }
     @draw()

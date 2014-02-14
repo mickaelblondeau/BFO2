@@ -81,7 +81,7 @@ contentLoader.contentsLoaded = ->
       hud.update(frameTime)
       cubeManager.update(frameTime)
 
-  document.querySelector('#play').onclick = () ->
+  document.querySelector('#play').onclick = ->
     ip = document.querySelector('#ip').value.replace(" ","")
     name = document.querySelector('#name').value
     document.querySelector('#login-form').style.display = 'none'

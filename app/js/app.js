@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, Cube, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, Keyboard, LabiMan, LabiManPart, LevelManager, MultiPartBoss, NetworkManager, Player, PoingMan, PoingManPart, RoueMan, SkinManager, SpecialCube, SpecialCubes, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, debugLayer, debugMap, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, players, skin, skinManager, stage, staticBg, staticCubes, _i, _len,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, Cube, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, Keyboard, LabiMan, LabiManPart, LevelManager, MultiPartBoss, NetworkManager, Player, PoingMan, RoueMan, SkinManager, SparkMan, SparkManPart, SpecialCube, SpecialCubes, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, debugLayer, debugMap, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, players, skin, skinManager, stage, staticBg, staticCubes, _i, _len,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -2709,6 +2709,14 @@
             width: 64,
             height: 64
           }
+        ],
+        sparkman: [
+          {
+            x: 320,
+            y: 0,
+            width: 64,
+            height: 64
+          }
         ]
       };
       this.draw();
@@ -2797,7 +2805,10 @@
         this.currentBoss = new PoingMan(options);
       }
       if (boss === 4) {
-        return this.currentBoss = new LabiMan(options);
+        this.currentBoss = new LabiMan(options);
+      }
+      if (boss === 5) {
+        return this.currentBoss = new SparkMan(options);
       }
     };
 
@@ -3144,18 +3155,6 @@
 
   })(Boss);
 
-  PoingManPart = (function(_super) {
-    __extends(PoingManPart, _super);
-
-    function PoingManPart(x, y) {
-      PoingManPart.__super__.constructor.call(this, 'roueman', x, y, 64, 64);
-      this.attached = true;
-    }
-
-    return PoingManPart;
-
-  })(Boss);
-
   LabiMan = (function(_super) {
     __extends(LabiMan, _super);
 
@@ -3305,6 +3304,160 @@
     }
 
     return LabiManPart;
+
+  })(Boss);
+
+  SparkMan = (function(_super) {
+    __extends(SparkMan, _super);
+
+    function SparkMan(pattern) {
+      var x, y;
+      x = stage.getWidth() / 2 - 32;
+      y = stage.getY() * -1 - 64;
+      SparkMan.__super__.constructor.call(this, 'sparkman', x, y, 64, 64);
+      this.speed = pattern[0][0];
+      this.attackSpeed = pattern[0][1];
+      this.interval = pattern[0][2];
+      this.attacks = pattern[1];
+      this.position = arena.y - levelManager.levelHeight - 512;
+      this.time = 0;
+      this.attackCount = 0;
+      this.attackFinished = 0;
+      this.attackIndex = 0;
+      this.inPosition = false;
+      this.start();
+    }
+
+    SparkMan.prototype.genAttacks = function() {
+      var attacks, i, xSide, ySide, ySpeed, _i;
+      attacks = [];
+      for (i = _i = 0; _i <= 7; i = ++_i) {
+        ySpeed = (Math.round(Math.random() * 25 + 10)) / 100;
+        xSide = Math.round(Math.random() * 2 - 1);
+        ySide = 1;
+        if (xSide === 0) {
+          xSide = 1;
+        }
+        attacks.push([xSide, ySide, ySpeed]);
+      }
+      return attacks;
+    };
+
+    SparkMan.prototype.start = function() {
+      var self;
+      self = this;
+      return bossManager.update = function(frameTime) {
+        if (!self.inPosition) {
+          self.moveToPosition(frameTime);
+        } else if (self.time >= self.interval) {
+          self.time = 0;
+          self.attack();
+        } else if (self.attackCount < self.attacks.length) {
+          self.time += frameTime;
+        }
+        return self.updateParts(frameTime);
+      };
+    };
+
+    SparkMan.prototype.moveToPosition = function(frameTime) {
+      var tmp;
+      tmp = this.shape.getY() + this.speed * frameTime;
+      if (tmp < this.position) {
+        return this.shape.setY(tmp);
+      } else {
+        this.shape.setY(this.position);
+        this.inPosition = true;
+        return this.time = this.interval * 0.75;
+      }
+    };
+
+    SparkMan.prototype.attack = function() {
+      this.parts.push(new SparkManPart(this.shape.getX(), this.shape.getY() + 64, this.attacks[this.attackIndex]));
+      this.parts.push(new SparkManPart(this.shape.getX(), this.shape.getY() + 64, this.attacks[this.attackIndex + 1]));
+      this.attackCount += 2;
+      return this.attackIndex += 2;
+    };
+
+    SparkMan.prototype.updateParts = function(frameTime) {
+      var part, tmpX, tmpY, _i, _len, _ref;
+      _ref = this.parts;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        part = _ref[_i];
+        tmpY = part.shape.getY() + part.ySpeed * frameTime * part.sideY;
+        if (tmpY > arena.y - levelManager.levelHeight - 64) {
+          part.shape.setY(arena.y - levelManager.levelHeight - 64);
+          if (part.changeSide('y')) {
+            this.attackFinished++;
+          }
+        }
+        if (tmpY < this.position - 96) {
+          part.shape.setY(this.position - 96);
+          if (part.changeSide('y')) {
+            this.attackFinished++;
+          }
+        }
+        part.shape.setY(tmpY);
+        tmpX = part.shape.getX() + this.attackSpeed * frameTime * part.sideX;
+        if (tmpX < 160) {
+          part.shape.setX(160);
+          if (part.changeSide('x')) {
+            this.attackFinished++;
+          }
+        }
+        if (tmpX > stage.getWidth() - 224) {
+          part.shape.setX(stage.getWidth() - 224);
+          if (part.changeSide('x')) {
+            this.attackFinished++;
+          }
+        }
+        part.shape.setX(tmpX);
+      }
+      if (this.attackFinished === this.attacks.length) {
+        return this.quitScreen(frameTime);
+      }
+    };
+
+    SparkMan.prototype.quitScreen = function(frameTime) {
+      var tmp;
+      tmp = this.shape.getX() + this.speed * frameTime;
+      if (tmp < 800) {
+        return this.shape.setX(tmp);
+      } else {
+        return this.finish();
+      }
+    };
+
+    return SparkMan;
+
+  })(MultiPartBoss);
+
+  SparkManPart = (function(_super) {
+    __extends(SparkManPart, _super);
+
+    function SparkManPart(x, y, attack) {
+      SparkManPart.__super__.constructor.call(this, 'roueman', x, y, 64, 64);
+      this.sideX = attack[0];
+      this.sideY = attack[1];
+      this.ySpeed = attack[2];
+      this.life = 10;
+    }
+
+    SparkManPart.prototype.changeSide = function(side) {
+      if (side === 'x') {
+        this.sideX *= -1;
+      } else {
+        this.sideY *= -1;
+      }
+      this.life--;
+      if (this.life === 0) {
+        this.reset();
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    return SparkManPart;
 
   })(Boss);
 
