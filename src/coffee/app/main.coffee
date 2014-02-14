@@ -55,6 +55,9 @@ contentLoader.contentsLoaded = ->
   document.querySelector('#login-form').style.display = 'block'
   document.querySelector('#login-loading').style.display = 'none'
 
+  if window.location.host is 'blockfallingonline.eu'
+    document.querySelector('#ip').val = 'blockfallingonline.eu'
+
   contentLoader.playSong()
 
   launchGame = (ip, name) ->
