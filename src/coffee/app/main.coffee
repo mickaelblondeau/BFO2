@@ -54,9 +54,7 @@ if config.debug
 contentLoader.contentsLoaded = ->
   document.querySelector('#login-form').style.display = 'block'
   document.querySelector('#login-loading').style.display = 'none'
-
-  if window.location.host is 'blockfallingonline.eu'
-    document.querySelector('#ip').val = 'blockfallingonline.eu'
+  document.querySelector('#ip').val = window.location.host
 
   contentLoader.playSong()
 
@@ -88,6 +86,6 @@ contentLoader.contentsLoaded = ->
     name = document.querySelector('#name').value
     document.querySelector('#login-form').style.display = 'none'
     document.querySelector('#login-loading').style.display = 'block'
-    document.querySelector('#login-loading').innerHTML = 'Connecting to '+ip+'...'
+    document.querySelector('#login-loading').innerHTML = 'Waiting for '+ip+'...'
     launchGame(ip, name)
     contentLoader.play('beep')
