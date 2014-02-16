@@ -794,7 +794,7 @@
   BossManager = (function() {
     function BossManager() {
       this.launched = false;
-      this.boss = ['sparkman'];
+      this.boss = ['roueman', 'freezeman', 'poingman', 'labiman', 'sparkman'];
     }
 
     BossManager.prototype.launch = function() {

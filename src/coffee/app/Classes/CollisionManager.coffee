@@ -17,17 +17,17 @@ class CollisionManager
 
   isCubeGrabbable: (cube, player) ->
     if player.getX() > cube.getX()
-      tmp = dynamicEntities.getIntersection({ x: cube.getX() + cube.getWidth(), y: cube.getY() + 64 })
+      tmp = dynamicEntities.getIntersection({ x: cube.getX() + cube.getWidth() + 8, y: cube.getY() + 64 })
       if tmp isnt undefined and tmp isnt null and tmp.shape._id isnt cube._id
         return false
-      tmp = staticCubes.getIntersection({ x: cube.getX() + cube.getWidth(), y: cube.getY() + 64 })
+      tmp = staticCubes.getIntersection({ x: cube.getX() + cube.getWidth() + 8, y: cube.getY() + 64 })
       if tmp isnt undefined and tmp isnt null and tmp.shape._id isnt cube._id
         return false
     else
-      tmp = dynamicEntities.getIntersection({ x: cube.getX(), y: cube.getY() + 64 })
+      tmp = dynamicEntities.getIntersection({ x: cube.getX() - 8, y: cube.getY() + 64 })
       if tmp isnt undefined and tmp isnt null and tmp.shape._id isnt cube._id
         return false
-      tmp = staticCubes.getIntersection({ x: cube.getX(), y: cube.getY() + 64 })
+      tmp = staticCubes.getIntersection({ x: cube.getX() + 8, y: cube.getY() + 64 })
       if tmp isnt undefined and tmp isnt null and tmp.shape._id isnt cube._id
         return false
     return true
