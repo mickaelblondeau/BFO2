@@ -484,14 +484,14 @@
       var tmp;
       if (player.getX() > cube.getX()) {
         tmp = dynamicEntities.getIntersection({
-          x: cube.getX() + cube.getWidth(),
+          x: cube.getX() + cube.getWidth() + 8,
           y: cube.getY() + 64
         });
         if (tmp !== void 0 && tmp !== null && tmp.shape._id !== cube._id) {
           return false;
         }
         tmp = staticCubes.getIntersection({
-          x: cube.getX() + cube.getWidth(),
+          x: cube.getX() + cube.getWidth() + 8,
           y: cube.getY() + 64
         });
         if (tmp !== void 0 && tmp !== null && tmp.shape._id !== cube._id) {
@@ -499,14 +499,14 @@
         }
       } else {
         tmp = dynamicEntities.getIntersection({
-          x: cube.getX(),
+          x: cube.getX() - 8,
           y: cube.getY() + 64
         });
         if (tmp !== void 0 && tmp !== null && tmp.shape._id !== cube._id) {
           return false;
         }
         tmp = staticCubes.getIntersection({
-          x: cube.getX(),
+          x: cube.getX() + 8,
           y: cube.getY() + 64
         });
         if (tmp !== void 0 && tmp !== null && tmp.shape._id !== cube._id) {
