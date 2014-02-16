@@ -4,7 +4,8 @@ class RoueMan extends Boss
     @id = 1
 
   getPattern: ->
-    speed = Math.round((0.6 + 0.1 * levelManager.level) * 100) / 100
+    speedPerLevel = 0.05
+    speed = Math.round((0.6 + speedPerLevel * levelManager.level) * 100) / 100
     options = speed
     attacks = []
     for i in [0..5]

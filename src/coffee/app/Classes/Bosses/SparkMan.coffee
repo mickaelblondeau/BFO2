@@ -59,8 +59,8 @@ class SparkMan extends MultiPartBoss
   updateParts: (frameTime) ->
     for part in @parts
       tmpY = part.shape.getY() + part.ySpeed * frameTime * part.sideY
-      if tmpY > arena.y - levelManager.levelHeight - 64
-        part.shape.setY(arena.y - levelManager.levelHeight - 64)
+      if tmpY > arena.y - levelManager.levelHeight - 32
+        part.shape.setY(arena.y - levelManager.levelHeight - 32)
         if part.changeSide('y')
           @attackFinished++
       if tmpY < @position - 96
@@ -74,8 +74,8 @@ class SparkMan extends MultiPartBoss
         part.shape.setX(160)
         if part.changeSide('x')
           @attackFinished++
-      if tmpX > stage.getWidth() - 224
-        part.shape.setX(stage.getWidth() - 224)
+      if tmpX > stage.getWidth() - 192
+        part.shape.setX(stage.getWidth() - 192)
         if part.changeSide('x')
           @attackFinished++
       part.shape.setX(tmpX)

@@ -9,12 +9,13 @@ class LabiMan extends MultiPartBoss
     @attacks = pattern[1]
     @speed = pattern[0][0]
     @attackSpeed = pattern[0][1]
+    @wait = pattern[0][2]
     @maxHeight = @getMaxHeight()
 
     @waiting = false
     @attacking = false
-    @count = 0
     @index = 0
+    @waitTime = 0
 
     @start()
 
@@ -35,6 +36,9 @@ class LabiMan extends MultiPartBoss
         self.bossEscape(frameTime)
       if self.attacking
         self.attack(frameTime)
+      self.waitTime += frameTime
+      if !self.attacking and self.waitTime >= self.wait
+        self.attacking = true
 
   moveToPosition: (frameTime) ->
     destX = @attacks[@index][0]*32 + 160
@@ -71,12 +75,9 @@ class LabiMan extends MultiPartBoss
 
     if @shape.getY() is destY and @shape.getX() is destX
       @index++
-      @count++
       @placeBlock()
       if @attacks[@index] is undefined
         @waiting = true
-      if @count is 7
-        @attacking = true
 
   attack: (frameTime) ->
     tmp = @parts[0].shape.getY() - @attackSpeed * frameTime

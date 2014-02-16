@@ -14,10 +14,10 @@
     skins: {
       body: 3,
       hair: 3,
-      head: 1,
+      head: 2,
       leg: 3,
       shoes: 3,
-      skin: 3
+      skin: 4
     }
   };
 
@@ -2717,6 +2717,14 @@
             width: 64,
             height: 64
           }
+        ],
+        spark: [
+          {
+            x: 0,
+            y: 96,
+            width: 32,
+            height: 32
+          }
         ]
       };
       this.draw();
@@ -2861,7 +2869,7 @@
         } else {
           self.shape.setX(x);
           if (next === 'return') {
-            return self.moveY(arena.y - levelManager.levelHeight - 128, '-', 'return');
+            return self.moveY(arena.y - levelManager.levelHeight - 256, '-', 'return');
           } else if (next === 'next') {
             return self.next();
           }
@@ -3171,11 +3179,12 @@
       this.attacks = pattern[1];
       this.speed = pattern[0][0];
       this.attackSpeed = pattern[0][1];
+      this.wait = pattern[0][2];
       this.maxHeight = this.getMaxHeight();
       this.waiting = false;
       this.attacking = false;
-      this.count = 0;
       this.index = 0;
+      this.waitTime = 0;
       this.start();
     }
 
@@ -3203,7 +3212,11 @@
           self.bossEscape(frameTime);
         }
         if (self.attacking) {
-          return self.attack(frameTime);
+          self.attack(frameTime);
+        }
+        self.waitTime += frameTime;
+        if (!self.attacking && self.waitTime >= self.wait) {
+          return self.attacking = true;
         }
       };
     };
@@ -3248,13 +3261,9 @@
       }
       if (this.shape.getY() === destY && this.shape.getX() === destX) {
         this.index++;
-        this.count++;
         this.placeBlock();
         if (this.attacks[this.index] === void 0) {
-          this.waiting = true;
-        }
-        if (this.count === 7) {
-          return this.attacking = true;
+          return this.waiting = true;
         }
       }
     };
@@ -3384,8 +3393,8 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         part = _ref[_i];
         tmpY = part.shape.getY() + part.ySpeed * frameTime * part.sideY;
-        if (tmpY > arena.y - levelManager.levelHeight - 64) {
-          part.shape.setY(arena.y - levelManager.levelHeight - 64);
+        if (tmpY > arena.y - levelManager.levelHeight - 32) {
+          part.shape.setY(arena.y - levelManager.levelHeight - 32);
           if (part.changeSide('y')) {
             this.attackFinished++;
           }
@@ -3404,8 +3413,8 @@
             this.attackFinished++;
           }
         }
-        if (tmpX > stage.getWidth() - 224) {
-          part.shape.setX(stage.getWidth() - 224);
+        if (tmpX > stage.getWidth() - 192) {
+          part.shape.setX(stage.getWidth() - 192);
           if (part.changeSide('x')) {
             this.attackFinished++;
           }
@@ -3435,7 +3444,7 @@
     __extends(SparkManPart, _super);
 
     function SparkManPart(x, y, attack) {
-      SparkManPart.__super__.constructor.call(this, 'roueman', x, y, 64, 64);
+      SparkManPart.__super__.constructor.call(this, 'spark', x, y, 64, 64);
       this.sideX = attack[0];
       this.sideY = attack[1];
       this.ySpeed = attack[2];

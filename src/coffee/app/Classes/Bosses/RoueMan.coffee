@@ -22,7 +22,7 @@ class RoueMan extends Boss
       else
         self.shape.setX(x)
         if next is 'return'
-          self.moveY(arena.y - levelManager.levelHeight - 128, '-', 'return')
+          self.moveY(arena.y - levelManager.levelHeight - 256, '-', 'return')
         else if next is 'next'
           self.next()
 

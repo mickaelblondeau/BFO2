@@ -45,6 +45,12 @@ class Boss
         y: 0
         width: 64
         height: 64
+      }],
+      spark: [{
+        x: 0
+        y: 96
+        width: 32
+        height: 32
       }]
     }
     @draw()

@@ -837,8 +837,9 @@
     }
 
     RoueMan.prototype.getPattern = function() {
-      var attacks, i, options, rand, speed, _i;
-      speed = Math.round((0.6 + 0.1 * levelManager.level) * 100) / 100;
+      var attacks, i, options, rand, speed, speedPerLevel, _i;
+      speedPerLevel = 0.05;
+      speed = Math.round((0.6 + speedPerLevel * levelManager.level) * 100) / 100;
       options = speed;
       attacks = [];
       for (i = _i = 0; _i <= 5; i = ++_i) {
@@ -921,10 +922,11 @@
     }
 
     LabiMan.prototype.getPattern = function() {
-      var attackSpeed, attacks, options, speed;
-      speed = Math.round((0.3 + 0.05 * levelManager.level) * 100) / 100;
-      attackSpeed = Math.round((0.075 + 0.005 * (levelManager.level - 1)) * 100) / 100;
-      options = [speed, attackSpeed];
+      var attackSpeed, attacks, options, speed, wait;
+      speed = 0.4;
+      attackSpeed = Math.round((0.075 + 0.0075 * (levelManager.level - 1)) * 100) / 100;
+      wait = 4000 - 50 * levelManager.level;
+      options = [speed, attackSpeed, wait];
       attacks = this.makeLevel();
       return [options, attacks];
     };
@@ -985,19 +987,20 @@
 
     SparkMan.prototype.getPattern = function() {
       var attackSpeed, attacks, interval, options, speed;
+      levelManager.level = 8;
       speed = Math.round((0.5 + 0.03 * levelManager.level) * 100) / 100;
       attackSpeed = Math.round((0.2 + 0.005 * (levelManager.level - 1)) * 100) / 100;
-      interval = 4000 - 50 * levelManager.level;
+      interval = 4000 - 20 * levelManager.level;
       options = [speed, attackSpeed, interval];
-      attacks = this.makeLevel();
+      attacks = this.makeLevel(attackSpeed);
       return [options, attacks];
     };
 
-    SparkMan.prototype.makeLevel = function() {
+    SparkMan.prototype.makeLevel = function(xSpeed) {
       var attacks, i, xSide, ySide, ySpeed, _i;
       attacks = [];
       for (i = _i = 0; _i <= 7; i = ++_i) {
-        ySpeed = (Math.round(Math.random() * 25 + 10)) / 100;
+        ySpeed = (Math.round(Math.random() * (xSpeed * 100 - 10) + 10)) / 100;
         xSide = Math.round(Math.random() * 2 - 1);
         ySide = 1;
         if (xSide === 0) {

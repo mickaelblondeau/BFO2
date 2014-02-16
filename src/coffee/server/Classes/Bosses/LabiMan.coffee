@@ -4,9 +4,10 @@ class LabiMan extends Boss
     @id = 4
 
   getPattern: ->
-    speed = Math.round((0.3 + 0.05 * levelManager.level) * 100) / 100
-    attackSpeed = Math.round((0.075 + 0.005 * (levelManager.level - 1)) * 100) / 100
-    options = [speed, attackSpeed]
+    speed = 0.4
+    attackSpeed = Math.round((0.075 + 0.0075 * (levelManager.level - 1)) * 100) / 100
+    wait = 4000 - 50 * levelManager.level
+    options = [speed, attackSpeed, wait]
     attacks = @makeLevel()
     return [options, attacks]
 

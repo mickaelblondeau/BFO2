@@ -6,5 +6,5 @@ config = {
   playerJumpHeight: 82
   playerSpeed: 0.17
   debug: false
-  skins: { body: 3, hair: 3, head: 1, leg: 3, shoes: 3, skin: 3 }
+  skins: { body: 3, hair: 3, head: 2, leg: 3, shoes: 3, skin: 4 }
 }
