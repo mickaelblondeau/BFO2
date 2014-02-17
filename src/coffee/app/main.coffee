@@ -54,7 +54,7 @@ if config.debug
 contentLoader.contentsLoaded = ->
   document.querySelector('#login-form').style.display = 'block'
   document.querySelector('#login-loading').style.display = 'none'
-  document.querySelector('#ip').val = window.location.host
+  document.querySelector('#ip').value = window.location.host
 
   contentLoader.playSong()
 
