@@ -12,11 +12,11 @@
     playerSpeed: 0.17,
     debug: false,
     skins: {
-      body: 3,
-      hair: 3,
-      head: 2,
+      body: 4,
+      hair: 4,
+      head: 3,
       leg: 3,
-      shoes: 3,
+      shoes: 4,
       skin: 4
     }
   };
