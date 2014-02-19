@@ -5,6 +5,11 @@ class NetworkManager
     @responseOk = 0
     @listener()
 
+    @io.enable('browser client minification')
+    @io.enable('browser client etag')
+    @io.enable('browser client gzip')
+    @io.set('log level', 1)
+
   listener: ->
     self = @
     @io.sockets.on 'connection', (socket) ->
@@ -135,6 +140,9 @@ class NetworkManager
     for player in players
       list.push player.id
     @io.sockets.emit 'playerList', list
+
+    if players.length is 0
+      game.reset()
 
   sendMap: (map) ->
     @io.sockets.emit 'debugMap', map

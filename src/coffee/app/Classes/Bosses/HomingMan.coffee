@@ -44,6 +44,7 @@ class HomingMan extends MultiPartBoss
     for id, i in networkManager.playersId
       if networkManager.players[id] isnt undefined
         @parts.push(new HomingManPart(@shape.getX(), @shape.getY() + 64, @partLife, networkManager.players[id]))
+        @attackCount++
     @parts.push(new HomingManPart(@shape.getX(), @shape.getY() + 64, @partLife, player))
     @attackCount++
 
@@ -70,7 +71,6 @@ class HomingMan extends MultiPartBoss
         tmp = part.shape.getY() + speedY
         if tmp < part.target.shape.getY() + part.target.shape.getHeight() / 2
           part.shape.setY(part.shape.getY() + speedY)
-
       else
         part.reset()
 

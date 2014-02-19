@@ -142,7 +142,7 @@ class CubeManager
 
   stompEffet: (shape) ->
     contentLoader.play('explosion')
-    if !player.jump
+    if !player.jump and !player.falling
       player.oldStats = {
         jumpHeight: player.jumpHeight
         jumpMinAcceleration: player.jumpMinAcceleration

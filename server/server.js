@@ -594,6 +594,10 @@
       this.waitingFor = 0;
       this.responseOk = 0;
       this.listener();
+      this.io.enable('browser client minification');
+      this.io.enable('browser client etag');
+      this.io.enable('browser client gzip');
+      this.io.set('log level', 1);
     }
 
     NetworkManager.prototype.listener = function() {
@@ -769,7 +773,10 @@
         player = players[_i];
         list.push(player.id);
       }
-      return this.io.sockets.emit('playerList', list);
+      this.io.sockets.emit('playerList', list);
+      if (players.length === 0) {
+        return game.reset();
+      }
     };
 
     NetworkManager.prototype.sendMap = function(map) {
@@ -934,11 +941,14 @@
     };
 
     LabiMan.prototype.makeLevel = function() {
-      var i, level, _i;
+      var i, level, tmp, _i;
       level = [];
       level.push([Math.floor(Math.random() * 10), 2]);
       for (i = _i = 0; _i <= 10; i = ++_i) {
-        level.push(this.nextPossibility(level));
+        tmp = this.nextPossibility(level);
+        if (tmp[1] < 20) {
+          level.push(tmp);
+        }
       }
       return level;
     };

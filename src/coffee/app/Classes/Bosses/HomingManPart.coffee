@@ -3,11 +3,16 @@ class HomingManPart extends Boss
     super('spark', x, y, 32, 32)
     @target = target
     @boostSpeed = 0.2
+    @alive = true
 
     self = @
 
     fn = ->
-      bossManager.currentBoss.attackFinished++
       self.reset()
-
     setTimeout(fn, life)
+
+  reset: ->
+    if @alive
+      @alive = false
+      bossManager.currentBoss.attackFinished++
+      super()

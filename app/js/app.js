@@ -2214,7 +2214,7 @@
 
     CubeManager.prototype.stompEffet = function(shape) {
       contentLoader.play('explosion');
-      if (!player.jump) {
+      if (!player.jump && !player.falling) {
         player.oldStats = {
           jumpHeight: player.jumpHeight,
           jumpMinAcceleration: player.jumpMinAcceleration,
@@ -3533,6 +3533,7 @@
         id = _ref[i];
         if (networkManager.players[id] !== void 0) {
           this.parts.push(new HomingManPart(this.shape.getX(), this.shape.getY() + 64, this.partLife, networkManager.players[id]));
+          this.attackCount++;
         }
       }
       this.parts.push(new HomingManPart(this.shape.getX(), this.shape.getY() + 64, this.partLife, player));
@@ -3596,13 +3597,21 @@
       HomingManPart.__super__.constructor.call(this, 'spark', x, y, 32, 32);
       this.target = target;
       this.boostSpeed = 0.2;
+      this.alive = true;
       self = this;
       fn = function() {
-        bossManager.currentBoss.attackFinished++;
         return self.reset();
       };
       setTimeout(fn, life);
     }
+
+    HomingManPart.prototype.reset = function() {
+      if (this.alive) {
+        this.alive = false;
+        bossManager.currentBoss.attackFinished++;
+        return HomingManPart.__super__.reset.call(this);
+      }
+    };
 
     return HomingManPart;
 

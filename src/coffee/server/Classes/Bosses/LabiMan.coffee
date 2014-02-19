@@ -15,7 +15,9 @@ class LabiMan extends Boss
     level = []
     level.push([Math.floor(Math.random()*10), 2])
     for i in [0..10]
-      level.push(@nextPossibility(level))
+      tmp = @nextPossibility(level)
+      if tmp[1] < 20
+        level.push(tmp)
     return level
 
   nextPossibility: (level) ->
