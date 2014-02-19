@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, Cube, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, Keyboard, LabiMan, LabiManPart, LevelManager, MultiPartBoss, NetworkManager, Player, PoingMan, RoueMan, SkinManager, SparkMan, SparkManPart, SpecialCube, SpecialCubes, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, debugLayer, debugMap, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, players, skin, skinManager, stage, staticBg, staticCubes, _i, _len,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, Cube, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, HomingMan, HomingManPart, Keyboard, LabiMan, LabiManPart, LevelManager, MultiPartBoss, NetworkManager, Player, PoingMan, RoueMan, SkinManager, SparkMan, SparkManPart, SpecialCube, SpecialCubes, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, debugLayer, debugMap, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, players, skin, skinManager, stage, staticBg, staticCubes, _i, _len,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -2724,6 +2724,24 @@
             y: 96,
             width: 32,
             height: 32
+          }, {
+            x: 32,
+            y: 96,
+            width: 32,
+            height: 32
+          }, {
+            x: 64,
+            y: 96,
+            width: 32,
+            height: 32
+          }
+        ],
+        homingman: [
+          {
+            x: 384,
+            y: 0,
+            width: 64,
+            height: 64
           }
         ]
       };
@@ -2816,7 +2834,10 @@
         this.currentBoss = new LabiMan(options);
       }
       if (boss === 5) {
-        return this.currentBoss = new SparkMan(options);
+        this.currentBoss = new SparkMan(options);
+      }
+      if (boss === 6) {
+        return this.currentBoss = new HomingMan(options);
       }
     };
 
@@ -3337,21 +3358,6 @@
       this.start();
     }
 
-    SparkMan.prototype.genAttacks = function() {
-      var attacks, i, xSide, ySide, ySpeed, _i;
-      attacks = [];
-      for (i = _i = 0; _i <= 7; i = ++_i) {
-        ySpeed = (Math.round(Math.random() * 25 + 10)) / 100;
-        xSide = Math.round(Math.random() * 2 - 1);
-        ySide = 1;
-        if (xSide === 0) {
-          xSide = 1;
-        }
-        attacks.push([xSide, ySide, ySpeed]);
-      }
-      return attacks;
-    };
-
     SparkMan.prototype.start = function() {
       var self;
       self = this;
@@ -3444,7 +3450,7 @@
     __extends(SparkManPart, _super);
 
     function SparkManPart(x, y, attack) {
-      SparkManPart.__super__.constructor.call(this, 'spark', x, y, 64, 64);
+      SparkManPart.__super__.constructor.call(this, 'spark', x, y, 32, 32);
       this.sideX = attack[0];
       this.sideY = attack[1];
       this.ySpeed = attack[2];
@@ -3467,6 +3473,138 @@
     };
 
     return SparkManPart;
+
+  })(Boss);
+
+  HomingMan = (function(_super) {
+    __extends(HomingMan, _super);
+
+    function HomingMan(pattern) {
+      var x, y;
+      x = stage.getWidth() / 2 - 32;
+      y = stage.getY() * -1 - 64;
+      HomingMan.__super__.constructor.call(this, 'homingman', x, y, 64, 64);
+      this.speed = pattern[0][0];
+      this.attackSpeed = pattern[0][1];
+      this.interval = pattern[0][2];
+      this.attacks = pattern[1];
+      this.partLife = pattern[0][2];
+      this.position = arena.y - levelManager.levelHeight - 384;
+      this.time = 0;
+      this.attackCount = 0;
+      this.attackFinished = 0;
+      this.attackIndex = 0;
+      this.inPosition = false;
+      this.start();
+    }
+
+    HomingMan.prototype.start = function() {
+      var self;
+      self = this;
+      return bossManager.update = function(frameTime) {
+        if (!self.inPosition) {
+          self.moveToPosition(frameTime);
+        } else if (self.time >= self.interval) {
+          self.time = 0;
+          self.attack();
+        } else if (self.attackCount < self.attacks) {
+          self.time += frameTime;
+        }
+        return self.updateParts(frameTime);
+      };
+    };
+
+    HomingMan.prototype.moveToPosition = function(frameTime) {
+      var tmp;
+      tmp = this.shape.getY() + this.speed * frameTime;
+      if (tmp < this.position) {
+        return this.shape.setY(tmp);
+      } else {
+        this.shape.setY(this.position);
+        this.inPosition = true;
+        return this.time = this.interval * 0.75;
+      }
+    };
+
+    HomingMan.prototype.attack = function() {
+      var i, id, _i, _len, _ref;
+      _ref = networkManager.playersId;
+      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        id = _ref[i];
+        if (networkManager.players[id] !== void 0) {
+          this.parts.push(new HomingManPart(this.shape.getX(), this.shape.getY() + 64, this.partLife, networkManager.players[id]));
+        }
+      }
+      this.parts.push(new HomingManPart(this.shape.getX(), this.shape.getY() + 64, this.partLife, player));
+      return this.attackCount++;
+    };
+
+    HomingMan.prototype.updateParts = function(frameTime) {
+      var part, ratioX, ratioY, speedX, speedY, tmp, _i, _len, _ref;
+      _ref = this.parts;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        part = _ref[_i];
+        if (part.target.skin.getAnimation() !== 'dead') {
+          ratioX = 0.60;
+          ratioY = 0.40;
+          speedX = this.attackSpeed * ratioX * frameTime + part.boostSpeed * frameTime;
+          speedY = this.attackSpeed * ratioY * frameTime + part.boostSpeed * frameTime;
+          tmp = part.boostSpeed - 0.002;
+          if (tmp <= 0) {
+            part.boostSpeed = 0;
+          } else {
+            part.boostSpeed = tmp;
+          }
+          tmp = part.shape.getX() + speedX;
+          if (tmp > part.target.shape.getX()) {
+            part.shape.setX(part.shape.getX() - speedX);
+          } else {
+            part.shape.setX(part.shape.getX() + speedX);
+          }
+          tmp = part.shape.getY() + speedY;
+          if (tmp < part.target.shape.getY() + part.target.shape.getHeight() / 2) {
+            part.shape.setY(part.shape.getY() + speedY);
+          }
+        } else {
+          part.reset();
+        }
+      }
+      if (this.attackFinished === this.attacks) {
+        return this.quitScreen(frameTime);
+      }
+    };
+
+    HomingMan.prototype.quitScreen = function(frameTime) {
+      var tmp;
+      tmp = this.shape.getX() + this.speed * frameTime;
+      if (tmp < 800) {
+        return this.shape.setX(tmp);
+      } else {
+        return this.finish();
+      }
+    };
+
+    return HomingMan;
+
+  })(MultiPartBoss);
+
+  HomingManPart = (function(_super) {
+    __extends(HomingManPart, _super);
+
+    function HomingManPart(x, y, life, target) {
+      var fn, self;
+      HomingManPart.__super__.constructor.call(this, 'spark', x, y, 32, 32);
+      this.target = target;
+      this.boostSpeed = 0.2;
+      self = this;
+      fn = function() {
+        bossManager.currentBoss.attackFinished++;
+        return self.reset();
+      };
+      setTimeout(fn, life);
+    }
+
+    return HomingManPart;
 
   })(Boss);
 
@@ -3564,7 +3702,7 @@
     var launchGame;
     document.querySelector('#login-form').style.display = 'block';
     document.querySelector('#login-loading').style.display = 'none';
-    document.querySelector('#ip').val = window.location.host;
+    document.querySelector('#ip').value = window.location.host;
     contentLoader.playSong();
     launchGame = function(ip, name) {
       var bg;

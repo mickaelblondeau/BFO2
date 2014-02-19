@@ -1,7 +1,7 @@
 class BossManager
   constructor: ->
     @launched = false
-    @boss = ['roueman', 'freezeman', 'poingman', 'labiman', 'sparkman']
+    @boss = ['roueman', 'freezeman', 'poingman', 'labiman', 'sparkman', 'homingman']
 
   launch: ->
     boss = @getBoss()
@@ -23,3 +23,5 @@ class BossManager
       return new LabiMan()
     else if boss is 'sparkman'
       return new SparkMan()
+    else if boss is 'homingman'
+      return new HomingMan()

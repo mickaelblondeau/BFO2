@@ -47,6 +47,8 @@ module.exports = function(grunt) {
                     'src/coffee/app/Classes/Bosses/LabiManPart.coffee',
                     'src/coffee/app/Classes/Bosses/SparkMan.coffee',
                     'src/coffee/app/Classes/Bosses/SparkManPart.coffee',
+                    'src/coffee/app/Classes/Bosses/HomingMan.coffee',
+                    'src/coffee/app/Classes/Bosses/HomingManPart.coffee',
                     'src/coffee/app/main.coffee',
                     'src/coffee/app/events.coffee'
                 ],
@@ -66,6 +68,7 @@ module.exports = function(grunt) {
                     'src/coffee/server/Classes/Bosses/PoingMan.coffee',
                     'src/coffee/server/Classes/Bosses/LabiMan.coffee',
                     'src/coffee/server/Classes/Bosses/SparkMan.coffee',
+                    'src/coffee/server/Classes/Bosses/HomingMan.coffee',
                     'src/coffee/server/main.coffee'
                 ],
                 dest: 'src/tmp/server.coffee'

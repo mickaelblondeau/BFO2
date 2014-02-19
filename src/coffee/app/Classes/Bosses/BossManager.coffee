@@ -13,6 +13,8 @@ class BossManager
       @currentBoss = new LabiMan(options)
     if boss == 5
       @currentBoss = new SparkMan(options)
+    if boss == 6
+      @currentBoss = new HomingMan(options)
 
   reset: ->
     @stopUpdate()

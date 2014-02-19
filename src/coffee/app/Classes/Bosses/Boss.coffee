@@ -51,6 +51,22 @@ class Boss
         y: 96
         width: 32
         height: 32
+      }, {
+        x: 32
+        y: 96
+        width: 32
+        height: 32
+      }, {
+        x: 64
+        y: 96
+        width: 32
+        height: 32
+      }],
+      homingman: [{
+        x: 384
+        y: 0
+        width: 64
+        height: 64
       }]
     }
     @draw()

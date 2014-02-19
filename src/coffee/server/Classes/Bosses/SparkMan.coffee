@@ -4,7 +4,6 @@ class SparkMan extends Boss
     @id = 5
 
   getPattern: ->
-    levelManager.level = 8
     speed = Math.round((0.5 + 0.03 * levelManager.level) * 100) / 100
     attackSpeed = Math.round((0.2 + 0.005 * (levelManager.level - 1)) * 100) / 100
     interval = 4000 - 20 * levelManager.level

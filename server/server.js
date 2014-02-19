@@ -1,5 +1,5 @@
 (function() {
-  var Boss, BossManager, CubeManager, FreezeMan, Game, LabiMan, LevelManager, NetworkManager, PoingMan, RoueMan, SparkMan, SpecialCubes, SquareEnum, bossManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
+  var Boss, BossManager, CubeManager, FreezeMan, Game, HomingMan, LabiMan, LevelManager, NetworkManager, PoingMan, RoueMan, SparkMan, SpecialCubes, SquareEnum, bossManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -794,7 +794,7 @@
   BossManager = (function() {
     function BossManager() {
       this.launched = false;
-      this.boss = ['roueman', 'freezeman', 'poingman', 'labiman', 'sparkman'];
+      this.boss = ['roueman', 'freezeman', 'poingman', 'labiman', 'sparkman', 'homingman'];
     }
 
     BossManager.prototype.launch = function() {
@@ -821,6 +821,8 @@
         return new LabiMan();
       } else if (boss === 'sparkman') {
         return new SparkMan();
+      } else if (boss === 'homingman') {
+        return new HomingMan();
       }
     };
 
@@ -867,7 +869,7 @@
 
     FreezeMan.prototype.getPattern = function() {
       var attack, attacks, i, interval, options, speed, _i;
-      speed = Math.round((0.4 + 0.1 * levelManager.level) * 100) / 100;
+      speed = Math.round((0.4 + 0.075 * levelManager.level) * 100) / 100;
       interval = 1500 - 50 * levelManager.level;
       options = [speed, interval];
       attacks = [];
@@ -987,7 +989,6 @@
 
     SparkMan.prototype.getPattern = function() {
       var attackSpeed, attacks, interval, options, speed;
-      levelManager.level = 8;
       speed = Math.round((0.5 + 0.03 * levelManager.level) * 100) / 100;
       attackSpeed = Math.round((0.2 + 0.005 * (levelManager.level - 1)) * 100) / 100;
       interval = 4000 - 20 * levelManager.level;
@@ -1012,6 +1013,28 @@
     };
 
     return SparkMan;
+
+  })(Boss);
+
+  HomingMan = (function(_super) {
+    __extends(HomingMan, _super);
+
+    function HomingMan() {
+      HomingMan.__super__.constructor.call(this, 'homingman', 20000, this.getPattern());
+      this.id = 6;
+    }
+
+    HomingMan.prototype.getPattern = function() {
+      var attackSpeed, attacks, interval, options, speed;
+      speed = Math.round((0.5 + 0.03 * levelManager.level) * 100) / 100;
+      attackSpeed = Math.round((0.05 + 0.005 * (levelManager.level - 1)) * 100) / 100;
+      interval = 8000;
+      options = [speed, attackSpeed, interval];
+      attacks = 2;
+      return [options, attacks];
+    };
+
+    return HomingMan;
 
   })(Boss);
 
