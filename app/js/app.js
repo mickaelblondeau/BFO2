@@ -3783,23 +3783,18 @@
   for (_i = 0, _len = divs.length; _i < _len; _i++) {
     div = divs[_i];
     div.onclick = function(e) {
-      var elm, num;
+      var elm, num, tmp;
       contentLoader.play('beep');
       e.preventDefault();
       elm = document.querySelector('#skin-preview .' + this.getAttribute("data-type"));
-      if (elm.style.background === "" && elm.style.backgroundImage === "") {
-        num = 2;
-      } else if (elm.style.backgroundImage !== "") {
-        num = parseInt(elm.style.backgroundImage.split('/')[6].split('.png')[0]) + parseInt(this.getAttribute("data-add"));
-      } else {
-        num = parseInt(elm.style.background.split('/')[4].split('.png')[0]) + parseInt(this.getAttribute("data-add"));
-      }
+      tmp = elm.style.background.split('/');
+      num = parseInt(tmp[tmp.length - 1].split('.png')[0]) + parseInt(this.getAttribute("data-add"));
       if (num < 1) {
         num = config.skins[this.getAttribute("data-type")];
       } else if (num > config.skins[this.getAttribute("data-type")]) {
         num = 1;
       }
-      elm.style.background = 'url("../assets/player/' + this.getAttribute("data-type") + '/' + num + '.png") 140px 0';
+      elm.style.background = 'url("assets/player/' + this.getAttribute("data-type") + '/' + num + '.png") 140px 0';
       skin[this.getAttribute("data-type")] = num;
       return document.querySelector('#skin-control .' + this.getAttribute("data-type") + ' .number').innerHTML = num;
     };

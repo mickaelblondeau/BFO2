@@ -24,16 +24,12 @@ for div in divs
     contentLoader.play('beep')
     e.preventDefault()
     elm = document.querySelector('#skin-preview .' + @getAttribute("data-type"))
-    if elm.style.background is "" and elm.style.backgroundImage is ""
-      num = 2
-    else if elm.style.backgroundImage isnt ""
-      num = parseInt(elm.style.backgroundImage.split('/')[6].split('.png')[0]) + parseInt(@getAttribute("data-add"))
-    else
-      num = parseInt(elm.style.background.split('/')[4].split('.png')[0]) + parseInt(@getAttribute("data-add"))
+    tmp = elm.style.background.split('/')
+    num = parseInt(tmp[tmp.length-1].split('.png')[0]) + parseInt(@getAttribute("data-add"))
     if num < 1
       num = config.skins[@getAttribute("data-type")]
     else if num > config.skins[@getAttribute("data-type")]
       num = 1
-    elm.style.background = 'url("../assets/player/'+ @getAttribute("data-type")+'/'+num+'.png") 140px 0'
+    elm.style.background = 'url("assets/player/'+ @getAttribute("data-type")+'/'+num+'.png") 140px 0'
     skin[@getAttribute("data-type")] = num
     document.querySelector('#skin-control .' + @getAttribute("data-type") + ' .number').innerHTML = num

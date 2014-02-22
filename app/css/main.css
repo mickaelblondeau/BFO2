@@ -29,9 +29,3 @@ body { overflow: hidden; margin: 0; }
 
 #skin-preview { width: 48px; height: 48px; margin: auto; }
 #skin-preview div { position: absolute; width: 48px; height: 48px; }
-#skin-preview .skin { background: url('../assets/player/skin/1.png') 140px 0; }
-#skin-preview .hair { background: url('../assets/player/hair/1.png') 140px 0; }
-#skin-preview .head { background: url('../assets/player/head/1.png') 140px 0; }
-#skin-preview .body { background: url('../assets/player/body/1.png') 140px 0; }
-#skin-preview .leg { background: url('../assets/player/leg/1.png') 140px 0; }
-#skin-preview .shoes { background: url('../assets/player/shoes/1.png') 140px 0; }
