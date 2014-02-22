@@ -1,5 +1,5 @@
 (function() {
-  var Boss, BossManager, CubeManager, FreezeMan, Game, HomingMan, LabiMan, LevelManager, NetworkManager, PoingMan, RoueMan, SparkMan, SpecialCubes, SquareEnum, bossManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
+  var Boss, BossManager, CubeManager, FreezeMan, Game, HomingMan, LabiMan, LevelManager, MissileMan, NetworkManager, PoingMan, RoueMan, SparkMan, SpecialCubes, SquareEnum, bossManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -801,7 +801,7 @@
   BossManager = (function() {
     function BossManager() {
       this.launched = false;
-      this.boss = ['roueman', 'freezeman', 'poingman', 'labiman', 'sparkman', 'homingman'];
+      this.boss = ['roueman', 'freezeman', 'poingman', 'labiman', 'sparkman', 'homingman', 'missileman'];
     }
 
     BossManager.prototype.launch = function() {
@@ -830,6 +830,8 @@
         return new SparkMan();
       } else if (boss === 'homingman') {
         return new HomingMan();
+      } else if (boss === 'missileman') {
+        return new MissileMan();
       }
     };
 
@@ -1061,6 +1063,46 @@
     };
 
     return HomingMan;
+
+  })(Boss);
+
+  MissileMan = (function(_super) {
+    __extends(MissileMan, _super);
+
+    function MissileMan() {
+      MissileMan.__super__.constructor.call(this, 'missileman', 15000, this.getPattern());
+      this.id = 7;
+    }
+
+    MissileMan.prototype.getPattern = function() {
+      var attacks, interval, options, speed;
+      speed = Math.round((0.5 + 0.05 * levelManager.level) * 100) / 100;
+      interval = 500 - levelManager.level * 30;
+      options = [speed, interval];
+      attacks = this.genAttacks();
+      return [options, attacks];
+    };
+
+    MissileMan.prototype.genAttacks = function() {
+      var attacks, i, rand, spawn, _i;
+      attacks = [];
+      for (i = _i = 0; _i <= 20; i = ++_i) {
+        rand = Math.random();
+        if (rand < 0.25) {
+          spawn = 32;
+        } else if (rand > 0.25 && rand < 0.5) {
+          spawn = 64;
+        } else if (rand > 0.5 && rand < 0.74) {
+          spawn = 608;
+        } else {
+          spawn = 640;
+        }
+        attacks.push([spawn, (Math.floor((Math.random() * 12) + 1)) * 32 + 128]);
+      }
+      return attacks;
+    };
+
+    return MissileMan;
 
   })(Boss);
 

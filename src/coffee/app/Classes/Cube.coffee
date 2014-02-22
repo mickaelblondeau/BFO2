@@ -274,6 +274,73 @@ class Cube
         y: 128
         width: 64
         height: 64
+      }],
+      'missileEffect': [{
+        x: 0
+        y: 32
+        width: 32
+        height: 32
+      }, {
+        x: 32
+        y: 32
+        width: 32
+        height: 32
+      }, {
+        x: 64
+        y: 32
+        width: 32
+        height: 32
+      }],
+      'smallExplosionEffect': [{
+        x: 0
+        y: 960
+        width: 64
+        height: 64
+      }, {
+        x: 64
+        y: 960
+        width: 64
+        height: 64
+      }, {
+        x: 128
+        y: 960
+        width: 64
+        height: 64
+      }, {
+        x: 192
+        y: 960
+        width: 64
+        height: 64
+      }, {
+        x: 0
+        y: 1024
+        width: 64
+        height: 64
+      }, {
+        x: 64
+        y: 1024
+        width: 64
+        height: 64
+      }, {
+        x: 128
+        y: 1024
+        width: 64
+        height: 64
+      }, {
+        x: 192
+        y: 1024
+        width: 64
+        height: 64
+      }, {
+        x: 0
+        y: 1088
+        width: 64
+        height: 64
+      }, {
+        x: 64
+        y: 1088
+        width: 64
+        height: 64
       }]
     }
     @draw()

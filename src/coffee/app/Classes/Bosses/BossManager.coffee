@@ -15,6 +15,8 @@ class BossManager
       @currentBoss = new SparkMan(options)
     if boss == 6
       @currentBoss = new HomingMan(options)
+    if boss == 7
+      @currentBoss = new MissileMan(options)
 
   reset: ->
     @stopUpdate()

@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, Cube, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, HomingMan, HomingManPart, Keyboard, LabiMan, LabiManPart, LevelManager, MultiPartBoss, NetworkManager, Player, PoingMan, RoueMan, SkinManager, SparkMan, SparkManPart, SpecialCube, SpecialCubes, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, debugLayer, debugMap, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, players, skin, skinManager, stage, staticBg, staticCubes, _i, _len,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, Cube, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, HomingMan, HomingManPart, Keyboard, LabiMan, LabiManPart, LevelManager, MissileMan, MissileManPart, MultiPartBoss, NetworkManager, Player, PoingMan, RoueMan, SkinManager, SparkMan, SparkManPart, SpecialCube, SpecialCubes, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, debugLayer, debugMap, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, players, skin, skinManager, stage, staticBg, staticCubes, _i, _len,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -1570,6 +1570,77 @@
             width: 64,
             height: 64
           }
+        ],
+        'missileEffect': [
+          {
+            x: 0,
+            y: 32,
+            width: 32,
+            height: 32
+          }, {
+            x: 32,
+            y: 32,
+            width: 32,
+            height: 32
+          }, {
+            x: 64,
+            y: 32,
+            width: 32,
+            height: 32
+          }
+        ],
+        'smallExplosionEffect': [
+          {
+            x: 0,
+            y: 960,
+            width: 64,
+            height: 64
+          }, {
+            x: 64,
+            y: 960,
+            width: 64,
+            height: 64
+          }, {
+            x: 128,
+            y: 960,
+            width: 64,
+            height: 64
+          }, {
+            x: 192,
+            y: 960,
+            width: 64,
+            height: 64
+          }, {
+            x: 0,
+            y: 1024,
+            width: 64,
+            height: 64
+          }, {
+            x: 64,
+            y: 1024,
+            width: 64,
+            height: 64
+          }, {
+            x: 128,
+            y: 1024,
+            width: 64,
+            height: 64
+          }, {
+            x: 192,
+            y: 1024,
+            width: 64,
+            height: 64
+          }, {
+            x: 0,
+            y: 1088,
+            width: 64,
+            height: 64
+          }, {
+            x: 64,
+            y: 1088,
+            width: 64,
+            height: 64
+          }
         ]
       };
       this.draw();
@@ -2641,7 +2712,7 @@
         name: anim
       });
       this.shape.draw();
-      if (anim === 'explosionEffect' || anim === 'iceExplosionEffect') {
+      if (anim === 'explosionEffect' || anim === 'iceExplosionEffect' || anim === 'smallExplosionEffect') {
         this.shape.setFrameRate(20);
       } else if (anim === 'blood' || anim === 'bioExplosion') {
         this.shape.setFrameRate(16);
@@ -2745,6 +2816,14 @@
             x: 384,
             y: 0,
             width: 64,
+            height: 64
+          }
+        ],
+        missileman: [
+          {
+            x: 448,
+            y: 0,
+            width: 32,
             height: 64
           }
         ]
@@ -2885,7 +2964,10 @@
         this.currentBoss = new SparkMan(options);
       }
       if (boss === 6) {
-        return this.currentBoss = new HomingMan(options);
+        this.currentBoss = new HomingMan(options);
+      }
+      if (boss === 7) {
+        return this.currentBoss = new MissileMan(options);
       }
     };
 
@@ -3625,6 +3707,122 @@
     };
 
     return HomingManPart;
+
+  })(Boss);
+
+  MissileMan = (function(_super) {
+    __extends(MissileMan, _super);
+
+    function MissileMan(pattern) {
+      MissileMan.__super__.constructor.call(this, 'missileman', -512, 0, 0, 0);
+      this.speed = pattern[0][0];
+      this.interval = pattern[0][1];
+      this.attacks = pattern[1];
+      this.time = 0;
+      this.attackCount = 0;
+      this.attackFinished = 0;
+      this.attackIndex = 0;
+      this.ground = arena.y - levelManager.levelHeight;
+      this.start();
+    }
+
+    MissileMan.prototype.start = function() {
+      var self;
+      self = this;
+      return bossManager.update = function(frameTime) {
+        if (self.time >= self.interval) {
+          self.time = 0;
+          self.attack();
+        } else if (self.attackCount < self.attacks.length) {
+          self.time += frameTime;
+        }
+        return self.updateParts(frameTime);
+      };
+    };
+
+    MissileMan.prototype.attack = function() {
+      this.parts.push(new MissileManPart(this.attacks[this.attackIndex][0], this.ground, this.attacks[this.attackIndex][1]));
+      this.attackCount++;
+      return this.attackIndex++;
+    };
+
+    MissileMan.prototype.updateParts = function(frameTime) {
+      var part, sky, speed, _i, _len, _ref;
+      _ref = this.parts;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        part = _ref[_i];
+        speed = frameTime * this.speed;
+        if (part.launching) {
+          part.shape.setY(part.shape.getY() - speed);
+          part.effect.shape.setY(part.effect.shape.getY() - speed);
+          sky = this.ground - 1024;
+          if (part.shape.getY() < sky) {
+            part.launching = false;
+            part.shape.setY(sky);
+            part.changeSide(-1);
+            part.shape.setX(part.destination);
+            part.effect.shape.setX(part.destination);
+          }
+        } else {
+          part.shape.setY(part.shape.getY() + speed);
+          part.effect.shape.setY(part.effect.shape.getY() + speed);
+          if (part.shape.getY() >= this.ground) {
+            part.reset();
+          }
+        }
+      }
+      if (this.attackFinished === this.attacks.length) {
+        return this.finish();
+      }
+    };
+
+    return MissileMan;
+
+  })(MultiPartBoss);
+
+  MissileManPart = (function(_super) {
+    __extends(MissileManPart, _super);
+
+    function MissileManPart(x, y, destination) {
+      var side;
+      MissileManPart.__super__.constructor.call(this, 'missileman', x, y, 32, 32);
+      this.launching = true;
+      this.alive = true;
+      side = 1;
+      this.effect = new Effect(x, y, SquareEnum.SMALL, 'missileEffect');
+      this.destination = destination;
+      this.changeSide(side);
+    }
+
+    MissileManPart.prototype.changeSide = function(side) {
+      if (side === 1) {
+        this.effect.shape.setScaleY(-1);
+        return this.effect.shape.setY(this.shape.getY() + 95);
+      } else {
+        this.shape.setScaleY(-1);
+        this.effect.shape.setScaleY(1);
+        return this.effect.shape.setY(this.shape.getY() - 95);
+      }
+    };
+
+    MissileManPart.prototype.reset = function() {
+      var effect, effectBoundBox, playerBoundBox;
+      if (this.alive) {
+        MissileManPart.__super__.reset.call(this);
+        this.effect.shape.destroy();
+        this.alive = false;
+        bossManager.currentBoss.attackFinished++;
+        contentLoader.play('explosion');
+        effect = new Effect(this.shape.getX() - 16, this.shape.getY() - 64, SquareEnum.MEDIUM, 'smallExplosionEffect', true);
+        playerBoundBox = collisionManager.getBoundBox(player.shape);
+        effectBoundBox = collisionManager.getBoundBox(effect.shape);
+        if (collisionManager.colliding(playerBoundBox, effectBoundBox)) {
+          return player.kill();
+        }
+      }
+    };
+
+    return MissileManPart;
 
   })(Boss);
 

@@ -68,6 +68,12 @@ class Boss
         y: 0
         width: 64
         height: 64
+      }],
+      missileman: [{
+        x: 448
+        y: 0
+        width: 32
+        height: 64
       }]
     }
     @draw()
