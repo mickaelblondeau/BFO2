@@ -3787,8 +3787,10 @@
       contentLoader.play('beep');
       e.preventDefault();
       elm = document.querySelector('#skin-preview .' + this.getAttribute("data-type"));
-      if (elm.style.background === "") {
+      if (elm.style.background === "" && elm.style.backgroundImage === "") {
         num = 2;
+      } else if (elm.style.backgroundImage !== "") {
+        num = parseInt(elm.style.backgroundImage.split('/')[6].split('.png')[0]) + parseInt(this.getAttribute("data-add"));
       } else {
         num = parseInt(elm.style.background.split('/')[4].split('.png')[0]) + parseInt(this.getAttribute("data-add"));
       }
