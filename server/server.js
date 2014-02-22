@@ -846,20 +846,36 @@
     }
 
     RoueMan.prototype.getPattern = function() {
-      var attacks, i, options, rand, speed, speedPerLevel, _i;
+      var attacks, options, speed, speedPerLevel;
       speedPerLevel = 0.05;
       speed = Math.round((0.6 + speedPerLevel * levelManager.level) * 100) / 100;
       options = speed;
-      attacks = [];
-      for (i = _i = 0; _i <= 5; i = ++_i) {
-        rand = Math.floor((Math.random() * 100) + 1);
-        if (rand >= 50) {
-          attacks.push(3);
-        } else {
-          attacks.push(1);
-        }
-      }
+      attacks = this.generateAttacks();
       return [options, attacks];
+    };
+
+    RoueMan.prototype.generateAttacks = function() {
+      var attack, attacks, i, side, _i;
+      attacks = [];
+      attacks.push([0, 25]);
+      for (i = _i = 0; _i <= 6; i = ++_i) {
+        if (Math.random() > 0.5) {
+          side = 1;
+        } else {
+          side = -1;
+        }
+        if (Math.random() > 0.5) {
+          attack = 6;
+        } else {
+          attack = 4;
+        }
+        attacks.push([10 * side, 0]);
+        attacks.push([0, attack]);
+        attacks.push([-20 * side, 0]);
+        attacks.push([0, -attack]);
+        attacks.push([10 * side, 0]);
+      }
+      return attacks;
     };
 
     return RoueMan;

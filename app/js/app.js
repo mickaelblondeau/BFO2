@@ -2667,6 +2667,10 @@
       this.y = y;
       this.w = w;
       this.h = h;
+      this.origin = {
+        x: 0,
+        y: 0
+      };
       this.bossTypes = {
         roueman: [
           {
@@ -2781,6 +2785,50 @@
       return this.shape.destroy();
     };
 
+    Boss.prototype.move = function(frameTime, x, y) {
+      var speed, tmp;
+      speed = this.speed * frameTime;
+      if (this.origin.x > x) {
+        tmp = this.shape.getX() - speed;
+        if (tmp > x) {
+          this.shape.setX(tmp);
+        } else {
+          this.shape.setX(x);
+          this.origin.x = x;
+        }
+      } else if (this.origin.x < x) {
+        tmp = this.shape.getX() + speed;
+        if (tmp < x) {
+          this.shape.setX(tmp);
+        } else {
+          this.shape.setX(x);
+          this.origin.x = x;
+        }
+      }
+      if (this.origin.y > y) {
+        tmp = this.shape.getY() - speed;
+        if (tmp > y) {
+          this.shape.setY(tmp);
+        } else {
+          this.shape.setY(y);
+          this.origin.y = y;
+        }
+      } else if (this.origin.y < y) {
+        tmp = this.shape.getY() + speed;
+        if (tmp < y) {
+          this.shape.setY(tmp);
+        } else {
+          this.shape.setY(y);
+          this.origin.y = y;
+        }
+      }
+      if (this.shape.getX() === x && this.shape.getY() === y) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+
     return Boss;
 
   })();
@@ -2862,63 +2910,23 @@
     __extends(RoueMan, _super);
 
     function RoueMan(pattern) {
-      var y;
-      y = stage.getY() * -1;
-      RoueMan.__super__.constructor.call(this, 'roueman', 0, y, 64, 64);
+      var x, y;
+      x = stage.getWidth() / 2 - 32;
+      y = arena.y - levelManager.levelHeight - 1024;
+      RoueMan.__super__.constructor.call(this, 'roueman', x, y, 64, 64);
       this.attacks = pattern[1];
       this.attackIndex = 0;
-      this.attackSpeed = pattern[0];
+      this.speed = pattern[0];
       this.start();
     }
 
     RoueMan.prototype.start = function() {
-      return this.moveY(arena.y - levelManager.levelHeight - 128, '+', 'next');
-    };
-
-    RoueMan.prototype.moveX = function(x, side, next) {
       var self;
+      this.next();
       self = this;
       return bossManager.update = function(frameTime) {
-        var tmp;
-        if (side === '+') {
-          tmp = self.shape.getX() + frameTime * self.attackSpeed;
-        } else if (side === '-') {
-          tmp = self.shape.getX() - frameTime * self.attackSpeed;
-        }
-        if ((side === '+' && tmp < x) || (side === '-' && tmp > x)) {
-          return self.shape.setX(tmp);
-        } else {
-          self.shape.setX(x);
-          if (next === 'return') {
-            return self.moveY(arena.y - levelManager.levelHeight - 256, '-', 'return');
-          } else if (next === 'next') {
-            return self.next();
-          }
-        }
-      };
-    };
-
-    RoueMan.prototype.moveY = function(y, side, next) {
-      var self;
-      self = this;
-      return bossManager.update = function(frameTime) {
-        var tmp;
-        if (side === '+') {
-          tmp = self.shape.getY() + frameTime * self.attackSpeed;
-        } else if (side === '-') {
-          tmp = self.shape.getY() - frameTime * self.attackSpeed;
-        }
-        if ((side === '+' && tmp < y) || (side === '-' && tmp > y)) {
-          return self.shape.setY(tmp);
-        } else {
-          self.shape.setY(y);
-          if (next === 'attack') {
-            return self.moveX(config.levelWidth - 64, '+', 'return');
-          } else if (next === 'return') {
-            return self.moveX(0, '-', 'next');
-          } else if (next === 'next') {
-            return self.next();
-          }
+        if (self.move(frameTime, self.attack.x, self.attack.y)) {
+          return self.next();
         }
       };
     };
@@ -2927,7 +2935,10 @@
       var tmp;
       tmp = this.attacks[this.attackIndex];
       if (tmp !== void 0) {
-        this.moveY(arena.y - levelManager.levelHeight - tmp * 32, '+', 'attack');
+        this.attack = {
+          x: this.shape.getX() + tmp[0] * 32,
+          y: this.shape.getY() + tmp[1] * 32
+        };
         return this.attackIndex++;
       } else {
         return this.finish();

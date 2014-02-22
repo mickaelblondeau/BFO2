@@ -1,53 +1,24 @@
 class RoueMan extends Boss
   constructor: (pattern) ->
-    y = stage.getY() * -1
-    super('roueman', 0, y, 64, 64)
+    x = stage.getWidth()/2 - 32
+    y = arena.y - levelManager.levelHeight - 1024
+    super('roueman', x, y, 64, 64)
     @attacks = pattern[1]
     @attackIndex = 0
-    @attackSpeed = pattern[0]
+    @speed = pattern[0]
     @start()
 
   start: ->
-    @moveY(arena.y - levelManager.levelHeight - 128, '+', 'next')
-
-  moveX: (x, side, next) ->
+    @next()
     self = @
     bossManager.update = (frameTime) ->
-      if side is '+'
-        tmp = self.shape.getX() + frameTime * self.attackSpeed
-      else if side is '-'
-        tmp = self.shape.getX() - frameTime * self.attackSpeed
-      if (side is '+' and tmp < x) or (side is '-' and tmp > x)
-        self.shape.setX(tmp)
-      else
-        self.shape.setX(x)
-        if next is 'return'
-          self.moveY(arena.y - levelManager.levelHeight - 256, '-', 'return')
-        else if next is 'next'
-          self.next()
-
-  moveY: (y, side, next) ->
-    self = @
-    bossManager.update = (frameTime) ->
-      if side is '+'
-        tmp = self.shape.getY() + frameTime * self.attackSpeed
-      else if side is '-'
-        tmp = self.shape.getY() - frameTime * self.attackSpeed
-      if (side is '+' and tmp < y) or (side is '-' and tmp > y)
-        self.shape.setY(tmp)
-      else
-        self.shape.setY(y)
-        if next is 'attack'
-          self.moveX(config.levelWidth - 64, '+', 'return')
-        else if next is 'return'
-          self.moveX(0, '-', 'next')
-        else if next is 'next'
-          self.next()
+      if self.move(frameTime, self.attack.x, self.attack.y)
+        self.next()
 
   next: ->
     tmp = @attacks[@attackIndex]
     if tmp isnt undefined
-      @moveY(arena.y - levelManager.levelHeight - tmp*32, '+', 'attack')
+      @attack = { x: @shape.getX() + tmp[0]*32, y: @shape.getY() + tmp[1]*32 }
       @attackIndex++
     else
       @finish()
