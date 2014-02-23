@@ -2789,8 +2789,18 @@
         ],
         sparkman: [
           {
-            x: 320,
-            y: 0,
+            x: 0,
+            y: 128,
+            width: 64,
+            height: 64
+          }, {
+            x: 64,
+            y: 128,
+            width: 64,
+            height: 64
+          }, {
+            x: 128,
+            y: 128,
             width: 64,
             height: 64
           }
@@ -2827,6 +2837,19 @@
             y: 0,
             width: 32,
             height: 64
+          }
+        ],
+        powerSpark: [
+          {
+            x: 96,
+            y: 96,
+            width: 32,
+            height: 32
+          }, {
+            x: 128,
+            y: 96,
+            width: 32,
+            height: 32
           }
         ]
       };
@@ -3543,7 +3566,7 @@
     __extends(SparkManPart, _super);
 
     function SparkManPart(x, y, attack) {
-      SparkManPart.__super__.constructor.call(this, 'spark', x, y, 32, 32);
+      SparkManPart.__super__.constructor.call(this, 'powerSpark', x, y, 32, 32);
       this.sideX = attack[0];
       this.sideY = attack[1];
       this.ySpeed = attack[2];

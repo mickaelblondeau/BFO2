@@ -42,8 +42,18 @@ class Boss
         height: 64
       }],
       sparkman: [{
-        x: 320
-        y: 0
+        x: 0
+        y: 128
+        width: 64
+        height: 64
+      }, {
+        x: 64
+        y: 128
+        width: 64
+        height: 64
+      }, {
+        x: 128
+        y: 128
         width: 64
         height: 64
       }],
@@ -74,6 +84,17 @@ class Boss
         y: 0
         width: 32
         height: 64
+      }],
+      powerSpark: [{
+        x: 96
+        y: 96
+        width: 32
+        height: 32
+      }, {
+        x: 128
+        y: 96
+        width: 32
+        height: 32
       }]
     }
     @draw()
