@@ -64,7 +64,7 @@ class Bonus
       if typeId is type.id
         @type = type.name
     @id = id
-    @x = col * 32 + 160
+    @x = col * 32 + 160 + 6
     @y = stage.getY() * -1
     @draw()
 
@@ -72,8 +72,8 @@ class Bonus
     @shape = new Kinetic.Sprite
       x: @x
       y: @y
-      width: 32
-      height: 32
+      width: 20
+      height: 20
       image: contentLoader.images['bonus']
       animation: @type
       animations: bonusTypes
@@ -81,4 +81,6 @@ class Bonus
       index: 0
       name: { type: 'bonus', name: @type, falling: true }
       id: 'bonus' + @id
+      offsetX: 6
+      offsetY: 12
     dynamicEntities.add @shape

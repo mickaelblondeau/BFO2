@@ -1845,7 +1845,7 @@
         }
       }
       this.id = id;
-      this.x = col * 32 + 160;
+      this.x = col * 32 + 160 + 6;
       this.y = stage.getY() * -1;
       this.draw();
     }
@@ -1854,8 +1854,8 @@
       this.shape = new Kinetic.Sprite({
         x: this.x,
         y: this.y,
-        width: 32,
-        height: 32,
+        width: 20,
+        height: 20,
         image: contentLoader.images['bonus'],
         animation: this.type,
         animations: bonusTypes,
@@ -1866,7 +1866,9 @@
           name: this.type,
           falling: true
         },
-        id: 'bonus' + this.id
+        id: 'bonus' + this.id,
+        offsetX: 6,
+        offsetY: 12
       });
       return dynamicEntities.add(this.shape);
     };
