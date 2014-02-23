@@ -50,24 +50,25 @@ class SparkMan extends MultiPartBoss
       tmpY = part.shape.getY() + part.ySpeed * frameTime * part.sideY
       if tmpY > arena.y - levelManager.levelHeight - 32
         part.shape.setY(arena.y - levelManager.levelHeight - 32)
-        if part.changeSide('y')
-          @attackFinished++
+        part.changeSide('y')
       if tmpY < @position - 96
         part.shape.setY(@position - 96)
-        if part.changeSide('y')
-          @attackFinished++
+        part.changeSide('y')
       part.shape.setY(tmpY)
 
       tmpX = part.shape.getX() + @attackSpeed * frameTime * part.sideX
       if tmpX < 160
         part.shape.setX(160)
-        if part.changeSide('x')
-          @attackFinished++
+        part.changeSide('x')
       if tmpX > stage.getWidth() - 192
         part.shape.setX(stage.getWidth() - 192)
-        if part.changeSide('x')
-          @attackFinished++
+        part.changeSide('x')
       part.shape.setX(tmpX)
+
+      if part.alive
+        part.life += frameTime
+        if part.life > @interval * 2
+          part.reset()
 
     if @attackFinished is @attacks.length
       @quitScreen(frameTime)

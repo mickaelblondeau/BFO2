@@ -3496,31 +3496,29 @@
         tmpY = part.shape.getY() + part.ySpeed * frameTime * part.sideY;
         if (tmpY > arena.y - levelManager.levelHeight - 32) {
           part.shape.setY(arena.y - levelManager.levelHeight - 32);
-          if (part.changeSide('y')) {
-            this.attackFinished++;
-          }
+          part.changeSide('y');
         }
         if (tmpY < this.position - 96) {
           part.shape.setY(this.position - 96);
-          if (part.changeSide('y')) {
-            this.attackFinished++;
-          }
+          part.changeSide('y');
         }
         part.shape.setY(tmpY);
         tmpX = part.shape.getX() + this.attackSpeed * frameTime * part.sideX;
         if (tmpX < 160) {
           part.shape.setX(160);
-          if (part.changeSide('x')) {
-            this.attackFinished++;
-          }
+          part.changeSide('x');
         }
         if (tmpX > stage.getWidth() - 192) {
           part.shape.setX(stage.getWidth() - 192);
-          if (part.changeSide('x')) {
-            this.attackFinished++;
-          }
+          part.changeSide('x');
         }
         part.shape.setX(tmpX);
+        if (part.alive) {
+          part.life += frameTime;
+          if (part.life > this.interval * 2) {
+            part.reset();
+          }
+        }
       }
       if (this.attackFinished === this.attacks.length) {
         return this.quitScreen(frameTime);
@@ -3549,22 +3547,22 @@
       this.sideX = attack[0];
       this.sideY = attack[1];
       this.ySpeed = attack[2];
-      this.life = 10;
+      this.life = 0;
+      this.alive = true;
     }
 
     SparkManPart.prototype.changeSide = function(side) {
       if (side === 'x') {
-        this.sideX *= -1;
+        return this.sideX *= -1;
       } else {
-        this.sideY *= -1;
+        return this.sideY *= -1;
       }
-      this.life--;
-      if (this.life === 0) {
-        this.reset();
-        return true;
-      } else {
-        return false;
-      }
+    };
+
+    SparkManPart.prototype.reset = function() {
+      SparkManPart.__super__.reset.call(this);
+      bossManager.currentBoss.attackFinished++;
+      return this.alive = false;
     };
 
     return SparkManPart;
