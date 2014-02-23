@@ -1,9 +1,9 @@
 class HomingManPart extends Boss
   constructor: (x, y, life, target) ->
-    super('spark', x, y, 32, 32)
+    super('phantom', x, y, 32, 32)
     @target = target
-    @boostSpeed = 0.2
     @alive = true
+    @ratioX = 1
 
     self = @
 

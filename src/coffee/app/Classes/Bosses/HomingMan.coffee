@@ -50,28 +50,26 @@ class HomingMan extends MultiPartBoss
 
   updateParts: (frameTime) ->
     for part in @parts
-      if part.target.skin.getAnimation() != 'dead'
-        ratioX = 0.60
-        ratioY = 0.40
-        speedX = @attackSpeed * ratioX * frameTime + part.boostSpeed * frameTime
-        speedY = @attackSpeed * ratioY * frameTime + part.boostSpeed * frameTime
+      ratioX = part.ratioX
+      ratioY = 1
 
-        tmp = part.boostSpeed - 0.002
-        if tmp <= 0
-          part.boostSpeed = 0
-        else
-          part.boostSpeed = tmp
+      speedX = @attackSpeed * ratioX * frameTime
+      speedY = @attackSpeed * ratioY * frameTime
 
-        tmp = part.shape.getX() + speedX
-        if tmp > part.target.shape.getX()
-          part.shape.setX(part.shape.getX() - speedX)
-        else
-          part.shape.setX(part.shape.getX() + speedX)
-
-        tmp = part.shape.getY() + speedY
-        if tmp < part.target.shape.getY() + part.target.shape.getHeight() / 2
-          part.shape.setY(part.shape.getY() + speedY)
+      tmp = part.shape.getX() + speedX
+      if tmp > part.target.shape.getX()
+        part.shape.setX(part.shape.getX() - speedX)
       else
+        part.shape.setX(part.shape.getX() + speedX)
+
+      part.shape.setY(part.shape.getY() + speedY)
+
+      if part.ratioX - 0.015 > 0.1
+        part.ratioX -= 0.015
+      else
+        part.ratioX = 0.1
+
+      if part.shape.getY() > arena.y - levelManager.levelHeight
         part.reset()
 
     if @attackFinished is @attacks

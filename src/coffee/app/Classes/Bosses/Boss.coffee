@@ -74,8 +74,8 @@ class Boss
         height: 32
       }],
       homingman: [{
-        x: 384
-        y: 0
+        x: 192
+        y: 96
         width: 64
         height: 64
       }],
@@ -92,6 +92,12 @@ class Boss
         height: 32
       }, {
         x: 128
+        y: 96
+        width: 32
+        height: 32
+      }],
+      phantom: [{
+        x: 160
         y: 96
         width: 32
         height: 32

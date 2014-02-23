@@ -2825,8 +2825,8 @@
         ],
         homingman: [
           {
-            x: 384,
-            y: 0,
+            x: 192,
+            y: 96,
             width: 64,
             height: 64
           }
@@ -2847,6 +2847,14 @@
             height: 32
           }, {
             x: 128,
+            y: 96,
+            width: 32,
+            height: 32
+          }
+        ],
+        phantom: [
+          {
+            x: 160,
             y: 96,
             width: 32,
             height: 32
@@ -3661,28 +3669,23 @@
       _ref = this.parts;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         part = _ref[_i];
-        if (part.target.skin.getAnimation() !== 'dead') {
-          ratioX = 0.60;
-          ratioY = 0.40;
-          speedX = this.attackSpeed * ratioX * frameTime + part.boostSpeed * frameTime;
-          speedY = this.attackSpeed * ratioY * frameTime + part.boostSpeed * frameTime;
-          tmp = part.boostSpeed - 0.002;
-          if (tmp <= 0) {
-            part.boostSpeed = 0;
-          } else {
-            part.boostSpeed = tmp;
-          }
-          tmp = part.shape.getX() + speedX;
-          if (tmp > part.target.shape.getX()) {
-            part.shape.setX(part.shape.getX() - speedX);
-          } else {
-            part.shape.setX(part.shape.getX() + speedX);
-          }
-          tmp = part.shape.getY() + speedY;
-          if (tmp < part.target.shape.getY() + part.target.shape.getHeight() / 2) {
-            part.shape.setY(part.shape.getY() + speedY);
-          }
+        ratioX = part.ratioX;
+        ratioY = 1;
+        speedX = this.attackSpeed * ratioX * frameTime;
+        speedY = this.attackSpeed * ratioY * frameTime;
+        tmp = part.shape.getX() + speedX;
+        if (tmp > part.target.shape.getX()) {
+          part.shape.setX(part.shape.getX() - speedX);
         } else {
+          part.shape.setX(part.shape.getX() + speedX);
+        }
+        part.shape.setY(part.shape.getY() + speedY);
+        if (part.ratioX - 0.015 > 0.1) {
+          part.ratioX -= 0.015;
+        } else {
+          part.ratioX = 0.1;
+        }
+        if (part.shape.getY() > arena.y - levelManager.levelHeight) {
           part.reset();
         }
       }
@@ -3710,10 +3713,10 @@
 
     function HomingManPart(x, y, life, target) {
       var fn, self;
-      HomingManPart.__super__.constructor.call(this, 'spark', x, y, 32, 32);
+      HomingManPart.__super__.constructor.call(this, 'phantom', x, y, 32, 32);
       this.target = target;
-      this.boostSpeed = 0.2;
       this.alive = true;
+      this.ratioX = 1;
       self = this;
       fn = function() {
         return self.reset();
