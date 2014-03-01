@@ -31,7 +31,11 @@ class LabiMan extends MultiPartBoss
     @parts.push(new LabiManPart())
     bossManager.update = (frameTime) ->
       if !self.waiting
-        self.moveToPosition(frameTime)
+        if self.move(frameTime, self.attacks[self.index][0]*32 + 160, self.levelHeight - self.attacks[self.index][1]*32)
+          self.index++
+          self.placeBlock()
+          if self.attacks[self.index] is undefined
+            self.waiting = true
       else
         self.bossEscape(frameTime)
       if self.attacking
@@ -39,45 +43,6 @@ class LabiMan extends MultiPartBoss
       self.waitTime += frameTime
       if !self.attacking and self.waitTime >= self.wait
         self.attacking = true
-
-  moveToPosition: (frameTime) ->
-    destX = @attacks[@index][0]*32 + 160
-    if @shape.getX() > destX and @oldPos.x > destX
-      tmp = @shape.getX() - @speed * frameTime
-      if tmp < destX
-        @shape.setX(destX)
-        @oldPos.x = @shape.getX()
-      else
-        @shape.setX(tmp)
-    else if @shape.getX() < destX and @oldPos.x < destX
-      tmp = @shape.getX() + @speed * frameTime
-      if tmp > destX
-        @shape.setX(destX)
-        @oldPos.x = @shape.getX()
-      else
-        @shape.setX(tmp)
-
-    destY = @levelHeight - @attacks[@index][1]*32
-    if @shape.getY() > destY and @oldPos.y > destY
-      tmp = @shape.getY() - @speed * frameTime
-      if tmp < destY
-        @shape.setY(destY)
-        @oldPos.y = @shape.getY()
-      else
-        @shape.setY(tmp)
-    else if @shape.getY() < destY and @oldPos.y < destY
-      tmp = @shape.getY() + @speed * frameTime
-      if tmp > destY
-        @shape.setY(destY)
-        @oldPos.y = @shape.getY()
-      else
-        @shape.setY(tmp)
-
-    if @shape.getY() is destY and @shape.getX() is destX
-      @index++
-      @placeBlock()
-      if @attacks[@index] is undefined
-        @waiting = true
 
   attack: (frameTime) ->
     tmp = @parts[0].shape.getY() - @attackSpeed * frameTime

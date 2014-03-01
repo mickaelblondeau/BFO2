@@ -2919,7 +2919,7 @@
             x: 0,
             y: 65,
             width: 544,
-            height: 31
+            height: 30
           }
         ],
         poingman: [
@@ -3505,7 +3505,13 @@
       this.parts.push(new LabiManPart());
       return bossManager.update = function(frameTime) {
         if (!self.waiting) {
-          self.moveToPosition(frameTime);
+          if (self.move(frameTime, self.attacks[self.index][0] * 32 + 160, self.levelHeight - self.attacks[self.index][1] * 32)) {
+            self.index++;
+            self.placeBlock();
+            if (self.attacks[self.index] === void 0) {
+              self.waiting = true;
+            }
+          }
         } else {
           self.bossEscape(frameTime);
         }
@@ -3517,53 +3523,6 @@
           return self.attacking = true;
         }
       };
-    };
-
-    LabiMan.prototype.moveToPosition = function(frameTime) {
-      var destX, destY, tmp;
-      destX = this.attacks[this.index][0] * 32 + 160;
-      if (this.shape.getX() > destX && this.oldPos.x > destX) {
-        tmp = this.shape.getX() - this.speed * frameTime;
-        if (tmp < destX) {
-          this.shape.setX(destX);
-          this.oldPos.x = this.shape.getX();
-        } else {
-          this.shape.setX(tmp);
-        }
-      } else if (this.shape.getX() < destX && this.oldPos.x < destX) {
-        tmp = this.shape.getX() + this.speed * frameTime;
-        if (tmp > destX) {
-          this.shape.setX(destX);
-          this.oldPos.x = this.shape.getX();
-        } else {
-          this.shape.setX(tmp);
-        }
-      }
-      destY = this.levelHeight - this.attacks[this.index][1] * 32;
-      if (this.shape.getY() > destY && this.oldPos.y > destY) {
-        tmp = this.shape.getY() - this.speed * frameTime;
-        if (tmp < destY) {
-          this.shape.setY(destY);
-          this.oldPos.y = this.shape.getY();
-        } else {
-          this.shape.setY(tmp);
-        }
-      } else if (this.shape.getY() < destY && this.oldPos.y < destY) {
-        tmp = this.shape.getY() + this.speed * frameTime;
-        if (tmp > destY) {
-          this.shape.setY(destY);
-          this.oldPos.y = this.shape.getY();
-        } else {
-          this.shape.setY(tmp);
-        }
-      }
-      if (this.shape.getY() === destY && this.shape.getX() === destX) {
-        this.index++;
-        this.placeBlock();
-        if (this.attacks[this.index] === void 0) {
-          return this.waiting = true;
-        }
-      }
     };
 
     LabiMan.prototype.attack = function(frameTime) {

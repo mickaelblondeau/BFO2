@@ -27,7 +27,7 @@ class Boss
         x: 0
         y: 65
         width: 544
-        height: 31
+        height: 30
       }],
       poingman: [{
         x: 256
