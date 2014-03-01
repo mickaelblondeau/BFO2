@@ -1,6 +1,7 @@
 class CubeManager
   constructor: ->
     @speed = 0.4
+    @tweens = []
 
   reinitAllPhys: ->
     cubes = dynamicEntities.find('Sprite')

@@ -10,6 +10,8 @@
     fastLevelSpeed: 500,
     speedPerLevel: 50,
     timeout: 5000,
+    randomEventProb: 0.2,
+    randomEvents: 6,
     debug: false,
     debugMap: false
   };
@@ -705,6 +707,10 @@
       return this.io.sockets.emit('fallingRandSpecial', [col, size, type]);
     };
 
+    NetworkManager.prototype.sendRandomEvent = function(type) {
+      return this.io.sockets.emit('randomEvent', type);
+    };
+
     NetworkManager.prototype.sendResetLevel = function() {
       return this.io.sockets.emit('resetLevel');
     };
@@ -1131,7 +1137,12 @@
   };
 
   slowLoop = function() {
-    return networkManager.sendPlayerList();
+    var event;
+    networkManager.sendPlayerList();
+    if ((cubeManager.running || bossManager.launched) && Math.random() > config.randomEventProb) {
+      event = Math.floor(Math.random() * config.randomEvents);
+      return networkManager.sendRandomEvent(event);
+    }
   };
 
 }).call(this);

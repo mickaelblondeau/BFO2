@@ -341,6 +341,55 @@ class Cube
         y: 1088
         width: 64
         height: 64
+      }],
+      'randomEvent': [{
+        x: 64
+        y: 128
+        width: 64
+        height: 64
+      }],
+      speed: [{
+        x: 96
+        y: 0
+        width: 32
+        height: 32
+      }],
+      jumpHeight: [{
+        x: 0
+        y: 0
+        width: 32
+        height: 32
+      }],
+      doubleJump: [{
+        x: 0
+        y: 0
+        width: 32
+        height: 32
+      }],
+      grabbing: [{
+        x: 34
+        y: 0
+        width: 32
+        height: 32
+      }],
+      resurection: [{
+        x: 68
+        y: 0
+        width: 32
+        height: 32
+      }],
+      speed: [{
+
+        x: 102
+        y: 0
+        width: 32
+        height: 32
+      }],
+      tp: [{
+        x: 0
+        y: 34
+        width: 32
+        height: 32
       }]
     }
     @draw()

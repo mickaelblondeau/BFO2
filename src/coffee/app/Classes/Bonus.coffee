@@ -1,40 +1,30 @@
 bonusTypes = {
-  speed: [{
-    id: 1
-    name: 'speed'
-    x: 96
-    y: 0
-    width: 32
-    height: 32
-  }],
   jumpHeight: [{
-    id: 2
-    name: 'jumpHeight'
     x: 0
     y: 0
     width: 32
     height: 32
   }],
   doubleJump: [{
-    id: 3
-    name: 'doubleJump'
     x: 0
     y: 0
     width: 32
     height: 32
   }],
   grabbing: [{
-    id: 4
-    name: 'grabbing'
-    x: 32
+    x: 34
     y: 0
     width: 32
     height: 32
   }],
   resurection: [{
-    id: 5
-    name: 'resurection'
-    x: 64
+    x: 68
+    y: 0
+    width: 32
+    height: 32
+  }],
+  speed: [{
+    x: 102
     y: 0
     width: 32
     height: 32

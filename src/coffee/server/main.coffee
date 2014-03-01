@@ -9,12 +9,14 @@ bossManager = new BossManager()
 setInterval(
   () ->
     game.loop()
-  , 1000/config.FPS)
+  , 1000/config.FPS
+)
 
 setInterval(
   () ->
     slowLoop()
-, 1000/config.lowFPS)
+  , 1000/config.lowFPS
+)
 
 game.update = (frameTime) ->
   cubeManager.update(frameTime)
@@ -22,3 +24,6 @@ game.update = (frameTime) ->
 
 slowLoop = () ->
   networkManager.sendPlayerList()
+  if (cubeManager.running or bossManager.launched) and Math.random() > config.randomEventProb
+    event = Math.floor((Math.random()*config.randomEvents))
+    networkManager.sendRandomEvent(event)

@@ -8,6 +8,9 @@ class LevelManager
     for tween in @tweens
       if tween isnt undefined
         tween.destroy()
+    for tween in cubeManager.tweens
+      if tween isnt undefined
+        tween.destroy()
     stage.setY(0)
     staticBg.setY(0)
     hudLayer.setY(0)

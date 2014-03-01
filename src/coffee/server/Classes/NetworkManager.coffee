@@ -90,6 +90,9 @@ class NetworkManager
   sendRanSpecial: (col, size, type) ->
     @io.sockets.emit('fallingRandSpecial', [col, size, type])
 
+  sendRandomEvent: (type) ->
+    @io.sockets.emit('randomEvent', type)
+
   sendResetLevel: ->
     @io.sockets.emit 'resetLevel'
 

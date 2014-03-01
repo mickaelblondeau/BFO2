@@ -28,7 +28,7 @@ class BonusManager
     ]
     @timers = []
 
-  getBonus: (bonusName, player) ->
+  getBonus: (bonusName) ->
     contentLoader.play('pickup')
     for bonus in @bonuses
       if bonusName is bonus.name

@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, Cube, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, HomingMan, HomingManPart, Keyboard, LabiMan, LabiManPart, LevelManager, MissileMan, MissileManPart, MultiPartBoss, NetworkManager, Player, PoingMan, RoueMan, SkinManager, SparkMan, SparkManPart, SpecialCube, SpecialCubes, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, debugLayer, debugMap, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, players, skin, skinManager, stage, staticBg, staticCubes, _i, _len,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, Cube, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, HomingMan, HomingManPart, Keyboard, LabiMan, LabiManPart, LevelManager, MissileMan, MissileManPart, MultiPartBoss, NetworkManager, Player, PoingMan, RandomEvent, RoueMan, SkinManager, SparkMan, SparkManPart, SpecialCube, SpecialCubes, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, debugLayer, debugMap, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, players, randomEvents, skin, skinManager, stage, staticBg, staticCubes, _i, _len,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -1079,7 +1079,7 @@
     };
 
     ControllablePlayer.prototype.takeBonus = function(bonus) {
-      bonusManager.getBonus(bonus.getName().name, this);
+      bonusManager.getBonus(bonus.getName().name);
       bonus.destroy();
       dynamicEntities.draw();
       return networkManager.sendBonusTaken(bonus.getId());
@@ -1641,6 +1641,70 @@
             width: 64,
             height: 64
           }
+        ],
+        'randomEvent': [
+          {
+            x: 64,
+            y: 128,
+            width: 64,
+            height: 64
+          }
+        ],
+        speed: [
+          {
+            x: 96,
+            y: 0,
+            width: 32,
+            height: 32
+          }
+        ],
+        jumpHeight: [
+          {
+            x: 0,
+            y: 0,
+            width: 32,
+            height: 32
+          }
+        ],
+        doubleJump: [
+          {
+            x: 0,
+            y: 0,
+            width: 32,
+            height: 32
+          }
+        ],
+        grabbing: [
+          {
+            x: 34,
+            y: 0,
+            width: 32,
+            height: 32
+          }
+        ],
+        resurection: [
+          {
+            x: 68,
+            y: 0,
+            width: 32,
+            height: 32
+          }
+        ],
+        speed: [
+          {
+            x: 102,
+            y: 0,
+            width: 32,
+            height: 32
+          }
+        ],
+        tp: [
+          {
+            x: 0,
+            y: 34,
+            width: 32,
+            height: 32
+          }
         ]
       };
       this.draw();
@@ -1739,6 +1803,92 @@
 
   })(Cube);
 
+  randomEvents = ['resurection', 'speed', 'grabbing', 'doubleJump', 'jumpHeight', 'tp'];
+
+  RandomEvent = (function(_super) {
+    __extends(RandomEvent, _super);
+
+    function RandomEvent(type) {
+      var self, tween, x, y;
+      x = stage.getWidth() / 2 - 32;
+      y = stage.getY() * -1 - 64;
+      this.type = randomEvents[type];
+      RandomEvent.__super__.constructor.call(this, x, y, SquareEnum.MEDIUM, 'cubes_special', 'randomEvent');
+      dynamicEntities.add(this.shape);
+      this.shape.setName({
+        type: 'event',
+        randType: this.type
+      });
+      this.shape.draw();
+      self = this;
+      tween = new Kinetic.Tween({
+        node: this.shape,
+        duration: 1,
+        y: arena.y - levelManager.levelHeight - 640,
+        onFinish: function() {
+          return self.doEvent();
+        }
+      });
+      tween.play();
+      cubeManager.tweens.push(tween);
+    }
+
+    RandomEvent.prototype.playEffect = function(effect) {
+      var tmpX, tmpY, tween;
+      effect = new Cube(this.shape.getX() + 16, this.shape.getY() + 16, SquareEnum.SMALL, 'bonus', effect);
+      dynamicEntities.add(effect.shape);
+      effect.shape.setName({
+        type: 'effect'
+      });
+      effect.shape.draw();
+      tmpX = effect.shape.getX() - 16;
+      tmpY = effect.shape.getY() - 16;
+      tween = new Kinetic.Tween({
+        node: effect.shape,
+        duration: 0.3,
+        scaleX: 2,
+        scaleY: 2,
+        x: tmpX,
+        y: tmpY,
+        onFinish: function() {
+          return effect.shape.destroy();
+        }
+      });
+      tween.play();
+      return cubeManager.tweens.push(tween);
+    };
+
+    RandomEvent.prototype.doEvent = function() {
+      var event;
+      contentLoader.play('explosion');
+      event = this.shape.getName().randType;
+      if (event === 'resurection') {
+        player.resurection();
+        this.playEffect('resurection');
+      } else if (event === 'speed') {
+        bonusManager.getBonus('speed', player);
+        this.playEffect('speed');
+      } else if (event === 'grabbing') {
+        bonusManager.getBonus('grabbing', player);
+        this.playEffect('grabbing');
+      } else if (event === 'doubleJump') {
+        bonusManager.getBonus('doubleJump', player);
+        this.playEffect('doubleJump');
+      } else if (event === 'jumpHeight') {
+        bonusManager.getBonus('jumpHeight', player);
+        this.playEffect('jumpHeight');
+      } else if (event === 'tp') {
+        player.shape.setX(this.shape.getX() + 16);
+        player.shape.setY(this.shape.getY() + 64);
+        this.playEffect('tp');
+      }
+      return this.shape.destroy();
+    };
+
+    return RandomEvent;
+
+  })(Cube);
+
   CubeFragment = (function(_super) {
     __extends(CubeFragment, _super);
 
@@ -1764,20 +1914,8 @@
   })(Cube);
 
   bonusTypes = {
-    speed: [
-      {
-        id: 1,
-        name: 'speed',
-        x: 96,
-        y: 0,
-        width: 32,
-        height: 32
-      }
-    ],
     jumpHeight: [
       {
-        id: 2,
-        name: 'jumpHeight',
         x: 0,
         y: 0,
         width: 32,
@@ -1786,8 +1924,6 @@
     ],
     doubleJump: [
       {
-        id: 3,
-        name: 'doubleJump',
         x: 0,
         y: 0,
         width: 32,
@@ -1796,9 +1932,7 @@
     ],
     grabbing: [
       {
-        id: 4,
-        name: 'grabbing',
-        x: 32,
+        x: 34,
         y: 0,
         width: 32,
         height: 32
@@ -1806,9 +1940,15 @@
     ],
     resurection: [
       {
-        id: 5,
-        name: 'resurection',
-        x: 64,
+        x: 68,
+        y: 0,
+        width: 32,
+        height: 32
+      }
+    ],
+    speed: [
+      {
+        x: 102,
         y: 0,
         width: 32,
         height: 32
@@ -1904,7 +2044,7 @@
       this.timers = [];
     }
 
-    BonusManager.prototype.getBonus = function(bonusName, player) {
+    BonusManager.prototype.getBonus = function(bonusName) {
       var bonus, _i, _len, _ref, _results;
       contentLoader.play('pickup');
       _ref = this.bonuses;
@@ -1983,10 +2123,17 @@
     }
 
     LevelManager.prototype.reset = function() {
-      var tween, _i, _len, _ref;
+      var tween, _i, _j, _len, _len1, _ref, _ref1;
       _ref = this.tweens;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         tween = _ref[_i];
+        if (tween !== void 0) {
+          tween.destroy();
+        }
+      }
+      _ref1 = cubeManager.tweens;
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        tween = _ref1[_j];
         if (tween !== void 0) {
           tween.destroy();
         }
@@ -2052,6 +2199,7 @@
   CubeManager = (function() {
     function CubeManager() {
       this.speed = 0.4;
+      this.tweens = [];
     }
 
     CubeManager.prototype.reinitAllPhys = function() {
@@ -2378,6 +2526,9 @@
       });
       this.socket.on('fallingRandSpecial', function(data) {
         return new SpecialCube(data[0], data[1], 6, data[2]);
+      });
+      this.socket.on('randomEvent', function(data) {
+        return new RandomEvent(data);
       });
       this.socket.on('resetLevel', function() {
         levelManager.reset();
@@ -2768,7 +2919,7 @@
             x: 0,
             y: 65,
             width: 544,
-            height: 32
+            height: 31
           }
         ],
         poingman: [
