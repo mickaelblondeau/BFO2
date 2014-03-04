@@ -1,6 +1,5 @@
 class LabiMan extends MultiPartBoss
   constructor: (pattern) ->
-    @levelHeight = arena.y - levelManager.levelHeight
     x = 256
     y = stage.getY() * -1
     @oldPos = { x: x, y: y }
@@ -31,7 +30,7 @@ class LabiMan extends MultiPartBoss
     @parts.push(new LabiManPart())
     bossManager.update = (frameTime) ->
       if !self.waiting
-        if self.move(frameTime, self.attacks[self.index][0]*32 + 160, self.levelHeight - self.attacks[self.index][1]*32)
+        if self.move(frameTime, self.attacks[self.index][0]*32 + 160, levelManager.ground - self.attacks[self.index][1]*32)
           self.index++
           self.placeBlock()
           if self.attacks[self.index] is undefined
@@ -46,7 +45,7 @@ class LabiMan extends MultiPartBoss
 
   attack: (frameTime) ->
     tmp = @parts[0].shape.getY() - @attackSpeed * frameTime
-    maxH = @levelHeight - @maxHeight*32 + 8
+    maxH = levelManager.ground - @maxHeight*32 + 8
     if tmp > maxH
       @parts[0].shape.setY(tmp)
     else

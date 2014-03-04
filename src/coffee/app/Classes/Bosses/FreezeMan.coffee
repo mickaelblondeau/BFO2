@@ -7,13 +7,12 @@ class FreezeMan
     @attackIndex = 0
     @count = 0
     @parts = []
-    @levelHeight = arena.y - levelManager.levelHeight
     @start()
     @next()
 
   start: ->
     for i in [5..16]
-      new Effect(i * 32, @levelHeight - 4, SquareEnum.SMALL, 'ice')
+      new Effect(i * 32, levelManager.ground - 4, SquareEnum.SMALL, 'ice')
     self = @
     bossManager.update = (frameTime) ->
       self.counter += frameTime
@@ -24,7 +23,7 @@ class FreezeMan
       for part, i in self.parts
         if part isnt undefined
           tmp = part.shape.getY() + speed
-          if tmp < self.levelHeight
+          if tmp < levelManager.ground
             part.shape.setY(tmp)
           else
             part.shape.destroy()

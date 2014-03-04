@@ -15,9 +15,8 @@ class PoingMan extends Boss
     @attackSpeed = pattern[0][1]
     @waitTime = pattern[0][2]
     @attacks = pattern[1]
+    @originSpeed = @speed
     @index = 0
-
-    @oldPos = 0
 
     @start()
 
@@ -25,81 +24,45 @@ class PoingMan extends Boss
     self = @
     bossManager.update = (frameTime) ->
       if self.attacking and !self.finishing and !self.starting and !self.waiting
-        self.attack(frameTime)
+        if !self.comeBack && self.move(frameTime, self.shape.getX(), self.levelHeight - 62)
+          self.destroyBlocks()
+        else if self.move(frameTime, self.shape.getX(), self.y)
+          self.finishAttack()
       else if !self.finishing and !self.starting and !self.waiting
-        self.moveToPosition(frameTime)
+        if self.move(frameTime, self.attacks[self.index]*32 + 160, self.shape.getY())
+          self.attacking = true
+          self.waiting = true
+          self.speed = self.attackSpeed
       else if !self.starting and !self.waiting
-        self.finishingPhase(frameTime)
+        if self.move(frameTime, 800, self.shape.getY())
+          self.finish()
       else if !self.waiting
-        self.startingPhase(frameTime)
+        if self.move(frameTime, 0, self.shape.getY())
+          self.starting = false
       else
         self.wait(frameTime)
 
-  moveToPosition: (frameTime) ->
-    dest = @attacks[@index]*32 + 160
-    if @shape.getX() >= dest and @oldPos >= dest
-      tmp = @shape.getX() - @speed * frameTime
-      if tmp < dest
-        @shape.setX(dest)
-        @oldPos = @shape.getX()
-        @attacking = true
-        @waiting = true
-      else
-        @shape.setX(tmp)
-    else if @shape.getX() < dest and @oldPos < dest
-      tmp = @shape.getX() + @speed * frameTime
-      if tmp > dest
-        @shape.setX(dest)
-        @oldPos = @shape.getX()
-        @attacking = true
-        @waiting = true
-      else
-        @shape.setX(tmp)
+  finishAttack: ->
+    @index++
+    @attacking = false
+    @comeBack = false
+    @speed = @originSpeed
+    if @attacks[@index] is undefined
+      @finishing = true
+      @regenMap()
 
-  attack: (frameTime) ->
-    ground = @levelHeight - 62
-    if @shape.getY() < ground and !@comeBack
-      tmp = @shape.getY() + @attackSpeed * frameTime
-      if tmp > ground
-        @shape.setY(ground)
-      else
-        @shape.setY(tmp)
-    else if @shape.getY() > @y and @comeBack
-      tmp = @shape.getY() - @attackSpeed * frameTime
-      if tmp < @y
-        @shape.setY(@y)
-      else
-        @shape.setY(tmp)
-    else
-      if @comeBack
-        @index++
-        @attacking = false
-        @comeBack = false
-        if @attacks[@index] is undefined
-          @finishing = true
-          @regenMap()
-      else
-        contentLoader.play('explosion')
-        @comeBack = true
-        collisions = cubeManager.getCollisions(@shape)
-        for collision in collisions
-          if collision.getName() is undefined or collision.getName().broken isnt true
-            for i in [0..(collision.getWidth()/32)-1]
-              cube = new Sprite(collision.getX() + i * 32, collision.getY(), SquareEnum.SMALL, 'cubes', 'brokenCube')
-              cube.shape.setName({ type: 'cube', broken: true })
-              staticCubes.add cube.shape
-          collision.destroy()
-        staticCubes.draw()
-
-  startingPhase: (frameTime) ->
-    @shape.setX(@shape.getX() - @speed * frameTime)
-    if(@shape.getX() < 64)
-      @starting = false
-
-  finishingPhase: (frameTime) ->
-    @shape.setX(@shape.getX() + @speed * frameTime)
-    if(@shape.getX() > 800)
-      @finish()
+  destroyBlocks: ->
+    contentLoader.play('explosion')
+    @comeBack = true
+    collisions = cubeManager.getCollisions(@shape)
+    for collision in collisions
+      if collision.getName() is undefined or collision.getName().broken isnt true
+        for i in [0..(collision.getWidth()/32)-1]
+          cube = new Sprite(collision.getX() + i * 32, collision.getY(), SquareEnum.SMALL, 'cubes', 'brokenCube')
+          cube.shape.setName({ type: 'cube', broken: true })
+          staticCubes.add cube.shape
+      collision.destroy()
+    staticCubes.draw()
 
   regenMap: ->
     for i in [1..12]

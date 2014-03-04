@@ -53,3 +53,35 @@ class Boss extends Sprite
       return true
     else
       return false
+
+  vectorMove: (frameTime, vX, vY, mX, pX, mY, pY) ->
+    tmpX = @shape.getX() + vX
+    tmpY = @shape.getY() + vY
+
+    collisions = { mX: false, mY: false, pX: false, pY: false }
+
+    if tmpX <= mX
+      @shape.setX(mX)
+      collisions.mX = true
+    else
+      @shape.setX(tmpX)
+
+    if tmpY <= mY
+      @shape.setY(mY)
+      collisions.mY = true
+    else
+      @shape.setY(tmpY)
+
+    if tmpX >= pX
+      @shape.setX(pX)
+      collisions.pX = true
+    else
+      @shape.setX(tmpX)
+
+    if tmpY >= pY
+      @shape.setY(pY)
+      collisions.pY = true
+    else
+      @shape.setY(tmpY)
+
+    return collisions

@@ -3,6 +3,7 @@ class LevelManager
     @tweens = []
     @level = 0
     @levelHeight = 0
+    @ground = 0
 
   reset: ->
     for tween in @tweens
@@ -20,10 +21,12 @@ class LevelManager
     stage.draw()
     @level = 0
     @levelHeight = 0
+    @ground = 0
 
   moveLevel: (height) ->
     arena.add(height/32)
     @levelHeight += height
+    @ground = arena.y - @levelHeight
     @tweens[0] = new Kinetic.Tween
       node: stage
       duration: 2

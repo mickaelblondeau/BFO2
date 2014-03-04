@@ -9,7 +9,7 @@ class SparkMan extends MultiPartBoss
     @interval = pattern[0][2]
     @attacks = pattern[1]
 
-    @position = arena.y - levelManager.levelHeight - 512
+    @position = levelManager.ground - 512
     @time = 0
     @attackCount = 0
     @attackFinished = 0
@@ -21,23 +21,15 @@ class SparkMan extends MultiPartBoss
     self = @
     bossManager.update = (frameTime) ->
       if !self.inPosition
-        self.moveToPosition(frameTime)
+        if self.move(frameTime, self.shape.getX(), self.position)
+          self.inPosition = true
+          self.time = self.interval * 0.75
       else if self.time >= self.interval
         self.time = 0
         self.attack()
       else if self.attackCount < self.attacks.length
         self.time += frameTime
-
       self.updateParts(frameTime)
-
-  moveToPosition: (frameTime) ->
-    tmp = @shape.getY() + @speed * frameTime
-    if tmp < @position
-      @shape.setY(tmp)
-    else
-      @shape.setY(@position)
-      @inPosition = true
-      @time = @interval * 0.75
 
   attack: ->
     @parts.push(new SparkManPart(@shape.getX(), @shape.getY() + 64, @attacks[@attackIndex]))
@@ -47,23 +39,13 @@ class SparkMan extends MultiPartBoss
 
   updateParts: (frameTime) ->
     for part in @parts
-      tmpY = part.shape.getY() + part.ySpeed * frameTime * part.sideY
-      if tmpY > arena.y - levelManager.levelHeight - 32
-        part.shape.setY(arena.y - levelManager.levelHeight - 32)
-        part.changeSide('y')
-      if tmpY < @position - 96
-        part.shape.setY(@position - 96)
-        part.changeSide('y')
-      part.shape.setY(tmpY)
-
-      tmpX = part.shape.getX() + @attackSpeed * frameTime * part.sideX
-      if tmpX < 160
-        part.shape.setX(160)
+      vX = @attackSpeed * frameTime * part.sideX
+      vY = part.ySpeed * frameTime * part.sideY
+      collisions = part.vectorMove(frameTime, vX, vY, 160, stage.getWidth() - 192, @position - 96, levelManager.ground - 32)
+      if collisions.mX or collisions.pX
         part.changeSide('x')
-      if tmpX > stage.getWidth() - 192
-        part.shape.setX(stage.getWidth() - 192)
-        part.changeSide('x')
-      part.shape.setX(tmpX)
+      if collisions.mY or collisions.pY
+        part.changeSide('y')
 
       if part.alive
         part.life += frameTime
@@ -74,8 +56,5 @@ class SparkMan extends MultiPartBoss
       @quitScreen(frameTime)
 
   quitScreen: (frameTime) ->
-    tmp = @shape.getX() + @speed * frameTime
-    if tmp < 800
-      @shape.setX(tmp)
-    else
+    if @move(frameTime, 800, @shape.getY())
       @finish()

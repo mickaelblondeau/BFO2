@@ -1,7 +1,7 @@
 class RoueMan extends Boss
   constructor: (pattern) ->
     x = stage.getWidth()/2 - 32
-    y = arena.y - levelManager.levelHeight - 1024
+    y = levelManager.ground - 1024
     super('roueman', x, y, 64, 64)
     @attacks = pattern[1]
     @attackIndex = 0

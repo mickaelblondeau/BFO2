@@ -10,7 +10,7 @@ class HomingMan extends MultiPartBoss
     @attacks = pattern[1]
     @partLife = pattern[0][2]
 
-    @position = arena.y - levelManager.levelHeight - 384
+    @position = levelManager.ground - 384
     @time = 0
     @attackCount = 0
     @attackFinished = 0
@@ -69,7 +69,7 @@ class HomingMan extends MultiPartBoss
       else
         part.ratioX = 0.1
 
-      if part.shape.getY() > arena.y - levelManager.levelHeight
+      if part.shape.getY() > levelManager.ground
         part.reset()
 
     if @attackFinished is @attacks

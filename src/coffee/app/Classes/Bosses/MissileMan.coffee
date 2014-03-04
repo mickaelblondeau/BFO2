@@ -11,8 +11,6 @@ class MissileMan extends MultiPartBoss
     @attackFinished = 0
     @attackIndex = 0
 
-    @ground = arena.y - levelManager.levelHeight
-
     @start()
 
   start: ->
@@ -26,7 +24,7 @@ class MissileMan extends MultiPartBoss
       self.updateParts(frameTime)
 
   attack: ->
-    @parts.push(new MissileManPart(@attacks[@attackIndex][0], @ground, @attacks[@attackIndex][1]))
+    @parts.push(new MissileManPart(@attacks[@attackIndex][0], levelManager.ground, @attacks[@attackIndex][1]))
     @attackCount++
     @attackIndex++
 
@@ -37,7 +35,7 @@ class MissileMan extends MultiPartBoss
         part.shape.setY(part.shape.getY() - speed)
         part.effect.shape.setY(part.effect.shape.getY() - speed)
 
-        sky = @ground - 1024
+        sky = levelManager.ground - 1024
         if part.shape.getY() < sky
           part.launching = false
           part.shape.setY(sky)
@@ -48,7 +46,7 @@ class MissileMan extends MultiPartBoss
         part.shape.setY(part.shape.getY() + speed)
         part.effect.shape.setY(part.effect.shape.getY() + speed)
 
-        if part.shape.getY() >= @ground
+        if part.shape.getY() >= levelManager.ground
           part.reset()
 
     if @attackFinished is @attacks.length

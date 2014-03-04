@@ -2130,6 +2130,7 @@
       this.tweens = [];
       this.level = 0;
       this.levelHeight = 0;
+      this.ground = 0;
     }
 
     LevelManager.prototype.reset = function() {
@@ -2156,12 +2157,14 @@
       dynamicEntities.destroyChildren();
       stage.draw();
       this.level = 0;
-      return this.levelHeight = 0;
+      this.levelHeight = 0;
+      return this.ground = 0;
     };
 
     LevelManager.prototype.moveLevel = function(height) {
       arena.add(height / 32);
       this.levelHeight += height;
+      this.ground = arena.y - this.levelHeight;
       this.tweens[0] = new Kinetic.Tween({
         node: stage,
         duration: 2,
@@ -2969,6 +2972,43 @@
       }
     };
 
+    Boss.prototype.vectorMove = function(frameTime, vX, vY, mX, pX, mY, pY) {
+      var collisions, tmpX, tmpY;
+      tmpX = this.shape.getX() + vX;
+      tmpY = this.shape.getY() + vY;
+      collisions = {
+        mX: false,
+        mY: false,
+        pX: false,
+        pY: false
+      };
+      if (tmpX <= mX) {
+        this.shape.setX(mX);
+        collisions.mX = true;
+      } else {
+        this.shape.setX(tmpX);
+      }
+      if (tmpY <= mY) {
+        this.shape.setY(mY);
+        collisions.mY = true;
+      } else {
+        this.shape.setY(tmpY);
+      }
+      if (tmpX >= pX) {
+        this.shape.setX(pX);
+        collisions.pX = true;
+      } else {
+        this.shape.setX(tmpX);
+      }
+      if (tmpY >= pY) {
+        this.shape.setY(pY);
+        collisions.pY = true;
+      } else {
+        this.shape.setY(tmpY);
+      }
+      return collisions;
+    };
+
     return Boss;
 
   })(Sprite);
@@ -3055,7 +3095,7 @@
     function RoueMan(pattern) {
       var x, y;
       x = stage.getWidth() / 2 - 32;
-      y = arena.y - levelManager.levelHeight - 1024;
+      y = levelManager.ground - 1024;
       RoueMan.__super__.constructor.call(this, 'roueman', x, y, 64, 64);
       this.attacks = pattern[1];
       this.attackIndex = 0;
@@ -3101,7 +3141,6 @@
       this.attackIndex = 0;
       this.count = 0;
       this.parts = [];
-      this.levelHeight = arena.y - levelManager.levelHeight;
       this.start();
       this.next();
     }
@@ -3109,7 +3148,7 @@
     FreezeMan.prototype.start = function() {
       var i, self, _i;
       for (i = _i = 5; _i <= 16; i = ++_i) {
-        new Effect(i * 32, this.levelHeight - 4, SquareEnum.SMALL, 'ice');
+        new Effect(i * 32, levelManager.ground - 4, SquareEnum.SMALL, 'ice');
       }
       self = this;
       return bossManager.update = function(frameTime) {
@@ -3125,7 +3164,7 @@
           part = _ref[i];
           if (part !== void 0) {
             tmp = part.shape.getY() + speed;
-            if (tmp < self.levelHeight) {
+            if (tmp < levelManager.ground) {
               part.shape.setY(tmp);
             } else {
               part.shape.destroy();
@@ -3205,8 +3244,8 @@
       this.attackSpeed = pattern[0][1];
       this.waitTime = pattern[0][2];
       this.attacks = pattern[1];
+      this.originSpeed = this.speed;
       this.index = 0;
-      this.oldPos = 0;
       this.start();
     }
 
@@ -3215,106 +3254,62 @@
       self = this;
       return bossManager.update = function(frameTime) {
         if (self.attacking && !self.finishing && !self.starting && !self.waiting) {
-          return self.attack(frameTime);
+          if (!self.comeBack && self.move(frameTime, self.shape.getX(), self.levelHeight - 62)) {
+            return self.destroyBlocks();
+          } else if (self.move(frameTime, self.shape.getX(), self.y)) {
+            return self.finishAttack();
+          }
         } else if (!self.finishing && !self.starting && !self.waiting) {
-          return self.moveToPosition(frameTime);
+          if (self.move(frameTime, self.attacks[self.index] * 32 + 160, self.shape.getY())) {
+            self.attacking = true;
+            self.waiting = true;
+            return self.speed = self.attackSpeed;
+          }
         } else if (!self.starting && !self.waiting) {
-          return self.finishingPhase(frameTime);
+          if (self.move(frameTime, 800, self.shape.getY())) {
+            return self.finish();
+          }
         } else if (!self.waiting) {
-          return self.startingPhase(frameTime);
+          if (self.move(frameTime, 0, self.shape.getY())) {
+            return self.starting = false;
+          }
         } else {
           return self.wait(frameTime);
         }
       };
     };
 
-    PoingMan.prototype.moveToPosition = function(frameTime) {
-      var dest, tmp;
-      dest = this.attacks[this.index] * 32 + 160;
-      if (this.shape.getX() >= dest && this.oldPos >= dest) {
-        tmp = this.shape.getX() - this.speed * frameTime;
-        if (tmp < dest) {
-          this.shape.setX(dest);
-          this.oldPos = this.shape.getX();
-          this.attacking = true;
-          return this.waiting = true;
-        } else {
-          return this.shape.setX(tmp);
-        }
-      } else if (this.shape.getX() < dest && this.oldPos < dest) {
-        tmp = this.shape.getX() + this.speed * frameTime;
-        if (tmp > dest) {
-          this.shape.setX(dest);
-          this.oldPos = this.shape.getX();
-          this.attacking = true;
-          return this.waiting = true;
-        } else {
-          return this.shape.setX(tmp);
-        }
+    PoingMan.prototype.finishAttack = function() {
+      this.index++;
+      this.attacking = false;
+      this.comeBack = false;
+      this.speed = this.originSpeed;
+      if (this.attacks[this.index] === void 0) {
+        this.finishing = true;
+        return this.regenMap();
       }
     };
 
-    PoingMan.prototype.attack = function(frameTime) {
-      var collision, collisions, cube, ground, i, tmp, _i, _j, _len, _ref;
-      ground = this.levelHeight - 62;
-      if (this.shape.getY() < ground && !this.comeBack) {
-        tmp = this.shape.getY() + this.attackSpeed * frameTime;
-        if (tmp > ground) {
-          return this.shape.setY(ground);
-        } else {
-          return this.shape.setY(tmp);
-        }
-      } else if (this.shape.getY() > this.y && this.comeBack) {
-        tmp = this.shape.getY() - this.attackSpeed * frameTime;
-        if (tmp < this.y) {
-          return this.shape.setY(this.y);
-        } else {
-          return this.shape.setY(tmp);
-        }
-      } else {
-        if (this.comeBack) {
-          this.index++;
-          this.attacking = false;
-          this.comeBack = false;
-          if (this.attacks[this.index] === void 0) {
-            this.finishing = true;
-            return this.regenMap();
+    PoingMan.prototype.destroyBlocks = function() {
+      var collision, collisions, cube, i, _i, _j, _len, _ref;
+      contentLoader.play('explosion');
+      this.comeBack = true;
+      collisions = cubeManager.getCollisions(this.shape);
+      for (_i = 0, _len = collisions.length; _i < _len; _i++) {
+        collision = collisions[_i];
+        if (collision.getName() === void 0 || collision.getName().broken !== true) {
+          for (i = _j = 0, _ref = (collision.getWidth() / 32) - 1; 0 <= _ref ? _j <= _ref : _j >= _ref; i = 0 <= _ref ? ++_j : --_j) {
+            cube = new Sprite(collision.getX() + i * 32, collision.getY(), SquareEnum.SMALL, 'cubes', 'brokenCube');
+            cube.shape.setName({
+              type: 'cube',
+              broken: true
+            });
+            staticCubes.add(cube.shape);
           }
-        } else {
-          contentLoader.play('explosion');
-          this.comeBack = true;
-          collisions = cubeManager.getCollisions(this.shape);
-          for (_i = 0, _len = collisions.length; _i < _len; _i++) {
-            collision = collisions[_i];
-            if (collision.getName() === void 0 || collision.getName().broken !== true) {
-              for (i = _j = 0, _ref = (collision.getWidth() / 32) - 1; 0 <= _ref ? _j <= _ref : _j >= _ref; i = 0 <= _ref ? ++_j : --_j) {
-                cube = new Sprite(collision.getX() + i * 32, collision.getY(), SquareEnum.SMALL, 'cubes', 'brokenCube');
-                cube.shape.setName({
-                  type: 'cube',
-                  broken: true
-                });
-                staticCubes.add(cube.shape);
-              }
-            }
-            collision.destroy();
-          }
-          return staticCubes.draw();
         }
+        collision.destroy();
       }
-    };
-
-    PoingMan.prototype.startingPhase = function(frameTime) {
-      this.shape.setX(this.shape.getX() - this.speed * frameTime);
-      if (this.shape.getX() < 64) {
-        return this.starting = false;
-      }
-    };
-
-    PoingMan.prototype.finishingPhase = function(frameTime) {
-      this.shape.setX(this.shape.getX() + this.speed * frameTime);
-      if (this.shape.getX() > 800) {
-        return this.finish();
-      }
+      return staticCubes.draw();
     };
 
     PoingMan.prototype.regenMap = function() {
@@ -3343,7 +3338,6 @@
 
     function LabiMan(pattern) {
       var x, y;
-      this.levelHeight = arena.y - levelManager.levelHeight;
       x = 256;
       y = stage.getY() * -1;
       this.oldPos = {
@@ -3382,7 +3376,7 @@
       this.parts.push(new LabiManPart());
       return bossManager.update = function(frameTime) {
         if (!self.waiting) {
-          if (self.move(frameTime, self.attacks[self.index][0] * 32 + 160, self.levelHeight - self.attacks[self.index][1] * 32)) {
+          if (self.move(frameTime, self.attacks[self.index][0] * 32 + 160, levelManager.ground - self.attacks[self.index][1] * 32)) {
             self.index++;
             self.placeBlock();
             if (self.attacks[self.index] === void 0) {
@@ -3405,7 +3399,7 @@
     LabiMan.prototype.attack = function(frameTime) {
       var maxH, tmp;
       tmp = this.parts[0].shape.getY() - this.attackSpeed * frameTime;
-      maxH = this.levelHeight - this.maxHeight * 32 + 8;
+      maxH = levelManager.ground - this.maxHeight * 32 + 8;
       if (tmp > maxH) {
         return this.parts[0].shape.setY(tmp);
       } else {
@@ -3462,7 +3456,7 @@
       this.attackSpeed = pattern[0][1];
       this.interval = pattern[0][2];
       this.attacks = pattern[1];
-      this.position = arena.y - levelManager.levelHeight - 512;
+      this.position = levelManager.ground - 512;
       this.time = 0;
       this.attackCount = 0;
       this.attackFinished = 0;
@@ -3476,7 +3470,10 @@
       self = this;
       return bossManager.update = function(frameTime) {
         if (!self.inPosition) {
-          self.moveToPosition(frameTime);
+          if (self.move(frameTime, self.shape.getX(), self.position)) {
+            self.inPosition = true;
+            self.time = self.interval * 0.75;
+          }
         } else if (self.time >= self.interval) {
           self.time = 0;
           self.attack();
@@ -3487,18 +3484,6 @@
       };
     };
 
-    SparkMan.prototype.moveToPosition = function(frameTime) {
-      var tmp;
-      tmp = this.shape.getY() + this.speed * frameTime;
-      if (tmp < this.position) {
-        return this.shape.setY(tmp);
-      } else {
-        this.shape.setY(this.position);
-        this.inPosition = true;
-        return this.time = this.interval * 0.75;
-      }
-    };
-
     SparkMan.prototype.attack = function() {
       this.parts.push(new SparkManPart(this.shape.getX(), this.shape.getY() + 64, this.attacks[this.attackIndex]));
       this.parts.push(new SparkManPart(this.shape.getX(), this.shape.getY() + 64, this.attacks[this.attackIndex + 1]));
@@ -3507,30 +3492,19 @@
     };
 
     SparkMan.prototype.updateParts = function(frameTime) {
-      var part, tmpX, tmpY, _i, _len, _ref;
+      var collisions, part, vX, vY, _i, _len, _ref;
       _ref = this.parts;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         part = _ref[_i];
-        tmpY = part.shape.getY() + part.ySpeed * frameTime * part.sideY;
-        if (tmpY > arena.y - levelManager.levelHeight - 32) {
-          part.shape.setY(arena.y - levelManager.levelHeight - 32);
-          part.changeSide('y');
-        }
-        if (tmpY < this.position - 96) {
-          part.shape.setY(this.position - 96);
-          part.changeSide('y');
-        }
-        part.shape.setY(tmpY);
-        tmpX = part.shape.getX() + this.attackSpeed * frameTime * part.sideX;
-        if (tmpX < 160) {
-          part.shape.setX(160);
+        vX = this.attackSpeed * frameTime * part.sideX;
+        vY = part.ySpeed * frameTime * part.sideY;
+        collisions = part.vectorMove(frameTime, vX, vY, 160, stage.getWidth() - 192, this.position - 96, levelManager.ground - 32);
+        if (collisions.mX || collisions.pX) {
           part.changeSide('x');
         }
-        if (tmpX > stage.getWidth() - 192) {
-          part.shape.setX(stage.getWidth() - 192);
-          part.changeSide('x');
+        if (collisions.mY || collisions.pY) {
+          part.changeSide('y');
         }
-        part.shape.setX(tmpX);
         if (part.alive) {
           part.life += frameTime;
           if (part.life > this.interval * 2) {
@@ -3544,11 +3518,7 @@
     };
 
     SparkMan.prototype.quitScreen = function(frameTime) {
-      var tmp;
-      tmp = this.shape.getX() + this.speed * frameTime;
-      if (tmp < 800) {
-        return this.shape.setX(tmp);
-      } else {
+      if (this.move(frameTime, 800, this.shape.getY())) {
         return this.finish();
       }
     };
@@ -3600,7 +3570,7 @@
       this.interval = pattern[0][2];
       this.attacks = pattern[1];
       this.partLife = pattern[0][2];
-      this.position = arena.y - levelManager.levelHeight - 384;
+      this.position = levelManager.ground - 384;
       this.time = 0;
       this.attackCount = 0;
       this.attackFinished = 0;
@@ -3672,7 +3642,7 @@
         } else {
           part.ratioX = 0.1;
         }
-        if (part.shape.getY() > arena.y - levelManager.levelHeight) {
+        if (part.shape.getY() > levelManager.ground) {
           part.reset();
         }
       }
@@ -3735,7 +3705,6 @@
       this.attackCount = 0;
       this.attackFinished = 0;
       this.attackIndex = 0;
-      this.ground = arena.y - levelManager.levelHeight;
       this.start();
     }
 
@@ -3754,7 +3723,7 @@
     };
 
     MissileMan.prototype.attack = function() {
-      this.parts.push(new MissileManPart(this.attacks[this.attackIndex][0], this.ground, this.attacks[this.attackIndex][1]));
+      this.parts.push(new MissileManPart(this.attacks[this.attackIndex][0], levelManager.ground, this.attacks[this.attackIndex][1]));
       this.attackCount++;
       return this.attackIndex++;
     };
@@ -3768,7 +3737,7 @@
         if (part.launching) {
           part.shape.setY(part.shape.getY() - speed);
           part.effect.shape.setY(part.effect.shape.getY() - speed);
-          sky = this.ground - 1024;
+          sky = levelManager.ground - 1024;
           if (part.shape.getY() < sky) {
             part.launching = false;
             part.shape.setY(sky);
@@ -3779,7 +3748,7 @@
         } else {
           part.shape.setY(part.shape.getY() + speed);
           part.effect.shape.setY(part.effect.shape.getY() + speed);
-          if (part.shape.getY() >= this.ground) {
+          if (part.shape.getY() >= levelManager.ground) {
             part.reset();
           }
         }
