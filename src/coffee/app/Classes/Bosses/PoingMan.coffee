@@ -85,7 +85,7 @@ class PoingMan extends Boss
         for collision in collisions
           if collision.getName() is undefined or collision.getName().broken isnt true
             for i in [0..(collision.getWidth()/32)-1]
-              cube = new Cube(collision.getX() + i * 32, collision.getY(), SquareEnum.SMALL, 'cubes', 'brokenCube')
+              cube = new Sprite(collision.getX() + i * 32, collision.getY(), SquareEnum.SMALL, 'cubes', 'brokenCube')
               cube.shape.setName({ type: 'cube', broken: true })
               staticCubes.add cube.shape
           collision.destroy()

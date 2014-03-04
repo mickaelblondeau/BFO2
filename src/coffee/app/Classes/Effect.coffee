@@ -1,4 +1,4 @@
-class Effect extends Cube
+class Effect extends Sprite
   constructor: (x, y, size, anim, hasCycle) ->
     super(x, y, size, 'effects', anim)
     dynamicEntities.add @shape

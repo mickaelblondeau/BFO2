@@ -7,7 +7,7 @@ randomEvents = [
   'tp'
 ]
 
-class RandomEvent extends Cube
+class RandomEvent extends Sprite
   constructor: (type) ->
     x = stage.getWidth()/2 - 32
     y = stage.getY() * -1 - 64
@@ -29,7 +29,7 @@ class RandomEvent extends Cube
     cubeManager.tweens.push(tween)
 
   playEffect: (effect) ->
-    effect = new Cube(@shape.getX() + 16, @shape.getY() + 16, SquareEnum.SMALL, 'bonus', effect)
+    effect = new Sprite(@shape.getX() + 16, @shape.getY() + 16, SquareEnum.SMALL, 'bonus', effect)
     dynamicEntities.add effect.shape
     effect.shape.setName({ type: 'effect' })
     effect.shape.draw()

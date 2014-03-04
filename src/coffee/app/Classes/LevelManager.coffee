@@ -15,7 +15,6 @@ class LevelManager
     staticBg.setY(0)
     hudLayer.setY(0)
     arena.reset()
-    bonusManager.reset()
     bossManager.reset()
     dynamicEntities.destroyChildren()
     stage.draw()

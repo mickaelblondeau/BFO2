@@ -8,7 +8,7 @@ SpecialCubes = [
   'randblock'
 ]
 
-class SpecialCube extends Cube
+class SpecialCube extends Sprite
   constructor: (col, size, type, randType) ->
     x = col * 32 + 160
     y = stage.getY() * -1

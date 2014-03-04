@@ -1,4 +1,4 @@
-class FallingCube extends Cube
+class FallingCube extends Sprite
   constructor: (col, size) ->
     x = col * 32 + 160
     y = stage.getY() * -1
@@ -7,7 +7,3 @@ class FallingCube extends Cube
     dynamicEntities.add @shape
     @shape.setName({ type: 'cube', falling: true })
     @shape.draw()
-
-  getSpriteSheet: ->
-    sheets = ["cubes_red", "cubes_green", "cubes_blue"]
-    return sheets[Math.floor((Math.random()*sheets.length))]

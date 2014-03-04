@@ -1,36 +1,3 @@
-bonusTypes = {
-  jumpHeight: [{
-    x: 0
-    y: 0
-    width: 32
-    height: 32
-  }],
-  doubleJump: [{
-    x: 0
-    y: 0
-    width: 32
-    height: 32
-  }],
-  grabbing: [{
-    x: 34
-    y: 0
-    width: 32
-    height: 32
-  }],
-  resurection: [{
-    x: 68
-    y: 0
-    width: 32
-    height: 32
-  }],
-  speed: [{
-    x: 102
-    y: 0
-    width: 32
-    height: 32
-  }]
-}
-
 bonusTypesId = [{
   id: 1
   name: 'speed'
@@ -48,29 +15,19 @@ bonusTypesId = [{
   name: 'resurection'
 }]
 
-class Bonus
+class Bonus extends Sprite
   constructor: (col, typeId, id) ->
+    animation = ''
     for type in bonusTypesId
       if typeId is type.id
-        @type = type.name
-    @id = id
-    @x = col * 32 + 160 + 6
-    @y = stage.getY() * -1
-    @draw()
+        animation = type.name
+    x = col * 32 + 160 + 6
+    y = stage.getY() * -1
 
-  draw: ->
-    @shape = new Kinetic.Sprite
-      x: @x
-      y: @y
-      width: 20
-      height: 20
-      image: contentLoader.images['bonus']
-      animation: @type
-      animations: bonusTypes
-      frameRate: 0
-      index: 0
-      name: { type: 'bonus', name: @type, falling: true }
-      id: 'bonus' + @id
-      offsetX: 6
-      offsetY: 12
+    super(x, y, SquareEnum.BONUS, 'bonus', animation)
     dynamicEntities.add @shape
+    @shape.setId('bonus' + id)
+    @shape.setName({ type: 'bonus', name: @type, falling: true })
+    @shape.setOffsetX(6)
+    @shape.setOffsetY(12)
+    @shape.draw()

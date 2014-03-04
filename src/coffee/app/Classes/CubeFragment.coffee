@@ -1,11 +1,7 @@
-class CubeFragment extends Cube
+class CubeFragment extends Sprite
   constructor: (x, y, size) ->
     anim = size.x + '-' + size.y
     super(x, y, size, @getSpriteSheet(), anim)
     dynamicEntities.add @shape
     @shape.setName({ type: 'cube' })
     @shape.draw()
-
-  getSpriteSheet: ->
-    sheets = ["cubes_red", "cubes_green", "cubes_blue"]
-    return sheets[Math.floor((Math.random()*sheets.length))]

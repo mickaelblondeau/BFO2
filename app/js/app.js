@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, Cube, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, HomingMan, HomingManPart, Keyboard, LabiMan, LabiManPart, LevelManager, MissileMan, MissileManPart, MultiPartBoss, NetworkManager, Player, PoingMan, RandomEvent, RoueMan, SkinManager, SparkMan, SparkManPart, SpecialCube, SpecialCubes, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypes, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, debugLayer, debugMap, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, players, randomEvents, skin, skinManager, stage, staticBg, staticCubes, _i, _len,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, HomingMan, HomingManPart, Keyboard, LabiMan, LabiManPart, LevelManager, MissileMan, MissileManPart, MultiPartBoss, NetworkManager, Player, PoingMan, RandomEvent, RoueMan, SkinManager, SparkMan, SparkManPart, SpecialCube, SpecialCubes, Sprite, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, debugLayer, debugMap, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, playerAnimationIndexes, players, randomEvents, skin, skinManager, spriteAnimations, stage, staticBg, staticCubes, _i, _len,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -520,15 +520,40 @@
 
   })();
 
+  playerAnimationIndexes = [
+    {
+      id: 1,
+      name: 'idle'
+    }, {
+      id: 2,
+      name: 'jump'
+    }, {
+      id: 3,
+      name: 'fall'
+    }, {
+      id: 4,
+      name: 'run'
+    }, {
+      id: 5,
+      name: 'couch'
+    }, {
+      id: 6,
+      name: 'couchMove'
+    }, {
+      id: 7,
+      name: 'grabbing'
+    }, {
+      id: 8,
+      name: 'dead'
+    }
+  ];
+
   Player = (function() {
     function Player(skin) {
       var callback, self;
       this.heightCouched = 30;
       this.height = 46;
-      this.active = false;
-      this.playerSkin = skin;
       this.draw();
-      this.spawn();
       self = this;
       callback = function(image) {
         self.skin.setImage(image);
@@ -538,160 +563,16 @@
     }
 
     Player.prototype.draw = function() {
-      var animations;
       this.shape = new Kinetic.Rect({
         width: 22,
         height: this.height,
         stroke: null
       });
       players.add(this.shape);
-      animations = {
-        idle: [
-          {
-            x: 288,
-            y: 0,
-            width: 48,
-            height: 48
-          }
-        ],
-        jump: [
-          {
-            x: 336,
-            y: 0,
-            width: 48,
-            height: 48
-          }
-        ],
-        fall: [
-          {
-            x: 384,
-            y: 0,
-            width: 48,
-            height: 48
-          }
-        ],
-        run: [
-          {
-            x: 0,
-            y: 0,
-            width: 48,
-            height: 48
-          }, {
-            x: 48,
-            y: 0,
-            width: 48,
-            height: 48
-          }, {
-            x: 96,
-            y: 0,
-            width: 48,
-            height: 48
-          }, {
-            x: 144,
-            y: 0,
-            width: 48,
-            height: 48
-          }, {
-            x: 192,
-            y: 0,
-            width: 48,
-            height: 48
-          }, {
-            x: 240,
-            y: 0,
-            width: 48,
-            height: 48
-          }
-        ],
-        couch: [
-          {
-            x: 0,
-            y: 48,
-            width: 48,
-            height: 48
-          }
-        ],
-        couchMove: [
-          {
-            x: 48,
-            y: 48,
-            width: 48,
-            height: 48
-          }, {
-            x: 96,
-            y: 48,
-            width: 48,
-            height: 48
-          }, {
-            x: 144,
-            y: 48,
-            width: 48,
-            height: 48
-          }, {
-            x: 192,
-            y: 48,
-            width: 48,
-            height: 48
-          }, {
-            x: 240,
-            y: 48,
-            width: 48,
-            height: 48
-          }
-        ],
-        grabbing: [
-          {
-            x: 0,
-            y: 96,
-            width: 48,
-            height: 48
-          }
-        ],
-        dead: [
-          {
-            x: 288,
-            y: 48,
-            width: 48,
-            height: 48
-          }
-        ]
-      };
-      this.animationsIndex = [
-        {
-          id: 1,
-          name: 'idle'
-        }, {
-          id: 2,
-          name: 'jump'
-        }, {
-          id: 3,
-          name: 'fall'
-        }, {
-          id: 4,
-          name: 'run'
-        }, {
-          id: 5,
-          name: 'couch'
-        }, {
-          id: 6,
-          name: 'couchMove'
-        }, {
-          id: 7,
-          name: 'grabbing'
-        }, {
-          id: 8,
-          name: 'dead'
-        }
-      ];
-      this.skin = new Kinetic.Sprite({
-        image: contentLoader.images['playerSpirteSheet'],
-        animation: 'run',
-        animations: animations,
-        frameRate: 7,
-        index: 0
-      });
+      this.skin = new Sprite(0, 0, SquareEnum.SMALL, 'playerSpirteSheet', 'fall').shape;
       players.add(this.skin);
-      return this.skin.start();
+      this.skin.start();
+      return this.spawn();
     };
 
     Player.prototype.spawn = function() {
@@ -751,10 +632,9 @@
     };
 
     Player.prototype.getAnimationByIndex = function(index) {
-      var anim, _i, _len, _ref;
-      _ref = this.animationsIndex;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        anim = _ref[_i];
+      var anim, _i, _len;
+      for (_i = 0, _len = playerAnimationIndexes.length; _i < _len; _i++) {
+        anim = playerAnimationIndexes[_i];
         if (anim.id === index) {
           return anim.name;
         }
@@ -762,10 +642,9 @@
     };
 
     Player.prototype.getIndexByAnimation = function(animation) {
-      var anim, _i, _len, _ref;
-      _ref = this.animationsIndex;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        anim = _ref[_i];
+      var anim, _i, _len;
+      for (_i = 0, _len = playerAnimationIndexes.length; _i < _len; _i++) {
+        anim = playerAnimationIndexes[_i];
         if (anim.name === animation) {
           return anim.id;
         }
@@ -1260,471 +1139,697 @@
     LONG_RECT: {
       x: 32,
       y: 128
+    },
+    BONUS: {
+      x: 20,
+      y: 20
     }
   };
 
-  Cube = (function() {
-    function Cube(x, y, size, spriteSheet, animation) {
-      this.x = x;
-      this.y = y;
-      this.size = size;
-      this.spriteSheet = spriteSheet;
-      this.animation = animation;
-      this.cubesTypes = {
-        '32-32': [
-          {
-            x: 192,
-            y: 96,
-            width: 32,
-            height: 32
-          }
-        ],
-        '64-64': [
-          {
-            x: 128,
-            y: 64,
-            width: 64,
-            height: 64
-          }
-        ],
-        '128-128': [
-          {
-            x: 0,
-            y: 0,
-            width: 128,
-            height: 128
-          }
-        ],
-        '64-32': [
-          {
-            x: 192,
-            y: 64,
-            width: 64,
-            height: 32
-          }
-        ],
-        '128-64': [
-          {
-            x: 128,
-            y: 0,
-            width: 128,
-            height: 64
-          }
-        ],
-        '32-128': [
-          {
-            x: 256,
-            y: 0,
-            width: 32,
-            height: 128
-          }
-        ],
-        'brokenCube': [
-          {
-            x: 224,
-            y: 96,
-            width: 32,
-            height: 32
-          }
-        ],
-        'iceExplosion': [
-          {
-            x: 0,
-            y: 0,
-            width: 64,
-            height: 64
-          }
-        ],
-        'explosion': [
-          {
-            x: 64,
-            y: 0,
-            width: 64,
-            height: 64
-          }
-        ],
-        'ice': [
-          {
-            x: 0,
-            y: 0,
-            width: 32,
-            height: 32
-          }
-        ],
-        'explosionEffect': [
-          {
-            x: 0,
-            y: 32,
-            width: 160,
-            height: 128
-          }, {
-            x: 160,
-            y: 32,
-            width: 160,
-            height: 128
-          }, {
-            x: 320,
-            y: 32,
-            width: 160,
-            height: 128
-          }, {
-            x: 480,
-            y: 32,
-            width: 160,
-            height: 128
-          }, {
-            x: 0,
-            y: 160,
-            width: 160,
-            height: 128
-          }, {
-            x: 160,
-            y: 160,
-            width: 160,
-            height: 128
-          }, {
-            x: 320,
-            y: 160,
-            width: 160,
-            height: 128
-          }, {
-            x: 480,
-            y: 160,
-            width: 160,
-            height: 128
-          }, {
-            x: 0,
-            y: 288,
-            width: 160,
-            height: 128
-          }, {
-            x: 160,
-            y: 288,
-            width: 160,
-            height: 128
-          }
-        ],
-        'iceExplosionEffect': [
-          {
-            x: 0,
-            y: 416,
-            width: 160,
-            height: 128
-          }, {
-            x: 160,
-            y: 416,
-            width: 160,
-            height: 128
-          }, {
-            x: 320,
-            y: 416,
-            width: 160,
-            height: 128
-          }, {
-            x: 480,
-            y: 416,
-            width: 160,
-            height: 128
-          }, {
-            x: 0,
-            y: 544,
-            width: 160,
-            height: 128
-          }, {
-            x: 160,
-            y: 544,
-            width: 160,
-            height: 128
-          }, {
-            x: 320,
-            y: 544,
-            width: 160,
-            height: 128
-          }, {
-            x: 480,
-            y: 544,
-            width: 160,
-            height: 128
-          }, {
-            x: 0,
-            y: 672,
-            width: 160,
-            height: 128
-          }, {
-            x: 160,
-            y: 672,
-            width: 160,
-            height: 128
-          }
-        ],
-        'blood': [
-          {
-            x: 160,
-            y: 0,
-            width: 64,
-            height: 64
-          }, {
-            x: 224,
-            y: 0,
-            width: 64,
-            height: 64
-          }, {
-            x: 288,
-            y: 0,
-            width: 64,
-            height: 64
-          }, {
-            x: 352,
-            y: 0,
-            width: 64,
-            height: 64
-          }, {
-            x: 416,
-            y: 0,
-            width: 64,
-            height: 64
-          }, {
-            x: 480,
-            y: 0,
-            width: 64,
-            height: 64
-          }
-        ],
-        'slowblock': [
-          {
-            x: 0,
-            y: 64,
-            width: 64,
-            height: 64
-          }
-        ],
-        'slow': [
-          {
-            x: 32,
-            y: 0,
-            width: 32,
-            height: 32
-          }
-        ],
-        'bioExplosion': [
-          {
-            x: 0,
-            y: 834,
-            width: 128,
-            height: 128
-          }, {
-            x: 128,
-            y: 834,
-            width: 128,
-            height: 128
-          }, {
-            x: 256,
-            y: 834,
-            width: 128,
-            height: 128
-          }, {
-            x: 384,
-            y: 834,
-            width: 128,
-            height: 128
-          }, {
-            x: 512,
-            y: 834,
-            width: 128,
-            height: 128
-          }, {
-            x: 640,
-            y: 834,
-            width: 128,
-            height: 128
-          }
-        ],
-        'stompblock': [
-          {
-            x: 128,
-            y: 0,
-            width: 64,
-            height: 64
-          }
-        ],
-        'swapblock': [
-          {
-            x: 64,
-            y: 64,
-            width: 64,
-            height: 64
-          }
-        ],
-        'tpblock': [
-          {
-            x: 128,
-            y: 64,
-            width: 64,
-            height: 64
-          }
-        ],
-        'randblock': [
-          {
-            x: 0,
-            y: 128,
-            width: 64,
-            height: 64
-          }
-        ],
-        'missileEffect': [
-          {
-            x: 0,
-            y: 32,
-            width: 32,
-            height: 32
-          }, {
-            x: 32,
-            y: 32,
-            width: 32,
-            height: 32
-          }, {
-            x: 64,
-            y: 32,
-            width: 32,
-            height: 32
-          }
-        ],
-        'smallExplosionEffect': [
-          {
-            x: 0,
-            y: 960,
-            width: 64,
-            height: 64
-          }, {
-            x: 64,
-            y: 960,
-            width: 64,
-            height: 64
-          }, {
-            x: 128,
-            y: 960,
-            width: 64,
-            height: 64
-          }, {
-            x: 192,
-            y: 960,
-            width: 64,
-            height: 64
-          }, {
-            x: 0,
-            y: 1024,
-            width: 64,
-            height: 64
-          }, {
-            x: 64,
-            y: 1024,
-            width: 64,
-            height: 64
-          }, {
-            x: 128,
-            y: 1024,
-            width: 64,
-            height: 64
-          }, {
-            x: 192,
-            y: 1024,
-            width: 64,
-            height: 64
-          }, {
-            x: 0,
-            y: 1088,
-            width: 64,
-            height: 64
-          }, {
-            x: 64,
-            y: 1088,
-            width: 64,
-            height: 64
-          }
-        ],
-        'randomEvent': [
-          {
-            x: 64,
-            y: 128,
-            width: 64,
-            height: 64
-          }
-        ],
-        speed: [
-          {
-            x: 96,
-            y: 0,
-            width: 32,
-            height: 32
-          }
-        ],
-        jumpHeight: [
-          {
-            x: 0,
-            y: 0,
-            width: 32,
-            height: 32
-          }
-        ],
-        doubleJump: [
-          {
-            x: 0,
-            y: 0,
-            width: 32,
-            height: 32
-          }
-        ],
-        grabbing: [
-          {
-            x: 34,
-            y: 0,
-            width: 32,
-            height: 32
-          }
-        ],
-        resurection: [
-          {
-            x: 68,
-            y: 0,
-            width: 32,
-            height: 32
-          }
-        ],
-        speed: [
-          {
-            x: 102,
-            y: 0,
-            width: 32,
-            height: 32
-          }
-        ],
-        tp: [
-          {
-            x: 0,
-            y: 34,
-            width: 32,
-            height: 32
-          }
-        ]
-      };
-      this.draw();
-    }
+  spriteAnimations = {
+    idle: [
+      {
+        x: 288,
+        y: 0,
+        width: 48,
+        height: 48
+      }
+    ],
+    jump: [
+      {
+        x: 336,
+        y: 0,
+        width: 48,
+        height: 48
+      }
+    ],
+    fall: [
+      {
+        x: 384,
+        y: 0,
+        width: 48,
+        height: 48
+      }
+    ],
+    run: [
+      {
+        x: 0,
+        y: 0,
+        width: 48,
+        height: 48
+      }, {
+        x: 48,
+        y: 0,
+        width: 48,
+        height: 48
+      }, {
+        x: 96,
+        y: 0,
+        width: 48,
+        height: 48
+      }, {
+        x: 144,
+        y: 0,
+        width: 48,
+        height: 48
+      }, {
+        x: 192,
+        y: 0,
+        width: 48,
+        height: 48
+      }, {
+        x: 240,
+        y: 0,
+        width: 48,
+        height: 48
+      }
+    ],
+    couch: [
+      {
+        x: 0,
+        y: 48,
+        width: 48,
+        height: 48
+      }
+    ],
+    couchMove: [
+      {
+        x: 48,
+        y: 48,
+        width: 48,
+        height: 48
+      }, {
+        x: 96,
+        y: 48,
+        width: 48,
+        height: 48
+      }, {
+        x: 144,
+        y: 48,
+        width: 48,
+        height: 48
+      }, {
+        x: 192,
+        y: 48,
+        width: 48,
+        height: 48
+      }, {
+        x: 240,
+        y: 48,
+        width: 48,
+        height: 48
+      }
+    ],
+    grabbing: [
+      {
+        x: 0,
+        y: 96,
+        width: 48,
+        height: 48
+      }
+    ],
+    dead: [
+      {
+        x: 288,
+        y: 48,
+        width: 48,
+        height: 48
+      }
+    ],
+    '32-32': [
+      {
+        x: 192,
+        y: 96,
+        width: 32,
+        height: 32
+      }
+    ],
+    '64-64': [
+      {
+        x: 128,
+        y: 64,
+        width: 64,
+        height: 64
+      }
+    ],
+    '128-128': [
+      {
+        x: 0,
+        y: 0,
+        width: 128,
+        height: 128
+      }
+    ],
+    '64-32': [
+      {
+        x: 192,
+        y: 64,
+        width: 64,
+        height: 32
+      }
+    ],
+    '128-64': [
+      {
+        x: 128,
+        y: 0,
+        width: 128,
+        height: 64
+      }
+    ],
+    '32-128': [
+      {
+        x: 256,
+        y: 0,
+        width: 32,
+        height: 128
+      }
+    ],
+    'brokenCube': [
+      {
+        x: 224,
+        y: 96,
+        width: 32,
+        height: 32
+      }
+    ],
+    'iceExplosion': [
+      {
+        x: 0,
+        y: 0,
+        width: 64,
+        height: 64
+      }
+    ],
+    'explosion': [
+      {
+        x: 64,
+        y: 0,
+        width: 64,
+        height: 64
+      }
+    ],
+    'ice': [
+      {
+        x: 0,
+        y: 0,
+        width: 32,
+        height: 32
+      }
+    ],
+    'stompblock': [
+      {
+        x: 128,
+        y: 0,
+        width: 64,
+        height: 64
+      }
+    ],
+    'swapblock': [
+      {
+        x: 64,
+        y: 64,
+        width: 64,
+        height: 64
+      }
+    ],
+    'tpblock': [
+      {
+        x: 128,
+        y: 64,
+        width: 64,
+        height: 64
+      }
+    ],
+    'randblock': [
+      {
+        x: 0,
+        y: 128,
+        width: 64,
+        height: 64
+      }
+    ],
+    'randomEvent': [
+      {
+        x: 64,
+        y: 128,
+        width: 64,
+        height: 64
+      }
+    ],
+    'slowblock': [
+      {
+        x: 0,
+        y: 64,
+        width: 64,
+        height: 64
+      }
+    ],
+    'blood': [
+      {
+        x: 160,
+        y: 0,
+        width: 64,
+        height: 64
+      }, {
+        x: 224,
+        y: 0,
+        width: 64,
+        height: 64
+      }, {
+        x: 288,
+        y: 0,
+        width: 64,
+        height: 64
+      }, {
+        x: 352,
+        y: 0,
+        width: 64,
+        height: 64
+      }, {
+        x: 416,
+        y: 0,
+        width: 64,
+        height: 64
+      }, {
+        x: 480,
+        y: 0,
+        width: 64,
+        height: 64
+      }
+    ],
+    'explosionEffect': [
+      {
+        x: 0,
+        y: 32,
+        width: 160,
+        height: 128
+      }, {
+        x: 160,
+        y: 32,
+        width: 160,
+        height: 128
+      }, {
+        x: 320,
+        y: 32,
+        width: 160,
+        height: 128
+      }, {
+        x: 480,
+        y: 32,
+        width: 160,
+        height: 128
+      }, {
+        x: 0,
+        y: 160,
+        width: 160,
+        height: 128
+      }, {
+        x: 160,
+        y: 160,
+        width: 160,
+        height: 128
+      }, {
+        x: 320,
+        y: 160,
+        width: 160,
+        height: 128
+      }, {
+        x: 480,
+        y: 160,
+        width: 160,
+        height: 128
+      }, {
+        x: 0,
+        y: 288,
+        width: 160,
+        height: 128
+      }, {
+        x: 160,
+        y: 288,
+        width: 160,
+        height: 128
+      }
+    ],
+    'iceExplosionEffect': [
+      {
+        x: 0,
+        y: 416,
+        width: 160,
+        height: 128
+      }, {
+        x: 160,
+        y: 416,
+        width: 160,
+        height: 128
+      }, {
+        x: 320,
+        y: 416,
+        width: 160,
+        height: 128
+      }, {
+        x: 480,
+        y: 416,
+        width: 160,
+        height: 128
+      }, {
+        x: 0,
+        y: 544,
+        width: 160,
+        height: 128
+      }, {
+        x: 160,
+        y: 544,
+        width: 160,
+        height: 128
+      }, {
+        x: 320,
+        y: 544,
+        width: 160,
+        height: 128
+      }, {
+        x: 480,
+        y: 544,
+        width: 160,
+        height: 128
+      }, {
+        x: 0,
+        y: 672,
+        width: 160,
+        height: 128
+      }, {
+        x: 160,
+        y: 672,
+        width: 160,
+        height: 128
+      }
+    ],
+    'slow': [
+      {
+        x: 32,
+        y: 0,
+        width: 32,
+        height: 32
+      }
+    ],
+    'bioExplosion': [
+      {
+        x: 0,
+        y: 834,
+        width: 128,
+        height: 128
+      }, {
+        x: 128,
+        y: 834,
+        width: 128,
+        height: 128
+      }, {
+        x: 256,
+        y: 834,
+        width: 128,
+        height: 128
+      }, {
+        x: 384,
+        y: 834,
+        width: 128,
+        height: 128
+      }, {
+        x: 512,
+        y: 834,
+        width: 128,
+        height: 128
+      }, {
+        x: 640,
+        y: 834,
+        width: 128,
+        height: 128
+      }
+    ],
+    'missileEffect': [
+      {
+        x: 0,
+        y: 32,
+        width: 32,
+        height: 32
+      }, {
+        x: 32,
+        y: 32,
+        width: 32,
+        height: 32
+      }, {
+        x: 64,
+        y: 32,
+        width: 32,
+        height: 32
+      }
+    ],
+    'smallExplosionEffect': [
+      {
+        x: 0,
+        y: 960,
+        width: 64,
+        height: 64
+      }, {
+        x: 64,
+        y: 960,
+        width: 64,
+        height: 64
+      }, {
+        x: 128,
+        y: 960,
+        width: 64,
+        height: 64
+      }, {
+        x: 192,
+        y: 960,
+        width: 64,
+        height: 64
+      }, {
+        x: 0,
+        y: 1024,
+        width: 64,
+        height: 64
+      }, {
+        x: 64,
+        y: 1024,
+        width: 64,
+        height: 64
+      }, {
+        x: 128,
+        y: 1024,
+        width: 64,
+        height: 64
+      }, {
+        x: 192,
+        y: 1024,
+        width: 64,
+        height: 64
+      }, {
+        x: 0,
+        y: 1088,
+        width: 64,
+        height: 64
+      }, {
+        x: 64,
+        y: 1088,
+        width: 64,
+        height: 64
+      }
+    ],
+    speed: [
+      {
+        x: 96,
+        y: 0,
+        width: 32,
+        height: 32
+      }
+    ],
+    jumpHeight: [
+      {
+        x: 0,
+        y: 0,
+        width: 32,
+        height: 32
+      }
+    ],
+    doubleJump: [
+      {
+        x: 0,
+        y: 0,
+        width: 32,
+        height: 32
+      }
+    ],
+    grabbing: [
+      {
+        x: 34,
+        y: 0,
+        width: 32,
+        height: 32
+      }
+    ],
+    resurection: [
+      {
+        x: 68,
+        y: 0,
+        width: 32,
+        height: 32
+      }
+    ],
+    speed: [
+      {
+        x: 102,
+        y: 0,
+        width: 32,
+        height: 32
+      }
+    ],
+    tp: [
+      {
+        x: 0,
+        y: 34,
+        width: 32,
+        height: 32
+      }
+    ],
+    roueman: [
+      {
+        x: 0,
+        y: 0,
+        width: 63,
+        height: 64
+      }, {
+        x: 64,
+        y: 0,
+        width: 63,
+        height: 64
+      }, {
+        x: 128,
+        y: 0,
+        width: 63,
+        height: 64
+      }
+    ],
+    freezeman: [
+      {
+        x: 0,
+        y: 65,
+        width: 544,
+        height: 30
+      }
+    ],
+    poingman: [
+      {
+        x: 256,
+        y: 0,
+        width: 64,
+        height: 64
+      }
+    ],
+    labiman: [
+      {
+        x: 192,
+        y: 0,
+        width: 64,
+        height: 64
+      }
+    ],
+    sparkman: [
+      {
+        x: 0,
+        y: 128,
+        width: 64,
+        height: 64
+      }, {
+        x: 64,
+        y: 128,
+        width: 64,
+        height: 64
+      }, {
+        x: 128,
+        y: 128,
+        width: 64,
+        height: 64
+      }
+    ],
+    spark: [
+      {
+        x: 0,
+        y: 96,
+        width: 32,
+        height: 32
+      }, {
+        x: 32,
+        y: 96,
+        width: 32,
+        height: 32
+      }, {
+        x: 64,
+        y: 96,
+        width: 32,
+        height: 32
+      }
+    ],
+    homingman: [
+      {
+        x: 192,
+        y: 96,
+        width: 64,
+        height: 64
+      }
+    ],
+    missileman: [
+      {
+        x: 448,
+        y: 0,
+        width: 32,
+        height: 64
+      }
+    ],
+    powerSpark: [
+      {
+        x: 96,
+        y: 96,
+        width: 32,
+        height: 32
+      }, {
+        x: 128,
+        y: 96,
+        width: 32,
+        height: 32
+      }
+    ],
+    phantom: [
+      {
+        x: 160,
+        y: 96,
+        width: 32,
+        height: 32
+      }
+    ]
+  };
 
-    Cube.prototype.draw = function() {
-      return this.shape = new Kinetic.Sprite({
-        x: this.x,
-        y: this.y,
-        width: this.size.x,
-        height: this.size.y,
-        image: contentLoader.images[this.spriteSheet],
-        animation: this.animation,
-        animations: this.cubesTypes,
+  Sprite = (function() {
+    function Sprite(x, y, size, spriteSheet, animation) {
+      this.shape = new Kinetic.Sprite({
+        x: x,
+        y: y,
+        width: size.x,
+        height: size.y,
+        image: contentLoader.images[spriteSheet],
+        animation: animation,
+        animations: spriteAnimations,
         frameRate: 7,
         index: 0
       });
+    }
+
+    Sprite.prototype.getSpriteSheet = function() {
+      var sheets;
+      sheets = ["cubes_red", "cubes_green", "cubes_blue"];
+      return sheets[Math.floor(Math.random() * sheets.length)];
     };
 
-    return Cube;
+    return Sprite;
 
   })();
 
@@ -1745,15 +1850,9 @@
       this.shape.draw();
     }
 
-    FallingCube.prototype.getSpriteSheet = function() {
-      var sheets;
-      sheets = ["cubes_red", "cubes_green", "cubes_blue"];
-      return sheets[Math.floor(Math.random() * sheets.length)];
-    };
-
     return FallingCube;
 
-  })(Cube);
+  })(Sprite);
 
   StaticCube = (function(_super) {
     __extends(StaticCube, _super);
@@ -1768,7 +1867,7 @@
 
     return StaticCube;
 
-  })(Cube);
+  })(Sprite);
 
   SpecialCubes = ['iceExplosion', 'explosion', 'slowblock', 'stompblock', 'swapblock', 'tpblock', 'randblock'];
 
@@ -1801,7 +1900,7 @@
 
     return SpecialCube;
 
-  })(Cube);
+  })(Sprite);
 
   randomEvents = ['resurection', 'speed', 'grabbing', 'doubleJump', 'jumpHeight', 'tp'];
 
@@ -1835,7 +1934,7 @@
 
     RandomEvent.prototype.playEffect = function(effect) {
       var tmpX, tmpY, tween;
-      effect = new Cube(this.shape.getX() + 16, this.shape.getY() + 16, SquareEnum.SMALL, 'bonus', effect);
+      effect = new Sprite(this.shape.getX() + 16, this.shape.getY() + 16, SquareEnum.SMALL, 'bonus', effect);
       dynamicEntities.add(effect.shape);
       effect.shape.setName({
         type: 'effect'
@@ -1887,7 +1986,7 @@
 
     return RandomEvent;
 
-  })(Cube);
+  })(Sprite);
 
   CubeFragment = (function(_super) {
     __extends(CubeFragment, _super);
@@ -1903,58 +2002,9 @@
       this.shape.draw();
     }
 
-    CubeFragment.prototype.getSpriteSheet = function() {
-      var sheets;
-      sheets = ["cubes_red", "cubes_green", "cubes_blue"];
-      return sheets[Math.floor(Math.random() * sheets.length)];
-    };
-
     return CubeFragment;
 
-  })(Cube);
-
-  bonusTypes = {
-    jumpHeight: [
-      {
-        x: 0,
-        y: 0,
-        width: 32,
-        height: 32
-      }
-    ],
-    doubleJump: [
-      {
-        x: 0,
-        y: 0,
-        width: 32,
-        height: 32
-      }
-    ],
-    grabbing: [
-      {
-        x: 34,
-        y: 0,
-        width: 32,
-        height: 32
-      }
-    ],
-    resurection: [
-      {
-        x: 68,
-        y: 0,
-        width: 32,
-        height: 32
-      }
-    ],
-    speed: [
-      {
-        x: 102,
-        y: 0,
-        width: 32,
-        height: 32
-      }
-    ]
-  };
+  })(Sprite);
 
   bonusTypesId = [
     {
@@ -1975,47 +2025,36 @@
     }
   ];
 
-  Bonus = (function() {
+  Bonus = (function(_super) {
+    __extends(Bonus, _super);
+
     function Bonus(col, typeId, id) {
-      var type, _i, _len;
+      var animation, type, x, y, _i, _len;
+      animation = '';
       for (_i = 0, _len = bonusTypesId.length; _i < _len; _i++) {
         type = bonusTypesId[_i];
         if (typeId === type.id) {
-          this.type = type.name;
+          animation = type.name;
         }
       }
-      this.id = id;
-      this.x = col * 32 + 160 + 6;
-      this.y = stage.getY() * -1;
-      this.draw();
-    }
-
-    Bonus.prototype.draw = function() {
-      this.shape = new Kinetic.Sprite({
-        x: this.x,
-        y: this.y,
-        width: 20,
-        height: 20,
-        image: contentLoader.images['bonus'],
-        animation: this.type,
-        animations: bonusTypes,
-        frameRate: 0,
-        index: 0,
-        name: {
-          type: 'bonus',
-          name: this.type,
-          falling: true
-        },
-        id: 'bonus' + this.id,
-        offsetX: 6,
-        offsetY: 12
+      x = col * 32 + 160 + 6;
+      y = stage.getY() * -1;
+      Bonus.__super__.constructor.call(this, x, y, SquareEnum.BONUS, 'bonus', animation);
+      dynamicEntities.add(this.shape);
+      this.shape.setId('bonus' + id);
+      this.shape.setName({
+        type: 'bonus',
+        name: this.type,
+        falling: true
       });
-      return dynamicEntities.add(this.shape);
-    };
+      this.shape.setOffsetX(6);
+      this.shape.setOffsetY(12);
+      this.shape.draw();
+    }
 
     return Bonus;
 
-  })();
+  })(Sprite);
 
   BonusManager = (function() {
     function BonusManager() {
@@ -2052,7 +2091,7 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         bonus = _ref[_i];
         if (bonusName === bonus.name) {
-          _results.push(this.addBonus(bonus, player));
+          _results.push(this.addBonus(bonus));
         } else {
           _results.push(void 0);
         }
@@ -2060,7 +2099,7 @@
       return _results;
     };
 
-    BonusManager.prototype.addBonus = function(bonus, player) {
+    BonusManager.prototype.addBonus = function(bonus) {
       switch (bonus.attribute) {
         case "speed":
           return player.speed += bonus.value;
@@ -2076,39 +2115,10 @@
       }
     };
 
-    BonusManager.prototype.removeBonus = function(bonus, player) {
-      switch (bonus.attribute) {
-        case "speed":
-          return player.speed -= bonus.value;
-        case "jumpHeight":
-          return player.jumpHeight -= bonus.value;
-        case "jumpCount":
-          return player.jumpMax -= bonus.value;
-        case "canGrab":
-          return player.canGrab = false;
-      }
-    };
-
-    BonusManager.prototype.reset = function() {
-      var timer, _i, _len, _ref, _results;
-      _ref = this.timers;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        timer = _ref[_i];
-        _results.push(clearInterval(timer));
-      }
-      return _results;
-    };
-
     BonusManager.prototype.remove = function(id) {
-      var cubes;
-      cubes = dynamicEntities.find('Sprite');
-      return cubes.each(function(cube) {
-        if (cube.getId() === id) {
-          cube.destroy();
-          return dynamicEntities.draw();
-        }
-      });
+      var bonus;
+      bonus = dynamicEntities.find('#' + id);
+      return bonus.destroy();
     };
 
     return BonusManager;
@@ -2142,7 +2152,6 @@
       staticBg.setY(0);
       hudLayer.setY(0);
       arena.reset();
-      bonusManager.reset();
       bossManager.reset();
       dynamicEntities.destroyChildren();
       stage.draw();
@@ -2882,161 +2891,29 @@
 
     return Effect;
 
-  })(Cube);
+  })(Sprite);
 
-  Boss = (function() {
+  Boss = (function(_super) {
+    __extends(Boss, _super);
+
     function Boss(type, x, y, w, h) {
-      this.type = type;
-      this.x = x;
-      this.y = y;
-      this.w = w;
-      this.h = h;
       this.origin = {
-        x: 0,
-        y: 0
+        x: x,
+        y: y
       };
-      this.bossTypes = {
-        roueman: [
-          {
-            x: 0,
-            y: 0,
-            width: 63,
-            height: 64
-          }, {
-            x: 64,
-            y: 0,
-            width: 63,
-            height: 64
-          }, {
-            x: 128,
-            y: 0,
-            width: 63,
-            height: 64
-          }
-        ],
-        freezeman: [
-          {
-            x: 0,
-            y: 65,
-            width: 544,
-            height: 30
-          }
-        ],
-        poingman: [
-          {
-            x: 256,
-            y: 0,
-            width: 64,
-            height: 64
-          }
-        ],
-        labiman: [
-          {
-            x: 192,
-            y: 0,
-            width: 64,
-            height: 64
-          }
-        ],
-        sparkman: [
-          {
-            x: 0,
-            y: 128,
-            width: 64,
-            height: 64
-          }, {
-            x: 64,
-            y: 128,
-            width: 64,
-            height: 64
-          }, {
-            x: 128,
-            y: 128,
-            width: 64,
-            height: 64
-          }
-        ],
-        spark: [
-          {
-            x: 0,
-            y: 96,
-            width: 32,
-            height: 32
-          }, {
-            x: 32,
-            y: 96,
-            width: 32,
-            height: 32
-          }, {
-            x: 64,
-            y: 96,
-            width: 32,
-            height: 32
-          }
-        ],
-        homingman: [
-          {
-            x: 192,
-            y: 96,
-            width: 64,
-            height: 64
-          }
-        ],
-        missileman: [
-          {
-            x: 448,
-            y: 0,
-            width: 32,
-            height: 64
-          }
-        ],
-        powerSpark: [
-          {
-            x: 96,
-            y: 96,
-            width: 32,
-            height: 32
-          }, {
-            x: 128,
-            y: 96,
-            width: 32,
-            height: 32
-          }
-        ],
-        phantom: [
-          {
-            x: 160,
-            y: 96,
-            width: 32,
-            height: 32
-          }
-        ]
-      };
-      this.draw();
-    }
-
-    Boss.prototype.draw = function() {
-      this.shape = new Kinetic.Sprite({
-        x: this.x,
-        y: this.y,
-        width: this.w,
-        height: this.h,
-        image: contentLoader.images['boss'],
-        animation: this.type,
-        animations: this.bossTypes,
-        frameRate: 10,
-        index: 0,
-        name: {
-          type: 'boss',
-          name: this.type
-        },
-        stroke: 'black',
-        strokeWidth: 1,
-        strokeEnabled: true
-      });
+      this.speed = 0.2;
+      Boss.__super__.constructor.call(this, x, y, {
+        x: w,
+        y: h
+      }, 'boss', type);
       dynamicEntities.add(this.shape);
-      return this.shape.start();
-    };
+      this.shape.setName({
+        type: 'boss',
+        name: type
+      });
+      this.shape.setFrameRate(10);
+      this.shape.start();
+    }
 
     Boss.prototype.finish = function() {
       bossManager.stopUpdate();
@@ -3094,7 +2971,7 @@
 
     return Boss;
 
-  })();
+  })(Sprite);
 
   MultiPartBoss = (function(_super) {
     __extends(MultiPartBoss, _super);
@@ -3411,7 +3288,7 @@
             collision = collisions[_i];
             if (collision.getName() === void 0 || collision.getName().broken !== true) {
               for (i = _j = 0, _ref = (collision.getWidth() / 32) - 1; 0 <= _ref ? _j <= _ref : _j >= _ref; i = 0 <= _ref ? ++_j : --_j) {
-                cube = new Cube(collision.getX() + i * 32, collision.getY(), SquareEnum.SMALL, 'cubes', 'brokenCube');
+                cube = new Sprite(collision.getX() + i * 32, collision.getY(), SquareEnum.SMALL, 'cubes', 'brokenCube');
                 cube.shape.setName({
                   type: 'cube',
                   broken: true

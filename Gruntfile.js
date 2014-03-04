@@ -22,7 +22,7 @@ module.exports = function(grunt) {
                     'src/coffee/app/Classes/Player.coffee',
                     'src/coffee/app/Classes/ControllablePlayer.coffee',
                     'src/coffee/app/Classes/VirtualPlayer.coffee',
-                    'src/coffee/app/Classes/Cube.coffee',
+                    'src/coffee/app/Classes/Sprite.coffee',
                     'src/coffee/app/Classes/FallingCube.coffee',
                     'src/coffee/app/Classes/StaticCube.coffee',
                     'src/coffee/app/Classes/SpecialCube.coffee',
