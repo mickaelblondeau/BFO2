@@ -17,17 +17,81 @@ class CollisionManager
 
   isCubeGrabbable: (cube, player) ->
     if player.getX() > cube.getX()
-      tmp = dynamicEntities.getIntersection({ x: cube.getX() + cube.getWidth() + 8, y: cube.getY() + 64 })
-      if tmp isnt undefined and tmp isnt null and tmp.shape._id isnt cube._id
-        return false
-      tmp = staticCubes.getIntersection({ x: cube.getX() + cube.getWidth() + 8, y: cube.getY() + 64 })
-      if tmp isnt undefined and tmp isnt null and tmp.shape._id isnt cube._id
+      if @checkPresence(cube.getX() + cube.getWidth() + 16, cube.getY() + 80)
         return false
     else
-      tmp = dynamicEntities.getIntersection({ x: cube.getX() - 8, y: cube.getY() + 64 })
-      if tmp isnt undefined and tmp isnt null and tmp.shape._id isnt cube._id
-        return false
-      tmp = staticCubes.getIntersection({ x: cube.getX() + 8, y: cube.getY() + 64 })
-      if tmp isnt undefined and tmp isnt null and tmp.shape._id isnt cube._id
+      if @checkPresence(cube.getX() - 16, cube.getY() + 80)
         return false
     return true
+
+  getAllCollisions: (shape) ->
+    return @getStaticCollisions(shape).concat(@getDynamicCollisions(shape))
+
+  getStaticCollisions: (shape) ->
+    result = []
+    thisBoundBox = collisionManager.getBoundBox(shape)
+    cubes = staticCubes.find('Sprite')
+    cubes.each (cube) ->
+      cubeBoundBox = collisionManager.getBoundBox(cube)
+      if collisionManager.colliding(thisBoundBox, cubeBoundBox)
+        result.push(cube)
+    return result
+
+  getDynamicCollisions: (shape) ->
+    result = []
+    thisBoundBox = collisionManager.getBoundBox(shape)
+    cubes = dynamicEntities.find('Sprite')
+    cubes.each (cube) ->
+      cubeBoundBox = collisionManager.getBoundBox(cube)
+      if collisionManager.colliding(thisBoundBox, cubeBoundBox)
+        result.push(cube)
+    return result
+
+  getCubeCollisions: (shape) ->
+    result = []
+    thisBoundBox = collisionManager.getBoundBox(shape)
+    cubes = dynamicEntities.find('Sprite')
+    cubes.each (cube) ->
+      if shape._id isnt cube._id and cube.getName() isnt undefined and cube.getName() isnt null and cube.getName().type is 'cube'
+        cubeBoundBox = collisionManager.getBoundBox(cube)
+        if collisionManager.colliding(thisBoundBox, cubeBoundBox)
+          result.push(cube)
+    return result.concat(@getStaticCollisions(shape))
+
+  getPlayerSkin: (shape) ->
+    return players.find('#skin-' + shape.getId())[0]
+
+  getPlayerCollision: ->
+    response = false
+    playerBoundBox = collisionManager.getBoundBox(player.shape)
+    players.find('Rect').each (plr) ->
+      if plr._id isnt player.shape._id
+        skin = getPlayerSkin(plr)
+        if skin.getAnimation() is 'couch'
+          otherPlayerBoundBox = collisionManager.getBoundBox(plr)
+          if collisionManager.colliding(playerBoundBox, otherPlayerBoundBox)
+            return true
+    return false
+
+  getCornerCollisions: ->
+    result = []
+    playerBoundBox = collisionManager.getBoundBox(player.shape)
+    playerBoundBox.left -= 4
+    playerBoundBox.right += 4
+    cubes = dynamicEntities.find('Sprite')
+    cubes.each (cube) ->
+      if !cube.getName().falling and cube.getName().type is 'cube'
+        cubeBoundBox = collisionManager.getBoundBox(cube)
+        if collisionManager.colliding(playerBoundBox, cubeBoundBox) and ((cubeBoundBox.left < playerBoundBox.left and player.skin.getScaleX() is -1) or (cubeBoundBox.left > playerBoundBox.left and player.skin.getScaleX() is 1))
+          if collisionManager.collidingCorners(playerBoundBox, cubeBoundBox) and collisionManager.isCubeGrabbable(cube, player.shape)
+            result.push(cube)
+    return result
+
+  checkPresence: (x, y) ->
+    tmp = staticCubes.getIntersection({ x: x, y: y })
+    if !(tmp is null or (tmp isnt null && tmp.shape is undefined))
+      return true
+    tmp = dynamicEntities.getIntersection({ x: x, y: y })
+    if !(tmp is null or (tmp isnt null && tmp.shape is undefined)) && tmp.shape.name.type != 'bonus'
+      return true
+    return false

@@ -43,27 +43,11 @@ class CubeManager
         else
           cube.setY(cube.getY() + 0.1*frameTime)
 
-  getCollisions: (shape) ->
-    result = []
-    thisBoundBox = collisionManager.getBoundBox(shape)
-    cubes = staticCubes.find('Sprite')
-    cubes.each (cube) ->
-      cubeBoundBox = collisionManager.getBoundBox(cube)
-      if collisionManager.colliding(thisBoundBox, cubeBoundBox)
-        result.push(cube)
-    cubes = dynamicEntities.find('Sprite')
-    cubes.each (cube) ->
-      if shape._id isnt cube._id and cube.getName() isnt undefined and cube.getName() isnt null and cube.getName().type is 'cube'
-        cubeBoundBox = collisionManager.getBoundBox(cube)
-        if collisionManager.colliding(thisBoundBox, cubeBoundBox)
-          result.push(cube)
-    return result
-
   testMove: (shape, y) ->
     shape.setY(y)
-    collisions = @getCollisions(shape)
-    for collision in collisions
-      return collision
+    collisions = collisionManager.getCubeCollisions(shape)
+    if collisions.length > 0
+      return collisions[0]
     return false
 
   convertToStatic: ->

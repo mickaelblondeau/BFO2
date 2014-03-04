@@ -146,7 +146,7 @@ class ControllablePlayer extends Player
     if !@couched and @jumpCount is 0 or (@jumpCount < @jumpMax and @availableDoubleJump > 0)
       if @jumpCount > 0
         @availableDoubleJump--
-      if @playerCollision()
+      if collisionManager.getPlayerCollision()
         @coopJump = true
 
         @oldStats = {
@@ -209,27 +209,12 @@ class ControllablePlayer extends Player
       if collide
         @startCouch()
 
-  getCollisions: ->
-    result = []
-    playerBoundBox = collisionManager.getBoundBox(@shape)
-    cubes = staticCubes.find('Sprite')
-    cubes.each (cube) ->
-      cubeBoundBox = collisionManager.getBoundBox(cube)
-      if collisionManager.colliding(playerBoundBox, cubeBoundBox)
-        result.push(cube)
-    cubes = dynamicEntities.find('Sprite')
-    cubes.each (cube) ->
-      cubeBoundBox = collisionManager.getBoundBox(cube)
-      if collisionManager.colliding(playerBoundBox, cubeBoundBox)
-        result.push(cube)
-    return result
-
   testMove: (x, y) ->
     if x isnt 0
       @shape.setX(x)
     if y isnt 0
       @shape.setY(y)
-    collisions = @getCollisions()
+    collisions = collisionManager.getAllCollisions(@shape)
     for collision in collisions
         if collision.getName() isnt undefined and collision.getName() isnt null
           if collision.getName().type is 'bonus' and @alive
@@ -271,45 +256,21 @@ class ControllablePlayer extends Player
       @slowed = true
 
   getCornerCollisions: ->
-    self = @
-    count = 0
-    playerBoundBox = collisionManager.getBoundBox(@shape)
-    playerBoundBox.left -= 4
-    playerBoundBox.right += 4
-    cubes = dynamicEntities.find('Sprite')
-    cubes.each (cube) ->
-      if !cube.getName().falling and cube.getName().type is 'cube'
-        cubeBoundBox = collisionManager.getBoundBox(cube)
-        if collisionManager.colliding(playerBoundBox, cubeBoundBox) and ((cubeBoundBox.left < playerBoundBox.left and self.skin.getScaleX() is -1) or (cubeBoundBox.left > playerBoundBox.left and self.skin.getScaleX() is 1))
-          if collisionManager.collidingCorners(playerBoundBox, cubeBoundBox) and collisionManager.isCubeGrabbable(cube, self.shape)
-            if self.availableGrab > 0
-              self.availableGrab--
-              self.grab(cube)
-              count++
-            else
-              players.find('Rect').each (plr) ->
-                skin = players.find('#skin-' + plr.getId())[0]
-                if plr.getId() isnt undefined
-                  if plr.getName() is 'otherPlayer' and skin.getAnimation() is 'couch'
-                    otherPlayerBoundBox = collisionManager.getBoundBox(plr)
-                    otherPlayerBoundBox.bottom += 4
-                    if collisionManager.colliding(playerBoundBox, otherPlayerBoundBox)
-                      self.grab(cube)
-                      count++
-    if count is 0
+    grab = false
+    collisions = collisionManager.getCornerCollisions()
+    playerCollision = collisionManager.getPlayerCollision()
+    for collision in collisions
+      if playerCollision
+        @grab(collision)
+        grab = true
+        break
+      else if @availableGrab > 0
+        @availableGrab--
+        @grab(collision)
+        grab = true
+        break
+    if !grab
       @grabbing = false
-
-  playerCollision: ->
-    response = false
-    playerBoundBox = collisionManager.getBoundBox(@shape)
-    players.find('Rect').each (plr) ->
-      if plr.getId() isnt undefined
-        skin = players.find('#skin-' + plr.getId())[0]
-        if plr.getName() is 'otherPlayer' and skin.getAnimation() is 'couch'
-          otherPlayerBoundBox = collisionManager.getBoundBox(plr)
-          if collisionManager.colliding(playerBoundBox, otherPlayerBoundBox)
-            response = true
-    return response
 
   grab: (cube) ->
     if !@grabbing

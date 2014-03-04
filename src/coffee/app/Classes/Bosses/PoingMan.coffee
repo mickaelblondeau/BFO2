@@ -54,7 +54,7 @@ class PoingMan extends Boss
   destroyBlocks: ->
     contentLoader.play('explosion')
     @comeBack = true
-    collisions = cubeManager.getCollisions(@shape)
+    collisions = collisionManager.getStaticCollisions(@shape)
     for collision in collisions
       if collision.getName() is undefined or collision.getName().broken isnt true
         for i in [0..(collision.getWidth()/32)-1]

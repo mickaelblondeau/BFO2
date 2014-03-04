@@ -43,7 +43,6 @@ class Player
     @shape = new Kinetic.Rect
       width: 22
       height: @height
-      stroke: null
     players.add @shape
 
     @skin = new Sprite(0, 0, SquareEnum.SMALL, 'playerSpirteSheet', 'fall').shape

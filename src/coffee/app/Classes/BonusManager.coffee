@@ -2,26 +2,26 @@ class BonusManager
   constructor: ->
     @bonuses = [
       {
-        name: 'doubleJump'
+        name: 'doubleJumpBonus'
         attribute: 'jumpCount'
         value: 1
       },
       {
-        name: 'grabbing'
+        name: 'grabbingBonus'
         attribute: 'grab'
         value: 20
       },
       {
-        name: 'resurection'
+        name: 'resurectionBonus'
         attribute: 'resurection'
       },
       {
-        name: 'speed'
+        name: 'speedBonus'
         attribute: 'speed'
         value: 0.015
       },
       {
-        name: 'jumpHeight'
+        name: 'jumpHeightBonus'
         attribute: 'jumpHeight'
         value: 3
       },

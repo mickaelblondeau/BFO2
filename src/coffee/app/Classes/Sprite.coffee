@@ -444,38 +444,32 @@ spriteAnimations = {
   }],
 
   # BONUS ANIMATIONS
-  speed: [{
-    x: 96
+  speedBonus: [{
+    x: 102
     y: 0
     width: 32
     height: 32
   }],
-  jumpHeight: [{
+  jumpHeightBonus: [{
     x: 0
     y: 0
     width: 32
     height: 32
   }],
-  doubleJump: [{
+  doubleJumpBonus: [{
     x: 0
     y: 0
     width: 32
     height: 32
   }],
-  grabbing: [{
+  grabbingBonus: [{
     x: 34
     y: 0
     width: 32
     height: 32
   }],
-  resurection: [{
+  resurectionBonus: [{
     x: 68
-    y: 0
-    width: 32
-    height: 32
-  }],
-  speed: [{
-    x: 102
     y: 0
     width: 32
     height: 32

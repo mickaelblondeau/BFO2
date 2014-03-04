@@ -1,18 +1,18 @@
 bonusTypesId = [{
   id: 1
-  name: 'speed'
+  name: 'speedBonus'
 }, {
   id: 2
-  name: 'jumpHeight'
+  name: 'jumpHeightBonus'
 }, {
   id: 3
-  name: 'doubleJump'
+  name: 'doubleJumpBonus'
 }, {
   id: 4
-  name: 'grabbing'
+  name: 'grabbingBonus'
 }, {
   id: 5
-  name: 'resurection'
+  name: 'resurectionBonus'
 }]
 
 class Bonus extends Sprite
@@ -27,7 +27,7 @@ class Bonus extends Sprite
     super(x, y, SquareEnum.BONUS, 'bonus', animation)
     dynamicEntities.add @shape
     @shape.setId('bonus' + id)
-    @shape.setName({ type: 'bonus', name: @type, falling: true })
+    @shape.setName({ type: 'bonus', name: animation, falling: true })
     @shape.setOffsetX(6)
     @shape.setOffsetY(12)
     @shape.draw()

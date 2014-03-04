@@ -54,23 +54,23 @@ class RandomEvent extends Sprite
     event = @shape.getName().randType
     if event is 'resurection'
       player.resurection()
-      @playEffect('resurection')
+      @playEffect('resurectionBonus')
 
     else if event is 'speed'
-      bonusManager.getBonus('speed', player)
-      @playEffect('speed')
+      bonusManager.getBonus('speedBonus', player)
+      @playEffect('speedBonus')
 
     else if event is 'grabbing'
-      bonusManager.getBonus('grabbing', player)
-      @playEffect('grabbing')
+      bonusManager.getBonus('grabbingBonus', player)
+      @playEffect('grabbingBonus')
 
     else if event is 'doubleJump'
-      bonusManager.getBonus('doubleJump', player)
-      @playEffect('doubleJump')
+      bonusManager.getBonus('doubleJumpBonus', player)
+      @playEffect('doubleJumpBonus')
 
     else if event is 'jumpHeight'
-      bonusManager.getBonus('jumpHeight', player)
-      @playEffect('jumpHeight')
+      bonusManager.getBonus('jumpHeightBonus', player)
+      @playEffect('jumpHeightBonus')
 
     else if event is 'tp'
       player.shape.setX(@shape.getX()+16)

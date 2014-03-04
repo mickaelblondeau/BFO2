@@ -481,39 +481,130 @@
     };
 
     CollisionManager.prototype.isCubeGrabbable = function(cube, player) {
-      var tmp;
       if (player.getX() > cube.getX()) {
-        tmp = dynamicEntities.getIntersection({
-          x: cube.getX() + cube.getWidth() + 8,
-          y: cube.getY() + 64
-        });
-        if (tmp !== void 0 && tmp !== null && tmp.shape._id !== cube._id) {
-          return false;
-        }
-        tmp = staticCubes.getIntersection({
-          x: cube.getX() + cube.getWidth() + 8,
-          y: cube.getY() + 64
-        });
-        if (tmp !== void 0 && tmp !== null && tmp.shape._id !== cube._id) {
+        if (this.checkPresence(cube.getX() + cube.getWidth() + 16, cube.getY() + 80)) {
           return false;
         }
       } else {
-        tmp = dynamicEntities.getIntersection({
-          x: cube.getX() - 8,
-          y: cube.getY() + 64
-        });
-        if (tmp !== void 0 && tmp !== null && tmp.shape._id !== cube._id) {
-          return false;
-        }
-        tmp = staticCubes.getIntersection({
-          x: cube.getX() + 8,
-          y: cube.getY() + 64
-        });
-        if (tmp !== void 0 && tmp !== null && tmp.shape._id !== cube._id) {
+        if (this.checkPresence(cube.getX() - 16, cube.getY() + 80)) {
           return false;
         }
       }
       return true;
+    };
+
+    CollisionManager.prototype.getAllCollisions = function(shape) {
+      return this.getStaticCollisions(shape).concat(this.getDynamicCollisions(shape));
+    };
+
+    CollisionManager.prototype.getStaticCollisions = function(shape) {
+      var cubes, result, thisBoundBox;
+      result = [];
+      thisBoundBox = collisionManager.getBoundBox(shape);
+      cubes = staticCubes.find('Sprite');
+      cubes.each(function(cube) {
+        var cubeBoundBox;
+        cubeBoundBox = collisionManager.getBoundBox(cube);
+        if (collisionManager.colliding(thisBoundBox, cubeBoundBox)) {
+          return result.push(cube);
+        }
+      });
+      return result;
+    };
+
+    CollisionManager.prototype.getDynamicCollisions = function(shape) {
+      var cubes, result, thisBoundBox;
+      result = [];
+      thisBoundBox = collisionManager.getBoundBox(shape);
+      cubes = dynamicEntities.find('Sprite');
+      cubes.each(function(cube) {
+        var cubeBoundBox;
+        cubeBoundBox = collisionManager.getBoundBox(cube);
+        if (collisionManager.colliding(thisBoundBox, cubeBoundBox)) {
+          return result.push(cube);
+        }
+      });
+      return result;
+    };
+
+    CollisionManager.prototype.getCubeCollisions = function(shape) {
+      var cubes, result, thisBoundBox;
+      result = [];
+      thisBoundBox = collisionManager.getBoundBox(shape);
+      cubes = dynamicEntities.find('Sprite');
+      cubes.each(function(cube) {
+        var cubeBoundBox;
+        if (shape._id !== cube._id && cube.getName() !== void 0 && cube.getName() !== null && cube.getName().type === 'cube') {
+          cubeBoundBox = collisionManager.getBoundBox(cube);
+          if (collisionManager.colliding(thisBoundBox, cubeBoundBox)) {
+            return result.push(cube);
+          }
+        }
+      });
+      return result.concat(this.getStaticCollisions(shape));
+    };
+
+    CollisionManager.prototype.getPlayerSkin = function(shape) {
+      return players.find('#skin-' + shape.getId())[0];
+    };
+
+    CollisionManager.prototype.getPlayerCollision = function() {
+      var playerBoundBox, response;
+      response = false;
+      playerBoundBox = collisionManager.getBoundBox(player.shape);
+      players.find('Rect').each(function(plr) {
+        var otherPlayerBoundBox, skin;
+        if (plr._id !== player.shape._id) {
+          skin = getPlayerSkin(plr);
+          if (skin.getAnimation() === 'couch') {
+            otherPlayerBoundBox = collisionManager.getBoundBox(plr);
+            if (collisionManager.colliding(playerBoundBox, otherPlayerBoundBox)) {
+              return true;
+            }
+          }
+        }
+      });
+      return false;
+    };
+
+    CollisionManager.prototype.getCornerCollisions = function() {
+      var cubes, playerBoundBox, result;
+      result = [];
+      playerBoundBox = collisionManager.getBoundBox(player.shape);
+      playerBoundBox.left -= 4;
+      playerBoundBox.right += 4;
+      cubes = dynamicEntities.find('Sprite');
+      cubes.each(function(cube) {
+        var cubeBoundBox;
+        if (!cube.getName().falling && cube.getName().type === 'cube') {
+          cubeBoundBox = collisionManager.getBoundBox(cube);
+          if (collisionManager.colliding(playerBoundBox, cubeBoundBox) && ((cubeBoundBox.left < playerBoundBox.left && player.skin.getScaleX() === -1) || (cubeBoundBox.left > playerBoundBox.left && player.skin.getScaleX() === 1))) {
+            if (collisionManager.collidingCorners(playerBoundBox, cubeBoundBox) && collisionManager.isCubeGrabbable(cube, player.shape)) {
+              return result.push(cube);
+            }
+          }
+        }
+      });
+      return result;
+    };
+
+    CollisionManager.prototype.checkPresence = function(x, y) {
+      var tmp;
+      tmp = staticCubes.getIntersection({
+        x: x,
+        y: y
+      });
+      if (!(tmp === null || (tmp !== null && tmp.shape === void 0))) {
+        return true;
+      }
+      tmp = dynamicEntities.getIntersection({
+        x: x,
+        y: y
+      });
+      if (!(tmp === null || (tmp !== null && tmp.shape === void 0)) && tmp.shape.name.type !== 'bonus') {
+        return true;
+      }
+      return false;
     };
 
     return CollisionManager;
@@ -565,8 +656,7 @@
     Player.prototype.draw = function() {
       this.shape = new Kinetic.Rect({
         width: 22,
-        height: this.height,
-        stroke: null
+        height: this.height
       });
       players.add(this.shape);
       this.skin = new Sprite(0, 0, SquareEnum.SMALL, 'playerSpirteSheet', 'fall').shape;
@@ -823,7 +913,7 @@
         if (this.jumpCount > 0) {
           this.availableDoubleJump--;
         }
-        if (this.playerCollision()) {
+        if (collisionManager.getPlayerCollision()) {
           this.coopJump = true;
           this.oldStats = {
             jumpHeight: this.jumpHeight,
@@ -900,29 +990,6 @@
       }
     };
 
-    ControllablePlayer.prototype.getCollisions = function() {
-      var cubes, playerBoundBox, result;
-      result = [];
-      playerBoundBox = collisionManager.getBoundBox(this.shape);
-      cubes = staticCubes.find('Sprite');
-      cubes.each(function(cube) {
-        var cubeBoundBox;
-        cubeBoundBox = collisionManager.getBoundBox(cube);
-        if (collisionManager.colliding(playerBoundBox, cubeBoundBox)) {
-          return result.push(cube);
-        }
-      });
-      cubes = dynamicEntities.find('Sprite');
-      cubes.each(function(cube) {
-        var cubeBoundBox;
-        cubeBoundBox = collisionManager.getBoundBox(cube);
-        if (collisionManager.colliding(playerBoundBox, cubeBoundBox)) {
-          return result.push(cube);
-        }
-      });
-      return result;
-    };
-
     ControllablePlayer.prototype.testMove = function(x, y) {
       var collision, collisions, _i, _len;
       if (x !== 0) {
@@ -931,7 +998,7 @@
       if (y !== 0) {
         this.shape.setY(y);
       }
-      collisions = this.getCollisions();
+      collisions = collisionManager.getAllCollisions(this.shape);
       for (_i = 0, _len = collisions.length; _i < _len; _i++) {
         collision = collisions[_i];
         if (collision.getName() !== void 0 && collision.getName() !== null) {
@@ -990,65 +1057,26 @@
     };
 
     ControllablePlayer.prototype.getCornerCollisions = function() {
-      var count, cubes, playerBoundBox, self;
-      self = this;
-      count = 0;
-      playerBoundBox = collisionManager.getBoundBox(this.shape);
-      playerBoundBox.left -= 4;
-      playerBoundBox.right += 4;
-      cubes = dynamicEntities.find('Sprite');
-      cubes.each(function(cube) {
-        var cubeBoundBox;
-        if (!cube.getName().falling && cube.getName().type === 'cube') {
-          cubeBoundBox = collisionManager.getBoundBox(cube);
-          if (collisionManager.colliding(playerBoundBox, cubeBoundBox) && ((cubeBoundBox.left < playerBoundBox.left && self.skin.getScaleX() === -1) || (cubeBoundBox.left > playerBoundBox.left && self.skin.getScaleX() === 1))) {
-            if (collisionManager.collidingCorners(playerBoundBox, cubeBoundBox) && collisionManager.isCubeGrabbable(cube, self.shape)) {
-              if (self.availableGrab > 0) {
-                self.availableGrab--;
-                self.grab(cube);
-                return count++;
-              } else {
-                return players.find('Rect').each(function(plr) {
-                  var otherPlayerBoundBox, skin;
-                  skin = players.find('#skin-' + plr.getId())[0];
-                  if (plr.getId() !== void 0) {
-                    if (plr.getName() === 'otherPlayer' && skin.getAnimation() === 'couch') {
-                      otherPlayerBoundBox = collisionManager.getBoundBox(plr);
-                      otherPlayerBoundBox.bottom += 4;
-                      if (collisionManager.colliding(playerBoundBox, otherPlayerBoundBox)) {
-                        self.grab(cube);
-                        return count++;
-                      }
-                    }
-                  }
-                });
-              }
-            }
-          }
+      var collision, collisions, grab, playerCollision, _i, _len;
+      grab = false;
+      collisions = collisionManager.getCornerCollisions();
+      playerCollision = collisionManager.getPlayerCollision();
+      for (_i = 0, _len = collisions.length; _i < _len; _i++) {
+        collision = collisions[_i];
+        if (playerCollision) {
+          this.grab(collision);
+          grab = true;
+          break;
+        } else if (this.availableGrab > 0) {
+          this.availableGrab--;
+          this.grab(collision);
+          grab = true;
+          break;
         }
-      });
-      if (count === 0) {
+      }
+      if (!grab) {
         return this.grabbing = false;
       }
-    };
-
-    ControllablePlayer.prototype.playerCollision = function() {
-      var playerBoundBox, response;
-      response = false;
-      playerBoundBox = collisionManager.getBoundBox(this.shape);
-      players.find('Rect').each(function(plr) {
-        var otherPlayerBoundBox, skin;
-        if (plr.getId() !== void 0) {
-          skin = players.find('#skin-' + plr.getId())[0];
-          if (plr.getName() === 'otherPlayer' && skin.getAnimation() === 'couch') {
-            otherPlayerBoundBox = collisionManager.getBoundBox(plr);
-            if (collisionManager.colliding(playerBoundBox, otherPlayerBoundBox)) {
-              return response = true;
-            }
-          }
-        }
-      });
-      return response;
     };
 
     ControllablePlayer.prototype.grab = function(cube) {
@@ -1635,23 +1663,15 @@
         height: 64
       }
     ],
-    speed: [
+    speedBonus: [
       {
-        x: 96,
+        x: 102,
         y: 0,
         width: 32,
         height: 32
       }
     ],
-    jumpHeight: [
-      {
-        x: 0,
-        y: 0,
-        width: 32,
-        height: 32
-      }
-    ],
-    doubleJump: [
+    jumpHeightBonus: [
       {
         x: 0,
         y: 0,
@@ -1659,7 +1679,15 @@
         height: 32
       }
     ],
-    grabbing: [
+    doubleJumpBonus: [
+      {
+        x: 0,
+        y: 0,
+        width: 32,
+        height: 32
+      }
+    ],
+    grabbingBonus: [
       {
         x: 34,
         y: 0,
@@ -1667,17 +1695,9 @@
         height: 32
       }
     ],
-    resurection: [
+    resurectionBonus: [
       {
         x: 68,
-        y: 0,
-        width: 32,
-        height: 32
-      }
-    ],
-    speed: [
-      {
-        x: 102,
         y: 0,
         width: 32,
         height: 32
@@ -1963,19 +1983,19 @@
       event = this.shape.getName().randType;
       if (event === 'resurection') {
         player.resurection();
-        this.playEffect('resurection');
+        this.playEffect('resurectionBonus');
       } else if (event === 'speed') {
-        bonusManager.getBonus('speed', player);
-        this.playEffect('speed');
+        bonusManager.getBonus('speedBonus', player);
+        this.playEffect('speedBonus');
       } else if (event === 'grabbing') {
-        bonusManager.getBonus('grabbing', player);
-        this.playEffect('grabbing');
+        bonusManager.getBonus('grabbingBonus', player);
+        this.playEffect('grabbingBonus');
       } else if (event === 'doubleJump') {
-        bonusManager.getBonus('doubleJump', player);
-        this.playEffect('doubleJump');
+        bonusManager.getBonus('doubleJumpBonus', player);
+        this.playEffect('doubleJumpBonus');
       } else if (event === 'jumpHeight') {
-        bonusManager.getBonus('jumpHeight', player);
-        this.playEffect('jumpHeight');
+        bonusManager.getBonus('jumpHeightBonus', player);
+        this.playEffect('jumpHeightBonus');
       } else if (event === 'tp') {
         player.shape.setX(this.shape.getX() + 16);
         player.shape.setY(this.shape.getY() + 64);
@@ -2009,19 +2029,19 @@
   bonusTypesId = [
     {
       id: 1,
-      name: 'speed'
+      name: 'speedBonus'
     }, {
       id: 2,
-      name: 'jumpHeight'
+      name: 'jumpHeightBonus'
     }, {
       id: 3,
-      name: 'doubleJump'
+      name: 'doubleJumpBonus'
     }, {
       id: 4,
-      name: 'grabbing'
+      name: 'grabbingBonus'
     }, {
       id: 5,
-      name: 'resurection'
+      name: 'resurectionBonus'
     }
   ];
 
@@ -2044,7 +2064,7 @@
       this.shape.setId('bonus' + id);
       this.shape.setName({
         type: 'bonus',
-        name: this.type,
+        name: animation,
         falling: true
       });
       this.shape.setOffsetX(6);
@@ -2060,22 +2080,22 @@
     function BonusManager() {
       this.bonuses = [
         {
-          name: 'doubleJump',
+          name: 'doubleJumpBonus',
           attribute: 'jumpCount',
           value: 1
         }, {
-          name: 'grabbing',
+          name: 'grabbingBonus',
           attribute: 'grab',
           value: 20
         }, {
-          name: 'resurection',
+          name: 'resurectionBonus',
           attribute: 'resurection'
         }, {
-          name: 'speed',
+          name: 'speedBonus',
           attribute: 'speed',
           value: 0.015
         }, {
-          name: 'jumpHeight',
+          name: 'jumpHeightBonus',
           attribute: 'jumpHeight',
           value: 3
         }
@@ -2275,38 +2295,12 @@
       });
     };
 
-    CubeManager.prototype.getCollisions = function(shape) {
-      var cubes, result, thisBoundBox;
-      result = [];
-      thisBoundBox = collisionManager.getBoundBox(shape);
-      cubes = staticCubes.find('Sprite');
-      cubes.each(function(cube) {
-        var cubeBoundBox;
-        cubeBoundBox = collisionManager.getBoundBox(cube);
-        if (collisionManager.colliding(thisBoundBox, cubeBoundBox)) {
-          return result.push(cube);
-        }
-      });
-      cubes = dynamicEntities.find('Sprite');
-      cubes.each(function(cube) {
-        var cubeBoundBox;
-        if (shape._id !== cube._id && cube.getName() !== void 0 && cube.getName() !== null && cube.getName().type === 'cube') {
-          cubeBoundBox = collisionManager.getBoundBox(cube);
-          if (collisionManager.colliding(thisBoundBox, cubeBoundBox)) {
-            return result.push(cube);
-          }
-        }
-      });
-      return result;
-    };
-
     CubeManager.prototype.testMove = function(shape, y) {
-      var collision, collisions, _i, _len;
+      var collisions;
       shape.setY(y);
-      collisions = this.getCollisions(shape);
-      for (_i = 0, _len = collisions.length; _i < _len; _i++) {
-        collision = collisions[_i];
-        return collision;
+      collisions = collisionManager.getCubeCollisions(shape);
+      if (collisions.length > 0) {
+        return collisions[0];
       }
       return false;
     };
@@ -3294,7 +3288,7 @@
       var collision, collisions, cube, i, _i, _j, _len, _ref;
       contentLoader.play('explosion');
       this.comeBack = true;
-      collisions = cubeManager.getCollisions(this.shape);
+      collisions = collisionManager.getStaticCollisions(this.shape);
       for (_i = 0, _len = collisions.length; _i < _len; _i++) {
         collision = collisions[_i];
         if (collision.getName() === void 0 || collision.getName().broken !== true) {
