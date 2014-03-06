@@ -79,22 +79,14 @@ contentLoader.contentsLoaded = ->
     networkManager.connect(ip, name, skin)
 
     game.update = (frameTime) ->
-      players.draw()
-      dynamicEntities.draw()
       player.update(frameTime)
       bossManager.update(frameTime)
       hud.update(frameTime)
       cubeManager.update(frameTime)
 
-    new FallingCube(0, SquareEnum.LARGE)
-
-    fn = ->
-      new FallingCube(2, SquareEnum.SMALL)
-    setTimeout(fn, 500)
-
-    fn = ->
-      new FallingCube(2, SquareEnum.MEDIUM)
-    setTimeout(fn, 1000)
+    game.draw = ->
+      players.draw()
+      dynamicEntities.draw()
 
   document.querySelector('#play').onclick = ->
     ip = document.querySelector('#ip').value.replace(" ","")

@@ -19,9 +19,18 @@ class Game
     animFrame(Game.prototype.loop.bind(@))
     @lastFrame = thisFrame
 
-    if frameTime > 100
-      frameTime = 100
-    game.update(frameTime)
+    tmpFrameTime = frameTime
+
+    loop
+      if tmpFrameTime <= 50
+        interval = tmpFrameTime
+        tmpFrameTime = 0
+      else
+        interval = 50
+        tmpFrameTime -= 50
+      game.update(interval)
+      break if tmpFrameTime == 0
+    game.draw()
 
     @fpsTimer += frameTime
     if @fpsTimer >= @refreshFPSInterval
@@ -29,6 +38,8 @@ class Game
       @fps = frameTime
 
   update: (frameTime) ->
+
+  draw: ->
 
   start: ->
     document.querySelector('#login').style.display = 'none'

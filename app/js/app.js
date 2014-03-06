@@ -111,15 +111,26 @@
     }
 
     Game.prototype.loop = function() {
-      var frameTime, thisFrame;
+      var frameTime, interval, thisFrame, tmpFrameTime;
       thisFrame = Date.now();
       frameTime = thisFrame - this.lastFrame;
       animFrame(Game.prototype.loop.bind(this));
       this.lastFrame = thisFrame;
-      if (frameTime > 100) {
-        frameTime = 100;
+      tmpFrameTime = frameTime;
+      while (true) {
+        if (tmpFrameTime <= 50) {
+          interval = tmpFrameTime;
+          tmpFrameTime = 0;
+        } else {
+          interval = 50;
+          tmpFrameTime -= 50;
+        }
+        game.update(interval);
+        if (tmpFrameTime === 0) {
+          break;
+        }
       }
-      game.update(frameTime);
+      game.draw();
       this.fpsTimer += frameTime;
       if (this.fpsTimer >= this.refreshFPSInterval) {
         this.fpsTimer = 0;
@@ -128,6 +139,8 @@
     };
 
     Game.prototype.update = function(frameTime) {};
+
+    Game.prototype.draw = function() {};
 
     Game.prototype.start = function() {
       document.querySelector('#login').style.display = 'none';
@@ -3913,7 +3926,7 @@
     document.querySelector('#ip').value = window.location.host;
     contentLoader.playSong();
     launchGame = function(ip, name) {
-      var bg, fn;
+      var bg;
       bg = new Kinetic.Rect({
         width: stage.getWidth(),
         height: stage.getHeight(),
@@ -3927,22 +3940,15 @@
       hud = new HUD();
       networkManager.connect(ip, name, skin);
       game.update = function(frameTime) {
-        players.draw();
-        dynamicEntities.draw();
         player.update(frameTime);
         bossManager.update(frameTime);
         hud.update(frameTime);
         return cubeManager.update(frameTime);
       };
-      new FallingCube(0, SquareEnum.LARGE);
-      fn = function() {
-        return new FallingCube(2, SquareEnum.SMALL);
+      return game.draw = function() {
+        players.draw();
+        return dynamicEntities.draw();
       };
-      setTimeout(fn, 500);
-      fn = function() {
-        return new FallingCube(2, SquareEnum.MEDIUM);
-      };
-      return setTimeout(fn, 1000);
     };
     return document.querySelector('#play').onclick = function() {
       var ip, name;
