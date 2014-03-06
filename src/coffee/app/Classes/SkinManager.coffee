@@ -21,7 +21,8 @@ class SkinManager
 
   createSheet: (images, id) ->
     self = @
-    tmpLayer = new Kinetic.Layer()
+    tmpLayer = new Kinetic.Layer
+      hitGraphEnabled: false
     stage.add tmpLayer
     for image in images
       shape = new Kinetic.Image

@@ -591,6 +591,7 @@ class Sprite
       animations: spriteAnimations
       frameRate: 7
       index: 0
+      transformsEnabled: 'position'
 
   getSpriteSheet: ->
     sheets = ["cubes_red", "cubes_green", "cubes_blue"]

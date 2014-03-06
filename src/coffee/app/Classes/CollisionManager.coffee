@@ -29,7 +29,7 @@ class CollisionManager
 
   getStaticCollisions: (shape) ->
     result = []
-    thisBoundBox = collisionManager.getBoundBox(shape)
+    thisBoundBox = @getBoundBox(shape)
     cubes = staticCubes.find('Sprite')
     cubes.each (cube) ->
       cubeBoundBox = collisionManager.getBoundBox(cube)
@@ -39,7 +39,7 @@ class CollisionManager
 
   getDynamicCollisions: (shape) ->
     result = []
-    thisBoundBox = collisionManager.getBoundBox(shape)
+    thisBoundBox = @getBoundBox(shape)
     cubes = dynamicEntities.find('Sprite')
     cubes.each (cube) ->
       cubeBoundBox = collisionManager.getBoundBox(cube)
@@ -49,7 +49,7 @@ class CollisionManager
 
   getCubeCollisions: (shape) ->
     result = []
-    thisBoundBox = collisionManager.getBoundBox(shape)
+    thisBoundBox = @getBoundBox(shape)
     cubes = dynamicEntities.find('Sprite')
     cubes.each (cube) ->
       if shape._id isnt cube._id and cube.getName() isnt undefined and cube.getName() isnt null and cube.getName().type is 'cube'
@@ -65,17 +65,17 @@ class CollisionManager
     response = false
     playerBoundBox = collisionManager.getBoundBox(player.shape)
     players.find('Rect').each (plr) ->
-      if plr._id isnt player.shape._id
-        skin = getPlayerSkin(plr)
-        if skin.getAnimation() is 'couch'
+      if plr.getId() isnt undefined
+        skin = collisionManager.getPlayerSkin(plr)
+        if plr.getName() is 'otherPlayer' and skin.getAnimation() is 'couch'
           otherPlayerBoundBox = collisionManager.getBoundBox(plr)
           if collisionManager.colliding(playerBoundBox, otherPlayerBoundBox)
-            return true
-    return false
+            response = true
+    return response
 
   getCornerCollisions: ->
     result = []
-    playerBoundBox = collisionManager.getBoundBox(player.shape)
+    playerBoundBox = @getBoundBox(player.shape)
     playerBoundBox.left -= 4
     playerBoundBox.right += 4
     cubes = dynamicEntities.find('Sprite')
@@ -89,9 +89,9 @@ class CollisionManager
 
   checkPresence: (x, y) ->
     tmp = staticCubes.getIntersection({ x: x, y: y })
-    if !(tmp is null or (tmp isnt null && tmp.shape is undefined))
-      return true
+    if tmp isnt null && tmp.shape
+      return tmp.shape
     tmp = dynamicEntities.getIntersection({ x: x, y: y })
-    if !(tmp is null or (tmp isnt null && tmp.shape is undefined)) && tmp.shape.name.type != 'bonus'
-      return true
+    if tmp isnt null && tmp.shape
+      return tmp.shape
     return false

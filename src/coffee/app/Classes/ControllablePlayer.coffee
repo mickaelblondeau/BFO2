@@ -259,6 +259,7 @@ class ControllablePlayer extends Player
     grab = false
     collisions = collisionManager.getCornerCollisions()
     playerCollision = collisionManager.getPlayerCollision()
+    console.log playerCollision
     for collision in collisions
       if playerCollision
         @grab(collision)

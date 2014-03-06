@@ -3,11 +3,16 @@ stage = new Kinetic.Stage
   width: config.levelWidth
   height: config.levelHeight
 
-dynamicEntities = new Kinetic.Layer()
-players = new Kinetic.Layer()
-staticCubes = new Kinetic.Layer()
-staticBg = new Kinetic.Layer()
-hudLayer = new Kinetic.Layer()
+dynamicEntities = new Kinetic.Layer
+  hitGraphEnabled: false
+players = new Kinetic.Layer
+  hitGraphEnabled: false
+staticCubes = new Kinetic.Layer
+  hitGraphEnabled: false
+staticBg = new Kinetic.Layer
+  hitGraphEnabled: false
+hudLayer = new Kinetic.Layer
+  hitGraphEnabled: false
 
 stage.add staticBg
 stage.add players
@@ -80,6 +85,16 @@ contentLoader.contentsLoaded = ->
       bossManager.update(frameTime)
       hud.update(frameTime)
       cubeManager.update(frameTime)
+
+    new FallingCube(0, SquareEnum.LARGE)
+
+    fn = ->
+      new FallingCube(2, SquareEnum.SMALL)
+    setTimeout(fn, 500)
+
+    fn = ->
+      new FallingCube(2, SquareEnum.MEDIUM)
+    setTimeout(fn, 1000)
 
   document.querySelector('#play').onclick = ->
     ip = document.querySelector('#ip').value.replace(" ","")

@@ -500,7 +500,7 @@
     CollisionManager.prototype.getStaticCollisions = function(shape) {
       var cubes, result, thisBoundBox;
       result = [];
-      thisBoundBox = collisionManager.getBoundBox(shape);
+      thisBoundBox = this.getBoundBox(shape);
       cubes = staticCubes.find('Sprite');
       cubes.each(function(cube) {
         var cubeBoundBox;
@@ -515,7 +515,7 @@
     CollisionManager.prototype.getDynamicCollisions = function(shape) {
       var cubes, result, thisBoundBox;
       result = [];
-      thisBoundBox = collisionManager.getBoundBox(shape);
+      thisBoundBox = this.getBoundBox(shape);
       cubes = dynamicEntities.find('Sprite');
       cubes.each(function(cube) {
         var cubeBoundBox;
@@ -530,7 +530,7 @@
     CollisionManager.prototype.getCubeCollisions = function(shape) {
       var cubes, result, thisBoundBox;
       result = [];
-      thisBoundBox = collisionManager.getBoundBox(shape);
+      thisBoundBox = this.getBoundBox(shape);
       cubes = dynamicEntities.find('Sprite');
       cubes.each(function(cube) {
         var cubeBoundBox;
@@ -554,23 +554,23 @@
       playerBoundBox = collisionManager.getBoundBox(player.shape);
       players.find('Rect').each(function(plr) {
         var otherPlayerBoundBox, skin;
-        if (plr._id !== player.shape._id) {
-          skin = getPlayerSkin(plr);
-          if (skin.getAnimation() === 'couch') {
+        if (plr.getId() !== void 0) {
+          skin = collisionManager.getPlayerSkin(plr);
+          if (plr.getName() === 'otherPlayer' && skin.getAnimation() === 'couch') {
             otherPlayerBoundBox = collisionManager.getBoundBox(plr);
             if (collisionManager.colliding(playerBoundBox, otherPlayerBoundBox)) {
-              return true;
+              return response = true;
             }
           }
         }
       });
-      return false;
+      return response;
     };
 
     CollisionManager.prototype.getCornerCollisions = function() {
       var cubes, playerBoundBox, result;
       result = [];
-      playerBoundBox = collisionManager.getBoundBox(player.shape);
+      playerBoundBox = this.getBoundBox(player.shape);
       playerBoundBox.left -= 4;
       playerBoundBox.right += 4;
       cubes = dynamicEntities.find('Sprite');
@@ -594,15 +594,15 @@
         x: x,
         y: y
       });
-      if (!(tmp === null || (tmp !== null && tmp.shape === void 0))) {
-        return true;
+      if (tmp !== null && tmp.shape) {
+        return tmp.shape;
       }
       tmp = dynamicEntities.getIntersection({
         x: x,
         y: y
       });
-      if (!(tmp === null || (tmp !== null && tmp.shape === void 0)) && tmp.shape.name.type !== 'bonus') {
-        return true;
+      if (tmp !== null && tmp.shape) {
+        return tmp.shape;
       }
       return false;
     };
@@ -1061,6 +1061,7 @@
       grab = false;
       collisions = collisionManager.getCornerCollisions();
       playerCollision = collisionManager.getPlayerCollision();
+      console.log(playerCollision);
       for (_i = 0, _len = collisions.length; _i < _len; _i++) {
         collision = collisions[_i];
         if (playerCollision) {
@@ -1839,7 +1840,8 @@
         animation: animation,
         animations: spriteAnimations,
         frameRate: 7,
-        index: 0
+        index: 0,
+        transformsEnabled: 'position'
       });
     }
 
@@ -2689,7 +2691,9 @@
     SkinManager.prototype.createSheet = function(images, id) {
       var image, self, shape, tmpLayer, _i, _len;
       self = this;
-      tmpLayer = new Kinetic.Layer();
+      tmpLayer = new Kinetic.Layer({
+        hitGraphEnabled: false
+      });
       stage.add(tmpLayer);
       for (_i = 0, _len = images.length; _i < _len; _i++) {
         image = images[_i];
@@ -3808,15 +3812,25 @@
     height: config.levelHeight
   });
 
-  dynamicEntities = new Kinetic.Layer();
+  dynamicEntities = new Kinetic.Layer({
+    hitGraphEnabled: false
+  });
 
-  players = new Kinetic.Layer();
+  players = new Kinetic.Layer({
+    hitGraphEnabled: false
+  });
 
-  staticCubes = new Kinetic.Layer();
+  staticCubes = new Kinetic.Layer({
+    hitGraphEnabled: false
+  });
 
-  staticBg = new Kinetic.Layer();
+  staticBg = new Kinetic.Layer({
+    hitGraphEnabled: false
+  });
 
-  hudLayer = new Kinetic.Layer();
+  hudLayer = new Kinetic.Layer({
+    hitGraphEnabled: false
+  });
 
   stage.add(staticBg);
 
@@ -3899,7 +3913,7 @@
     document.querySelector('#ip').value = window.location.host;
     contentLoader.playSong();
     launchGame = function(ip, name) {
-      var bg;
+      var bg, fn;
       bg = new Kinetic.Rect({
         width: stage.getWidth(),
         height: stage.getHeight(),
@@ -3912,7 +3926,7 @@
       player = new ControllablePlayer(skin);
       hud = new HUD();
       networkManager.connect(ip, name, skin);
-      return game.update = function(frameTime) {
+      game.update = function(frameTime) {
         players.draw();
         dynamicEntities.draw();
         player.update(frameTime);
@@ -3920,6 +3934,15 @@
         hud.update(frameTime);
         return cubeManager.update(frameTime);
       };
+      new FallingCube(0, SquareEnum.LARGE);
+      fn = function() {
+        return new FallingCube(2, SquareEnum.SMALL);
+      };
+      setTimeout(fn, 500);
+      fn = function() {
+        return new FallingCube(2, SquareEnum.MEDIUM);
+      };
+      return setTimeout(fn, 1000);
     };
     return document.querySelector('#play').onclick = function() {
       var ip, name;
