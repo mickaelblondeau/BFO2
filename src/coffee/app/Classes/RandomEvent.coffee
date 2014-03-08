@@ -28,53 +28,32 @@ class RandomEvent extends Sprite
     tween.play()
     cubeManager.tweens.push(tween)
 
-  playEffect: (effect) ->
-    effect = new Sprite(@shape.getX() + 16, @shape.getY() + 16, SquareEnum.SMALL, 'bonus', effect)
-    dynamicEntities.add effect.shape
-    effect.shape.setName({ type: 'effect' })
-    effect.shape.draw()
-
-    tmpX = effect.shape.getX() - 16
-    tmpY = effect.shape.getY() - 16
-
-    tween = new Kinetic.Tween
-      node: effect.shape
-      duration: 0.3
-      scaleX: 2
-      scaleY: 2
-      x: tmpX
-      y: tmpY
-      onFinish: ->
-        effect.shape.destroy()
-    tween.play()
-    cubeManager.tweens.push(tween)
-
   doEvent: ->
     contentLoader.play('explosion')
     event = @shape.getName().randType
     if event is 'resurection'
       player.resurection()
-      @playEffect('resurectionBonus')
+      new Effect(@shape.getX(), @shape.getY(), SquareEnum.SMALL, 'resurectionBonus', null, true)
 
     else if event is 'speed'
       bonusManager.getBonus('speedBonus', player)
-      @playEffect('speedBonus')
+      new Effect(@shape.getX(), @shape.getY(), SquareEnum.SMALL, 'speedBonus', null, true)
 
     else if event is 'grabbing'
       bonusManager.getBonus('grabbingBonus', player)
-      @playEffect('grabbingBonus')
+      new Effect(@shape.getX(), @shape.getY(), SquareEnum.SMALL, 'grabbingBonus', null, true)
 
     else if event is 'doubleJump'
       bonusManager.getBonus('doubleJumpBonus', player)
-      @playEffect('doubleJumpBonus')
+      new Effect(@shape.getX(), @shape.getY(), SquareEnum.SMALL, 'doubleJumpBonus', null, true)
 
     else if event is 'jumpHeight'
       bonusManager.getBonus('jumpHeightBonus', player)
-      @playEffect('jumpHeightBonus')
+      new Effect(@shape.getX(), @shape.getY(), SquareEnum.SMALL, 'jumpHeightBonus', null, true)
 
     else if event is 'tp'
       player.shape.setX(@shape.getX()+16)
       player.shape.setY(@shape.getY()+64)
-      @playEffect('tp')
+      new Effect(@shape.getX(), @shape.getY(), SquareEnum.SMALL, 'tp', null, true)
 
     @shape.destroy()

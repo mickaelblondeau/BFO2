@@ -1964,54 +1964,29 @@
       cubeManager.tweens.push(tween);
     }
 
-    RandomEvent.prototype.playEffect = function(effect) {
-      var tmpX, tmpY, tween;
-      effect = new Sprite(this.shape.getX() + 16, this.shape.getY() + 16, SquareEnum.SMALL, 'bonus', effect);
-      dynamicEntities.add(effect.shape);
-      effect.shape.setName({
-        type: 'effect'
-      });
-      effect.shape.draw();
-      tmpX = effect.shape.getX() - 16;
-      tmpY = effect.shape.getY() - 16;
-      tween = new Kinetic.Tween({
-        node: effect.shape,
-        duration: 0.3,
-        scaleX: 2,
-        scaleY: 2,
-        x: tmpX,
-        y: tmpY,
-        onFinish: function() {
-          return effect.shape.destroy();
-        }
-      });
-      tween.play();
-      return cubeManager.tweens.push(tween);
-    };
-
     RandomEvent.prototype.doEvent = function() {
       var event;
       contentLoader.play('explosion');
       event = this.shape.getName().randType;
       if (event === 'resurection') {
         player.resurection();
-        this.playEffect('resurectionBonus');
+        new Effect(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL, 'resurectionBonus', null, true);
       } else if (event === 'speed') {
         bonusManager.getBonus('speedBonus', player);
-        this.playEffect('speedBonus');
+        new Effect(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL, 'speedBonus', null, true);
       } else if (event === 'grabbing') {
         bonusManager.getBonus('grabbingBonus', player);
-        this.playEffect('grabbingBonus');
+        new Effect(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL, 'grabbingBonus', null, true);
       } else if (event === 'doubleJump') {
         bonusManager.getBonus('doubleJumpBonus', player);
-        this.playEffect('doubleJumpBonus');
+        new Effect(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL, 'doubleJumpBonus', null, true);
       } else if (event === 'jumpHeight') {
         bonusManager.getBonus('jumpHeightBonus', player);
-        this.playEffect('jumpHeightBonus');
+        new Effect(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL, 'jumpHeightBonus', null, true);
       } else if (event === 'tp') {
         player.shape.setX(this.shape.getX() + 16);
         player.shape.setY(this.shape.getY() + 64);
-        this.playEffect('tp');
+        new Effect(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL, 'tp', null, true);
       }
       return this.shape.destroy();
     };
@@ -2453,6 +2428,7 @@
 
     CubeManager.prototype.stompEffet = function(shape) {
       contentLoader.play('explosion');
+      new Effect(shape.getX(), shape.getY(), SquareEnum.SMALL, 'tp', null, true);
       if (!player.jump && !player.falling) {
         player.oldStats = {
           jumpHeight: player.jumpHeight,
@@ -2476,6 +2452,7 @@
     CubeManager.prototype.swapEffet = function(shape) {
       var positions, rand;
       contentLoader.play('explosion');
+      new Effect(shape.getX(), shape.getY(), SquareEnum.SMALL, 'tp', null, true);
       positions = [];
       players.find('Rect').each(function(plr) {
         var skin;
@@ -2501,6 +2478,7 @@
     CubeManager.prototype.tpEffet = function(shape) {
       var pos;
       contentLoader.play('explosion');
+      new Effect(shape.getX(), shape.getY(), SquareEnum.SMALL, 'tp', null, true);
       pos = {
         x: shape.getX() + 16,
         y: shape.getY()
@@ -2864,27 +2842,53 @@
   Effect = (function(_super) {
     __extends(Effect, _super);
 
-    function Effect(x, y, size, anim, hasCycle) {
-      var len, self;
-      Effect.__super__.constructor.call(this, x, y, size, 'effects', anim);
-      dynamicEntities.add(this.shape);
-      this.shape.setName({
-        type: 'effect',
-        name: anim
-      });
-      this.shape.draw();
-      if (anim === 'explosionEffect' || anim === 'iceExplosionEffect' || anim === 'smallExplosionEffect') {
-        this.shape.setFrameRate(20);
-      } else if (anim === 'blood' || anim === 'bioExplosion') {
-        this.shape.setFrameRate(16);
-      }
-      this.shape.start();
-      if (hasCycle !== void 0) {
-        self = this;
-        len = this.shape.getAnimations()[this.shape.getAnimation()].length - 1;
-        this.shape.afterFrame(len, function() {
-          return self.shape.destroy();
+    function Effect(x, y, size, anim, hasCycle, engineAnimation) {
+      var len, self, shape, tween;
+      if (engineAnimation !== void 0) {
+        Effect.__super__.constructor.call(this, x, y, size, 'bonus', anim);
+        dynamicEntities.add(this.shape);
+        this.shape.setName({
+          type: 'effect',
+          name: anim
         });
+        this.shape.draw();
+        this.shape.setX(this.shape.getX() + 16);
+        this.shape.setY(this.shape.getY() + 16);
+        shape = this.shape;
+        tween = new Kinetic.Tween({
+          node: this.shape,
+          duration: 0.3,
+          scaleX: 2,
+          scaleY: 2,
+          x: x,
+          y: y,
+          onFinish: function() {
+            return shape.destroy();
+          }
+        });
+        tween.play();
+        cubeManager.tweens.push(tween);
+      } else {
+        Effect.__super__.constructor.call(this, x, y, size, 'effects', anim);
+        dynamicEntities.add(this.shape);
+        this.shape.setName({
+          type: 'effect',
+          name: anim
+        });
+        this.shape.draw();
+        if (anim === 'explosionEffect' || anim === 'iceExplosionEffect' || anim === 'smallExplosionEffect') {
+          this.shape.setFrameRate(20);
+        } else if (anim === 'blood' || anim === 'bioExplosion') {
+          this.shape.setFrameRate(16);
+        }
+        this.shape.start();
+        if (hasCycle !== void 0) {
+          self = this;
+          len = this.shape.getAnimations()[this.shape.getAnimation()].length - 1;
+          this.shape.afterFrame(len, function() {
+            return self.shape.destroy();
+          });
+        }
       }
     }
 

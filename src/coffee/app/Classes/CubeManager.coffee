@@ -127,6 +127,7 @@ class CubeManager
 
   stompEffet: (shape) ->
     contentLoader.play('explosion')
+    new Effect(shape.getX(), shape.getY(), SquareEnum.SMALL, 'tp', null, true)
     if !player.jump and !player.falling
       player.oldStats = {
         jumpHeight: player.jumpHeight
@@ -147,6 +148,7 @@ class CubeManager
 
   swapEffet: (shape) ->
     contentLoader.play('explosion')
+    new Effect(shape.getX(), shape.getY(), SquareEnum.SMALL, 'tp', null, true)
     positions = []
     players.find('Rect').each (plr) ->
       if plr._id isnt player.shape._id
@@ -162,6 +164,7 @@ class CubeManager
 
   tpEffet: (shape) ->
     contentLoader.play('explosion')
+    new Effect(shape.getX(), shape.getY(), SquareEnum.SMALL, 'tp', null, true)
     pos = { x: shape.getX() + 16, y: shape.getY() }
     shape.destroy()
     player.shape.setX(pos.x)
