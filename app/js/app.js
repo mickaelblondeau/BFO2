@@ -1071,7 +1071,6 @@
       grab = false;
       collisions = collisionManager.getCornerCollisions();
       playerCollision = collisionManager.getPlayerCollision();
-      console.log(playerCollision);
       for (_i = 0, _len = collisions.length; _i < _len; _i++) {
         collision = collisions[_i];
         if (playerCollision) {
@@ -1934,7 +1933,7 @@
 
   })(Sprite);
 
-  randomEvents = ['resurection', 'speed', 'grabbing', 'doubleJump', 'jumpHeight', 'tp'];
+  randomEvents = ['resurection', 'bonuses', 'tp'];
 
   RandomEvent = (function(_super) {
     __extends(RandomEvent, _super);
@@ -1965,24 +1964,19 @@
     }
 
     RandomEvent.prototype.doEvent = function() {
-      var event;
+      var event, i, rand, randType, _i;
       contentLoader.play('explosion');
       event = this.shape.getName().randType;
       if (event === 'resurection') {
         player.resurection();
         new Effect(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL, 'resurectionBonus', null, true);
-      } else if (event === 'speed') {
-        bonusManager.getBonus('speedBonus', player);
+      } else if (event === 'bonuses') {
         new Effect(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL, 'speedBonus', null, true);
-      } else if (event === 'grabbing') {
-        bonusManager.getBonus('grabbingBonus', player);
-        new Effect(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL, 'grabbingBonus', null, true);
-      } else if (event === 'doubleJump') {
-        bonusManager.getBonus('doubleJumpBonus', player);
-        new Effect(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL, 'doubleJumpBonus', null, true);
-      } else if (event === 'jumpHeight') {
-        bonusManager.getBonus('jumpHeightBonus', player);
-        new Effect(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL, 'jumpHeightBonus', null, true);
+        for (i = _i = 1; _i <= 4; i = ++_i) {
+          rand = Math.floor(Math.random() * 12);
+          randType = Math.floor(Math.random() * (bonusTypesId.length - 1)) + 1;
+          new Bonus(rand, randType, null);
+        }
       } else if (event === 'tp') {
         player.shape.setX(this.shape.getX() + 16);
         player.shape.setY(this.shape.getY() + 64);

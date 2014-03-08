@@ -1,9 +1,6 @@
 randomEvents = [
   'resurection',
-  'speed',
-  'grabbing',
-  'doubleJump',
-  'jumpHeight',
+  'bonuses',
   'tp'
 ]
 
@@ -35,21 +32,12 @@ class RandomEvent extends Sprite
       player.resurection()
       new Effect(@shape.getX(), @shape.getY(), SquareEnum.SMALL, 'resurectionBonus', null, true)
 
-    else if event is 'speed'
-      bonusManager.getBonus('speedBonus', player)
+    else if event is 'bonuses'
       new Effect(@shape.getX(), @shape.getY(), SquareEnum.SMALL, 'speedBonus', null, true)
-
-    else if event is 'grabbing'
-      bonusManager.getBonus('grabbingBonus', player)
-      new Effect(@shape.getX(), @shape.getY(), SquareEnum.SMALL, 'grabbingBonus', null, true)
-
-    else if event is 'doubleJump'
-      bonusManager.getBonus('doubleJumpBonus', player)
-      new Effect(@shape.getX(), @shape.getY(), SquareEnum.SMALL, 'doubleJumpBonus', null, true)
-
-    else if event is 'jumpHeight'
-      bonusManager.getBonus('jumpHeightBonus', player)
-      new Effect(@shape.getX(), @shape.getY(), SquareEnum.SMALL, 'jumpHeightBonus', null, true)
+      for i in [1..4]
+        rand = Math.floor((Math.random()*12))
+        randType = Math.floor((Math.random()*(bonusTypesId.length - 1))) + 1
+        new Bonus(rand, randType, null)
 
     else if event is 'tp'
       player.shape.setX(@shape.getX()+16)

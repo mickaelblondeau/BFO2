@@ -10,8 +10,8 @@
     fastLevelSpeed: 500,
     speedPerLevel: 50,
     timeout: 5000,
-    randomEventProb: 0.2,
-    randomEvents: 6,
+    randomEventProb: 0.6,
+    randomEvents: 3,
     debug: false,
     debugMap: false
   };
