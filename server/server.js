@@ -8,7 +8,7 @@
     lowFPS: 0.1,
     levelSpeed: 1000,
     fastLevelSpeed: 500,
-    speedPerLevel: 50,
+    speedPerLevel: 35,
     timeout: 5000,
     randomEventProb: 0.6,
     randomEvents: 3,
@@ -900,7 +900,7 @@
 
     FreezeMan.prototype.getPattern = function() {
       var attack, attacks, i, interval, options, speed, _i;
-      speed = Math.round((0.4 + 0.075 * levelManager.level) * 100) / 100;
+      speed = Math.round((0.4 + 0.05 * levelManager.level) * 100) / 100;
       interval = 1500 - 50 * levelManager.level;
       options = [speed, interval];
       attacks = [];
@@ -925,8 +925,8 @@
 
     PoingMan.prototype.getPattern = function() {
       var attack, attackSpeed, attacks, i, options, speed, waitTime, _i;
-      speed = Math.round((0.4 + 0.05 * levelManager.level) * 100) / 100;
-      attackSpeed = Math.round((0.6 + 0.05 * levelManager.level) * 100) / 100;
+      speed = Math.round((0.4 + 0.035 * levelManager.level) * 100) / 100;
+      attackSpeed = Math.round((0.6 + 0.04 * levelManager.level) * 100) / 100;
       waitTime = 300 - 15 * levelManager.level;
       options = [speed, attackSpeed, waitTime];
       attacks = [];
@@ -1083,7 +1083,7 @@
 
     MissileMan.prototype.getPattern = function() {
       var attacks, interval, options, speed;
-      speed = Math.round((0.5 + 0.05 * levelManager.level) * 100) / 100;
+      speed = Math.round((0.5 + 0.025 * levelManager.level) * 100) / 100;
       interval = 500 - levelManager.level * 30;
       options = [speed, interval];
       attacks = this.genAttacks();
