@@ -24,15 +24,11 @@ class HUD
     if text != @grabbing.getText()
       @grabbing.setText(text)
 
-    text = 'FPS : ' + Math.round(1000/game.fps)
-    if text != @fps.getText()
-      @fps.setText(text)
-
     hudLayer.draw()
 
   drawHUD: ->
     @level = new Kinetic.Text
-      y: arena.y - 20
+      y: arena.y
       fill: 'black'
       fontFamily: 'Calibri'
       fontSize: 18
@@ -69,11 +65,3 @@ class HUD
       fontFamily: 'Calibri'
       fontSize: 18
     hudLayer.add @grabbing
-
-    @fps = new Kinetic.Text
-      y: arena.y
-      x: 0
-      fill: 'black'
-      fontFamily: 'Calibri'
-      fontSize: 18
-    hudLayer.add @fps

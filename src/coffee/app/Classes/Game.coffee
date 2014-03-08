@@ -9,11 +9,13 @@ class Game
   constructor: ->
     @writting = false
     @maxFrameTime = 200
-    @fps = 0
-    @refreshFPSInterval = 1000
-    @fpsTimer = 0
+    @stats = new Stats()
+    @stats.setMode(0)
+    document.body.appendChild( @stats.domElement )
 
   loop: ->
+    @stats.begin()
+
     thisFrame = Date.now()
     frameTime = thisFrame - @lastFrame
     animFrame(Game.prototype.loop.bind(@))
@@ -32,10 +34,7 @@ class Game
       break if tmpFrameTime == 0
     game.draw()
 
-    @fpsTimer += frameTime
-    if @fpsTimer >= @refreshFPSInterval
-      @fpsTimer = 0
-      @fps = frameTime
+    @stats.end()
 
   update: (frameTime) ->
 

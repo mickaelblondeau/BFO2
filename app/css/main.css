@@ -29,3 +29,5 @@ body { overflow: hidden; margin: 0; }
 
 #skin-preview { width: 48px; height: 48px; margin: auto; }
 #skin-preview div { position: absolute; width: 48px; height: 48px; }
+
+#stats { position: absolute; left: 0; top: 0; }
