@@ -239,6 +239,21 @@
         url: '../assets/sounds/music/music3.ogg',
         type: 'music'
       });
+      contentLoader.loadSound({
+        name: 'music4',
+        url: '../assets/sounds/music/music4.ogg',
+        type: 'music'
+      });
+      contentLoader.loadSound({
+        name: 'music5',
+        url: '../assets/sounds/music/music5.ogg',
+        type: 'music'
+      });
+      contentLoader.loadSound({
+        name: 'music6',
+        url: '../assets/sounds/music/music6.ogg',
+        type: 'music'
+      });
       return contentLoader.load();
     };
 
@@ -3924,7 +3939,7 @@
     document.querySelector('#ip').value = window.location.host;
     contentLoader.playSong();
     launchGame = function(ip, name) {
-      var bg, fn;
+      var bg;
       bg = new Kinetic.Rect({
         width: stage.getWidth(),
         height: stage.getHeight(),
@@ -3944,15 +3959,10 @@
         hud.update(frameTime);
         return cubeManager.update(frameTime);
       };
-      game.draw = function() {
+      return game.draw = function() {
         players.draw();
         return dynamicEntities.draw();
       };
-      new FallingCube(0, SquareEnum.LARGE);
-      fn = function() {
-        return new Bonus(5, 4, 0);
-      };
-      return setTimeout(fn, 1000);
     };
     return document.querySelector('#play').onclick = function() {
       var ip, name;
