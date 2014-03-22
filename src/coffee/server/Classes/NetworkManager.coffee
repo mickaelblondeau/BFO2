@@ -34,6 +34,7 @@ class NetworkManager
         socket.set('name', arr[0])
         socket.set('skin', arr[1])
         socket.broadcast.emit 'connection', [socket.id, arr[0], arr[1]]
+        socket.broadcast.emit 'message', [null, arr[0] + ' has joined the game !']
 
       socket.on 'launch', ->
         if socket.id is self.io.sockets.clients()[0].id
@@ -77,6 +78,8 @@ class NetworkManager
 
       socket.on 'disconnect', ->
         socket.broadcast.emit 'disconnect', socket.id
+        socket.get 'name', (error, name) ->
+          socket.broadcast.emit 'message', [null, name + ' has left the game !']
 
   sendCube: (col, size) ->
     @io.sockets.emit('fallingCube', [col, size])
@@ -97,7 +100,7 @@ class NetworkManager
     @io.sockets.emit 'resetLevel'
 
   sendClearLevel: ->
-    @io.sockets.emit 'clearLevel'
+    @io.sockets.emit 'clearLevel', levelManager.level
 
   moveLevel: (height) ->
     @waitForAll(levelManager.nextBoss, config.timeout)
@@ -149,3 +152,6 @@ class NetworkManager
 
   sendMap: (map) ->
     @io.sockets.emit 'debugMap', map
+
+  sendMessage: (message) ->
+    @io.sockets.emit 'message', [null, message]

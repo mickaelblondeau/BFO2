@@ -525,6 +525,7 @@
       this.speed = config.levelSpeed;
       this.tweens = [];
       this.lastHeight = 0;
+      this.savedLevel = 0;
     }
 
     LevelManager.prototype.launch = function() {
@@ -536,9 +537,8 @@
       cubeManager.reset();
       bossManager.reset();
       clearTimeout(networkManager.timeout);
-      this.level = 0;
-      this.speed = config.levelSpeed;
-      return this.bossRound = false;
+      this.level = this.savedLevel;
+      return this.speed = config.levelSpeed;
     };
 
     LevelManager.prototype.moveStage = function() {
@@ -581,6 +581,12 @@
     };
 
     LevelManager.prototype.passNextLevel = function() {
+      var _ref;
+      if ((_ref = this.level) === 4 || _ref === 8 || _ref === 12 || _ref === 16 || _ref === 20) {
+        this.savedLevel = this.level;
+        bossManager.saveBosses();
+        networkManager.sendMessage('Checkpoint !');
+      }
       cubeManager.waiting = false;
       bossManager.launched = false;
       return levelManager.nextLevel();
@@ -636,7 +642,8 @@
         socket.on('login', function(arr) {
           socket.set('name', arr[0]);
           socket.set('skin', arr[1]);
-          return socket.broadcast.emit('connection', [socket.id, arr[0], arr[1]]);
+          socket.broadcast.emit('connection', [socket.id, arr[0], arr[1]]);
+          return socket.broadcast.emit('message', [null, arr[0] + ' has joined the game !']);
         });
         socket.on('launch', function() {
           if (socket.id === self.io.sockets.clients()[0].id) {
@@ -686,7 +693,10 @@
           return socket.broadcast.emit('message', [socket.id, message]);
         });
         return socket.on('disconnect', function() {
-          return socket.broadcast.emit('disconnect', socket.id);
+          socket.broadcast.emit('disconnect', socket.id);
+          return socket.get('name', function(error, name) {
+            return socket.broadcast.emit('message', [null, name + ' has left the game !']);
+          });
         });
       });
     };
@@ -716,7 +726,7 @@
     };
 
     NetworkManager.prototype.sendClearLevel = function() {
-      return this.io.sockets.emit('clearLevel');
+      return this.io.sockets.emit('clearLevel', levelManager.level);
     };
 
     NetworkManager.prototype.moveLevel = function(height) {
@@ -789,6 +799,10 @@
       return this.io.sockets.emit('debugMap', map);
     };
 
+    NetworkManager.prototype.sendMessage = function(message) {
+      return this.io.sockets.emit('message', [null, message]);
+    };
+
     return NetworkManager;
 
   })();
@@ -808,17 +822,21 @@
     function BossManager() {
       this.launched = false;
       this.boss = ['roueman', 'freezeman', 'poingman', 'labiman', 'sparkman', 'homingman', 'missileman'];
+      this.tmpBeatenBosses = [];
+      this.beatenBosses = [];
     }
 
     BossManager.prototype.launch = function() {
       var boss;
       boss = this.getBoss();
       networkManager.sendBoss(boss.id, boss.options, boss.timeout);
-      return this.launched = true;
+      this.launched = true;
+      return this.updateBosses(boss.name);
     };
 
     BossManager.prototype.reset = function() {
-      return this.launched = false;
+      this.launched = false;
+      return this.resetBosses();
     };
 
     BossManager.prototype.getBoss = function() {
@@ -839,6 +857,22 @@
       } else if (boss === 'missileman') {
         return new MissileMan();
       }
+    };
+
+    BossManager.prototype.updateBosses = function(boss) {
+      var index;
+      this.tmpBeatenBosses.push(boss);
+      index = this.boss.indexOf(boss);
+      return this.boss.splice(index, 1);
+    };
+
+    BossManager.prototype.resetBosses = function() {
+      this.boss = this.boss.concat(this.tmpBeatenBosses);
+      return this.tmpBeatenBosses = [];
+    };
+
+    BossManager.prototype.saveBosses = function() {
+      return this.tmpBeatenBosses = [];
     };
 
     return BossManager;

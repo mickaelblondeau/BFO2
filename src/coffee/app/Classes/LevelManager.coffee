@@ -46,7 +46,6 @@ class LevelManager
     @tweens[2].play()
 
   clearLevel: ->
-    @level++
     bossManager.reset()
     cubes = dynamicEntities.find('Sprite')
     cubes.each (cube) ->

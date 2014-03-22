@@ -2217,7 +2217,6 @@
 
     LevelManager.prototype.clearLevel = function() {
       var cubes;
-      this.level++;
       bossManager.reset();
       cubes = dynamicEntities.find('Sprite');
       cubes.each(function(cube) {
@@ -2551,8 +2550,9 @@
         levelManager.reset();
         return player.reset();
       });
-      this.socket.on('clearLevel', function() {
-        return levelManager.clearLevel();
+      this.socket.on('clearLevel', function(level) {
+        levelManager.clearLevel();
+        return levelManager.level = level;
       });
       this.socket.on('moveLevel', function(height) {
         return levelManager.moveLevel(height);
@@ -2614,7 +2614,13 @@
         return _results;
       });
       return this.socket.on('message', function(arr) {
-        return game.addMessage(self.players[arr[0]].name.getText(), arr[1]);
+        var name;
+        if (arr[0] === null) {
+          name = 'Server';
+        } else {
+          name = self.players[arr[0]].name.getText();
+        }
+        return game.addMessage(name, arr[1]);
       });
     };
 
@@ -2789,7 +2795,7 @@
 
     HUD.prototype.update = function(frameTime) {
       var text;
-      text = 'Level : ' + Math.round(levelManager.level / 2);
+      text = 'Level : ' + levelManager.level;
       if (text !== this.level.getText()) {
         this.level.setText(text);
       }

@@ -2,14 +2,18 @@ class BossManager
   constructor: ->
     @launched = false
     @boss = ['roueman', 'freezeman', 'poingman', 'labiman', 'sparkman', 'homingman', 'missileman']
+    @tmpBeatenBosses = []
+    @beatenBosses = []
 
   launch: ->
     boss = @getBoss()
     networkManager.sendBoss(boss.id, boss.options, boss.timeout)
     @launched = true
+    @updateBosses(boss.name)
 
   reset: ->
     @launched = false
+    @resetBosses()
 
   getBoss: ->
     boss = @boss[Math.floor(Math.random()*@boss.length)]
@@ -27,3 +31,15 @@ class BossManager
       return new HomingMan()
     else if boss is 'missileman'
       return new MissileMan()
+
+  updateBosses: (boss) ->
+    @tmpBeatenBosses.push(boss)
+    index = @boss.indexOf(boss)
+    @boss.splice(index, 1)
+
+  resetBosses: ->
+    @boss = @boss.concat(@tmpBeatenBosses)
+    @tmpBeatenBosses = []
+
+  saveBosses: ->
+    @tmpBeatenBosses = []

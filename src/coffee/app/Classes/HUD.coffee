@@ -4,7 +4,7 @@ class HUD
     @drawHUD()
 
   update: (frameTime) ->
-    text = 'Level : ' + Math.round(levelManager.level/2)
+    text = 'Level : ' + levelManager.level
     if text != @level.getText()
       @level.setText(text)
 

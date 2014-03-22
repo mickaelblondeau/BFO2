@@ -4,6 +4,7 @@ class LevelManager
     @speed = config.levelSpeed
     @tweens = []
     @lastHeight = 0
+    @savedLevel = 0
 
   launch: ->
     @nextLevel()
@@ -13,9 +14,8 @@ class LevelManager
     cubeManager.reset()
     bossManager.reset()
     clearTimeout(networkManager.timeout)
-    @level = 0
+    @level = @savedLevel
     @speed = config.levelSpeed
-    @bossRound = false
 
   moveStage: ->
     height = @lastHeight * 32
@@ -47,6 +47,10 @@ class LevelManager
       bossManager.launch()
 
   passNextLevel: ->
+    if @level in [4, 8, 12, 16, 20]
+      @savedLevel = @level
+      bossManager.saveBosses()
+      networkManager.sendMessage('Checkpoint !')
     cubeManager.waiting = false
     bossManager.launched = false
     levelManager.nextLevel()

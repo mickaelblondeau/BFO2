@@ -32,8 +32,9 @@ class NetworkManager
       levelManager.reset()
       player.reset()
 
-    @socket.on 'clearLevel', ->
+    @socket.on 'clearLevel', (level) ->
       levelManager.clearLevel()
+      levelManager.level = level
 
     @socket.on 'moveLevel', (height) ->
       levelManager.moveLevel(height)
@@ -81,7 +82,11 @@ class NetworkManager
           self.playersId.splice(i, 1)
 
     @socket.on 'message', (arr) ->
-      game.addMessage(self.players[arr[0]].name.getText(), arr[1])
+      if arr[0] is null
+        name = 'Server'
+      else
+        name = self.players[arr[0]].name.getText()
+      game.addMessage(name, arr[1])
 
   sendLaunch: ->
     @socket.emit 'launch'
