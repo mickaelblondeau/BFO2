@@ -13,12 +13,15 @@ staticBg = new Kinetic.Layer
   hitGraphEnabled: false
 hudLayer = new Kinetic.Layer
   hitGraphEnabled: false
+tmpLayer = new Kinetic.Layer
+  hitGraphEnabled: false
 
 stage.add staticBg
 stage.add players
 stage.add staticCubes
 stage.add dynamicEntities
 stage.add hudLayer
+stage.add tmpLayer
 
 networkManager = new NetworkManager()
 contentLoader = new ContentLoader()
@@ -79,6 +82,7 @@ contentLoader.contentsLoaded = ->
     networkManager.connect(ip, name, skin)
 
     game.update = (frameTime) ->
+      game.draw()
       player.update(frameTime)
       bossManager.update(frameTime)
       hud.update(frameTime)
@@ -87,6 +91,13 @@ contentLoader.contentsLoaded = ->
     game.draw = ->
       players.draw()
       dynamicEntities.draw()
+
+    new FallingCube(0, SquareEnum.LARGE)
+
+    fn = ->
+      new Bonus(5, 4, 0)
+
+    setTimeout(fn, 1000)
 
   document.querySelector('#play').onclick = ->
     ip = document.querySelector('#ip').value.replace(" ","")

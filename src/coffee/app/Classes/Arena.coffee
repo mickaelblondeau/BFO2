@@ -20,7 +20,7 @@ class Arena
   clear: ->
     shapes = staticCubes.find('Sprite')
     shapes.each (shape) ->
-      shape.remove()
+      shape.destroy()
     staticCubes.draw()
 
   add: (level) ->

@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, HomingMan, HomingManPart, Keyboard, LabiMan, LabiManPart, LevelManager, MissileMan, MissileManPart, MultiPartBoss, NetworkManager, Player, PoingMan, RandomEvent, RoueMan, SkinManager, SparkMan, SparkManPart, SpecialCube, SpecialCubes, Sprite, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, debugLayer, debugMap, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, playerAnimationIndexes, players, randomEvents, skin, skinManager, spriteAnimations, stage, staticBg, staticCubes, _i, _len,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, HomingMan, HomingManPart, Keyboard, LabiMan, LabiManPart, LevelManager, MissileMan, MissileManPart, MultiPartBoss, NetworkManager, Player, PoingMan, RandomEvent, RoueMan, SkinManager, SparkMan, SparkManPart, SpecialCube, SpecialCubes, Sprite, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, debugLayer, debugMap, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, playerAnimationIndexes, players, randomEvents, skin, skinManager, spriteAnimations, stage, staticBg, staticCubes, tmpLayer, _i, _len,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -131,7 +131,6 @@
           break;
         }
       }
-      game.draw();
       return this.stats.end();
     };
 
@@ -779,6 +778,7 @@
       this.couched = false;
       this.falling = true;
       this.grabbing = false;
+      this.grabbed = false;
       this.coopJump = false;
       this.alive = true;
       this.stomped = false;
@@ -1074,27 +1074,37 @@
       for (_i = 0, _len = collisions.length; _i < _len; _i++) {
         collision = collisions[_i];
         if (playerCollision) {
-          this.grab(collision);
+          this.grab(collision, false);
           grab = true;
           break;
         } else if (this.availableGrab > 0) {
-          this.availableGrab--;
-          this.grab(collision);
+          this.grab(collision, true);
           grab = true;
           break;
         }
       }
       if (!grab) {
-        return this.grabbing = false;
+        this.grabbing = false;
+        return this.stopGrab();
       }
     };
 
-    ControllablePlayer.prototype.grab = function(cube) {
+    ControllablePlayer.prototype.grab = function(cube, bonusGrab) {
       if (!this.grabbing) {
         this.stopJump();
         this.grabbing = true;
         this.jumpCount = 0;
-        return this.shape.setY(cube.getY());
+        this.shape.setY(cube.getY());
+        if (bonusGrab) {
+          return this.grabbed = true;
+        }
+      }
+    };
+
+    ControllablePlayer.prototype.stopGrab = function() {
+      if (this.grabbed) {
+        this.availableGrab--;
+        return this.grabbed = false;
       }
     };
 
@@ -1120,6 +1130,7 @@
       this.shape.setName('otherPlayer');
       this.shape.setId(id);
       this.skin.setId('skin-' + id);
+      this.skin.setOpacity(0.5);
       this.name = new Kinetic.Text({
         text: name,
         fill: 'black',
@@ -2067,7 +2078,7 @@
         }, {
           name: 'grabbingBonus',
           attribute: 'grab',
-          value: 20
+          value: 2
         }, {
           name: 'resurectionBonus',
           attribute: 'resurection'
@@ -2671,12 +2682,8 @@
     };
 
     SkinManager.prototype.createSheet = function(images, id) {
-      var image, self, shape, tmpLayer, _i, _len;
+      var image, self, shape, _i, _len;
       self = this;
-      tmpLayer = new Kinetic.Layer({
-        hitGraphEnabled: false
-      });
-      stage.add(tmpLayer);
       for (_i = 0, _len = images.length; _i < _len; _i++) {
         image = images[_i];
         shape = new Kinetic.Image({
@@ -2684,13 +2691,15 @@
         });
         tmpLayer.add(shape);
       }
+      tmpLayer.draw();
       tmpLayer.toImage({
         callback: function(image) {
           self.callback[id](image);
           return delete self.callback[id];
         }
       });
-      return tmpLayer.destroy();
+      tmpLayer.destroyChildren();
+      return tmpLayer.draw();
     };
 
     return SkinManager;
@@ -2728,7 +2737,7 @@
       var shapes;
       shapes = staticCubes.find('Sprite');
       shapes.each(function(shape) {
-        return shape.remove();
+        return shape.destroy();
       });
       return staticCubes.draw();
     };
@@ -2780,7 +2789,7 @@
       if (text !== this.doubleJump.getText()) {
         this.doubleJump.setText(text);
       }
-      text = 'Hook time : ' + Math.round(player.availableGrab / 10);
+      text = 'Hook time : ' + player.availableGrab;
       if (text !== this.grabbing.getText()) {
         this.grabbing.setText(text);
       }
@@ -3828,6 +3837,10 @@
     hitGraphEnabled: false
   });
 
+  tmpLayer = new Kinetic.Layer({
+    hitGraphEnabled: false
+  });
+
   stage.add(staticBg);
 
   stage.add(players);
@@ -3837,6 +3850,8 @@
   stage.add(dynamicEntities);
 
   stage.add(hudLayer);
+
+  stage.add(tmpLayer);
 
   networkManager = new NetworkManager();
 
@@ -3909,7 +3924,7 @@
     document.querySelector('#ip').value = window.location.host;
     contentLoader.playSong();
     launchGame = function(ip, name) {
-      var bg;
+      var bg, fn;
       bg = new Kinetic.Rect({
         width: stage.getWidth(),
         height: stage.getHeight(),
@@ -3923,15 +3938,21 @@
       hud = new HUD();
       networkManager.connect(ip, name, skin);
       game.update = function(frameTime) {
+        game.draw();
         player.update(frameTime);
         bossManager.update(frameTime);
         hud.update(frameTime);
         return cubeManager.update(frameTime);
       };
-      return game.draw = function() {
+      game.draw = function() {
         players.draw();
         return dynamicEntities.draw();
       };
+      new FallingCube(0, SquareEnum.LARGE);
+      fn = function() {
+        return new Bonus(5, 4, 0);
+      };
+      return setTimeout(fn, 1000);
     };
     return document.querySelector('#play').onclick = function() {
       var ip, name;

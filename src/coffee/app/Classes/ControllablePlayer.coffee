@@ -20,6 +20,7 @@ class ControllablePlayer extends Player
     @couched = false
     @falling = true
     @grabbing = false
+    @grabbed = false
     @coopJump = false
     @alive = true
     @stomped = false
@@ -261,23 +262,30 @@ class ControllablePlayer extends Player
     playerCollision = collisionManager.getPlayerCollision()
     for collision in collisions
       if playerCollision
-        @grab(collision)
+        @grab(collision, false)
         grab = true
         break
       else if @availableGrab > 0
-        @availableGrab--
-        @grab(collision)
+        @grab(collision, true)
         grab = true
         break
     if !grab
       @grabbing = false
+      @stopGrab()
 
-  grab: (cube) ->
+  grab: (cube, bonusGrab) ->
     if !@grabbing
       @stopJump()
       @grabbing = true
       @jumpCount = 0
       @shape.setY(cube.getY())
+      if bonusGrab
+        @grabbed = true
+
+  stopGrab: ->
+    if @grabbed
+      @availableGrab--
+      @grabbed = false
 
   kill: ->
     if @alive

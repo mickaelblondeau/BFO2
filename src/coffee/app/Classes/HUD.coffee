@@ -20,7 +20,7 @@ class HUD
     if text != @doubleJump.getText()
       @doubleJump.setText(text)
 
-    text = 'Hook time : ' + Math.round(player.availableGrab/10)
+    text = 'Hook time : ' + player.availableGrab
     if text != @grabbing.getText()
       @grabbing.setText(text)
 

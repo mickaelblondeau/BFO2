@@ -21,15 +21,14 @@ class SkinManager
 
   createSheet: (images, id) ->
     self = @
-    tmpLayer = new Kinetic.Layer
-      hitGraphEnabled: false
-    stage.add tmpLayer
     for image in images
       shape = new Kinetic.Image
         image: image
       tmpLayer.add shape
+    tmpLayer.draw()
     tmpLayer.toImage
       callback: (image) ->
         self.callback[id](image)
         delete self.callback[id]
-    tmpLayer.destroy()
+    tmpLayer.destroyChildren()
+    tmpLayer.draw()

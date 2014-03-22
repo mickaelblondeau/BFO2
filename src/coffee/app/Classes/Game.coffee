@@ -32,7 +32,6 @@ class Game
         tmpFrameTime -= 50
       game.update(interval)
       break if tmpFrameTime == 0
-    game.draw()
 
     @stats.end()
 

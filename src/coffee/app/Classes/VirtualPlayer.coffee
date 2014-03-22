@@ -5,6 +5,7 @@ class VirtualPlayer extends Player
     @shape.setName('otherPlayer')
     @shape.setId(id)
     @skin.setId('skin-' + id)
+    @skin.setOpacity(0.5)
     @name = new Kinetic.Text
       text: name
       fill: 'black'

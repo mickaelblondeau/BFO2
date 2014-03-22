@@ -9,7 +9,7 @@ class BonusManager
       {
         name: 'grabbingBonus'
         attribute: 'grab'
-        value: 20
+        value: 2
       },
       {
         name: 'resurectionBonus'
