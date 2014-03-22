@@ -2218,9 +2218,10 @@
     LevelManager.prototype.clearLevel = function() {
       var cubes;
       this.level++;
+      bossManager.reset();
       cubes = dynamicEntities.find('Sprite');
       cubes.each(function(cube) {
-        if (cube.getY() > stage.getY() * -1 + stage.getHeight() || cube.getName().type === 'bonus') {
+        if (cube.getY() > stage.getY() * -1 + stage.getHeight() || cube.getName().type !== 'cube') {
           return cube.destroy();
         }
       });
