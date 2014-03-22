@@ -2432,7 +2432,7 @@
           if (i > 0) {
             j = i - 1;
           }
-          if (cube.getX() === shape.getX() + i * 32 && cube.getY() < shape.getY() - (-5 + Math.abs(j)) * 32 && cube.getY() > shape.getY() + (-5 + Math.abs(j)) * 32) {
+          if (cube.getX() >= shape.getX() + i * 32 && cube.getX() <= shape.getX() + i * 32 + 32 && cube.getY() < shape.getY() - (-5 + Math.abs(j)) * 32 && cube.getY() > shape.getY() + (-5 + Math.abs(j)) * 32) {
             _results.push(cube.destroy());
           } else {
             _results.push(void 0);

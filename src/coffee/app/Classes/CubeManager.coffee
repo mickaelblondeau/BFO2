@@ -119,7 +119,7 @@ class CubeManager
         j = i
         if i > 0
           j = i-1
-        if cube.getX() is shape.getX() + i*32 and cube.getY() < shape.getY() - (-5 + Math.abs(j))*32 and cube.getY() > shape.getY() + (-5 + Math.abs(j))*32
+        if cube.getX() >= shape.getX() + i*32 and cube.getX() <= shape.getX() + i*32 + 32 and cube.getY() < shape.getY() - (-5 + Math.abs(j))*32 and cube.getY() > shape.getY() + (-5 + Math.abs(j))*32
           cube.destroy()
     if player.shape.getX() < shape.getX() + 96 and player.shape.getX() > shape.getX() - 96 and player.shape.getY() < shape.getY() + 96 and player.shape.getY() > shape.getY() - 96
       player.kill()
