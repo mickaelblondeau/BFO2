@@ -71,6 +71,7 @@ class Game
     contentLoader.loadImage({ name:'bg', url:'../assets/bg.jpg' })
     contentLoader.loadImage({ name:'boss', url:'../assets/boss.png' })
     contentLoader.loadImage({ name:'playerSpirteSheet', url:'../assets/playerSpirteSheet.png' })
+    contentLoader.loadImage({ name:'pidgeon', url:'../assets/pidgeon.png' })
 
     contentLoader.loadSound({ name:'beep', url:'../assets/sounds/beep.wav', type: 'effect' })
     contentLoader.loadSound({ name:'death', url:'../assets/sounds/death.wav', type: 'effect' })

@@ -84,12 +84,15 @@ contentLoader.contentsLoaded = ->
 
     networkManager.connect(ip, name, skin)
 
+    pidgeon = new Pidgeon()
+
     game.update = (frameTime) ->
       game.draw()
       player.update(frameTime)
       bossManager.update(frameTime)
       hud.update(frameTime)
       cubeManager.update(frameTime)
+      pidgeon.update(frameTime)
 
     game.draw = ->
       players.draw()

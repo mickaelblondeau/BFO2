@@ -576,6 +576,24 @@ spriteAnimations = {
     y: 96
     width: 32
     height: 32
+  }],
+
+  # MISC
+  fly: [{
+    x: 0
+    y: 0
+    width: 32
+    height: 32
+  }, {
+    x: 32
+    y: 0
+    width: 32
+    height: 32
+  }, {
+    x: 64
+    y: 0
+    width: 32
+    height: 32
   }]
 }
 

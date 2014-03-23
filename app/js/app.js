@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, HomingMan, HomingManPart, Keyboard, LabiMan, LabiManPart, LevelManager, MissileMan, MissileManPart, MultiPartBoss, NetworkManager, Player, PoingMan, RandomEvent, RoueMan, SaveManager, SkinManager, SparkMan, SparkManPart, SpecialCube, SpecialCubes, Sprite, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, debugLayer, debugMap, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, playerAnimationIndexes, players, randomEvents, saveManager, skin, skinManager, spriteAnimations, stage, staticBg, staticCubes, tmpLayer, _i, _len,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, HomingMan, HomingManPart, Keyboard, LabiMan, LabiManPart, LevelManager, MissileMan, MissileManPart, MultiPartBoss, NetworkManager, Pidgeon, Player, PoingMan, RandomEvent, RoueMan, SaveManager, SkinManager, SparkMan, SparkManPart, SpecialCube, SpecialCubes, Sprite, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, debugLayer, debugMap, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, playerAnimationIndexes, players, randomEvents, saveManager, skin, skinManager, spriteAnimations, stage, staticBg, staticCubes, tmpLayer, _i, _len,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -205,6 +205,10 @@
       contentLoader.loadImage({
         name: 'playerSpirteSheet',
         url: '../assets/playerSpirteSheet.png'
+      });
+      contentLoader.loadImage({
+        name: 'pidgeon',
+        url: '../assets/pidgeon.png'
       });
       contentLoader.loadSound({
         name: 'beep',
@@ -1919,6 +1923,24 @@
         width: 32,
         height: 32
       }
+    ],
+    fly: [
+      {
+        x: 0,
+        y: 0,
+        width: 32,
+        height: 32
+      }, {
+        x: 32,
+        y: 0,
+        width: 32,
+        height: 32
+      }, {
+        x: 64,
+        y: 0,
+        width: 32,
+        height: 32
+      }
     ]
   };
 
@@ -3027,6 +3049,38 @@
 
   })(Sprite);
 
+  Pidgeon = (function(_super) {
+    __extends(Pidgeon, _super);
+
+    function Pidgeon() {
+      Pidgeon.__super__.constructor.call(this, -32, this.getY(), SquareEnum.SMALL, 'pidgeon', 'fly');
+      staticBg.add(this.shape);
+      this.shape.setFrameRate(8);
+      this.shape.start();
+      this.speed = 0.05;
+      this.side = 1;
+    }
+
+    Pidgeon.prototype.update = function(frametime) {
+      var moveSpeed, tmp;
+      moveSpeed = this.speed * frametime;
+      tmp = this.shape.getX() + moveSpeed * this.side;
+      if (tmp > 1000 || tmp < -256) {
+        this.side *= -1;
+        this.shape.setScaleX(this.side);
+        this.shape.setY(this.getY());
+      }
+      return this.shape.setX(tmp);
+    };
+
+    Pidgeon.prototype.getY = function() {
+      return arena.y - Math.floor((Math.random() * 12) + 12) * 32;
+    };
+
+    return Pidgeon;
+
+  })(Sprite);
+
   Boss = (function(_super) {
     __extends(Boss, _super);
 
@@ -4055,7 +4109,7 @@
     saveManager.loadOptions();
     contentLoader.playSong();
     launchGame = function(ip, name) {
-      var bg;
+      var bg, pidgeon;
       bg = new Kinetic.Rect({
         width: stage.getWidth(),
         height: stage.getHeight(),
@@ -4068,12 +4122,14 @@
       player = new ControllablePlayer(skin);
       hud = new HUD();
       networkManager.connect(ip, name, skin);
+      pidgeon = new Pidgeon();
       game.update = function(frameTime) {
         game.draw();
         player.update(frameTime);
         bossManager.update(frameTime);
         hud.update(frameTime);
-        return cubeManager.update(frameTime);
+        cubeManager.update(frameTime);
+        return pidgeon.update(frameTime);
       };
       return game.draw = function() {
         players.draw();

@@ -38,6 +38,7 @@ module.exports = function(grunt) {
                     'src/coffee/app/Classes/Arena.coffee',
                     'src/coffee/app/Classes/HUD.coffee',
                     'src/coffee/app/Classes/Effect.coffee',
+                    'src/coffee/app/Classes/Pidgeon.coffee',
                     'src/coffee/app/Classes/Bosses/Boss.coffee',
                     'src/coffee/app/Classes/Bosses/MultiPartBoss.coffee',
                     'src/coffee/app/Classes/Bosses/BossManager.coffee',
