@@ -108,6 +108,8 @@
       this.stats = new Stats();
       this.stats.setMode(0);
       document.body.appendChild(this.stats.domElement);
+      this.chatHist = [];
+      this.chatHistLen = 5;
     }
 
     Game.prototype.loop = function() {
@@ -265,9 +267,14 @@
           this.addMessage('Me', document.getElementById('chatMessage').value);
         }
         document.getElementById('chatMessage').blur();
-        return document.getElementById('chatMessage').value = null;
+        document.getElementById('chatMessage').value = null;
+        if (this.closeTime !== void 0) {
+          clearInterval(this.closeTime);
+        }
+        return this.closeTime = setTimeout(this.closeHist, 3000);
       } else {
         this.writting = true;
+        this.openHist();
         return document.getElementById('chatMessage').focus();
       }
     };
@@ -275,12 +282,45 @@
     Game.prototype.addMessage = function(name, message) {
       var callback, timeout;
       contentLoader.play('beep');
-      document.getElementById('chatMessages').innerHTML += '<div class="message"><span class="from">' + name + '</span> : <span class="content">' + message + '</span></div>';
-      callback = function() {
-        return document.querySelectorAll('#chatMessages .message')[0].remove();
-      };
-      timeout = 3000 + message.length * 30;
-      return setTimeout(callback, timeout);
+      if (name !== 'Me') {
+        document.getElementById('chatMessages').innerHTML += '<div class="message"><span class="from">' + name + '</span> : <span class="content">' + message + '</span></div>';
+        callback = function() {
+          return document.querySelectorAll('#chatMessages .message')[0].remove();
+        };
+        timeout = 3000 + message.length * 30;
+        setTimeout(callback, timeout);
+      }
+      this.chatHist.push([name, message]);
+      if (this.chatHist.length > this.chatHistLen) {
+        this.chatHist.shift();
+      }
+      return this.composeHistoric();
+    };
+
+    Game.prototype.composeHistoric = function() {
+      var hist, i, _i, _len, _ref, _results;
+      document.getElementById('chatHistoric').innerHTML = "";
+      _ref = this.chatHist;
+      _results = [];
+      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        hist = _ref[i];
+        _results.push(document.getElementById('chatHistoric').innerHTML += '<div class="message"><span class="from">' + hist[0] + '</span> : <span class="content">' + hist[1] + '</span></div>');
+      }
+      return _results;
+    };
+
+    Game.prototype.openHist = function() {
+      var message, messages, _i, _len;
+      messages = document.querySelectorAll('#chatMessages .message');
+      for (_i = 0, _len = messages.length; _i < _len; _i++) {
+        message = messages[_i];
+        message.remove();
+      }
+      return document.getElementById('chatHistoric').style.display = 'block';
+    };
+
+    Game.prototype.closeHist = function() {
+      return document.getElementById('chatHistoric').style.display = 'none';
     };
 
     return Game;
@@ -3997,7 +4037,7 @@
     saveManager.loadOptions();
     contentLoader.playSong();
     launchGame = function(ip, name) {
-      var bg, fn;
+      var bg;
       bg = new Kinetic.Rect({
         width: stage.getWidth(),
         height: stage.getHeight(),
@@ -4017,22 +4057,10 @@
         hud.update(frameTime);
         return cubeManager.update(frameTime);
       };
-      game.draw = function() {
+      return game.draw = function() {
         players.draw();
         return dynamicEntities.draw();
       };
-      new FallingCube(0, SquareEnum.LARGE);
-      new FallingCube(4, SquareEnum.LARGE);
-      new FallingCube(8, SquareEnum.LARGE);
-      fn = function() {
-        new SpecialCube(0, SquareEnum.MEDIUM, 2);
-        return new SpecialCube(8, SquareEnum.MEDIUM, 2);
-      };
-      setTimeout(fn, 1000);
-      fn = function() {
-        return new SpecialCube(5, SquareEnum.MEDIUM, 1);
-      };
-      return setTimeout(fn, 3000);
     };
     return document.querySelector('#play').onclick = function() {
       var ip, name;

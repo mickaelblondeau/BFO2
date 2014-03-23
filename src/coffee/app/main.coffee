@@ -95,21 +95,6 @@ contentLoader.contentsLoaded = ->
       players.draw()
       dynamicEntities.draw()
 
-    new FallingCube(0, SquareEnum.LARGE)
-    new FallingCube(4, SquareEnum.LARGE)
-    new FallingCube(8, SquareEnum.LARGE)
-
-    fn = ->
-      new SpecialCube(0, SquareEnum.MEDIUM, 2)
-      new SpecialCube(8, SquareEnum.MEDIUM, 2)
-
-    setTimeout(fn, 1000)
-
-    fn = ->
-      new SpecialCube(5, SquareEnum.MEDIUM, 1)
-
-    setTimeout(fn, 3000)
-
   document.querySelector('#play').onclick = ->
     ip = document.querySelector('#ip').value.replace(" ","")
     name = document.querySelector('#name').value
