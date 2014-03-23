@@ -730,12 +730,20 @@
     };
 
     NetworkManager.prototype.moveLevel = function(height) {
-      this.waitForAll(levelManager.nextBoss, config.timeout);
+      var callback;
+      callback = function() {
+        return levelManager.nextBoss();
+      };
+      this.waitForAll(callback, config.timeout);
       return this.io.sockets.emit('moveLevel', height);
     };
 
     NetworkManager.prototype.sendBoss = function(boss, options, timeout) {
-      this.waitForAll(levelManager.passNextLevel, config.timeout + timeout);
+      var callback;
+      callback = function() {
+        return levelManager.passNextLevel();
+      };
+      this.waitForAll(callback, config.timeout + timeout);
       this.sendClearLevel();
       return this.io.sockets.emit('spawnBoss', [boss, options]);
     };
@@ -829,9 +837,13 @@
     BossManager.prototype.launch = function() {
       var boss;
       boss = this.getBoss();
-      networkManager.sendBoss(boss.id, boss.options, boss.timeout);
-      this.launched = true;
-      return this.updateBosses(boss.name);
+      if (boss) {
+        networkManager.sendBoss(boss.id, boss.options, boss.timeout);
+        this.launched = true;
+        return this.updateBosses(boss.name);
+      } else {
+        return networkManager.sendMessage('No moar bosses, take another level !');
+      }
     };
 
     BossManager.prototype.reset = function() {
@@ -856,6 +868,8 @@
         return new HomingMan();
       } else if (boss === 'missileman') {
         return new MissileMan();
+      } else {
+        return false;
       }
     };
 
@@ -1094,7 +1108,6 @@
 
     HomingMan.prototype.getPattern = function() {
       var attackSpeed, attacks, interval, options, speed;
-      levelManager.level = 8;
       speed = Math.round((0.5 + 0.03 * levelManager.level) * 100) / 100;
       attackSpeed = Math.round((0.25 + 0.001 * (levelManager.level - 1)) * 100) / 100;
       interval = 3000;

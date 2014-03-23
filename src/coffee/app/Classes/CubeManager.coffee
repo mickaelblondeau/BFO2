@@ -16,13 +16,12 @@ class CubeManager
   reinitPhys: (oldCube) ->
     cubes = dynamicEntities.find('Sprite')
     cubes.each (cube) ->
-      if cube.getName().type is 'cube'
-        if cube.getY() < oldCube.getY() && cube.getX() >= oldCube.getX() && cube.getX() <= oldCube.getX() + oldCube.getWidth()
-          obj = cube.getName()
-          if obj is null or obj is undefined
-            obj = {}
-          obj.falling = true
-          cube.setName(obj)
+      if cube.getName().type is 'cube' and cube.getY() < oldCube.getY() && cube.getX() >= oldCube.getX() && cube.getX() <= oldCube.getX() + oldCube.getWidth()
+        obj = cube.getName()
+        if obj is null or obj is undefined
+          obj = {}
+        obj.falling = true
+        cube.setName(obj)
 
   update: (frameTime) ->
     self = @
@@ -72,6 +71,12 @@ class CubeManager
       @tpEffet(shape)
     if type is 'randblock'
       @doEffect(shape, shape.getName().randType)
+
+  destroyEffects: ->
+    effects = dynamicEntities.find('Sprite')
+    effects.each (effect) ->
+      if effect.getName().type is 'effect'
+        effect.destroy()
 
   iceExplosionEffect: (shape) ->
     contentLoader.play('explosion')
@@ -124,6 +129,7 @@ class CubeManager
     if player.shape.getX() < shape.getX() + 96 and player.shape.getX() > shape.getX() - 96 and player.shape.getY() < shape.getY() + 96 and player.shape.getY() > shape.getY() - 96
       player.kill()
     @reinitAllPhys()
+    @destroyEffects()
 
   stompEffet: (shape) ->
     contentLoader.play('explosion')

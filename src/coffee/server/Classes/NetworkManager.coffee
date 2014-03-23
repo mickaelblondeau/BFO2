@@ -103,11 +103,15 @@ class NetworkManager
     @io.sockets.emit 'clearLevel', levelManager.level
 
   moveLevel: (height) ->
-    @waitForAll(levelManager.nextBoss, config.timeout)
+    callback = ->
+      levelManager.nextBoss()
+    @waitForAll(callback, config.timeout)
     @io.sockets.emit 'moveLevel', height
 
   sendBoss: (boss, options, timeout) ->
-    @waitForAll(levelManager.passNextLevel, config.timeout + timeout)
+    callback = ->
+      levelManager.passNextLevel()
+    @waitForAll(callback, config.timeout + timeout)
     @sendClearLevel()
     @io.sockets.emit 'spawnBoss', [boss, options]
 

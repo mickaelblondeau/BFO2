@@ -4,7 +4,6 @@ class HomingMan extends Boss
     @id = 6
 
   getPattern: ->
-    levelManager.level = 8
     speed = Math.round((0.5 + 0.03 * levelManager.level) * 100) / 100
     attackSpeed = Math.round((0.25 + 0.001 * (levelManager.level - 1)) * 100) / 100
     interval = 3000

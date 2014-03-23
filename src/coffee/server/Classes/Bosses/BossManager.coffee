@@ -7,9 +7,12 @@ class BossManager
 
   launch: ->
     boss = @getBoss()
-    networkManager.sendBoss(boss.id, boss.options, boss.timeout)
-    @launched = true
-    @updateBosses(boss.name)
+    if boss
+      networkManager.sendBoss(boss.id, boss.options, boss.timeout)
+      @launched = true
+      @updateBosses(boss.name)
+    else
+      networkManager.sendMessage('No moar bosses, take another level !')
 
   reset: ->
     @launched = false
@@ -31,6 +34,8 @@ class BossManager
       return new HomingMan()
     else if boss is 'missileman'
       return new MissileMan()
+    else
+      return false
 
   updateBosses: (boss) ->
     @tmpBeatenBosses.push(boss)

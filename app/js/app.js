@@ -2262,15 +2262,13 @@
       cubes = dynamicEntities.find('Sprite');
       return cubes.each(function(cube) {
         var obj;
-        if (cube.getName().type === 'cube') {
-          if (cube.getY() < oldCube.getY() && cube.getX() >= oldCube.getX() && cube.getX() <= oldCube.getX() + oldCube.getWidth()) {
-            obj = cube.getName();
-            if (obj === null || obj === void 0) {
-              obj = {};
-            }
-            obj.falling = true;
-            return cube.setName(obj);
+        if (cube.getName().type === 'cube' && cube.getY() < oldCube.getY() && cube.getX() >= oldCube.getX() && cube.getX() <= oldCube.getX() + oldCube.getWidth()) {
+          obj = cube.getName();
+          if (obj === null || obj === void 0) {
+            obj = {};
           }
+          obj.falling = true;
+          return cube.setName(obj);
         }
       });
     };
@@ -2345,6 +2343,16 @@
       if (type === 'randblock') {
         return this.doEffect(shape, shape.getName().randType);
       }
+    };
+
+    CubeManager.prototype.destroyEffects = function() {
+      var effects;
+      effects = dynamicEntities.find('Sprite');
+      return effects.each(function(effect) {
+        if (effect.getName().type === 'effect') {
+          return effect.destroy();
+        }
+      });
     };
 
     CubeManager.prototype.iceExplosionEffect = function(shape) {
@@ -2443,7 +2451,8 @@
       if (player.shape.getX() < shape.getX() + 96 && player.shape.getX() > shape.getX() - 96 && player.shape.getY() < shape.getY() + 96 && player.shape.getY() > shape.getY() - 96) {
         player.kill();
       }
-      return this.reinitAllPhys();
+      this.reinitAllPhys();
+      return this.destroyEffects();
     };
 
     CubeManager.prototype.stompEffet = function(shape) {
@@ -3946,7 +3955,7 @@
     document.querySelector('#ip').value = window.location.host;
     contentLoader.playSong();
     launchGame = function(ip, name) {
-      var bg;
+      var bg, fn;
       bg = new Kinetic.Rect({
         width: stage.getWidth(),
         height: stage.getHeight(),
@@ -3966,10 +3975,22 @@
         hud.update(frameTime);
         return cubeManager.update(frameTime);
       };
-      return game.draw = function() {
+      game.draw = function() {
         players.draw();
         return dynamicEntities.draw();
       };
+      new FallingCube(0, SquareEnum.LARGE);
+      new FallingCube(4, SquareEnum.LARGE);
+      new FallingCube(8, SquareEnum.LARGE);
+      fn = function() {
+        new SpecialCube(0, SquareEnum.MEDIUM, 2);
+        return new SpecialCube(8, SquareEnum.MEDIUM, 2);
+      };
+      setTimeout(fn, 1000);
+      fn = function() {
+        return new SpecialCube(5, SquareEnum.MEDIUM, 1);
+      };
+      return setTimeout(fn, 3000);
     };
     return document.querySelector('#play').onclick = function() {
       var ip, name;
