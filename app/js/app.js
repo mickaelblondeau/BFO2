@@ -503,20 +503,38 @@
       return this.sounds[sound].play();
     };
 
+    ContentLoader.prototype.playMusic = function(sound) {
+      this.sounds[sound].pause();
+      this.sounds[sound].currentTime = 0;
+      return this.sounds[sound].play();
+    };
+
     ContentLoader.prototype.playSong = function() {
       var songNumber;
       songNumber = Math.floor((Math.random() * this.musics) + 1);
       this.currentSong = songNumber;
-      return this.sounds['music' + songNumber].play();
+      return this.playMusic('music' + songNumber);
     };
 
     ContentLoader.prototype.nextSong = function() {
+      this.sounds['music' + this.currentSong].pause();
       this.currentSong++;
       if (this.sounds['music' + this.currentSong] !== void 0) {
-        return this.sounds['music' + this.currentSong].play();
+        return this.playMusic('music' + this.currentSong);
       } else {
-        this.sounds['music1'].play();
+        this.playMusic('music1');
         return this.currentSong = 1;
+      }
+    };
+
+    ContentLoader.prototype.prevSong = function() {
+      this.sounds['music' + this.currentSong].pause();
+      this.currentSong--;
+      if (this.sounds['music' + this.currentSong] !== void 0) {
+        return this.playMusic('music' + this.currentSong);
+      } else {
+        this.currentSong = this.musics;
+        return this.playMusic('music' + this.currentSong);
       }
     };
 
@@ -4103,6 +4121,14 @@
 
   document.querySelector('#sound-sub-music').onclick = function() {
     return contentLoader.lessVolumeMusic();
+  };
+
+  document.querySelector('#music-prev').onclick = function() {
+    return contentLoader.prevSong();
+  };
+
+  document.querySelector('#music-next').onclick = function() {
+    return contentLoader.nextSong();
   };
 
   divs = document.querySelectorAll('#skin-control div a');

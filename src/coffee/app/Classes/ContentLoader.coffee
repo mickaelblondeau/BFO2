@@ -112,15 +112,30 @@ class ContentLoader
     @sounds[sound].currentTime = 0
     @sounds[sound].play()
 
+  playMusic: (sound) ->
+    @sounds[sound].pause()
+    @sounds[sound].currentTime = 0
+    @sounds[sound].play()
+
   playSong: ->
     songNumber = Math.floor((Math.random()*@musics)+1)
     @currentSong = songNumber
-    @sounds['music' + songNumber].play()
+    @playMusic('music' + songNumber)
 
   nextSong: ->
+    @sounds['music' + @currentSong].pause()
     @currentSong++
     if @sounds['music' + @currentSong] isnt undefined
-      @sounds['music' + @currentSong].play()
+      @playMusic('music' + @currentSong)
     else
-      @sounds['music1'].play()
+      @playMusic('music1')
       @currentSong = 1
+
+  prevSong: ->
+    @sounds['music' + @currentSong].pause()
+    @currentSong--
+    if @sounds['music' + @currentSong] isnt undefined
+      @playMusic('music' + @currentSong)
+    else
+      @currentSong = @musics
+      @playMusic('music' + @currentSong)

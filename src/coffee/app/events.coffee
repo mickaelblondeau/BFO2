@@ -18,6 +18,12 @@ document.querySelector('#sound-sub-effect').onclick = ->
 document.querySelector('#sound-sub-music').onclick = ->
   contentLoader.lessVolumeMusic()
 
+document.querySelector('#music-prev').onclick = ->
+  contentLoader.prevSong()
+document.querySelector('#music-next').onclick = ->
+  contentLoader.nextSong()
+
+
 divs = document.querySelectorAll('#skin-control div a')
 for div in divs
   div.onclick = (e) ->
