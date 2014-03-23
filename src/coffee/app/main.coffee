@@ -32,6 +32,7 @@ bonusManager = new BonusManager()
 bossManager = new BossManager()
 cubeManager = new CubeManager()
 skinManager = new SkinManager()
+saveManager  = new SaveManager()
 
 game = new Game()
 game.loadAssets()
@@ -63,6 +64,8 @@ contentLoader.contentsLoaded = ->
   document.querySelector('#login-form').style.display = 'block'
   document.querySelector('#login-loading').style.display = 'none'
   document.querySelector('#ip').value = window.location.host
+
+  saveManager.loadOptions()
 
   contentLoader.playSong()
 
@@ -115,3 +118,4 @@ contentLoader.contentsLoaded = ->
     document.querySelector('#login-loading').innerHTML = 'Waiting for '+ip+'...'
     launchGame(ip, name)
     contentLoader.play('beep')
+    saveManager.saveOptions()

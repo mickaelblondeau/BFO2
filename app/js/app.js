@@ -1,5 +1,5 @@
 (function() {
-  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, HomingMan, HomingManPart, Keyboard, LabiMan, LabiManPart, LevelManager, MissileMan, MissileManPart, MultiPartBoss, NetworkManager, Player, PoingMan, RandomEvent, RoueMan, SkinManager, SparkMan, SparkManPart, SpecialCube, SpecialCubes, Sprite, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, debugLayer, debugMap, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, playerAnimationIndexes, players, randomEvents, skin, skinManager, spriteAnimations, stage, staticBg, staticCubes, tmpLayer, _i, _len,
+  var Arena, Bonus, BonusManager, Boss, BossManager, CollisionManager, ContentLoader, ControllablePlayer, CubeFragment, CubeManager, Effect, FallingCube, FreezeMan, FreezeManPart, Game, HUD, HomingMan, HomingManPart, Keyboard, LabiMan, LabiManPart, LevelManager, MissileMan, MissileManPart, MultiPartBoss, NetworkManager, Player, PoingMan, RandomEvent, RoueMan, SaveManager, SkinManager, SparkMan, SparkManPart, SpecialCube, SpecialCubes, Sprite, SquareEnum, StaticCube, VirtualPlayer, animFrame, arena, bonusManager, bonusTypesId, bossManager, collisionManager, config, contentLoader, cubeManager, debugLayer, debugMap, div, divs, dynamicEntities, game, hud, hudLayer, keyboard, levelManager, networkManager, player, playerAnimationIndexes, players, randomEvents, saveManager, skin, skinManager, spriteAnimations, stage, staticBg, staticCubes, tmpLayer, _i, _len,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -2733,7 +2733,46 @@
       return tmpLayer.draw();
     };
 
+    SkinManager.prototype.setSkin = function(part, value) {
+      var elm;
+      elm = document.querySelector('#skin-preview .' + part);
+      elm.style.background = 'url("assets/player/' + part + '/' + value + '.png") 140px 0';
+      skin[part] = value;
+      return document.querySelector('#skin-control .' + part + ' .number').innerHTML = value;
+    };
+
+    SkinManager.prototype.getSkin = function(part) {
+      return document.querySelector('#skin-control .' + part + ' .number').innerHTML;
+    };
+
     return SkinManager;
+
+  })();
+
+  SaveManager = (function() {
+    function SaveManager() {}
+
+    SaveManager.prototype.saveOptions = function() {
+      localStorage.setItem('player_name', document.querySelector('#name').value);
+      localStorage.setItem('player_skin', skinManager.getSkin('skin'));
+      localStorage.setItem('player_hair', skinManager.getSkin('hair'));
+      localStorage.setItem('player_head', skinManager.getSkin('head'));
+      localStorage.setItem('player_body', skinManager.getSkin('body'));
+      localStorage.setItem('player_leg', skinManager.getSkin('leg'));
+      return localStorage.setItem('player_shoes', skinManager.getSkin('shoes'));
+    };
+
+    SaveManager.prototype.loadOptions = function() {
+      document.querySelector('#name').value = localStorage.getItem('player_name');
+      skinManager.setSkin('skin', localStorage.getItem('player_skin') || 1);
+      skinManager.setSkin('hair', localStorage.getItem('player_hair') || 1);
+      skinManager.setSkin('head', localStorage.getItem('player_head') || 1);
+      skinManager.setSkin('body', localStorage.getItem('player_body') || 1);
+      skinManager.setSkin('leg', localStorage.getItem('player_leg') || 1);
+      return skinManager.setSkin('shoes', localStorage.getItem('player_shoes') || 1);
+    };
+
+    return SaveManager;
 
   })();
 
@@ -3902,6 +3941,8 @@
 
   skinManager = new SkinManager();
 
+  saveManager = new SaveManager();
+
   game = new Game();
 
   game.loadAssets();
@@ -3953,6 +3994,7 @@
     document.querySelector('#login-form').style.display = 'block';
     document.querySelector('#login-loading').style.display = 'none';
     document.querySelector('#ip').value = window.location.host;
+    saveManager.loadOptions();
     contentLoader.playSong();
     launchGame = function(ip, name) {
       var bg, fn;
@@ -4000,7 +4042,8 @@
       document.querySelector('#login-loading').style.display = 'block';
       document.querySelector('#login-loading').innerHTML = 'Waiting for ' + ip + '...';
       launchGame(ip, name);
-      return contentLoader.play('beep');
+      contentLoader.play('beep');
+      return saveManager.saveOptions();
     };
   };
 

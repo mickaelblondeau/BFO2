@@ -32,3 +32,12 @@ class SkinManager
         delete self.callback[id]
     tmpLayer.destroyChildren()
     tmpLayer.draw()
+
+  setSkin: (part, value) ->
+    elm = document.querySelector('#skin-preview .' + part)
+    elm.style.background = 'url("assets/player/'+part+'/'+value+'.png") 140px 0'
+    skin[part] = value
+    document.querySelector('#skin-control .'+part+' .number').innerHTML = value
+
+  getSkin: (part) ->
+    return document.querySelector('#skin-control .'+part+' .number').innerHTML
