@@ -35,15 +35,12 @@ class CubeManager
           if obj is null or obj is undefined
             obj = {}
           obj.falling = false
-          obj.placed = true
           cube.setName(obj)
           if cube.getId() isnt undefined
             self.doEffect(cube, cube.getId())
         else
           cube.setY(cube.getY() + 0.1*frameTime)
-          if cube.getName().placed
-            self.reinitPhys(cube)
-            cube.getName().placed = false
+          self.reinitPhys(cube)
 
   testMove: (shape, y) ->
     shape.setY(y)
@@ -111,7 +108,6 @@ class CubeManager
 
   explosionEffet: (shape) ->
     contentLoader.play('explosion')
-    new Effect(shape.getX() - shape.getWidth()/2 - 16, shape.getY() - shape.getHeight()/2 - 32, SquareEnum.SMALL, 'explosionEffect', true)
     arr = []
     dynamicEntities.find('Sprite').each (cube) ->
       if !cube.getName().falling and cube.getName().type is 'cube'
@@ -133,6 +129,7 @@ class CubeManager
       player.kill()
     @reinitAllPhys()
     @destroyEffects()
+    new Effect(shape.getX() - shape.getWidth()/2 - 16, shape.getY() - shape.getHeight()/2 - 32, SquareEnum.SMALL, 'explosionEffect', true)
 
   stompEffet: (shape) ->
     contentLoader.play('explosion')

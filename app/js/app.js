@@ -2370,17 +2370,13 @@
               obj = {};
             }
             obj.falling = false;
-            obj.placed = true;
             cube.setName(obj);
             if (cube.getId() !== void 0) {
               return self.doEffect(cube, cube.getId());
             }
           } else {
             cube.setY(cube.getY() + 0.1 * frameTime);
-            if (cube.getName().placed) {
-              self.reinitPhys(cube);
-              return cube.getName().placed = false;
-            }
+            return self.reinitPhys(cube);
           }
         }
       });
@@ -2500,7 +2496,6 @@
     CubeManager.prototype.explosionEffet = function(shape) {
       var arr;
       contentLoader.play('explosion');
-      new Effect(shape.getX() - shape.getWidth() / 2 - 16, shape.getY() - shape.getHeight() / 2 - 32, SquareEnum.SMALL, 'explosionEffect', true);
       arr = [];
       dynamicEntities.find('Sprite').each(function(cube) {
         var i, j, _i, _j, _ref, _ref1;
@@ -2538,7 +2533,8 @@
         player.kill();
       }
       this.reinitAllPhys();
-      return this.destroyEffects();
+      this.destroyEffects();
+      return new Effect(shape.getX() - shape.getWidth() / 2 - 16, shape.getY() - shape.getHeight() / 2 - 32, SquareEnum.SMALL, 'explosionEffect', true);
     };
 
     CubeManager.prototype.stompEffet = function(shape) {
