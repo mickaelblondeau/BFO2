@@ -2370,13 +2370,17 @@
               obj = {};
             }
             obj.falling = false;
+            obj.placed = true;
             cube.setName(obj);
-            self.reinitPhys(cube);
             if (cube.getId() !== void 0) {
               return self.doEffect(cube, cube.getId());
             }
           } else {
-            return cube.setY(cube.getY() + 0.1 * frameTime);
+            cube.setY(cube.getY() + 0.1 * frameTime);
+            if (cube.getName().placed) {
+              self.reinitPhys(cube);
+              return cube.getName().placed = false;
+            }
           }
         }
       });

@@ -35,12 +35,15 @@ class CubeManager
           if obj is null or obj is undefined
             obj = {}
           obj.falling = false
+          obj.placed = true
           cube.setName(obj)
-          self.reinitPhys(cube)
           if cube.getId() isnt undefined
             self.doEffect(cube, cube.getId())
         else
           cube.setY(cube.getY() + 0.1*frameTime)
+          if cube.getName().placed
+            self.reinitPhys(cube)
+            cube.getName().placed = false
 
   testMove: (shape, y) ->
     shape.setY(y)
