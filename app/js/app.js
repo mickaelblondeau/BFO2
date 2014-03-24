@@ -896,14 +896,16 @@
             collide = this.testMove(this.shape.getX() - moveSpeed, 0);
             if (collide) {
               this.shape.setX(collide.getX() + collide.getWidth());
-            } else {
+            }
+            if (moveSide !== -1) {
               moveSide = -1;
             }
           } else if (keyboard.keys.right) {
             collide = this.testMove(this.shape.getX() + moveSpeed, 0);
             if (collide) {
               this.shape.setX(collide.getX() - this.shape.getWidth());
-            } else {
+            }
+            if (moveSide !== 1) {
               moveSide = 1;
             }
           }

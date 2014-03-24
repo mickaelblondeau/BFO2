@@ -61,13 +61,13 @@ class ControllablePlayer extends Player
           collide = @testMove(@shape.getX() - moveSpeed, 0)
           if collide
             @shape.setX(collide.getX() + collide.getWidth())
-          else
+          if moveSide != -1
             moveSide = -1
         else if keyboard.keys.right
           collide = @testMove(@shape.getX() + moveSpeed, 0)
           if collide
             @shape.setX(collide.getX() - @shape.getWidth())
-          else
+          if moveSide != 1
             moveSide = 1
         if keyboard.keys.up
           if @canJump
