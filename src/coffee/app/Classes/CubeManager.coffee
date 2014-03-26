@@ -171,7 +171,7 @@ class CubeManager
   tpEffet: (shape) ->
     contentLoader.play('explosion')
     new Effect(shape.getX(), shape.getY(), SquareEnum.SMALL, 'tp', null, true)
-    pos = { x: shape.getX() - 128, y: shape.getY() }
+    pos = { x: shape.getX(), y: shape.getY() }
     shape.destroy()
     player.shape.setX(pos.x)
     player.shape.setY(pos.y)
