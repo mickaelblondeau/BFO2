@@ -3,7 +3,7 @@ class LevelManager
     @tweens = []
     @level = 0
     @levelHeight = 0
-    @ground = 0
+    @ground = stage.getHeight() - 32
 
   reset: ->
     for tween in @tweens
@@ -21,7 +21,7 @@ class LevelManager
     stage.draw()
     @level = 0
     @levelHeight = 0
-    @ground = 0
+    @ground = stage.getHeight() - 32
 
   moveLevel: (height) ->
     arena.add(height/32)

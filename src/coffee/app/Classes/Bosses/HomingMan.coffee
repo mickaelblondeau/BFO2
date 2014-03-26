@@ -6,78 +6,51 @@ class HomingMan extends MultiPartBoss
 
     @speed = pattern[0][0]
     @attackSpeed = pattern[0][1]
-    @interval = pattern[0][2]
     @attacks = pattern[1]
-    @partLife = pattern[0][2]
+    @inPosition = 0
+    @attackCount = 1
 
     @position = levelManager.ground - 384
-    @time = 0
-    @attackCount = 0
-    @attackFinished = 0
-    @attackIndex = 0
-    @inPosition = false
     @start()
 
   start: ->
     self = @
     bossManager.update = (frameTime) ->
-      if !self.inPosition
-        self.moveToPosition(frameTime)
-      else if self.time >= self.interval
-        self.time = 0
+      if self.move(frameTime, self.shape.getX(), self.position)
         self.attack()
-      else if self.attackCount < self.attacks
-        self.time += frameTime
-
-      self.updateParts(frameTime)
-
-  moveToPosition: (frameTime) ->
-    tmp = @shape.getY() + @speed * frameTime
-    if tmp < @position
-      @shape.setY(tmp)
-    else
-      @shape.setY(@position)
-      @inPosition = true
-      @time = @interval * 0.75
+        self.speed = self.attackSpeed
+        bossManager.update = (frameTime) ->
+          self.updateParts(frameTime)
 
   attack: ->
-    for id, i in networkManager.playersId
-      if networkManager.players[id] isnt undefined
-        @parts.push(new HomingManPart(@shape.getX(), @shape.getY() + 64, @partLife, networkManager.players[id]))
-        @attackCount++
-    @parts.push(new HomingManPart(@shape.getX(), @shape.getY() + 64, @partLife, player))
-    @attackCount++
+    for attack in @attacks
+      @parts.push(new HomingManPart(@shape.getX() + 16, @shape.getY() + 64, attack))
 
   updateParts: (frameTime) ->
     for part in @parts
-      ratioX = part.ratioX
-      ratioY = 1
-
-      speedX = @attackSpeed * ratioX * frameTime
-      speedY = @attackSpeed * ratioY * frameTime
-
-      tmp = part.shape.getX() + speedX
-      if tmp > part.target.shape.getX()
-        part.shape.setX(part.shape.getX() - speedX)
+      if part.pattern[part.index] isnt undefined
+        pos = { x: parseInt(part.pattern[part.index][0]) * 352 + 160 }
+        if part.index is 0
+          pos.y = levelManager.ground - parseInt(part.pattern[0][1]) * 32
+        else
+          pos.y = part.shape.getY()
+        if part.ready and !part.position and part.move(frameTime, pos.x, pos.y)
+          @inPosition++
+          part.position = true
+          part.index++
+    if @inPosition is 6
+      if @attackCount is @attacks[0].length
+        @quitScreen(frameTime)
       else
-        part.shape.setX(part.shape.getX() + speedX)
-
-      part.shape.setY(part.shape.getY() + speedY)
-
-      if part.ratioX - 0.015 > 0.1
-        part.ratioX -= 0.015
-      else
-        part.ratioX = 0.1
-
-      if part.shape.getY() > levelManager.ground
-        part.reset()
-
-    if @attackFinished is @attacks
-      @quitScreen(frameTime)
+        @inPosition = 0
+        @attackCount++
+        for part in @parts
+          part.position = false
+          part.ready = false
+          part.wait()
 
   quitScreen: (frameTime) ->
-    tmp = @shape.getX() + @speed * frameTime
-    if tmp < 800
-      @shape.setX(tmp)
-    else
+    for part in @parts
+      part.move(frameTime, part.shape.getX(), part.shape.getY() + 100)
+    if @move(frameTime, 800, @shape.getY())
       @finish()

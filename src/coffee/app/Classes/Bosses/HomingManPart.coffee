@@ -1,18 +1,14 @@
 class HomingManPart extends Boss
-  constructor: (x, y, life, target) ->
+  constructor: (x, y, pattern) ->
     super('phantom', x, y, 32, 32)
-    @target = target
-    @alive = true
-    @ratioX = 1
+    @pattern = pattern
+    @index = 0
+    @position = false
+    @ready = true
 
-    self = @
-
-    fn = ->
-      self.reset()
-    setTimeout(fn, life)
-
-  reset: ->
-    if @alive
-      @alive = false
-      bossManager.currentBoss.attackFinished++
-      super()
+  wait: ->
+    if @pattern[@index] isnt undefined
+      self = @
+      fn = ->
+        self.ready = true
+      setTimeout(fn, @pattern[@index][1])

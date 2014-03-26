@@ -1107,13 +1107,47 @@
     }
 
     HomingMan.prototype.getPattern = function() {
-      var attackSpeed, attacks, interval, options, speed;
-      speed = Math.round((0.5 + 0.03 * levelManager.level) * 100) / 100;
-      attackSpeed = Math.round((0.25 + 0.001 * (levelManager.level - 1)) * 100) / 100;
-      interval = 3000;
-      options = [speed, attackSpeed, interval];
-      attacks = 4;
+      var attackSpeed, attacks, options, speed;
+      speed = 0.5;
+      attackSpeed = Math.round((0.4 + 0.01 * (levelManager.level - 1)) * 100) / 100;
+      options = [speed, attackSpeed];
+      attacks = this.getLevel();
       return [options, attacks];
+    };
+
+    HomingMan.prototype.getLevel = function() {
+      var attacks, i, j, patterns, randPat, secondWait, tmp, wait, _i, _j, _k, _l, _m;
+      wait = 500;
+      secondWait = 2000;
+      attacks = [];
+      patterns = [[1, 1, 0], [0, 1, 1], [0, 0, 1], [1, 0, 0]];
+      randPat = [];
+      for (i = _i = 1; _i <= 4; i = ++_i) {
+        randPat.push(Math.floor(Math.random() * (patterns.length - 1)));
+      }
+      for (i = _j = 1; _j <= 3; i = ++_j) {
+        tmp = [[0, i]];
+        for (j = _k = 1; _k <= 4; j = ++_k) {
+          if (j % 2 === 0) {
+            tmp.push([0, wait + patterns[randPat[j - 1]][i - 1] * secondWait]);
+          } else {
+            tmp.push([1, wait + patterns[randPat[j - 1]][i - 1] * secondWait]);
+          }
+        }
+        attacks.push(tmp);
+      }
+      for (i = _l = 1; _l <= 3; i = ++_l) {
+        tmp = [[1, i]];
+        for (j = _m = 1; _m <= 4; j = ++_m) {
+          if (j % 2 === 0) {
+            tmp.push([1, secondWait + patterns[randPat[j - 1]][i - 1] * secondWait]);
+          } else {
+            tmp.push([0, secondWait + patterns[randPat[j - 1]][i - 1] * secondWait]);
+          }
+        }
+        attacks.push(tmp);
+      }
+      return attacks;
     };
 
     return HomingMan;

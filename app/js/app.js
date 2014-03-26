@@ -2239,7 +2239,7 @@
       this.tweens = [];
       this.level = 0;
       this.levelHeight = 0;
-      this.ground = 0;
+      this.ground = stage.getHeight() - 32;
     }
 
     LevelManager.prototype.reset = function() {
@@ -2267,7 +2267,7 @@
       stage.draw();
       this.level = 0;
       this.levelHeight = 0;
-      return this.ground = 0;
+      return this.ground = stage.getHeight() - 32;
     };
 
     LevelManager.prototype.moveLevel = function(height) {
@@ -2591,7 +2591,7 @@
       contentLoader.play('explosion');
       new Effect(shape.getX(), shape.getY(), SquareEnum.SMALL, 'tp', null, true);
       pos = {
-        x: shape.getX() + 16,
+        x: shape.getX() - 128,
         y: shape.getY()
       };
       shape.destroy();
@@ -3754,15 +3754,10 @@
       HomingMan.__super__.constructor.call(this, 'homingman', x, y, 64, 64);
       this.speed = pattern[0][0];
       this.attackSpeed = pattern[0][1];
-      this.interval = pattern[0][2];
       this.attacks = pattern[1];
-      this.partLife = pattern[0][2];
+      this.inPosition = 0;
+      this.attackCount = 1;
       this.position = levelManager.ground - 384;
-      this.time = 0;
-      this.attackCount = 0;
-      this.attackFinished = 0;
-      this.attackIndex = 0;
-      this.inPosition = false;
       this.start();
     }
 
@@ -3770,80 +3765,75 @@
       var self;
       self = this;
       return bossManager.update = function(frameTime) {
-        if (!self.inPosition) {
-          self.moveToPosition(frameTime);
-        } else if (self.time >= self.interval) {
-          self.time = 0;
+        if (self.move(frameTime, self.shape.getX(), self.position)) {
           self.attack();
-        } else if (self.attackCount < self.attacks) {
-          self.time += frameTime;
+          self.speed = self.attackSpeed;
+          return bossManager.update = function(frameTime) {
+            return self.updateParts(frameTime);
+          };
         }
-        return self.updateParts(frameTime);
       };
     };
 
-    HomingMan.prototype.moveToPosition = function(frameTime) {
-      var tmp;
-      tmp = this.shape.getY() + this.speed * frameTime;
-      if (tmp < this.position) {
-        return this.shape.setY(tmp);
-      } else {
-        this.shape.setY(this.position);
-        this.inPosition = true;
-        return this.time = this.interval * 0.75;
-      }
-    };
-
     HomingMan.prototype.attack = function() {
-      var i, id, _i, _len, _ref;
-      _ref = networkManager.playersId;
-      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-        id = _ref[i];
-        if (networkManager.players[id] !== void 0) {
-          this.parts.push(new HomingManPart(this.shape.getX(), this.shape.getY() + 64, this.partLife, networkManager.players[id]));
-          this.attackCount++;
-        }
+      var attack, _i, _len, _ref, _results;
+      _ref = this.attacks;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        attack = _ref[_i];
+        _results.push(this.parts.push(new HomingManPart(this.shape.getX() + 16, this.shape.getY() + 64, attack)));
       }
-      this.parts.push(new HomingManPart(this.shape.getX(), this.shape.getY() + 64, this.partLife, player));
-      return this.attackCount++;
+      return _results;
     };
 
     HomingMan.prototype.updateParts = function(frameTime) {
-      var part, ratioX, ratioY, speedX, speedY, tmp, _i, _len, _ref;
+      var part, pos, _i, _j, _len, _len1, _ref, _ref1, _results;
       _ref = this.parts;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         part = _ref[_i];
-        ratioX = part.ratioX;
-        ratioY = 1;
-        speedX = this.attackSpeed * ratioX * frameTime;
-        speedY = this.attackSpeed * ratioY * frameTime;
-        tmp = part.shape.getX() + speedX;
-        if (tmp > part.target.shape.getX()) {
-          part.shape.setX(part.shape.getX() - speedX);
-        } else {
-          part.shape.setX(part.shape.getX() + speedX);
-        }
-        part.shape.setY(part.shape.getY() + speedY);
-        if (part.ratioX - 0.015 > 0.1) {
-          part.ratioX -= 0.015;
-        } else {
-          part.ratioX = 0.1;
-        }
-        if (part.shape.getY() > levelManager.ground) {
-          part.reset();
+        if (part.pattern[part.index] !== void 0) {
+          pos = {
+            x: parseInt(part.pattern[part.index][0]) * 352 + 160
+          };
+          if (part.index === 0) {
+            pos.y = levelManager.ground - parseInt(part.pattern[0][1]) * 32;
+          } else {
+            pos.y = part.shape.getY();
+          }
+          if (part.ready && !part.position && part.move(frameTime, pos.x, pos.y)) {
+            this.inPosition++;
+            part.position = true;
+            part.index++;
+          }
         }
       }
-      if (this.attackFinished === this.attacks) {
-        return this.quitScreen(frameTime);
+      if (this.inPosition === 6) {
+        if (this.attackCount === this.attacks[0].length) {
+          return this.quitScreen(frameTime);
+        } else {
+          this.inPosition = 0;
+          this.attackCount++;
+          _ref1 = this.parts;
+          _results = [];
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            part = _ref1[_j];
+            part.position = false;
+            part.ready = false;
+            _results.push(part.wait());
+          }
+          return _results;
+        }
       }
     };
 
     HomingMan.prototype.quitScreen = function(frameTime) {
-      var tmp;
-      tmp = this.shape.getX() + this.speed * frameTime;
-      if (tmp < 800) {
-        return this.shape.setX(tmp);
-      } else {
+      var part, _i, _len, _ref;
+      _ref = this.parts;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        part = _ref[_i];
+        part.move(frameTime, part.shape.getX(), part.shape.getY() + 100);
+      }
+      if (this.move(frameTime, 800, this.shape.getY())) {
         return this.finish();
       }
     };
@@ -3855,24 +3845,22 @@
   HomingManPart = (function(_super) {
     __extends(HomingManPart, _super);
 
-    function HomingManPart(x, y, life, target) {
-      var fn, self;
+    function HomingManPart(x, y, pattern) {
       HomingManPart.__super__.constructor.call(this, 'phantom', x, y, 32, 32);
-      this.target = target;
-      this.alive = true;
-      this.ratioX = 1;
-      self = this;
-      fn = function() {
-        return self.reset();
-      };
-      setTimeout(fn, life);
+      this.pattern = pattern;
+      this.index = 0;
+      this.position = false;
+      this.ready = true;
     }
 
-    HomingManPart.prototype.reset = function() {
-      if (this.alive) {
-        this.alive = false;
-        bossManager.currentBoss.attackFinished++;
-        return HomingManPart.__super__.reset.call(this);
+    HomingManPart.prototype.wait = function() {
+      var fn, self;
+      if (this.pattern[this.index] !== void 0) {
+        self = this;
+        fn = function() {
+          return self.ready = true;
+        };
+        return setTimeout(fn, this.pattern[this.index][1]);
       }
     };
 
