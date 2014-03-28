@@ -54,7 +54,7 @@ class Player
 
   spawn: ->
     @shape.setX(336)
-    @shape.setY(stage.getY() * -1 - 128)
+    @shape.setY(stage.getY() * -1 - 160)
 
   reset: ->
     @spawn()

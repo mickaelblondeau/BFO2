@@ -2,11 +2,12 @@ class CubeManager
   constructor: ->
     @speed = 0.4
     @tweens = []
+    @lastId = 0
 
   reinitAllPhys: ->
     cubes = dynamicEntities.find('Sprite')
     cubes.each (cube) ->
-      if cube.getName().type is 'cube'
+      if cube.getName().type is 'cube' or cube.getName().type is 'bonus'
         obj = cube.getName()
         if obj is null or obj is undefined
           obj = {}
@@ -16,7 +17,7 @@ class CubeManager
   reinitPhys: (oldCube) ->
     cubes = dynamicEntities.find('Sprite')
     cubes.each (cube) ->
-      if cube.getName().type is 'cube' and cube.getY() < oldCube.getY() && cube.getX() >= oldCube.getX() && cube.getX() <= oldCube.getX() + oldCube.getWidth()
+      if (cube.getName().type is 'cube' or cube.getName().type is 'bonus') and cube.getY() <= oldCube.getY() && cube.getX() >= oldCube.getX() && cube.getX() <= oldCube.getX() + oldCube.getWidth()
         obj = cube.getName()
         if obj is null or obj is undefined
           obj = {}
@@ -110,25 +111,27 @@ class CubeManager
     contentLoader.play('explosion')
     arr = []
     dynamicEntities.find('Sprite').each (cube) ->
-      if !cube.getName().falling and cube.getName().type is 'cube'
+      if !cube.getName().falling and cube.getName().type is 'cube' and cube.getId() <= shape.getName().id
         if cube.getWidth() > 32 or cube.getHeight() > 32
           for i in [0..(cube.getWidth()/32-1)]
             for j in [0..(cube.getHeight()/32-1)]
               if arr[(cube.getX() + i*32) + "_" + cube.getY() + j*32] is undefined
                 arr[(cube.getX() + i*32) + "_" + cube.getY() + j*32] = 1
-                new CubeFragment(cube.getX() + i*32, cube.getY() + j*32, SquareEnum.SMALL)
+                new CubeFragment(cube.getX() + i*32, cube.getY() + j*32, SquareEnum.SMALL, cube.getId())
           cube.destroy()
     dynamicEntities.find('Sprite').each (cube) ->
-      for i in [-4..5]
-        j = i
-        if i > 0
-          j = i-1
-        if cube.getX() >= shape.getX() + i*32 and cube.getX() <= shape.getX() + i*32 + 32 and cube.getY() < shape.getY() - (-5 + Math.abs(j))*32 and cube.getY() > shape.getY() + (-5 + Math.abs(j))*32
-          cube.destroy()
+      if !cube.getName().falling and cube.getName().type is 'cube' and cube.getId() <= shape.getName().id
+        for i in [-4..5]
+          j = i
+          if i > 0
+            j = i-1
+          if cube.getX() >= shape.getX() + i*32 and cube.getX() <= shape.getX() + i*32 + 32 and cube.getY() < shape.getY() - (-5 + Math.abs(j))*32 and cube.getY() > shape.getY() + (-5 + Math.abs(j))*32
+            cube.destroy()
     if player.shape.getX() < shape.getX() + 96 and player.shape.getX() > shape.getX() - 96 and player.shape.getY() < shape.getY() + 96 and player.shape.getY() > shape.getY() - 96
       player.kill()
     @reinitAllPhys()
     @destroyEffects()
+    shape.destroy()
     new Effect(shape.getX() - shape.getWidth()/2 - 16, shape.getY() - shape.getHeight()/2 - 32, SquareEnum.SMALL, 'explosionEffect', true)
 
   stompEffet: (shape) ->

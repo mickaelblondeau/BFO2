@@ -27,6 +27,7 @@ class CubeManager
     @running = false
     @waiting = false
     @bonusId = 0
+    @cubeId = 0
 
     @types = [
       {
@@ -173,6 +174,7 @@ class CubeManager
     @stop()
     @waiting = false
     @bonusId = 0
+    @cubeId = 0
     @resetMap()
 
   stop: ->
@@ -215,7 +217,8 @@ class CubeManager
         else
           networkManager.sendSpecial(choice.column, type.size, type.id)
       else
-        networkManager.sendCube(choice.column, type.size)
+        networkManager.sendCube(choice.column, type.size, @cubeId)
+        @cubeId++
         for columnPosition in [1..type.width]
           @map[choice.column + columnPosition - 1] = choice.height + type.height
           for h in [0..type.height-1]

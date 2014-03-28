@@ -82,6 +82,7 @@
       this.running = false;
       this.waiting = false;
       this.bonusId = 0;
+      this.cubeId = 0;
       this.types = [
         {
           proba: 2,
@@ -215,6 +216,7 @@
       this.stop();
       this.waiting = false;
       this.bonusId = 0;
+      this.cubeId = 0;
       return this.resetMap();
     };
 
@@ -269,7 +271,8 @@
             networkManager.sendSpecial(choice.column, type.size, type.id);
           }
         } else {
-          networkManager.sendCube(choice.column, type.size);
+          networkManager.sendCube(choice.column, type.size, this.cubeId);
+          this.cubeId++;
           for (columnPosition = _i = 1, _ref = type.width; 1 <= _ref ? _i <= _ref : _i >= _ref; columnPosition = 1 <= _ref ? ++_i : --_i) {
             this.map[choice.column + columnPosition - 1] = choice.height + type.height;
             for (h = _j = 0, _ref1 = type.height - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; h = 0 <= _ref1 ? ++_j : --_j) {
@@ -679,8 +682,8 @@
       });
     };
 
-    NetworkManager.prototype.sendCube = function(col, size) {
-      return this.io.sockets.emit('fallingCube', [col, size]);
+    NetworkManager.prototype.sendCube = function(col, size, id) {
+      return this.io.sockets.emit('fallingCube', [col, size, id]);
     };
 
     NetworkManager.prototype.sendBonus = function(col, bonus, id) {

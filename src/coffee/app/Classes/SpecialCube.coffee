@@ -19,6 +19,6 @@ class SpecialCube extends Sprite
       rType = SpecialCubes[randType]
       @shape.setName({ type: 'special', falling: true, randType: rType })
     else
-      @shape.setName({ type: 'special', falling: true })
+      @shape.setName({ type: 'special', falling: true, id: cubeManager.lastId })
     @shape.setId(@type)
     @shape.draw()

@@ -67,8 +67,8 @@ class NetworkManager
         socket.get 'name', (error, name) ->
           socket.broadcast.emit 'message', [null, name + ' has left the game !']
 
-  sendCube: (col, size) ->
-    @io.sockets.emit('fallingCube', [col, size])
+  sendCube: (col, size, id) ->
+    @io.sockets.emit('fallingCube', [col, size, id])
 
   sendBonus: (col, bonus, id) ->
     @io.sockets.emit('fallingBonus', [col, bonus, id])

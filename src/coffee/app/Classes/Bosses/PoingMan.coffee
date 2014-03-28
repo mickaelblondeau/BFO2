@@ -66,10 +66,10 @@ class PoingMan extends Boss
 
   regenMap: ->
     for i in [1..12]
-      cube = new StaticCube(i*32 + 128, @levelHeight + 32, SquareEnum.SMALL)
+      cube = new StaticCube(i*32 + 128, @levelHeight + 64, SquareEnum.SMALL)
       tween = new Kinetic.Tween
         node: cube.shape
-        y: cube.shape.getY() - 32
+        y: cube.shape.getY() - 64
         duration: 2
       tween.play()
 

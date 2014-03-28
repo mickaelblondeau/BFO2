@@ -743,7 +743,7 @@
 
     Player.prototype.spawn = function() {
       this.shape.setX(336);
-      return this.shape.setY(stage.getY() * -1 - 128);
+      return this.shape.setY(stage.getY() * -1 - 160);
     };
 
     Player.prototype.reset = function() {
@@ -1965,7 +1965,7 @@
   FallingCube = (function(_super) {
     __extends(FallingCube, _super);
 
-    function FallingCube(col, size) {
+    function FallingCube(col, size, id) {
       var anim, x, y;
       x = col * 32 + 160;
       y = stage.getY() * -1;
@@ -1976,6 +1976,8 @@
         type: 'cube',
         falling: true
       });
+      this.shape.setId(id);
+      cubeManager.lastId = id;
       this.shape.draw();
     }
 
@@ -2020,7 +2022,8 @@
       } else {
         this.shape.setName({
           type: 'special',
-          falling: true
+          falling: true,
+          id: cubeManager.lastId
         });
       }
       this.shape.setId(this.type);
@@ -2077,7 +2080,7 @@
         }
       } else if (event === 'tp') {
         player.shape.setX(this.shape.getX() + 16);
-        player.shape.setY(this.shape.getY() - 128);
+        player.shape.setY(this.shape.getY() - 256);
         new Effect(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL, 'tp', null, true);
       }
       return this.shape.destroy();
@@ -2090,7 +2093,7 @@
   CubeFragment = (function(_super) {
     __extends(CubeFragment, _super);
 
-    function CubeFragment(x, y, size) {
+    function CubeFragment(x, y, size, id) {
       var anim;
       anim = size.x + '-' + size.y;
       CubeFragment.__super__.constructor.call(this, x, y, size, this.getSpriteSheet(), anim);
@@ -2098,6 +2101,7 @@
       this.shape.setName({
         type: 'cube'
       });
+      this.shape.setId(id);
       this.shape.draw();
     }
 
@@ -2311,6 +2315,7 @@
     function CubeManager() {
       this.speed = 0.4;
       this.tweens = [];
+      this.lastId = 0;
     }
 
     CubeManager.prototype.reinitAllPhys = function() {
@@ -2318,7 +2323,7 @@
       cubes = dynamicEntities.find('Sprite');
       return cubes.each(function(cube) {
         var obj;
-        if (cube.getName().type === 'cube') {
+        if (cube.getName().type === 'cube' || cube.getName().type === 'bonus') {
           obj = cube.getName();
           if (obj === null || obj === void 0) {
             obj = {};
@@ -2334,7 +2339,7 @@
       cubes = dynamicEntities.find('Sprite');
       return cubes.each(function(cube) {
         var obj;
-        if (cube.getName().type === 'cube' && cube.getY() < oldCube.getY() && cube.getX() >= oldCube.getX() && cube.getX() <= oldCube.getX() + oldCube.getWidth()) {
+        if ((cube.getName().type === 'cube' || cube.getName().type === 'bonus') && cube.getY() <= oldCube.getY() && cube.getX() >= oldCube.getX() && cube.getX() <= oldCube.getX() + oldCube.getWidth()) {
           obj = cube.getName();
           if (obj === null || obj === void 0) {
             obj = {};
@@ -2489,13 +2494,13 @@
       arr = [];
       dynamicEntities.find('Sprite').each(function(cube) {
         var i, j, _i, _j, _ref, _ref1;
-        if (!cube.getName().falling && cube.getName().type === 'cube') {
+        if (!cube.getName().falling && cube.getName().type === 'cube' && cube.getId() <= shape.getName().id) {
           if (cube.getWidth() > 32 || cube.getHeight() > 32) {
             for (i = _i = 0, _ref = cube.getWidth() / 32 - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
               for (j = _j = 0, _ref1 = cube.getHeight() / 32 - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; j = 0 <= _ref1 ? ++_j : --_j) {
                 if (arr[(cube.getX() + i * 32) + "_" + cube.getY() + j * 32] === void 0) {
                   arr[(cube.getX() + i * 32) + "_" + cube.getY() + j * 32] = 1;
-                  new CubeFragment(cube.getX() + i * 32, cube.getY() + j * 32, SquareEnum.SMALL);
+                  new CubeFragment(cube.getX() + i * 32, cube.getY() + j * 32, SquareEnum.SMALL, cube.getId());
                 }
               }
             }
@@ -2505,25 +2510,28 @@
       });
       dynamicEntities.find('Sprite').each(function(cube) {
         var i, j, _i, _results;
-        _results = [];
-        for (i = _i = -4; _i <= 5; i = ++_i) {
-          j = i;
-          if (i > 0) {
-            j = i - 1;
+        if (!cube.getName().falling && cube.getName().type === 'cube' && cube.getId() <= shape.getName().id) {
+          _results = [];
+          for (i = _i = -4; _i <= 5; i = ++_i) {
+            j = i;
+            if (i > 0) {
+              j = i - 1;
+            }
+            if (cube.getX() >= shape.getX() + i * 32 && cube.getX() <= shape.getX() + i * 32 + 32 && cube.getY() < shape.getY() - (-5 + Math.abs(j)) * 32 && cube.getY() > shape.getY() + (-5 + Math.abs(j)) * 32) {
+              _results.push(cube.destroy());
+            } else {
+              _results.push(void 0);
+            }
           }
-          if (cube.getX() >= shape.getX() + i * 32 && cube.getX() <= shape.getX() + i * 32 + 32 && cube.getY() < shape.getY() - (-5 + Math.abs(j)) * 32 && cube.getY() > shape.getY() + (-5 + Math.abs(j)) * 32) {
-            _results.push(cube.destroy());
-          } else {
-            _results.push(void 0);
-          }
+          return _results;
         }
-        return _results;
       });
       if (player.shape.getX() < shape.getX() + 96 && player.shape.getX() > shape.getX() - 96 && player.shape.getY() < shape.getY() + 96 && player.shape.getY() > shape.getY() - 96) {
         player.kill();
       }
       this.reinitAllPhys();
       this.destroyEffects();
+      shape.destroy();
       return new Effect(shape.getX() - shape.getWidth() / 2 - 16, shape.getY() - shape.getHeight() / 2 - 32, SquareEnum.SMALL, 'explosionEffect', true);
     };
 
@@ -2622,7 +2630,7 @@
         return game.start();
       });
       this.socket.on('fallingCube', function(data) {
-        return new FallingCube(data[0], data[1]);
+        return new FallingCube(data[0], data[1], data[2]);
       });
       this.socket.on('fallingBonus', function(data) {
         return new Bonus(data[0], data[1], data[2]);
@@ -3502,10 +3510,10 @@
       var cube, i, tween, _i, _results;
       _results = [];
       for (i = _i = 1; _i <= 12; i = ++_i) {
-        cube = new StaticCube(i * 32 + 128, this.levelHeight + 32, SquareEnum.SMALL);
+        cube = new StaticCube(i * 32 + 128, this.levelHeight + 64, SquareEnum.SMALL);
         tween = new Kinetic.Tween({
           node: cube.shape,
-          y: cube.shape.getY() - 32,
+          y: cube.shape.getY() - 64,
           duration: 2
         });
         _results.push(tween.play());
