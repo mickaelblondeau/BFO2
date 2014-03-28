@@ -49,7 +49,7 @@ class LevelManager
     bossManager.reset()
     cubes = dynamicEntities.find('Sprite')
     cubes.each (cube) ->
-      if cube.getY() > stage.getY()*-1 + stage.getHeight() or cube.getName().type isnt 'cube'
+      if cube.getY() > stage.getY()*-1 + stage.getHeight() + 32 or cube.getName().type isnt 'cube'
         cube.destroy()
     if player.shape.getY() > stage.getY()*-1 + stage.getHeight()
       player.kill()

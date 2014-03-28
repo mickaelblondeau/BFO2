@@ -21,7 +21,7 @@ class HomingMan extends Boss
       [1, 0, 0]
     ]
     randPat = []
-    for i in [1..4]
+    for i in [1..2]
       randPat.push(Math.floor(Math.random()*(patterns.length - 1)))
     for i in [1..3]
       tmp = [[0, i]]

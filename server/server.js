@@ -1162,7 +1162,7 @@
       attacks = [];
       patterns = [[1, 1, 0], [0, 1, 1], [0, 0, 1], [1, 0, 0]];
       randPat = [];
-      for (i = _i = 1; _i <= 4; i = ++_i) {
+      for (i = _i = 1; _i <= 2; i = ++_i) {
         randPat.push(Math.floor(Math.random() * (patterns.length - 1)));
       }
       for (i = _j = 1; _j <= 3; i = ++_j) {
