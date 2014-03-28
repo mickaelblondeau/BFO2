@@ -25,7 +25,7 @@ class HomingMan extends Boss
       randPat.push(Math.floor(Math.random()*(patterns.length - 1)))
     for i in [1..3]
       tmp = [[0, i]]
-      for j in [1..4]
+      for j in [1..2]
         if j % 2 is 0
           tmp.push([0, wait + patterns[randPat[j-1]][i-1] * secondWait])
         else
@@ -33,7 +33,7 @@ class HomingMan extends Boss
       attacks.push(tmp)
     for i in [1..3]
       tmp = [[1, i]]
-      for j in [1..4]
+      for j in [1..2]
         if j % 2 is 0
           tmp.push([1, secondWait + patterns[randPat[j-1]][i-1] * secondWait])
         else

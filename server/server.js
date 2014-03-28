@@ -943,7 +943,7 @@
 
     RoueMan.prototype.getPattern = function() {
       var attacks, options, speed, speedPerLevel;
-      speedPerLevel = 0.05;
+      speedPerLevel = 0.03;
       speed = Math.round((0.6 + speedPerLevel * levelManager.level) * 100) / 100;
       options = speed;
       attacks = this.generateAttacks();
@@ -1167,7 +1167,7 @@
       }
       for (i = _j = 1; _j <= 3; i = ++_j) {
         tmp = [[0, i]];
-        for (j = _k = 1; _k <= 4; j = ++_k) {
+        for (j = _k = 1; _k <= 2; j = ++_k) {
           if (j % 2 === 0) {
             tmp.push([0, wait + patterns[randPat[j - 1]][i - 1] * secondWait]);
           } else {
@@ -1178,7 +1178,7 @@
       }
       for (i = _l = 1; _l <= 3; i = ++_l) {
         tmp = [[1, i]];
-        for (j = _m = 1; _m <= 4; j = ++_m) {
+        for (j = _m = 1; _m <= 2; j = ++_m) {
           if (j % 2 === 0) {
             tmp.push([1, secondWait + patterns[randPat[j - 1]][i - 1] * secondWait]);
           } else {
