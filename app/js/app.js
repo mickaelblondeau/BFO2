@@ -683,6 +683,25 @@
       return false;
     };
 
+    CollisionManager.prototype.checkCubePresence = function(x, y) {
+      var tmp;
+      tmp = staticCubes.getIntersection({
+        x: x,
+        y: y
+      });
+      if (tmp !== null && tmp.shape) {
+        return tmp.shape;
+      }
+      tmp = dynamicEntities.getIntersection({
+        x: x,
+        y: y
+      });
+      if (tmp !== null && tmp.shape && tmp.shape.getName() !== null && tmp.shape.getName().type === 'cube') {
+        return tmp.shape;
+      }
+      return false;
+    };
+
     return CollisionManager;
 
   })();
@@ -2080,7 +2099,7 @@
         }
       } else if (event === 'tp') {
         player.shape.setX(this.shape.getX() + 16);
-        player.shape.setY(this.shape.getY() - 256);
+        player.shape.setY(this.shape.getY() - stage.getY() * -1 - 64);
         new Effect(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL, 'tp', null, true);
       }
       return this.shape.destroy();
@@ -2433,59 +2452,45 @@
     };
 
     CubeManager.prototype.iceExplosionEffect = function(shape) {
+      var eff, i, j, pos, _i, _j;
       contentLoader.play('explosion');
-      new Effect(shape.getX() - shape.getWidth() / 2 - 16, shape.getY() - shape.getHeight() / 2 - 32, SquareEnum.SMALL, 'iceExplosionEffect', true);
-      staticCubes.find('Sprite').each(function(cube) {
-        var i, _i, _ref, _results;
-        if (cube.getX() < shape.getX() + 128 && cube.getX() > shape.getX() - 96 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 96) {
-          _results = [];
-          for (i = _i = 0, _ref = (cube.getWidth() / 32) - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-            _results.push(new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'ice'));
-          }
-          return _results;
-        }
-      });
-      dynamicEntities.find('Sprite').each(function(cube) {
-        var i, _i, _ref, _results;
-        if (!cube.getName().falling && cube.getName().type === 'cube') {
-          if (cube.getX() < shape.getX() + 128 && cube.getX() > shape.getX() - 96 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 96) {
-            _results = [];
-            for (i = _i = 0, _ref = (cube.getWidth() / 32) - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-              _results.push(new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'ice'));
-            }
-            return _results;
+      pos = {
+        x: shape.getX(),
+        y: shape.getY()
+      };
+      shape.destroy();
+      for (i = _i = -2; _i <= 4; i = ++_i) {
+        for (j = _j = -2; _j <= 4; j = ++_j) {
+          if (collisionManager.checkCubePresence(pos.x + i * 32 + 16, pos.y + j * 32 + 16) && !collisionManager.checkCubePresence(pos.x + i * 32 + 16, pos.y + j * 32 - 16)) {
+            eff = new Effect(pos.x + i * 32, pos.y + j * 32 - 2, SquareEnum.SMALL, 'ice');
+            eff.shape.setZIndex(10);
+            eff.shape.draw();
+            break;
           }
         }
-      });
-      return shape.destroy();
+      }
+      return new Effect(shape.getX() - shape.getWidth() / 2 - 16, shape.getY() - shape.getHeight() / 2 - 32, SquareEnum.SMALL, 'iceExplosionEffect', true);
     };
 
     CubeManager.prototype.slowExplosionEffet = function(shape) {
+      var eff, i, j, pos, _i, _j;
       contentLoader.play('death');
-      new Effect(shape.getX() - shape.getWidth() / 2, shape.getY() - shape.getHeight() / 2, SquareEnum.SMALL, 'bioExplosion', true);
-      staticCubes.find('Sprite').each(function(cube) {
-        var i, _i, _ref, _results;
-        if (cube.getX() < shape.getX() + 96 && cube.getX() > shape.getX() - 64 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 64) {
-          _results = [];
-          for (i = _i = 0, _ref = (cube.getWidth() / 32) - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-            _results.push(new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'slow'));
-          }
-          return _results;
-        }
-      });
-      dynamicEntities.find('Sprite').each(function(cube) {
-        var i, _i, _ref, _results;
-        if (!cube.getName().falling && cube.getName().type === 'cube') {
-          if (cube.getX() < shape.getX() + 96 && cube.getX() > shape.getX() - 64 && cube.getY() < shape.getY() + 128 && cube.getY() > shape.getY() - 64) {
-            _results = [];
-            for (i = _i = 0, _ref = (cube.getWidth() / 32) - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-              _results.push(new Effect(cube.getX() + i * 32, cube.getY() - 2, SquareEnum.SMALL, 'slow'));
-            }
-            return _results;
+      pos = {
+        x: shape.getX(),
+        y: shape.getY()
+      };
+      shape.destroy();
+      for (i = _i = -2; _i <= 4; i = ++_i) {
+        for (j = _j = -2; _j <= 4; j = ++_j) {
+          if (collisionManager.checkCubePresence(pos.x + i * 32 + 16, pos.y + j * 32 + 16) && !collisionManager.checkCubePresence(pos.x + i * 32 + 16, pos.y + j * 32 - 16)) {
+            eff = new Effect(pos.x + i * 32, pos.y + j * 32 - 2, SquareEnum.SMALL, 'slow');
+            eff.shape.setZIndex(10);
+            eff.shape.draw();
+            break;
           }
         }
-      });
-      return shape.destroy();
+      }
+      return new Effect(shape.getX() - shape.getWidth() / 2, shape.getY() - shape.getHeight() / 2, SquareEnum.SMALL, 'bioExplosion', true);
     };
 
     CubeManager.prototype.explosionEffet = function(shape) {

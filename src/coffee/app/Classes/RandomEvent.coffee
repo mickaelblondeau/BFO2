@@ -41,7 +41,7 @@ class RandomEvent extends Sprite
 
     else if event is 'tp'
       player.shape.setX(@shape.getX()+16)
-      player.shape.setY(@shape.getY()-256)
+      player.shape.setY(@shape.getY()-stage.getY()*-1 - 64)
       new Effect(@shape.getX(), @shape.getY(), SquareEnum.SMALL, 'tp', null, true)
 
     @shape.destroy()
