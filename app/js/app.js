@@ -271,36 +271,26 @@
           this.addMessage('Me', document.getElementById('chatMessage').value);
         }
         document.getElementById('chatMessage').blur();
-        document.getElementById('chatMessage').value = null;
-        if (this.closeTime !== void 0) {
-          clearInterval(this.closeTime);
-        }
-        return this.closeTime = setTimeout(this.closeHist, 3000);
+        return document.getElementById('chatMessage').value = null;
       } else {
         this.writting = true;
-        this.openHist();
+        this.openHist(3000);
         return document.getElementById('chatMessage').focus();
       }
     };
 
     Game.prototype.addMessage = function(name, message) {
-      var callback, timeout;
+      var timeout;
       contentLoader.play('beep');
-      if (name !== 'Me') {
-        document.getElementById('chatMessages').innerHTML += '<div class="message"><span class="from">' + name + '</span> : <span class="content">' + message + '</span></div>';
-        callback = function() {
-          if (document.querySelectorAll('#chatMessages .message')[0](inst(void 0))) {
-            return document.querySelectorAll('#chatMessages .message')[0].remove();
-          }
-        };
-        timeout = 3000 + message.length * 30;
-        setTimeout(callback, timeout);
-      }
       this.chatHist.push([name, message]);
       if (this.chatHist.length > this.chatHistLen) {
         this.chatHist.shift();
       }
-      return this.composeHistoric();
+      this.composeHistoric();
+      if (name !== 'Me') {
+        timeout = 3000 + message.length * 30;
+        return this.openHist(timeout);
+      }
     };
 
     Game.prototype.composeHistoric = function() {
@@ -310,23 +300,21 @@
       _results = [];
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
         hist = _ref[i];
-        _results.push(document.getElementById('chatHistoric').innerHTML += '<div class="message"><span class="from">' + hist[0] + '</span> : <span class="content">' + hist[1] + '</span></div>');
+        _results.push(document.getElementById('chatHistoric').innerHTML += '<div class="message"><span class="from">&#60;' + hist[0] + '&#62; </span><span class="content">' + hist[1] + '</span></div>');
       }
       return _results;
     };
 
-    Game.prototype.openHist = function() {
-      var message, messages, _i, _len;
-      messages = document.querySelectorAll('#chatMessages .message');
-      for (_i = 0, _len = messages.length; _i < _len; _i++) {
-        message = messages[_i];
-        message.remove();
+    Game.prototype.openHist = function(time) {
+      if (this.closeTime !== void 0) {
+        clearInterval(this.closeTime);
       }
-      return document.getElementById('chatHistoric').style.display = 'block';
+      this.closeTime = setTimeout(this.closeHist, time);
+      return document.querySelector('#chatHistoric').style.display = 'block';
     };
 
     Game.prototype.closeHist = function() {
-      return document.getElementById('chatHistoric').style.display = 'none';
+      return document.querySelector('#chatHistoric').style.display = 'none';
     };
 
     return Game;

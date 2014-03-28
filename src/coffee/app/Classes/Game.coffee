@@ -94,38 +94,31 @@ class Game
         @addMessage('Me', document.getElementById('chatMessage').value)
       document.getElementById('chatMessage').blur()
       document.getElementById('chatMessage').value = null
-      if @closeTime isnt undefined
-        clearInterval(@closeTime)
-      @closeTime = setTimeout(@closeHist, 3000)
     else
       @writting = true
-      @openHist()
+      @openHist(3000)
       document.getElementById('chatMessage').focus()
 
   addMessage: (name, message) ->
     contentLoader.play('beep')
-    if name isnt 'Me'
-      document.getElementById('chatMessages').innerHTML += '<div class="message"><span class="from">'+name+'</span> : <span class="content">'+message+'</span></div>'
-      callback = ->
-        if document.querySelectorAll('#chatMessages .message')[0] inst undefined
-          document.querySelectorAll('#chatMessages .message')[0].remove()
-      timeout = 3000 + message.length * 30
-      setTimeout(callback, timeout)
     @chatHist.push([name, message])
     if @chatHist.length > @chatHistLen
       @chatHist.shift()
     @composeHistoric()
+    if name isnt 'Me'
+      timeout = 3000 + message.length * 30
+      @openHist(timeout)
 
   composeHistoric: ->
     document.getElementById('chatHistoric').innerHTML = ""
     for hist, i in @chatHist
-      document.getElementById('chatHistoric').innerHTML += '<div class="message"><span class="from">'+hist[0]+'</span> : <span class="content">'+hist[1]+'</span></div>'
+      document.getElementById('chatHistoric').innerHTML += '<div class="message"><span class="from">&#60;'+hist[0]+'&#62; </span><span class="content">'+hist[1]+'</span></div>'
 
-  openHist: ->
-    messages = document.querySelectorAll('#chatMessages .message')
-    for message in messages
-      message.remove()
-    document.getElementById('chatHistoric').style.display = 'block'
+  openHist: (time) ->
+    if @closeTime isnt undefined
+      clearInterval(@closeTime)
+    @closeTime = setTimeout(@closeHist, time)
+    document.querySelector('#chatHistoric').style.display = 'block'
 
   closeHist: ->
-    document.getElementById('chatHistoric').style.display = 'none'
+    document.querySelector('#chatHistoric').style.display = 'none'
