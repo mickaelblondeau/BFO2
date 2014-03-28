@@ -160,11 +160,15 @@ class CubeManager
       if plr._id isnt player.shape._id
         skin = players.find('#skin-' + plr.getId())[0]
         if skin.getAnimation() isnt 'dead'
-          positions.push({ x: plr.getX(), y: plr.getY() })
+          couched = false
+          if skin.getAnimation() is 'couch' or skin.getAnimation() is 'couchMove'
+            couched = true
+          positions.push({ x: plr.getX(), y: plr.getY(), couched: couched })
     if positions.length > 0
       rand = Math.floor((Math.random()*positions.length))
       player.shape.setX(positions[rand].x)
       player.shape.setY(positions[rand].y)
+      player.couched = positions[rand].couched
       player.jump = false
     shape.destroy()
 

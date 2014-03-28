@@ -289,7 +289,9 @@
       if (name !== 'Me') {
         document.getElementById('chatMessages').innerHTML += '<div class="message"><span class="from">' + name + '</span> : <span class="content">' + message + '</span></div>';
         callback = function() {
-          return document.querySelectorAll('#chatMessages .message')[0].remove();
+          if (document.querySelectorAll('#chatMessages .message')[0](inst(void 0))) {
+            return document.querySelectorAll('#chatMessages .message')[0].remove();
+          }
         };
         timeout = 3000 + message.length * 30;
         setTimeout(callback, timeout);
@@ -753,7 +755,7 @@
 
     Player.prototype.spawn = function() {
       this.shape.setX(336);
-      return this.shape.setY(stage.getY() * -1);
+      return this.shape.setY(stage.getY() * -1 - 128);
     };
 
     Player.prototype.reset = function() {
@@ -2087,7 +2089,7 @@
         }
       } else if (event === 'tp') {
         player.shape.setX(this.shape.getX() + 16);
-        player.shape.setY(this.shape.getY() + 64);
+        player.shape.setY(this.shape.getY() - 128);
         new Effect(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL, 'tp', null, true);
       }
       return this.shape.destroy();
@@ -2566,13 +2568,18 @@
       new Effect(shape.getX(), shape.getY(), SquareEnum.SMALL, 'tp', null, true);
       positions = [];
       players.find('Rect').each(function(plr) {
-        var skin;
+        var couched, skin;
         if (plr._id !== player.shape._id) {
           skin = players.find('#skin-' + plr.getId())[0];
           if (skin.getAnimation() !== 'dead') {
+            couched = false;
+            if (skin.getAnimation() === 'couch' || skin.getAnimation() === 'couchMove') {
+              couched = true;
+            }
             return positions.push({
               x: plr.getX(),
-              y: plr.getY()
+              y: plr.getY(),
+              couched: couched
             });
           }
         }
@@ -2581,6 +2588,7 @@
         rand = Math.floor(Math.random() * positions.length);
         player.shape.setX(positions[rand].x);
         player.shape.setY(positions[rand].y);
+        player.couched = positions[rand].couched;
         player.jump = false;
       }
       return shape.destroy();
@@ -2591,7 +2599,7 @@
       contentLoader.play('explosion');
       new Effect(shape.getX(), shape.getY(), SquareEnum.SMALL, 'tp', null, true);
       pos = {
-        x: shape.getX() - 128,
+        x: shape.getX(),
         y: shape.getY()
       };
       shape.destroy();

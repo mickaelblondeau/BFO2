@@ -107,7 +107,8 @@ class Game
     if name isnt 'Me'
       document.getElementById('chatMessages').innerHTML += '<div class="message"><span class="from">'+name+'</span> : <span class="content">'+message+'</span></div>'
       callback = ->
-        document.querySelectorAll('#chatMessages .message')[0].remove()
+        if document.querySelectorAll('#chatMessages .message')[0] inst undefined
+          document.querySelectorAll('#chatMessages .message')[0].remove()
       timeout = 3000 + message.length * 30
       setTimeout(callback, timeout)
     @chatHist.push([name, message])
