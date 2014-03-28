@@ -87,8 +87,6 @@ class CubeManager
       for j in [-2..4]
         if collisionManager.checkCubePresence(pos.x + i * 32 + 16, pos.y + j * 32 + 16) and !collisionManager.checkCubePresence(pos.x + i * 32 + 16, pos.y + j * 32 - 16)
           eff = new Effect(pos.x + i * 32, pos.y + j * 32 - 2, SquareEnum.SMALL, 'ice')
-          eff.shape.setZIndex(10)
-          eff.shape.draw()
           break
     new Effect(shape.getX() - shape.getWidth()/2 - 16, shape.getY() - shape.getHeight()/2 - 32, SquareEnum.SMALL, 'iceExplosionEffect', true)
 
@@ -96,12 +94,10 @@ class CubeManager
     contentLoader.play('death')
     pos = { x: shape.getX(), y: shape.getY() }
     shape.destroy()
-    for i in [-2..4]
-      for j in [-2..4]
+    for i in [-1..3]
+      for j in [-1..3]
         if collisionManager.checkCubePresence(pos.x + i * 32 + 16, pos.y + j * 32 + 16) and !collisionManager.checkCubePresence(pos.x + i * 32 + 16, pos.y + j * 32 - 16)
           eff = new Effect(pos.x + i * 32, pos.y + j * 32 - 2, SquareEnum.SMALL, 'slow')
-          eff.shape.setZIndex(10)
-          eff.shape.draw()
           break
     new Effect(shape.getX() - shape.getWidth()/2, shape.getY() - shape.getHeight()/2, SquareEnum.SMALL, 'bioExplosion', true)
 

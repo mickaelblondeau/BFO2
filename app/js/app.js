@@ -2099,7 +2099,7 @@
         }
       } else if (event === 'tp') {
         player.shape.setX(this.shape.getX() + 16);
-        player.shape.setY(this.shape.getY() - stage.getY() * -1 - 64);
+        player.shape.setY(this.shape.getY() - 384);
         new Effect(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL, 'tp', null, true);
       }
       return this.shape.destroy();
@@ -2463,8 +2463,6 @@
         for (j = _j = -2; _j <= 4; j = ++_j) {
           if (collisionManager.checkCubePresence(pos.x + i * 32 + 16, pos.y + j * 32 + 16) && !collisionManager.checkCubePresence(pos.x + i * 32 + 16, pos.y + j * 32 - 16)) {
             eff = new Effect(pos.x + i * 32, pos.y + j * 32 - 2, SquareEnum.SMALL, 'ice');
-            eff.shape.setZIndex(10);
-            eff.shape.draw();
             break;
           }
         }
@@ -2480,12 +2478,10 @@
         y: shape.getY()
       };
       shape.destroy();
-      for (i = _i = -2; _i <= 4; i = ++_i) {
-        for (j = _j = -2; _j <= 4; j = ++_j) {
+      for (i = _i = -1; _i <= 3; i = ++_i) {
+        for (j = _j = -1; _j <= 3; j = ++_j) {
           if (collisionManager.checkCubePresence(pos.x + i * 32 + 16, pos.y + j * 32 + 16) && !collisionManager.checkCubePresence(pos.x + i * 32 + 16, pos.y + j * 32 - 16)) {
             eff = new Effect(pos.x + i * 32, pos.y + j * 32 - 2, SquareEnum.SMALL, 'slow');
-            eff.shape.setZIndex(10);
-            eff.shape.draw();
             break;
           }
         }
