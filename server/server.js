@@ -30,7 +30,8 @@
     };
 
     Game.prototype.reset = function() {
-      return levelManager.reset();
+      levelManager.reset();
+      return networkManager.joinPlayer();
     };
 
     Game.prototype.launch = function() {
@@ -599,51 +600,28 @@
   NetworkManager = (function() {
     function NetworkManager() {
       this.io = require('socket.io').listen(8080);
-      this.waitingFor = 0;
-      this.responseOk = 0;
-      this.listener();
       this.io.enable('browser client minification');
       this.io.enable('browser client etag');
       this.io.enable('browser client gzip');
       this.io.set('log level', 1);
+      this.waitingFor = 0;
+      this.responseOk = 0;
+      this.listener();
     }
 
     NetworkManager.prototype.listener = function() {
       var self;
       self = this;
       return this.io.sockets.on('connection', function(socket) {
-        var player, players, _i, _len;
-        players = self.io.sockets.clients();
-        for (_i = 0, _len = players.length; _i < _len; _i++) {
-          player = players[_i];
-          if (player.id !== socket.id) {
-            player.get('name', function(error, name) {
-              return player.get('skin', function(error, skin) {
-                return socket.emit('connection', [player.id, name, skin]);
-              });
-            });
-            player.get('position', function(error, position) {
-              if (position !== null) {
-                return socket.emit('move', [player.id, position.x, position.y]);
-              }
-            });
-            player.get('animation', function(error, animation) {
-              if (animation !== null) {
-                return socket.emit('changeAnimation', [player.id, animation]);
-              }
-            });
-            player.get('animationSide', function(error, animationSide) {
-              if (animationSide !== null) {
-                return socket.emit('changeAnimationSide', [player.id, animationSide]);
-              }
-            });
-          }
-        }
         socket.on('login', function(arr) {
           socket.set('name', arr[0]);
           socket.set('skin', arr[1]);
-          socket.broadcast.emit('connection', [socket.id, arr[0], arr[1]]);
-          return socket.broadcast.emit('message', [null, arr[0] + ' has joined the game !']);
+          socket.set('inGame', false);
+          if (!cubeManager.running && !bossManager.launched) {
+            return self.joinGame(socket);
+          } else {
+            return socket.broadcast.emit('message', [null, arr[0] + ' is waiting to join !']);
+          }
         });
         socket.on('launch', function() {
           if (socket.id === self.io.sockets.clients()[0].id) {
@@ -809,6 +787,65 @@
 
     NetworkManager.prototype.sendMessage = function(message) {
       return this.io.sockets.emit('message', [null, message]);
+    };
+
+    NetworkManager.prototype.joinPlayer = function() {
+      var player, players, _i, _len, _results;
+      players = this.io.sockets.clients();
+      _results = [];
+      for (_i = 0, _len = players.length; _i < _len; _i++) {
+        player = players[_i];
+        _results.push(this.joinGame(player));
+      }
+      return _results;
+    };
+
+    NetworkManager.prototype.joinGame = function(socket) {
+      var self;
+      self = this;
+      return socket.get('inGame', function(error, ig) {
+        var player, players, _i, _len, _results;
+        if (ig === false) {
+          socket.set('inGame', true);
+          socket.emit('join');
+          socket.get('name', function(error, name) {
+            return socket.get('skin', function(error, skin) {
+              socket.broadcast.emit('connection', [socket.id, name, skin]);
+              return socket.broadcast.emit('message', [null, name + ' has joined the game !']);
+            });
+          });
+          players = self.io.sockets.clients();
+          _results = [];
+          for (_i = 0, _len = players.length; _i < _len; _i++) {
+            player = players[_i];
+            if (player.id !== socket.id) {
+              player.get('name', function(error, name) {
+                return player.get('skin', function(error, skin) {
+                  return socket.emit('connection', [player.id, name, skin]);
+                });
+              });
+              player.get('position', function(error, position) {
+                if (position !== null) {
+                  return socket.emit('move', [player.id, position.x, position.y]);
+                }
+              });
+              player.get('animation', function(error, animation) {
+                if (animation !== null) {
+                  return socket.emit('changeAnimation', [player.id, animation]);
+                }
+              });
+              _results.push(player.get('animationSide', function(error, animationSide) {
+                if (animationSide !== null) {
+                  return socket.emit('changeAnimationSide', [player.id, animationSide]);
+                }
+              }));
+            } else {
+              _results.push(void 0);
+            }
+          }
+          return _results;
+        }
+      });
     };
 
     return NetworkManager;

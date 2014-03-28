@@ -2616,6 +2616,9 @@
       var self;
       self = this;
       this.socket.on('connect', function() {
+        return document.querySelector('#login-loading').innerHTML = 'Connected ! Waiting for the server to join...';
+      });
+      this.socket.on('join', function() {
         return game.start();
       });
       this.socket.on('fallingCube', function(data) {

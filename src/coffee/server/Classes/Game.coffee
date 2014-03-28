@@ -10,6 +10,7 @@ class Game
 
   reset: ->
     levelManager.reset()
+    networkManager.joinPlayer()
 
   launch: ->
     levelManager.launch()

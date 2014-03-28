@@ -11,6 +11,9 @@ class NetworkManager
   listener: ->
     self = @
     @socket.on 'connect', ->
+      document.querySelector('#login-loading').innerHTML = 'Connected ! Waiting for the server to join...'
+
+    @socket.on 'join', ->
       game.start()
 
     @socket.on 'fallingCube', (data) ->

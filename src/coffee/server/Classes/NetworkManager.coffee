@@ -1,40 +1,26 @@
 class NetworkManager
   constructor: ->
     @io = require('socket.io').listen(8080)
-    @waitingFor = 0
-    @responseOk = 0
-    @listener()
-
     @io.enable('browser client minification')
     @io.enable('browser client etag')
     @io.enable('browser client gzip')
     @io.set('log level', 1)
+    @waitingFor = 0
+    @responseOk = 0
+    @listener()
 
   listener: ->
     self = @
     @io.sockets.on 'connection', (socket) ->
 
-      players = self.io.sockets.clients()
-      for player in players
-        if player.id != socket.id
-          player.get 'name', (error, name) ->
-            player.get 'skin', (error, skin) ->
-              socket.emit 'connection', [player.id, name, skin]
-          player.get 'position', (error, position) ->
-            if position isnt null
-              socket.emit 'move', [player.id, position.x, position.y]
-          player.get 'animation', (error, animation) ->
-            if animation isnt null
-              socket.emit 'changeAnimation', [player.id, animation]
-          player.get 'animationSide', (error, animationSide) ->
-            if animationSide isnt null
-              socket.emit 'changeAnimationSide', [player.id, animationSide]
-
       socket.on 'login', (arr) ->
         socket.set('name', arr[0])
         socket.set('skin', arr[1])
-        socket.broadcast.emit 'connection', [socket.id, arr[0], arr[1]]
-        socket.broadcast.emit 'message', [null, arr[0] + ' has joined the game !']
+        socket.set('inGame', false)
+        if !cubeManager.running and !bossManager.launched
+          self.joinGame(socket)
+        else
+          socket.broadcast.emit 'message', [null, arr[0] + ' is waiting to join !']
 
       socket.on 'launch', ->
         if socket.id is self.io.sockets.clients()[0].id
@@ -159,3 +145,34 @@ class NetworkManager
 
   sendMessage: (message) ->
     @io.sockets.emit 'message', [null, message]
+
+  joinPlayer: ->
+    players = @io.sockets.clients()
+    for player in players
+      @joinGame(player)
+
+  joinGame: (socket) ->
+    self = @
+    socket.get 'inGame', (error, ig) ->
+      if ig is false
+        socket.set 'inGame', true
+        socket.emit 'join'
+        socket.get 'name', (error, name) ->
+          socket.get 'skin', (error, skin) ->
+            socket.broadcast.emit 'connection', [socket.id, name, skin]
+            socket.broadcast.emit 'message', [null, name + ' has joined the game !']
+        players = self.io.sockets.clients()
+        for player in players
+          if player.id != socket.id
+            player.get 'name', (error, name) ->
+              player.get 'skin', (error, skin) ->
+                socket.emit 'connection', [player.id, name, skin]
+            player.get 'position', (error, position) ->
+              if position isnt null
+                socket.emit 'move', [player.id, position.x, position.y]
+            player.get 'animation', (error, animation) ->
+              if animation isnt null
+                socket.emit 'changeAnimation', [player.id, animation]
+            player.get 'animationSide', (error, animationSide) ->
+              if animationSide isnt null
+                socket.emit 'changeAnimationSide', [player.id, animationSide]
