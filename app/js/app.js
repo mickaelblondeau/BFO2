@@ -3496,10 +3496,16 @@
     };
 
     PoingMan.prototype.regenMap = function() {
-      var i, _i, _results;
+      var cube, i, tween, _i, _results;
       _results = [];
       for (i = _i = 1; _i <= 12; i = ++_i) {
-        _results.push(new StaticCube(i * 32 + 128, this.levelHeight, SquareEnum.SMALL));
+        cube = new StaticCube(i * 32 + 128, this.levelHeight + 32, SquareEnum.SMALL);
+        tween = new Kinetic.Tween({
+          node: cube.shape,
+          y: cube.shape.getY() - 32,
+          duration: 2
+        });
+        _results.push(tween.play());
       }
       return _results;
     };
