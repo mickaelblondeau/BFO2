@@ -10,7 +10,7 @@
     playerJumpMax: 2,
     playerJumpHeight: 82,
     playerSpeed: 0.17,
-    debug: false,
+    debug: true,
     skins: {
       body: 4,
       hair: 4,

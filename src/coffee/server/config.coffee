@@ -7,6 +7,5 @@ config = {
   timeout: 5000
   randomEventProb: 0.6
   randomEvents: 3
-  debug: false
-  debugMap: false
+  debug: true
 }

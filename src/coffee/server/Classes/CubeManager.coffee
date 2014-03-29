@@ -27,6 +27,7 @@ class CubeManager
     @running = false
     @waiting = false
     @bonusId = 0
+    @cubes = []
 
     @types = [
       {
@@ -165,15 +166,16 @@ class CubeManager
       @levelHeight = level
       @running = true
 
-      if config.debugMap
-        @debug()
-
   reset: ->
     @levelHeight = 0
     @stop()
     @waiting = false
     @bonusId = 0
+    @resetCubes()
     @resetMap()
+
+  resetCubes: ->
+    @cubes = []
 
   stop: ->
     @running = false
@@ -201,38 +203,22 @@ class CubeManager
       rand = Math.floor(Math.random()*count)
       choice = choices[typeIndex][rand]
       if type.bonus isnt undefined
-        networkManager.sendBonus(choice.column, type.id, @bonusId)
-        @bonusId++
+        new Bonus(choice.column, choice.height, type)
       else if type.special isnt undefined
-        if type.special is 'explosion'
-          @explodeMap(choice.column, choice.height)
-        if type.special is 'slowblock' or type.special is 'iceExplosion'
-          @addCubeToMap(choice, type)
-        if type.special is 'randblock'
-          id = Math.floor(Math.random()*(SpecialCubes.length - 1))
-          randType = SpecialCubes[id]
-          if randType is 'explosion'
-            @explodeMap(choice.column, choice.height)
-          if randType is 'slowblock' or randType is 'iceExplosion'
-            @addCubeToMap(choice, type)
-          networkManager.sendRanSpecial(choice.column, type.size, id)
-        else
-          networkManager.sendSpecial(choice.column, type.size, type.id)
+        new Special(choice.column, choice.height, type)
       else
-        networkManager.sendCube(choice.column, type.size)
-        @cubeId++
-        @addCubeToMap(choice, type)
+        new Block(choice.column, choice.height, type, true)
       if config.debug
         networkManager.sendMap(@cubeMap)
       return true
     else
       return false
 
-  addCubeToMap: (choice, type) ->
+  addCubeToMap: (col, line, type) ->
     for columnPosition in [1..type.width]
-      @map[choice.column + columnPosition - 1] = choice.height + type.height
+      @map[col + columnPosition - 1] = line + type.height
       for h in [0..type.height-1]
-        @cubeMap[choice.column + columnPosition - 1][choice.height + h] = 1
+        @cubeMap[col + columnPosition - 1][line + h] = 1
 
   randomizeType: (choices) ->
     possibleTypes = []
@@ -341,59 +327,3 @@ class CubeManager
     for i in [0..11]
       @map[i] = 0
       @cubeMap[i] = []
-
-  debug: ->
-    self = @
-
-    fn = ->
-      i = 0
-      j = 0
-      networkManager.sendCube(i, SquareEnum.MEDIUM)
-      self.cubeMap[i][j] = 1
-      self.cubeMap[i+1][j] = 1
-      self.cubeMap[i][j+1] = 1
-      self.cubeMap[i+1][j+1] = 1
-      networkManager.sendMap(self.cubeMap)
-    setTimeout(fn, 200)
-
-    fn = ->
-      i = 1
-      j = 2
-      networkManager.sendCube(i, SquareEnum.MEDIUM)
-      self.cubeMap[i][j] = 1
-      self.cubeMap[i+1][j] = 1
-      self.cubeMap[i][j+1] = 1
-      self.cubeMap[i+1][j+1] = 1
-      networkManager.sendMap(self.cubeMap)
-    setTimeout(fn, 400)
-
-    fn = ->
-      i = 0
-      j = 4
-      networkManager.sendCube(i, SquareEnum.MEDIUM)
-      self.cubeMap[i][j] = 1
-      self.cubeMap[i+1][j] = 1
-      self.cubeMap[i][j+1] = 1
-      self.cubeMap[i+1][j+1] = 1
-      networkManager.sendMap(self.cubeMap)
-    setTimeout(fn, 600)
-
-    fn = ->
-      i = 2
-      j = 4
-      networkManager.sendCube(i, SquareEnum.MEDIUM)
-      self.cubeMap[i][j] = 1
-      self.cubeMap[i+1][j] = 1
-      self.cubeMap[i][j+1] = 1
-      self.cubeMap[i+1][j+1] = 1
-      networkManager.sendMap(self.cubeMap)
-    setTimeout(fn, 600)
-
-    fn = ->
-      col = 5
-      row = 0
-
-      networkManager.sendSpecial(col, SquareEnum.MEDIUM, 'explosion')
-      self.explodeMap(col, row)
-      networkManager.sendMap(self.cubeMap)
-    setTimeout(fn, 3000)

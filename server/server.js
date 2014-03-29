@@ -1,5 +1,5 @@
 (function() {
-  var Boss, BossManager, CubeManager, FreezeMan, Game, HomingMan, LabiMan, LevelManager, MissileMan, NetworkManager, PoingMan, RoueMan, SparkMan, SpecialCubes, SquareEnum, bossManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
+  var Block, Bonus, Boss, BossManager, CubeManager, FreezeMan, Game, HomingMan, LabiMan, LevelManager, MissileMan, NetworkManager, PoingMan, RoueMan, SparkMan, Special, SpecialCubes, SquareEnum, bossManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -12,8 +12,7 @@
     timeout: 5000,
     randomEventProb: 0.6,
     randomEvents: 3,
-    debug: false,
-    debugMap: false
+    debug: true
   };
 
   Game = (function() {
@@ -82,6 +81,7 @@
       this.running = false;
       this.waiting = false;
       this.bonusId = 0;
+      this.cubes = [];
       this.types = [
         {
           proba: 2,
@@ -203,10 +203,7 @@
         this.updateRate = rate;
         this.current = 0;
         this.levelHeight = level;
-        this.running = true;
-        if (config.debugMap) {
-          return this.debug();
-        }
+        return this.running = true;
       }
     };
 
@@ -215,7 +212,12 @@
       this.stop();
       this.waiting = false;
       this.bonusId = 0;
+      this.resetCubes();
       return this.resetMap();
+    };
+
+    CubeManager.prototype.resetCubes = function() {
+      return this.cubes = [];
     };
 
     CubeManager.prototype.stop = function() {
@@ -242,7 +244,7 @@
     };
 
     CubeManager.prototype.sendCube = function() {
-      var choice, choices, count, id, rand, randType, tmp, type, typeIndex;
+      var choice, choices, count, rand, tmp, type, typeIndex;
       choices = this.checkCols();
       if (choices.length > 0) {
         tmp = this.randomizeType(choices);
@@ -252,32 +254,11 @@
         rand = Math.floor(Math.random() * count);
         choice = choices[typeIndex][rand];
         if (type.bonus !== void 0) {
-          networkManager.sendBonus(choice.column, type.id, this.bonusId);
-          this.bonusId++;
+          new Bonus(choice.column, choice.height, type);
         } else if (type.special !== void 0) {
-          if (type.special === 'explosion') {
-            this.explodeMap(choice.column, choice.height);
-          }
-          if (type.special === 'slowblock' || type.special === 'iceExplosion') {
-            this.addCubeToMap(choice, type);
-          }
-          if (type.special === 'randblock') {
-            id = Math.floor(Math.random() * (SpecialCubes.length - 1));
-            randType = SpecialCubes[id];
-            if (randType === 'explosion') {
-              this.explodeMap(choice.column, choice.height);
-            }
-            if (randType === 'slowblock' || randType === 'iceExplosion') {
-              this.addCubeToMap(choice, type);
-            }
-            networkManager.sendRanSpecial(choice.column, type.size, id);
-          } else {
-            networkManager.sendSpecial(choice.column, type.size, type.id);
-          }
+          new Special(choice.column, choice.height, type);
         } else {
-          networkManager.sendCube(choice.column, type.size);
-          this.cubeId++;
-          this.addCubeToMap(choice, type);
+          new Block(choice.column, choice.height, type, true);
         }
         if (config.debug) {
           networkManager.sendMap(this.cubeMap);
@@ -288,16 +269,16 @@
       }
     };
 
-    CubeManager.prototype.addCubeToMap = function(choice, type) {
+    CubeManager.prototype.addCubeToMap = function(col, line, type) {
       var columnPosition, h, _i, _ref, _results;
       _results = [];
       for (columnPosition = _i = 1, _ref = type.width; 1 <= _ref ? _i <= _ref : _i >= _ref; columnPosition = 1 <= _ref ? ++_i : --_i) {
-        this.map[choice.column + columnPosition - 1] = choice.height + type.height;
+        this.map[col + columnPosition - 1] = line + type.height;
         _results.push((function() {
           var _j, _ref1, _results1;
           _results1 = [];
           for (h = _j = 0, _ref1 = type.height - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; h = 0 <= _ref1 ? ++_j : --_j) {
-            _results1.push(this.cubeMap[choice.column + columnPosition - 1][choice.height + h] = 1);
+            _results1.push(this.cubeMap[col + columnPosition - 1][line + h] = 1);
           }
           return _results1;
         }).call(this));
@@ -471,68 +452,6 @@
         _results.push(this.cubeMap[i] = []);
       }
       return _results;
-    };
-
-    CubeManager.prototype.debug = function() {
-      var fn, self;
-      self = this;
-      fn = function() {
-        var i, j;
-        i = 0;
-        j = 0;
-        networkManager.sendCube(i, SquareEnum.MEDIUM);
-        self.cubeMap[i][j] = 1;
-        self.cubeMap[i + 1][j] = 1;
-        self.cubeMap[i][j + 1] = 1;
-        self.cubeMap[i + 1][j + 1] = 1;
-        return networkManager.sendMap(self.cubeMap);
-      };
-      setTimeout(fn, 200);
-      fn = function() {
-        var i, j;
-        i = 1;
-        j = 2;
-        networkManager.sendCube(i, SquareEnum.MEDIUM);
-        self.cubeMap[i][j] = 1;
-        self.cubeMap[i + 1][j] = 1;
-        self.cubeMap[i][j + 1] = 1;
-        self.cubeMap[i + 1][j + 1] = 1;
-        return networkManager.sendMap(self.cubeMap);
-      };
-      setTimeout(fn, 400);
-      fn = function() {
-        var i, j;
-        i = 0;
-        j = 4;
-        networkManager.sendCube(i, SquareEnum.MEDIUM);
-        self.cubeMap[i][j] = 1;
-        self.cubeMap[i + 1][j] = 1;
-        self.cubeMap[i][j + 1] = 1;
-        self.cubeMap[i + 1][j + 1] = 1;
-        return networkManager.sendMap(self.cubeMap);
-      };
-      setTimeout(fn, 600);
-      fn = function() {
-        var i, j;
-        i = 2;
-        j = 4;
-        networkManager.sendCube(i, SquareEnum.MEDIUM);
-        self.cubeMap[i][j] = 1;
-        self.cubeMap[i + 1][j] = 1;
-        self.cubeMap[i][j + 1] = 1;
-        self.cubeMap[i + 1][j + 1] = 1;
-        return networkManager.sendMap(self.cubeMap);
-      };
-      setTimeout(fn, 600);
-      fn = function() {
-        var col, row;
-        col = 5;
-        row = 0;
-        networkManager.sendSpecial(col, SquareEnum.MEDIUM, 'explosion');
-        self.explodeMap(col, row);
-        return networkManager.sendMap(self.cubeMap);
-      };
-      return setTimeout(fn, 3000);
     };
 
     return CubeManager;
@@ -870,6 +789,88 @@
     return NetworkManager;
 
   })();
+
+  Block = (function() {
+    function Block(col, line, type, solid) {
+      this.col = col;
+      this.line = line;
+      this.type = type;
+      this.solid = solid;
+      if (this.solid) {
+        cubeManager.cubes.push(this);
+      }
+      this.send();
+    }
+
+    Block.prototype.intersect = function(col, line) {
+      return col >= this.col && col < this.col + this.type.width && line >= this.line && line < this.line + this.type.height;
+    };
+
+    Block.prototype.send = function() {
+      networkManager.sendCube(this.col, this.type.size);
+      return cubeManager.addCubeToMap(this.col, this.line, this.type);
+    };
+
+    return Block;
+
+  })();
+
+  Bonus = (function(_super) {
+    __extends(Bonus, _super);
+
+    function Bonus(col, line, type) {
+      Bonus.__super__.constructor.call(this, col, line, type, false);
+      this.send();
+    }
+
+    Bonus.prototype.send = function() {
+      networkManager.sendBonus(this.col, this.type.id, cubeManager.bonusId);
+      return cubeManager.bonusId++;
+    };
+
+    return Bonus;
+
+  })(Block);
+
+  Special = (function(_super) {
+    __extends(Special, _super);
+
+    function Special(col, line, type) {
+      var solid;
+      solid = false;
+      if (type === 'test') {
+        solid = true;
+      }
+      Special.__super__.constructor.call(this, col, line, type, solid);
+      this.send();
+    }
+
+    Special.prototype.send = function() {
+      var id, randType;
+      if (this.type.special === 'explosion') {
+        cubeManager.explodeMap(this.col, this.line);
+      }
+      if (this.type.special === 'slowblock' || this.type.special === 'iceExplosion') {
+        cubeManager.addCubeToMap(this.col, this.line, this.type);
+      }
+      if (this.type.special === 'randblock') {
+        id = Math.floor(Math.random() * (SpecialCubes.length - 1));
+        randType = SpecialCubes[id];
+        if (randType === 'explosion') {
+          cubeManager.explodeMap(this.col, this.line);
+        }
+        if (randType === 'slowblock' || randType === 'iceExplosion') {
+          cubeManager.addCubeToMap(this.col, this.line, this.type);
+        }
+        return networkManager.sendRanSpecial(this.col, this.type.size, id);
+      } else {
+        return networkManager.sendSpecial(this.col, this.type.size, this.type.id);
+      }
+    };
+
+    return Special;
+
+  })(Block);
 
   Boss = (function() {
     function Boss(name, timeout, options) {
