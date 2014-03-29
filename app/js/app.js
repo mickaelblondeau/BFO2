@@ -10,7 +10,7 @@
     playerJumpMax: 2,
     playerJumpHeight: 82,
     playerSpeed: 0.17,
-    debug: true,
+    debug: false,
     skins: {
       body: 4,
       hair: 4,
@@ -682,6 +682,10 @@
         return tmp.shape;
       }
       return false;
+    };
+
+    CollisionManager.prototype.pointInCube = function(shape, point) {
+      return point[0] >= shape.getX() && point[0] < shape.getX() + shape.getWidth() && point[1] >= shape.getY() && point[1] < shape.getY() + shape.getHeight();
     };
 
     return CollisionManager;
@@ -2320,38 +2324,6 @@
       this.tweens = [];
     }
 
-    CubeManager.prototype.reinitAllPhys = function() {
-      var cubes;
-      cubes = dynamicEntities.find('Sprite');
-      return cubes.each(function(cube) {
-        var obj;
-        if (cube.getName().type === 'cube' || cube.getName().type === 'bonus') {
-          obj = cube.getName();
-          if (obj === null || obj === void 0) {
-            obj = {};
-          }
-          obj.falling = true;
-          return cube.setName(obj);
-        }
-      });
-    };
-
-    CubeManager.prototype.reinitPhys = function(oldCube) {
-      var cubes;
-      cubes = dynamicEntities.find('Sprite');
-      return cubes.each(function(cube) {
-        var obj;
-        if ((cube.getName().type === 'cube' || cube.getName().type === 'bonus') && cube.getY() <= oldCube.getY() && cube.getX() >= oldCube.getX() && cube.getX() <= oldCube.getX() + oldCube.getWidth()) {
-          obj = cube.getName();
-          if (obj === null || obj === void 0) {
-            obj = {};
-          }
-          obj.falling = true;
-          return cube.setName(obj);
-        }
-      });
-    };
-
     CubeManager.prototype.update = function(frameTime) {
       var cubes, self;
       self = this;
@@ -2372,9 +2344,21 @@
               return self.doEffect(cube, cube.getId());
             }
           } else {
-            cube.setY(cube.getY() + 0.1 * frameTime);
-            return self.reinitPhys(cube);
+            return cube.setY(cube.getY() + 0.1 * frameTime);
           }
+        }
+      });
+    };
+
+    CubeManager.prototype.reinitPhysic = function() {
+      var cubes;
+      cubes = dynamicEntities.find('Sprite');
+      return cubes.each(function(cube) {
+        var obj;
+        obj = cube.getName();
+        if (obj.type === 'cube' || obj.type === 'bonus') {
+          obj.falling = true;
+          return cube.setName(obj);
         }
       });
     };
@@ -2424,16 +2408,6 @@
       }
     };
 
-    CubeManager.prototype.destroyEffects = function() {
-      var effects;
-      effects = dynamicEntities.find('Sprite');
-      return effects.each(function(effect) {
-        if (effect.getName().type === 'effect') {
-          return effect.destroy();
-        }
-      });
-    };
-
     CubeManager.prototype.iceExplosionEffect = function(shape) {
       var obj;
       new Effect(shape.getX(), shape.getY() - 2, SquareEnum.EFFECT, 'ice');
@@ -2453,50 +2427,37 @@
     };
 
     CubeManager.prototype.explosionEffet = function(shape) {
-      var arr;
+      var cubes, map;
       contentLoader.play('explosion');
-      arr = [];
-      dynamicEntities.find('Sprite').each(function(cube) {
-        var i, j, _i, _j, _ref, _ref1;
-        if (!cube.getName().falling && cube.getName().type === 'cube') {
-          if (cube.getWidth() > 32 || cube.getHeight() > 32) {
-            for (i = _i = 0, _ref = cube.getWidth() / 32 - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-              for (j = _j = 0, _ref1 = cube.getHeight() / 32 - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; j = 0 <= _ref1 ? ++_j : --_j) {
-                if (arr[(cube.getX() + i * 32) + "_" + cube.getY() + j * 32] === void 0) {
-                  arr[(cube.getX() + i * 32) + "_" + cube.getY() + j * 32] = 1;
-                  new CubeFragment(cube.getX() + i * 32, cube.getY() + j * 32, SquareEnum.SMALL, cube.getId());
-                }
-              }
-            }
-            return cube.destroy();
-          }
-        }
-      });
-      dynamicEntities.find('Sprite').each(function(cube) {
-        var i, j, _i, _results;
-        if (!cube.getName().falling && cube.getName().type === 'cube') {
-          _results = [];
-          for (i = _i = -4; _i <= 5; i = ++_i) {
-            j = i;
-            if (i > 0) {
-              j = i - 1;
-            }
-            if (cube.getX() >= shape.getX() + i * 32 && cube.getX() <= shape.getX() + i * 32 + 32 && cube.getY() < shape.getY() - (-5 + Math.abs(j)) * 32 && cube.getY() > shape.getY() + (-5 + Math.abs(j)) * 32) {
-              _results.push(cube.destroy());
-            } else {
-              _results.push(void 0);
-            }
-          }
-          return _results;
-        }
-      });
-      if (player.shape.getX() < shape.getX() + 96 && player.shape.getX() > shape.getX() - 96 && player.shape.getY() < shape.getY() + 96 && player.shape.getY() > shape.getY() - 96) {
-        player.kill();
-      }
-      this.reinitAllPhys();
-      this.destroyEffects();
+      new Effect(shape.getX() - shape.getWidth() / 2 - 16, shape.getY() - shape.getHeight() / 2 - 32, SquareEnum.SMALL, 'explosionEffect', true);
+      map = this.createExplosionMap(shape.getX(), shape.getY());
       shape.destroy();
-      return new Effect(shape.getX() - shape.getWidth() / 2 - 16, shape.getY() - shape.getHeight() / 2 - 32, SquareEnum.SMALL, 'explosionEffect', true);
+      cubes = dynamicEntities.find('Sprite');
+      cubes.each(function(cube) {
+        var pos, _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = map.length; _i < _len; _i++) {
+          pos = map[_i];
+          if (collisionManager.pointInCube(cube, pos)) {
+            _results.push(cube.destroy());
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
+      });
+      return this.reinitPhysic();
+    };
+
+    CubeManager.prototype.createExplosionMap = function(x, y) {
+      var i, j, map, _i, _j;
+      map = [];
+      for (i = _i = -1; _i <= 2; i = ++_i) {
+        for (j = _j = -1; _j <= 2; j = ++_j) {
+          map.push([x + i * 32, y + j * 32]);
+        }
+      }
+      return map;
     };
 
     CubeManager.prototype.stompEffet = function(shape) {
@@ -4061,7 +4022,7 @@
           if (val !== null) {
             shape = new Kinetic.Rect({
               x: x * 32 + 160,
-              y: arena.y - y * 32 - 32,
+              y: levelManager.ground - y * 32 - 32,
               width: 32,
               height: 32,
               stroke: "red"

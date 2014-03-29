@@ -39,7 +39,7 @@ class CubeManager
         id: 0
       },
       {
-        proba: 1
+        proba: 5
         size: SquareEnum.MEDIUM
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
@@ -164,6 +164,7 @@ class CubeManager
       @updateRate = rate
       @current = 0
       @levelHeight = level
+      @resetCubes()
       @running = true
 
   reset: ->
@@ -208,8 +209,7 @@ class CubeManager
         new Special(choice.column, choice.height, type)
       else
         new Block(choice.column, choice.height, type, true)
-      if config.debug
-        networkManager.sendMap(@cubeMap)
+      networkManager.sendMap(@cubeMap)
       return true
     else
       return false
@@ -255,9 +255,8 @@ class CubeManager
       @current += frameTime
       if @current >= @updateRate
         @current = 0
-        if !config.debugMap
-          if !@sendCube()
-            @wait()
+        if !@sendCube()
+          @wait()
 
   checkCols: ->
     available = []
@@ -281,49 +280,94 @@ class CubeManager
           }
     return available
 
-  explodeMap: (col, height) ->
-    for i in [-4..5]
-      if i > 0
-        j = i-1
-      else
-        j = i
-      newCol = col + i
+  explodeMap: (col, line) ->
+    map = @createExplosionMap(col, line)
+    for cube, i in @cubes
+      if cube isnt null
+        for pos in map
+          if cube.intersect(pos[0], pos[1])
+            @cubes[i] = null
+    @cubes = @cubes.filter (val) ->
+      val isnt null
+    @applyGravity()
 
-      if newCol >= 0 && newCol <= 11
-        deep = (-5 + Math.abs(j))
-        colHeight = 0
-        if @cubeMap[newCol] isnt undefined and @cubeMap[newCol] isnt null
-          colHeight = @cubeMap[newCol].length
-        newColHeight = (height + deep + 1)
-        newColMaxHeight = (height - deep + 1)
+  createExplosionMap: (col, line) ->
+    map = []
+    for i in [-1..2]
+      for j in [-1..2]
+        map.push([col + i, line + j])
+    return map
 
-        if @cubeMap[newCol] isnt undefined and @cubeMap[newCol] isnt null
-          for val, k in @cubeMap[newCol]
-            if k > newColHeight and k < newColMaxHeight
-              @cubeMap[newCol][k] = null
+  applyGravity: ->
+    @rebuildMap()
+    for cube in @cubes
+      if cube isnt null
+        canFall = true
+        while(canFall)
+          for i in [0..cube.type.width-1]
+            if @cubeMap[cube.col + i][cube.line - 1] == 1
+              canFall = false
+              break
+          if canFall
+            if cube.line == 0
+              canFall = false
+            else
+              cube.line -= 1
+    @rebuildMap()
 
-    @syncMap()
-
-  syncMap: ->
-    for subMap, i in @cubeMap
-
-      @cubeMap[i] = @cubeMap[i].filter(
-        (e)->
-          e
-      )
-
-      tmp = @cubeMap[i].lastIndexOf(1)
-      if tmp is -1
-        @cubeMap[i] = []
-      else
-        @cubeMap[i] = @cubeMap[i].slice(0, tmp+1)
-
-      len = 0
-      if @cubeMap[i] isnt undefined and @cubeMap[i] isnt null
-        len = @cubeMap[i].length
-      @map[i] = len
+  rebuildMap: ->
+    @resetMap()
+    for cube in @cubes
+      if cube isnt null
+        for columnPosition in [1..cube.type.width]
+          @map[cube.col + columnPosition - 1] = cube.line + cube.type.height
+          for h in [0..cube.type.height-1]
+            @cubeMap[cube.col + columnPosition - 1][cube.line + h] = 1
 
   fillMap: ->
     for i in [0..11]
       @map[i] = 0
       @cubeMap[i] = []
+
+  debug: ->
+    b1 = {
+      proba: 20
+      size: SquareEnum.MEDIUM
+      width: SquareEnum.MEDIUM.x/32
+      height: SquareEnum.MEDIUM.y/32
+    }
+    b2 = {
+      proba: 5
+      size: SquareEnum.LARGE
+      width: SquareEnum.LARGE.x/32
+      height: SquareEnum.LARGE.y/32
+    }
+    b3 = {
+      proba: 5
+      size: SquareEnum.MEDIUM
+      width: SquareEnum.MEDIUM.x/32
+      height: SquareEnum.MEDIUM.y/32
+      special: 'explosion'
+      id: 1
+    }
+    new Block(0, 0, b1, true)
+    new Block(2, 0, b1, true)
+    new Block(4, 0, b1, true)
+    networkManager.sendMap(@cubeMap)
+
+    self = @
+
+    fn = ->
+      new Block(2, 2, b2, true)
+      networkManager.sendMap(self.cubeMap)
+    setTimeout(fn, 500)
+
+    fn = ->
+      new Block(4, 6, b1, true)
+      networkManager.sendMap(self.cubeMap)
+    setTimeout(fn, 750)
+
+    fn = ->
+      new Special(0, 2, b3)
+      networkManager.sendMap(self.cubeMap)
+    setTimeout(fn, 1000)

@@ -53,7 +53,7 @@ if config.debug
         if val isnt null
           shape = new Kinetic.Rect
             x: x * 32 + 160
-            y: arena.y - y * 32 - 32
+            y: levelManager.ground - y * 32 - 32
             width: 32
             height: 32
             stroke: "red"

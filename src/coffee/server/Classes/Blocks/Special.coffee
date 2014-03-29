@@ -1,10 +1,9 @@
 class Special extends Block
   constructor: (col, line, type) ->
     solid = false
-    if type is 'test'
+    if type.special is 'slowblock' or type.special is 'iceExplosion'
       solid = true
     super(col, line, type, solid)
-    @send()
 
   send: ->
     if @type.special is 'explosion'

@@ -3,26 +3,6 @@ class CubeManager
     @speed = 0.4
     @tweens = []
 
-  reinitAllPhys: ->
-    cubes = dynamicEntities.find('Sprite')
-    cubes.each (cube) ->
-      if cube.getName().type is 'cube' or cube.getName().type is 'bonus'
-        obj = cube.getName()
-        if obj is null or obj is undefined
-          obj = {}
-        obj.falling = true
-        cube.setName(obj)
-
-  reinitPhys: (oldCube) ->
-    cubes = dynamicEntities.find('Sprite')
-    cubes.each (cube) ->
-      if (cube.getName().type is 'cube' or cube.getName().type is 'bonus') and cube.getY() <= oldCube.getY() && cube.getX() >= oldCube.getX() && cube.getX() <= oldCube.getX() + oldCube.getWidth()
-        obj = cube.getName()
-        if obj is null or obj is undefined
-          obj = {}
-        obj.falling = true
-        cube.setName(obj)
-
   update: (frameTime) ->
     self = @
     cubes = dynamicEntities.find('Sprite')
@@ -40,7 +20,14 @@ class CubeManager
             self.doEffect(cube, cube.getId())
         else
           cube.setY(cube.getY() + 0.1*frameTime)
-          self.reinitPhys(cube)
+
+  reinitPhysic: ->
+    cubes = dynamicEntities.find('Sprite')
+    cubes.each (cube) ->
+      obj = cube.getName()
+      if obj.type == 'cube' or obj.type == 'bonus'
+        obj.falling = true
+        cube.setName(obj)
 
   testMove: (shape, y) ->
     shape.setY(y)
@@ -72,12 +59,6 @@ class CubeManager
     if type is 'randblock'
       @doEffect(shape, shape.getName().randType)
 
-  destroyEffects: ->
-    effects = dynamicEntities.find('Sprite')
-    effects.each (effect) ->
-      if effect.getName().type is 'effect'
-        effect.destroy()
-
   iceExplosionEffect: (shape) ->
     new Effect(shape.getX(), shape.getY() - 2, SquareEnum.EFFECT, 'ice')
     new Effect(shape.getX() + 32, shape.getY() - 2, SquareEnum.EFFECT, 'ice')
@@ -94,30 +75,22 @@ class CubeManager
 
   explosionEffet: (shape) ->
     contentLoader.play('explosion')
-    arr = []
-    dynamicEntities.find('Sprite').each (cube) ->
-      if !cube.getName().falling and cube.getName().type is 'cube'
-        if cube.getWidth() > 32 or cube.getHeight() > 32
-          for i in [0..(cube.getWidth()/32-1)]
-            for j in [0..(cube.getHeight()/32-1)]
-              if arr[(cube.getX() + i*32) + "_" + cube.getY() + j*32] is undefined
-                arr[(cube.getX() + i*32) + "_" + cube.getY() + j*32] = 1
-                new CubeFragment(cube.getX() + i*32, cube.getY() + j*32, SquareEnum.SMALL, cube.getId())
-          cube.destroy()
-    dynamicEntities.find('Sprite').each (cube) ->
-      if !cube.getName().falling and cube.getName().type is 'cube'
-        for i in [-4..5]
-          j = i
-          if i > 0
-            j = i-1
-          if cube.getX() >= shape.getX() + i*32 and cube.getX() <= shape.getX() + i*32 + 32 and cube.getY() < shape.getY() - (-5 + Math.abs(j))*32 and cube.getY() > shape.getY() + (-5 + Math.abs(j))*32
-            cube.destroy()
-    if player.shape.getX() < shape.getX() + 96 and player.shape.getX() > shape.getX() - 96 and player.shape.getY() < shape.getY() + 96 and player.shape.getY() > shape.getY() - 96
-      player.kill()
-    @reinitAllPhys()
-    @destroyEffects()
-    shape.destroy()
     new Effect(shape.getX() - shape.getWidth()/2 - 16, shape.getY() - shape.getHeight()/2 - 32, SquareEnum.SMALL, 'explosionEffect', true)
+    map = @createExplosionMap(shape.getX(), shape.getY())
+    shape.destroy()
+    cubes = dynamicEntities.find('Sprite')
+    cubes.each (cube) ->
+      for pos in map
+        if collisionManager.pointInCube(cube, pos)
+          cube.destroy()
+    @reinitPhysic()
+
+  createExplosionMap: (x, y) ->
+    map = []
+    for i in [-1..2]
+      for j in [-1..2]
+        map.push([x + i * 32, y + j * 32])
+    return map
 
   stompEffet: (shape) ->
     contentLoader.play('explosion')

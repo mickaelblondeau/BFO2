@@ -95,3 +95,6 @@ class CollisionManager
     if tmp isnt null && tmp.shape
       return tmp.shape
     return false
+
+  pointInCube: (shape, point) ->
+    return point[0] >= shape.getX() and point[0] < shape.getX() + shape.getWidth() and point[1] >= shape.getY() and point[1] < shape.getY() + shape.getHeight()

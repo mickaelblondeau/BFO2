@@ -12,7 +12,7 @@
     timeout: 5000,
     randomEventProb: 0.6,
     randomEvents: 3,
-    debug: true
+    debug: false
   };
 
   Game = (function() {
@@ -91,7 +91,7 @@
           special: 'iceExplosion',
           id: 0
         }, {
-          proba: 1,
+          proba: 5,
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
@@ -203,6 +203,7 @@
         this.updateRate = rate;
         this.current = 0;
         this.levelHeight = level;
+        this.resetCubes();
         return this.running = true;
       }
     };
@@ -260,9 +261,7 @@
         } else {
           new Block(choice.column, choice.height, type, true);
         }
-        if (config.debug) {
-          networkManager.sendMap(this.cubeMap);
-        }
+        networkManager.sendMap(this.cubeMap);
         return true;
       } else {
         return false;
@@ -346,10 +345,8 @@
         this.current += frameTime;
         if (this.current >= this.updateRate) {
           this.current = 0;
-          if (!config.debugMap) {
-            if (!this.sendCube()) {
-              return this.wait();
-            }
+          if (!this.sendCube()) {
+            return this.wait();
           }
         }
       }
@@ -389,57 +386,93 @@
       return available;
     };
 
-    CubeManager.prototype.explodeMap = function(col, height) {
-      var colHeight, deep, i, j, k, newCol, newColHeight, newColMaxHeight, val, _i, _j, _len, _ref;
-      for (i = _i = -4; _i <= 5; i = ++_i) {
-        if (i > 0) {
-          j = i - 1;
-        } else {
-          j = i;
-        }
-        newCol = col + i;
-        if (newCol >= 0 && newCol <= 11) {
-          deep = -5 + Math.abs(j);
-          colHeight = 0;
-          if (this.cubeMap[newCol] !== void 0 && this.cubeMap[newCol] !== null) {
-            colHeight = this.cubeMap[newCol].length;
+    CubeManager.prototype.explodeMap = function(col, line) {
+      var cube, i, map, pos, _i, _j, _len, _len1, _ref;
+      map = this.createExplosionMap(col, line);
+      _ref = this.cubes;
+      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        cube = _ref[i];
+        if (cube !== null) {
+          for (_j = 0, _len1 = map.length; _j < _len1; _j++) {
+            pos = map[_j];
+            if (cube.intersect(pos[0], pos[1])) {
+              this.cubes[i] = null;
+            }
           }
-          newColHeight = height + deep + 1;
-          newColMaxHeight = height - deep + 1;
-          if (this.cubeMap[newCol] !== void 0 && this.cubeMap[newCol] !== null) {
-            _ref = this.cubeMap[newCol];
-            for (k = _j = 0, _len = _ref.length; _j < _len; k = ++_j) {
-              val = _ref[k];
-              if (k > newColHeight && k < newColMaxHeight) {
-                this.cubeMap[newCol][k] = null;
+        }
+      }
+      this.cubes = this.cubes.filter(function(val) {
+        return val !== null;
+      });
+      return this.applyGravity();
+    };
+
+    CubeManager.prototype.createExplosionMap = function(col, line) {
+      var i, j, map, _i, _j;
+      map = [];
+      for (i = _i = -1; _i <= 2; i = ++_i) {
+        for (j = _j = -1; _j <= 2; j = ++_j) {
+          map.push([col + i, line + j]);
+        }
+      }
+      return map;
+    };
+
+    CubeManager.prototype.applyGravity = function() {
+      var canFall, cube, i, _i, _j, _len, _ref, _ref1;
+      this.rebuildMap();
+      _ref = this.cubes;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        cube = _ref[_i];
+        if (cube !== null) {
+          canFall = true;
+          while (canFall) {
+            for (i = _j = 0, _ref1 = cube.type.width - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+              if (this.cubeMap[cube.col + i][cube.line - 1] === 1) {
+                canFall = false;
+                break;
+              }
+            }
+            if (canFall) {
+              if (cube.line === 0) {
+                canFall = false;
+              } else {
+                cube.line -= 1;
               }
             }
           }
         }
       }
-      return this.syncMap();
+      return this.rebuildMap();
     };
 
-    CubeManager.prototype.syncMap = function() {
-      var i, len, subMap, tmp, _i, _len, _ref, _results;
-      _ref = this.cubeMap;
+    CubeManager.prototype.rebuildMap = function() {
+      var columnPosition, cube, h, _i, _len, _ref, _results;
+      this.resetMap();
+      _ref = this.cubes;
       _results = [];
-      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-        subMap = _ref[i];
-        this.cubeMap[i] = this.cubeMap[i].filter(function(e) {
-          return e;
-        });
-        tmp = this.cubeMap[i].lastIndexOf(1);
-        if (tmp === -1) {
-          this.cubeMap[i] = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        cube = _ref[_i];
+        if (cube !== null) {
+          _results.push((function() {
+            var _j, _ref1, _results1;
+            _results1 = [];
+            for (columnPosition = _j = 1, _ref1 = cube.type.width; 1 <= _ref1 ? _j <= _ref1 : _j >= _ref1; columnPosition = 1 <= _ref1 ? ++_j : --_j) {
+              this.map[cube.col + columnPosition - 1] = cube.line + cube.type.height;
+              _results1.push((function() {
+                var _k, _ref2, _results2;
+                _results2 = [];
+                for (h = _k = 0, _ref2 = cube.type.height - 1; 0 <= _ref2 ? _k <= _ref2 : _k >= _ref2; h = 0 <= _ref2 ? ++_k : --_k) {
+                  _results2.push(this.cubeMap[cube.col + columnPosition - 1][cube.line + h] = 1);
+                }
+                return _results2;
+              }).call(this));
+            }
+            return _results1;
+          }).call(this));
         } else {
-          this.cubeMap[i] = this.cubeMap[i].slice(0, tmp + 1);
+          _results.push(void 0);
         }
-        len = 0;
-        if (this.cubeMap[i] !== void 0 && this.cubeMap[i] !== null) {
-          len = this.cubeMap[i].length;
-        }
-        _results.push(this.map[i] = len);
       }
       return _results;
     };
@@ -452,6 +485,50 @@
         _results.push(this.cubeMap[i] = []);
       }
       return _results;
+    };
+
+    CubeManager.prototype.debug = function() {
+      var b1, b2, b3, fn, self;
+      b1 = {
+        proba: 20,
+        size: SquareEnum.MEDIUM,
+        width: SquareEnum.MEDIUM.x / 32,
+        height: SquareEnum.MEDIUM.y / 32
+      };
+      b2 = {
+        proba: 5,
+        size: SquareEnum.LARGE,
+        width: SquareEnum.LARGE.x / 32,
+        height: SquareEnum.LARGE.y / 32
+      };
+      b3 = {
+        proba: 5,
+        size: SquareEnum.MEDIUM,
+        width: SquareEnum.MEDIUM.x / 32,
+        height: SquareEnum.MEDIUM.y / 32,
+        special: 'explosion',
+        id: 1
+      };
+      new Block(0, 0, b1, true);
+      new Block(2, 0, b1, true);
+      new Block(4, 0, b1, true);
+      networkManager.sendMap(this.cubeMap);
+      self = this;
+      fn = function() {
+        new Block(2, 2, b2, true);
+        return networkManager.sendMap(self.cubeMap);
+      };
+      setTimeout(fn, 500);
+      fn = function() {
+        new Block(4, 6, b1, true);
+        return networkManager.sendMap(self.cubeMap);
+      };
+      setTimeout(fn, 750);
+      fn = function() {
+        new Special(0, 2, b3);
+        return networkManager.sendMap(self.cubeMap);
+      };
+      return setTimeout(fn, 1000);
     };
 
     return CubeManager;
@@ -820,7 +897,6 @@
 
     function Bonus(col, line, type) {
       Bonus.__super__.constructor.call(this, col, line, type, false);
-      this.send();
     }
 
     Bonus.prototype.send = function() {
@@ -838,11 +914,10 @@
     function Special(col, line, type) {
       var solid;
       solid = false;
-      if (type === 'test') {
+      if (type.special === 'slowblock' || type.special === 'iceExplosion') {
         solid = true;
       }
       Special.__super__.constructor.call(this, col, line, type, solid);
-      this.send();
     }
 
     Special.prototype.send = function() {
