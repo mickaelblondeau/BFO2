@@ -95,12 +95,3 @@ class CollisionManager
     if tmp isnt null && tmp.shape
       return tmp.shape
     return false
-
-  checkCubePresence: (x, y) ->
-    tmp = staticCubes.getIntersection({ x: x, y: y })
-    if tmp isnt null && tmp.shape
-      return tmp.shape
-    tmp = dynamicEntities.getIntersection({ x: x, y: y })
-    if tmp isnt null && tmp.shape && tmp.shape.getName() isnt null && tmp.shape.getName().type is 'cube'
-      return tmp.shape
-    return false

@@ -6,6 +6,7 @@ SquareEnum = {
   LARGE_RECT : { x: 128, y: 64 }
   LONG_RECT : { x: 32, y: 128 }
   BONUS : { x: 20, y: 20 }
+  EFFECT : { x: 32, y: 12 }
 }
 
 spriteAnimations = {
@@ -165,7 +166,7 @@ spriteAnimations = {
     x: 0
     y: 0
     width: 32
-    height: 32
+    height: 12
   }],
   'stompblock': [{
     x: 128
@@ -342,7 +343,7 @@ spriteAnimations = {
     x: 32
     y: 0
     width: 32
-    height: 32
+    height: 12
   }],
   'bioExplosion': [{
     x: 0

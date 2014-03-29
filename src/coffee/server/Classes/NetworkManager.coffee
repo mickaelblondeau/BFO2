@@ -67,8 +67,8 @@ class NetworkManager
         socket.get 'name', (error, name) ->
           socket.broadcast.emit 'message', [null, name + ' has left the game !']
 
-  sendCube: (col, size, id) ->
-    @io.sockets.emit('fallingCube', [col, size, id])
+  sendCube: (col, size) ->
+    @io.sockets.emit('fallingCube', [col, size])
 
   sendBonus: (col, bonus, id) ->
     @io.sockets.emit('fallingBonus', [col, bonus, id])
@@ -136,8 +136,7 @@ class NetworkManager
     for player in players
       list.push player.id
     @io.sockets.emit 'playerList', list
-
-    if players.length is 0
+    if list.length is 0
       game.reset()
 
   sendMap: (map) ->

@@ -94,9 +94,10 @@ class Game
         @addMessage('Me', document.getElementById('chatMessage').value)
       document.getElementById('chatMessage').blur()
       document.getElementById('chatMessage').value = null
+      @openHist(3000)
     else
       @writting = true
-      @openHist(3000)
+      @openHist(9999999999)
       document.getElementById('chatMessage').focus()
 
   addMessage: (name, message) ->

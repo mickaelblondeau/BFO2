@@ -2,7 +2,6 @@ class CubeManager
   constructor: ->
     @speed = 0.4
     @tweens = []
-    @lastId = 0
 
   reinitAllPhys: ->
     cubes = dynamicEntities.find('Sprite')
@@ -80,32 +79,24 @@ class CubeManager
         effect.destroy()
 
   iceExplosionEffect: (shape) ->
-    contentLoader.play('explosion')
-    pos = { x: shape.getX(), y: shape.getY() }
-    shape.destroy()
-    for i in [-2..4]
-      for j in [-2..4]
-        if collisionManager.checkCubePresence(pos.x + i * 32 + 16, pos.y + j * 32 + 16) and !collisionManager.checkCubePresence(pos.x + i * 32 + 16, pos.y + j * 32 - 16)
-          eff = new Effect(pos.x + i * 32, pos.y + j * 32 - 2, SquareEnum.SMALL, 'ice')
-          break
-    new Effect(shape.getX() - shape.getWidth()/2 - 16, shape.getY() - shape.getHeight()/2 - 32, SquareEnum.SMALL, 'iceExplosionEffect', true)
+    new Effect(shape.getX(), shape.getY() - 2, SquareEnum.EFFECT, 'ice')
+    new Effect(shape.getX() + 32, shape.getY() - 2, SquareEnum.EFFECT, 'ice')
+    obj = shape.getName()
+    obj.type = 'cube'
+    shape.setName(obj)
 
   slowExplosionEffet: (shape) ->
-    contentLoader.play('death')
-    pos = { x: shape.getX(), y: shape.getY() }
-    shape.destroy()
-    for i in [-1..3]
-      for j in [-1..3]
-        if collisionManager.checkCubePresence(pos.x + i * 32 + 16, pos.y + j * 32 + 16) and !collisionManager.checkCubePresence(pos.x + i * 32 + 16, pos.y + j * 32 - 16)
-          eff = new Effect(pos.x + i * 32, pos.y + j * 32 - 2, SquareEnum.SMALL, 'slow')
-          break
-    new Effect(shape.getX() - shape.getWidth()/2, shape.getY() - shape.getHeight()/2, SquareEnum.SMALL, 'bioExplosion', true)
+    new Effect(shape.getX(), shape.getY() - 2, SquareEnum.EFFECT, 'slow')
+    new Effect(shape.getX() + 32, shape.getY() - 2, SquareEnum.EFFECT, 'slow')
+    obj = shape.getName()
+    obj.type = 'cube'
+    shape.setName(obj)
 
   explosionEffet: (shape) ->
     contentLoader.play('explosion')
     arr = []
     dynamicEntities.find('Sprite').each (cube) ->
-      if !cube.getName().falling and cube.getName().type is 'cube' and cube.getId() <= shape.getName().id
+      if !cube.getName().falling and cube.getName().type is 'cube'
         if cube.getWidth() > 32 or cube.getHeight() > 32
           for i in [0..(cube.getWidth()/32-1)]
             for j in [0..(cube.getHeight()/32-1)]
@@ -114,7 +105,7 @@ class CubeManager
                 new CubeFragment(cube.getX() + i*32, cube.getY() + j*32, SquareEnum.SMALL, cube.getId())
           cube.destroy()
     dynamicEntities.find('Sprite').each (cube) ->
-      if !cube.getName().falling and cube.getName().type is 'cube' and cube.getId() <= shape.getName().id
+      if !cube.getName().falling and cube.getName().type is 'cube'
         for i in [-4..5]
           j = i
           if i > 0
@@ -172,7 +163,7 @@ class CubeManager
   tpEffet: (shape) ->
     contentLoader.play('explosion')
     new Effect(shape.getX(), shape.getY(), SquareEnum.SMALL, 'tp', null, true)
-    pos = { x: shape.getX(), y: shape.getY() }
+    pos = { x: shape.getX() + 16, y: shape.getY() }
     shape.destroy()
     player.shape.setX(pos.x)
     player.shape.setY(pos.y)

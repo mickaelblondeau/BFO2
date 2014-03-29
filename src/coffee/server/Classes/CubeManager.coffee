@@ -27,7 +27,6 @@ class CubeManager
     @running = false
     @waiting = false
     @bonusId = 0
-    @cubeId = 0
 
     @types = [
       {
@@ -39,7 +38,7 @@ class CubeManager
         id: 0
       },
       {
-        proba: 2
+        proba: 1
         size: SquareEnum.MEDIUM
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
@@ -174,7 +173,6 @@ class CubeManager
     @stop()
     @waiting = false
     @bonusId = 0
-    @cubeId = 0
     @resetMap()
 
   stop: ->
@@ -208,26 +206,33 @@ class CubeManager
       else if type.special isnt undefined
         if type.special is 'explosion'
           @explodeMap(choice.column, choice.height)
+        if type.special is 'slowblock' or type.special is 'iceExplosion'
+          @addCubeToMap(choice, type)
         if type.special is 'randblock'
           id = Math.floor(Math.random()*(SpecialCubes.length - 1))
           randType = SpecialCubes[id]
           if randType is 'explosion'
             @explodeMap(choice.column, choice.height)
+          if randType is 'slowblock' or randType is 'iceExplosion'
+            @addCubeToMap(choice, type)
           networkManager.sendRanSpecial(choice.column, type.size, id)
         else
           networkManager.sendSpecial(choice.column, type.size, type.id)
       else
-        networkManager.sendCube(choice.column, type.size, @cubeId)
+        networkManager.sendCube(choice.column, type.size)
         @cubeId++
-        for columnPosition in [1..type.width]
-          @map[choice.column + columnPosition - 1] = choice.height + type.height
-          for h in [0..type.height-1]
-            @cubeMap[choice.column + columnPosition - 1][choice.height + h] = 1
+        @addCubeToMap(choice, type)
       if config.debug
         networkManager.sendMap(@cubeMap)
       return true
     else
       return false
+
+  addCubeToMap: (choice, type) ->
+    for columnPosition in [1..type.width]
+      @map[choice.column + columnPosition - 1] = choice.height + type.height
+      for h in [0..type.height-1]
+        @cubeMap[choice.column + columnPosition - 1][choice.height + h] = 1
 
   randomizeType: (choices) ->
     possibleTypes = []

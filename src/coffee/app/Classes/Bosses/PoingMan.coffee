@@ -21,6 +21,9 @@ class PoingMan extends Boss
     @start()
 
   start: ->
+    @destroyGround()
+    @regenMap()
+
     self = @
     bossManager.update = (frameTime) ->
       if self.attacking and !self.finishing and !self.starting and !self.waiting
@@ -64,14 +67,15 @@ class PoingMan extends Boss
       collision.destroy()
     staticCubes.draw()
 
+  destroyGround: ->
+    cubes = staticCubes.find('Sprite')
+    cubes.each (cube) ->
+      if cube.getX() > 128 and cube.getX() < 544
+        cube.destroy()
+
   regenMap: ->
     for i in [1..12]
-      cube = new StaticCube(i*32 + 128, @levelHeight + 32, SquareEnum.SMALL)
-      tween = new Kinetic.Tween
-        node: cube.shape
-        y: cube.shape.getY() - 32
-        duration: 2
-      tween.play()
+      new StaticCube(i*32 + 128, @levelHeight, SquareEnum.SMALL)
 
   wait: (frameTime) ->
     @time += frameTime

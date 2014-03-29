@@ -17,7 +17,7 @@ class NetworkManager
       game.start()
 
     @socket.on 'fallingCube', (data) ->
-      new FallingCube(data[0], data[1], data[2])
+      new FallingCube(data[0], data[1])
 
     @socket.on 'fallingBonus', (data) ->
       new Bonus(data[0], data[1], data[2])

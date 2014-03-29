@@ -82,7 +82,6 @@
       this.running = false;
       this.waiting = false;
       this.bonusId = 0;
-      this.cubeId = 0;
       this.types = [
         {
           proba: 2,
@@ -92,7 +91,7 @@
           special: 'iceExplosion',
           id: 0
         }, {
-          proba: 2,
+          proba: 1,
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
@@ -216,7 +215,6 @@
       this.stop();
       this.waiting = false;
       this.bonusId = 0;
-      this.cubeId = 0;
       return this.resetMap();
     };
 
@@ -244,7 +242,7 @@
     };
 
     CubeManager.prototype.sendCube = function() {
-      var choice, choices, columnPosition, count, h, id, rand, randType, tmp, type, typeIndex, _i, _j, _ref, _ref1;
+      var choice, choices, count, id, rand, randType, tmp, type, typeIndex;
       choices = this.checkCols();
       if (choices.length > 0) {
         tmp = this.randomizeType(choices);
@@ -260,25 +258,26 @@
           if (type.special === 'explosion') {
             this.explodeMap(choice.column, choice.height);
           }
+          if (type.special === 'slowblock' || type.special === 'iceExplosion') {
+            this.addCubeToMap(choice, type);
+          }
           if (type.special === 'randblock') {
             id = Math.floor(Math.random() * (SpecialCubes.length - 1));
             randType = SpecialCubes[id];
             if (randType === 'explosion') {
               this.explodeMap(choice.column, choice.height);
             }
+            if (randType === 'slowblock' || randType === 'iceExplosion') {
+              this.addCubeToMap(choice, type);
+            }
             networkManager.sendRanSpecial(choice.column, type.size, id);
           } else {
             networkManager.sendSpecial(choice.column, type.size, type.id);
           }
         } else {
-          networkManager.sendCube(choice.column, type.size, this.cubeId);
+          networkManager.sendCube(choice.column, type.size);
           this.cubeId++;
-          for (columnPosition = _i = 1, _ref = type.width; 1 <= _ref ? _i <= _ref : _i >= _ref; columnPosition = 1 <= _ref ? ++_i : --_i) {
-            this.map[choice.column + columnPosition - 1] = choice.height + type.height;
-            for (h = _j = 0, _ref1 = type.height - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; h = 0 <= _ref1 ? ++_j : --_j) {
-              this.cubeMap[choice.column + columnPosition - 1][choice.height + h] = 1;
-            }
-          }
+          this.addCubeToMap(choice, type);
         }
         if (config.debug) {
           networkManager.sendMap(this.cubeMap);
@@ -287,6 +286,23 @@
       } else {
         return false;
       }
+    };
+
+    CubeManager.prototype.addCubeToMap = function(choice, type) {
+      var columnPosition, h, _i, _ref, _results;
+      _results = [];
+      for (columnPosition = _i = 1, _ref = type.width; 1 <= _ref ? _i <= _ref : _i >= _ref; columnPosition = 1 <= _ref ? ++_i : --_i) {
+        this.map[choice.column + columnPosition - 1] = choice.height + type.height;
+        _results.push((function() {
+          var _j, _ref1, _results1;
+          _results1 = [];
+          for (h = _j = 0, _ref1 = type.height - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; h = 0 <= _ref1 ? ++_j : --_j) {
+            _results1.push(this.cubeMap[choice.column + columnPosition - 1][choice.height + h] = 1);
+          }
+          return _results1;
+        }).call(this));
+      }
+      return _results;
     };
 
     CubeManager.prototype.randomizeType = function(choices) {
@@ -682,8 +698,8 @@
       });
     };
 
-    NetworkManager.prototype.sendCube = function(col, size, id) {
-      return this.io.sockets.emit('fallingCube', [col, size, id]);
+    NetworkManager.prototype.sendCube = function(col, size) {
+      return this.io.sockets.emit('fallingCube', [col, size]);
     };
 
     NetworkManager.prototype.sendBonus = function(col, bonus, id) {
@@ -779,7 +795,7 @@
         list.push(player.id);
       }
       this.io.sockets.emit('playerList', list);
-      if (players.length === 0) {
+      if (list.length === 0) {
         return game.reset();
       }
     };
