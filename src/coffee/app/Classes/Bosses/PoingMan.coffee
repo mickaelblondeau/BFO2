@@ -68,6 +68,9 @@ class PoingMan extends Boss
     staticCubes.draw()
 
   destroyGround: ->
+    cubes = dynamicEntities.find('Sprite')
+    cubes.each (cube) ->
+      cube.destroy()
     cubes = staticCubes.find('Sprite')
     cubes.each (cube) ->
       if cube.getX() > 128 and cube.getX() < 544

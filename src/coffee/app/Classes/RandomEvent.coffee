@@ -34,10 +34,6 @@ class RandomEvent extends Sprite
 
     else if event is 'bonuses'
       new Effect(@shape.getX(), @shape.getY(), SquareEnum.SMALL, 'speedBonus', null, true)
-      for i in [1..4]
-        rand = Math.floor((Math.random()*12))
-        randType = Math.floor((Math.random()*(bonusTypesId.length - 1))) + 1
-        new Bonus(rand, randType, null)
 
     else if event is 'tp'
       player.shape.setX(@shape.getX()+16)

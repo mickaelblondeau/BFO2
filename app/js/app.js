@@ -2078,7 +2078,7 @@
     }
 
     RandomEvent.prototype.doEvent = function() {
-      var event, i, rand, randType, _i;
+      var event;
       contentLoader.play('explosion');
       event = this.shape.getName().randType;
       if (event === 'resurection') {
@@ -2086,11 +2086,6 @@
         new Effect(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL, 'resurectionBonus', null, true);
       } else if (event === 'bonuses') {
         new Effect(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL, 'speedBonus', null, true);
-        for (i = _i = 1; _i <= 4; i = ++_i) {
-          rand = Math.floor(Math.random() * 12);
-          randType = Math.floor(Math.random() * (bonusTypesId.length - 1)) + 1;
-          new Bonus(rand, randType, null);
-        }
       } else if (event === 'tp') {
         player.shape.setX(this.shape.getX() + 16);
         player.shape.setY(this.shape.getY() - 384);
@@ -2308,7 +2303,7 @@
       bossManager.reset();
       cubes = dynamicEntities.find('Sprite');
       cubes.each(function(cube) {
-        if (cube.getY() > stage.getY() * -1 + stage.getHeight()) {
+        if (cube.getY() > stage.getY() * -1 + stage.getHeight() || (cube.getName().type !== 'cube' && cube.getY() > stage.getY() * -1 + stage.getHeight() - 32)) {
           return cube.destroy();
         }
       });
@@ -3453,6 +3448,10 @@
 
     PoingMan.prototype.destroyGround = function() {
       var cubes;
+      cubes = dynamicEntities.find('Sprite');
+      cubes.each(function(cube) {
+        return cube.destroy();
+      });
       cubes = staticCubes.find('Sprite');
       return cubes.each(function(cube) {
         if (cube.getX() > 128 && cube.getX() < 544) {
@@ -3977,9 +3976,9 @@
 
   stage.add(players);
 
-  stage.add(dynamicEntities);
-
   stage.add(staticCubes);
+
+  stage.add(dynamicEntities);
 
   stage.add(hudLayer);
 

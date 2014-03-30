@@ -6,6 +6,5 @@ config = {
   speedPerLevel: 35
   timeout: 5000
   randomEventProb: 0.6
-  randomEvents: 3
   debug: false
 }

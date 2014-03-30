@@ -1,5 +1,5 @@
 (function() {
-  var Block, Bonus, Boss, BossManager, CubeManager, FreezeMan, Game, HomingMan, LabiMan, LevelManager, MissileMan, NetworkManager, PoingMan, RoueMan, SparkMan, Special, SpecialCubes, SquareEnum, bossManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
+  var Block, Bonus, Bonuses, Boss, BossManager, CubeManager, Event, FreezeMan, Game, HomingMan, LabiMan, LevelManager, MissileMan, NetworkManager, PoingMan, RoueMan, SparkMan, Special, SpecialCubes, SquareEnum, bonusEvents, bossManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -11,7 +11,6 @@
     speedPerLevel: 35,
     timeout: 5000,
     randomEventProb: 0.6,
-    randomEvents: 3,
     debug: false
   };
 
@@ -954,6 +953,40 @@
 
   })(Block);
 
+  bonusEvents = ['resurection', 'bonuses', 'tp'];
+
+  Bonuses = ['speed', 'jumpHeight', 'doubleJump', 'grabbing'];
+
+  Event = (function() {
+    function Event(id) {
+      this.id = id;
+      this.send();
+      if (this.id === 1) {
+        this.spawnBonuses();
+      }
+    }
+
+    Event.prototype.send = function() {
+      return networkManager.sendRandomEvent(this.id);
+    };
+
+    Event.prototype.spawnBonuses = function() {
+      var i, rand, randType, _i, _results;
+      _results = [];
+      for (i = _i = 1; _i <= 4; i = ++_i) {
+        rand = Math.floor(Math.random() * 12);
+        randType = Math.floor(Math.random() * (Bonuses.length - 1)) + 1;
+        _results.push(new Bonus(rand, 0, {
+          id: randType
+        }));
+      }
+      return _results;
+    };
+
+    return Event;
+
+  })();
+
   Boss = (function() {
     function Boss(name, timeout, options) {
       this.timeout = timeout;
@@ -1357,11 +1390,11 @@
   };
 
   slowLoop = function() {
-    var event;
+    var id;
     networkManager.sendPlayerList();
     if ((cubeManager.running || bossManager.launched) && Math.random() > config.randomEventProb) {
-      event = Math.floor(Math.random() * config.randomEvents);
-      return networkManager.sendRandomEvent(event);
+      id = Math.floor(Math.random() * bonusEvents.length);
+      return new Event(id);
     }
   };
 
