@@ -2024,14 +2024,12 @@
         this.shape.setName({
           type: 'special',
           falling: true,
-          randType: rType,
-          id: cubeManager.lastId
+          randType: rType
         });
       } else {
         this.shape.setName({
           type: 'special',
-          falling: true,
-          id: cubeManager.lastId
+          falling: true
         });
       }
       this.shape.setId(this.type);
@@ -2303,7 +2301,7 @@
       bossManager.reset();
       cubes = dynamicEntities.find('Sprite');
       cubes.each(function(cube) {
-        if (cube.getY() > stage.getY() * -1 + stage.getHeight() || (cube.getName().type !== 'cube' && cube.getY() > stage.getY() * -1 + stage.getHeight() - 64)) {
+        if (cube.getY() > stage.getY() * -1 + stage.getHeight()) {
           return cube.destroy();
         }
       });
@@ -2329,7 +2327,7 @@
       self = this;
       cubes = dynamicEntities.find('Sprite');
       return cubes.each(function(cube) {
-        var collide, obj;
+        var child, collide, obj, _i, _j, _len, _len1, _ref, _ref1, _results;
         if (cube.getName() !== void 0 && cube.getName() !== null && cube.getName().falling) {
           collide = self.testMove(cube, cube.getY() + self.speed * frameTime);
           if (collide) {
@@ -2339,12 +2337,29 @@
               obj = {};
             }
             obj.falling = false;
+            if (obj.child !== void 0) {
+              _ref = obj.child;
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                child = _ref[_i];
+                child.shape.setY(cube.getY() - 2);
+              }
+            }
             cube.setName(obj);
             if (cube.getId() !== void 0) {
               return self.doEffect(cube, cube.getId());
             }
           } else {
-            return cube.setY(cube.getY() + 0.1 * frameTime);
+            cube.setY(cube.getY() + 0.1 * frameTime);
+            obj = cube.getName();
+            if (obj !== null && obj !== void 0 && obj.child !== void 0) {
+              _ref1 = obj.child;
+              _results = [];
+              for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+                child = _ref1[_j];
+                _results.push(child.shape.setY(cube.getY() - 2));
+              }
+              return _results;
+            }
           }
         }
       });
@@ -2409,20 +2424,22 @@
     };
 
     CubeManager.prototype.iceExplosionEffect = function(shape) {
-      var obj;
-      new Effect(shape.getX(), shape.getY() - 2, SquareEnum.EFFECT, 'ice');
-      new Effect(shape.getX() + 32, shape.getY() - 2, SquareEnum.EFFECT, 'ice');
+      var e1, e2, obj;
+      e1 = new Effect(shape.getX(), shape.getY() - 2, SquareEnum.EFFECT, 'ice');
+      e2 = new Effect(shape.getX() + 32, shape.getY() - 2, SquareEnum.EFFECT, 'ice');
       obj = shape.getName();
       obj.type = 'cube';
+      obj.child = [e1, e2];
       return shape.setName(obj);
     };
 
     CubeManager.prototype.slowExplosionEffet = function(shape) {
-      var obj;
-      new Effect(shape.getX(), shape.getY() - 2, SquareEnum.EFFECT, 'slow');
-      new Effect(shape.getX() + 32, shape.getY() - 2, SquareEnum.EFFECT, 'slow');
+      var e1, e2, obj;
+      e1 = new Effect(shape.getX(), shape.getY() - 2, SquareEnum.EFFECT, 'slow');
+      e2 = new Effect(shape.getX() + 32, shape.getY() - 2, SquareEnum.EFFECT, 'slow');
       obj = shape.getName();
       obj.type = 'cube';
+      obj.child = [e1, e2];
       return shape.setName(obj);
     };
 
@@ -3630,11 +3647,17 @@
         vX = this.attackSpeed * frameTime * part.sideX;
         vY = part.ySpeed * frameTime * part.sideY;
         collisions = part.vectorMove(frameTime, vX, vY, 160, stage.getWidth() - 192, this.position - 96, levelManager.ground - 32);
-        if (collisions.mX || collisions.pX) {
-          part.changeSide('x');
+        if (collisions.mX) {
+          part.sideX = 1;
         }
-        if (collisions.mY || collisions.pY) {
-          part.changeSide('y');
+        if (collisions.pX) {
+          part.sideX = -1;
+        }
+        if (collisions.mY) {
+          part.sideY = 1;
+        }
+        if (collisions.pY) {
+          part.sideY = -1;
         }
         if (part.alive) {
           part.life += frameTime;
@@ -3669,14 +3692,6 @@
       this.life = 0;
       this.alive = true;
     }
-
-    SparkManPart.prototype.changeSide = function(side) {
-      if (side === 'x') {
-        return this.sideX *= -1;
-      } else {
-        return this.sideY *= -1;
-      }
-    };
 
     SparkManPart.prototype.reset = function() {
       SparkManPart.__super__.reset.call(this);
@@ -3961,9 +3976,9 @@
 
   stage.add(players);
 
-  stage.add(staticCubes);
-
   stage.add(dynamicEntities);
+
+  stage.add(staticCubes);
 
   stage.add(hudLayer);
 

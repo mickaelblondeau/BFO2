@@ -91,7 +91,7 @@
           special: 'iceExplosion',
           id: 0
         }, {
-          proba: 5,
+          proba: 2,
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
@@ -204,7 +204,11 @@
         this.current = 0;
         this.levelHeight = level;
         this.resetCubes();
-        return this.running = true;
+        if (config.debug) {
+          return this.debug();
+        } else {
+          return this.running = true;
+        }
       }
     };
 
@@ -419,9 +423,10 @@
     };
 
     CubeManager.prototype.applyGravity = function() {
-      var canFall, cube, i, _i, _j, _len, _ref, _ref1;
+      var canFall, cube, i, _i, _j, _len, _ref, _ref1, _results;
       this.rebuildMap();
       _ref = this.cubes;
+      _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         cube = _ref[_i];
         if (cube !== null) {
@@ -442,8 +447,9 @@
             }
           }
         }
+        _results.push(this.rebuildMap());
       }
-      return this.rebuildMap();
+      return _results;
     };
 
     CubeManager.prototype.rebuildMap = function() {
@@ -488,7 +494,7 @@
     };
 
     CubeManager.prototype.debug = function() {
-      var b1, b2, b3, fn, self;
+      var b1, b2, b3, b4, fn, self;
       b1 = {
         proba: 20,
         size: SquareEnum.MEDIUM,
@@ -509,23 +515,24 @@
         special: 'explosion',
         id: 1
       };
-      new Block(0, 0, b1, true);
-      new Block(2, 0, b1, true);
-      new Block(4, 0, b1, true);
+      b4 = {
+        proba: 2,
+        size: SquareEnum.MEDIUM,
+        width: SquareEnum.MEDIUM.x / 32,
+        height: SquareEnum.MEDIUM.y / 32,
+        special: 'slowblock',
+        id: 2
+      };
+      new Special(1, 0, b4);
       networkManager.sendMap(this.cubeMap);
       self = this;
       fn = function() {
-        new Block(2, 2, b2, true);
+        new Special(0, 2, b4);
         return networkManager.sendMap(self.cubeMap);
       };
       setTimeout(fn, 500);
       fn = function() {
-        new Block(4, 6, b1, true);
-        return networkManager.sendMap(self.cubeMap);
-      };
-      setTimeout(fn, 750);
-      fn = function() {
-        new Special(0, 2, b3);
+        new Special(3, 0, b3);
         return networkManager.sendMap(self.cubeMap);
       };
       return setTimeout(fn, 1000);
@@ -974,7 +981,7 @@
         this.launched = true;
         return this.updateBosses(boss.name);
       } else {
-        return networkManager.sendMessage('No moar bosses, take another level !');
+        return networkManager.sendMessage('YAY GG !');
       }
     };
 

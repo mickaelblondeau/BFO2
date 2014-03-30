@@ -39,7 +39,7 @@ class CubeManager
         id: 0
       },
       {
-        proba: 5
+        proba: 2
         size: SquareEnum.MEDIUM
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
@@ -165,7 +165,10 @@ class CubeManager
       @current = 0
       @levelHeight = level
       @resetCubes()
-      @running = true
+      if config.debug
+        @debug()
+      else
+        @running = true
 
   reset: ->
     @levelHeight = 0
@@ -313,7 +316,7 @@ class CubeManager
               canFall = false
             else
               cube.line -= 1
-    @rebuildMap()
+      @rebuildMap()
 
   rebuildMap: ->
     @resetMap()
@@ -350,24 +353,25 @@ class CubeManager
       special: 'explosion'
       id: 1
     }
-    new Block(0, 0, b1, true)
-    new Block(2, 0, b1, true)
-    new Block(4, 0, b1, true)
+    b4 = {
+      proba: 2
+      size: SquareEnum.MEDIUM
+      width: SquareEnum.MEDIUM.x/32
+      height: SquareEnum.MEDIUM.y/32
+      special: 'slowblock'
+      id: 2
+    }
+    new Special(1, 0, b4)
     networkManager.sendMap(@cubeMap)
 
     self = @
 
     fn = ->
-      new Block(2, 2, b2, true)
+      new Special(0, 2, b4)
       networkManager.sendMap(self.cubeMap)
     setTimeout(fn, 500)
 
     fn = ->
-      new Block(4, 6, b1, true)
-      networkManager.sendMap(self.cubeMap)
-    setTimeout(fn, 750)
-
-    fn = ->
-      new Special(0, 2, b3)
+      new Special(3, 0, b3)
       networkManager.sendMap(self.cubeMap)
     setTimeout(fn, 1000)

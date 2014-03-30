@@ -17,8 +17,8 @@ class SpecialCube extends Sprite
     dynamicEntities.add @shape
     if randType isnt undefined
       rType = SpecialCubes[randType]
-      @shape.setName({ type: 'special', falling: true, randType: rType, id: cubeManager.lastId })
+      @shape.setName({ type: 'special', falling: true, randType: rType })
     else
-      @shape.setName({ type: 'special', falling: true, id: cubeManager.lastId })
+      @shape.setName({ type: 'special', falling: true })
     @shape.setId(@type)
     @shape.draw()

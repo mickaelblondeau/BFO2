@@ -42,10 +42,14 @@ class SparkMan extends MultiPartBoss
       vX = @attackSpeed * frameTime * part.sideX
       vY = part.ySpeed * frameTime * part.sideY
       collisions = part.vectorMove(frameTime, vX, vY, 160, stage.getWidth() - 192, @position - 96, levelManager.ground - 32)
-      if collisions.mX or collisions.pX
-        part.changeSide('x')
-      if collisions.mY or collisions.pY
-        part.changeSide('y')
+      if collisions.mX
+        part.sideX = 1
+      if collisions.pX
+        part.sideX = -1
+      if collisions.mY
+        part.sideY = 1
+      if collisions.pY
+        part.sideY = -1
 
       if part.alive
         part.life += frameTime

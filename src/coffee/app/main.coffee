@@ -18,8 +18,8 @@ tmpLayer = new Kinetic.Layer
 
 stage.add staticBg
 stage.add players
-stage.add staticCubes
 stage.add dynamicEntities
+stage.add staticCubes
 stage.add hudLayer
 stage.add tmpLayer
 

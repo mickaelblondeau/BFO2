@@ -15,11 +15,18 @@ class CubeManager
           if obj is null or obj is undefined
             obj = {}
           obj.falling = false
+          if obj.child isnt undefined
+            for child in obj.child
+              child.shape.setY(cube.getY() - 2)
           cube.setName(obj)
           if cube.getId() isnt undefined
             self.doEffect(cube, cube.getId())
         else
           cube.setY(cube.getY() + 0.1*frameTime)
+          obj = cube.getName()
+          if obj isnt null and obj isnt undefined and obj.child isnt undefined
+            for child in obj.child
+              child.shape.setY(cube.getY() - 2)
 
   reinitPhysic: ->
     cubes = dynamicEntities.find('Sprite')
@@ -60,17 +67,19 @@ class CubeManager
       @doEffect(shape, shape.getName().randType)
 
   iceExplosionEffect: (shape) ->
-    new Effect(shape.getX(), shape.getY() - 2, SquareEnum.EFFECT, 'ice')
-    new Effect(shape.getX() + 32, shape.getY() - 2, SquareEnum.EFFECT, 'ice')
+    e1 = new Effect(shape.getX(), shape.getY() - 2, SquareEnum.EFFECT, 'ice')
+    e2 = new Effect(shape.getX() + 32, shape.getY() - 2, SquareEnum.EFFECT, 'ice')
     obj = shape.getName()
     obj.type = 'cube'
+    obj.child = [e1, e2]
     shape.setName(obj)
 
   slowExplosionEffet: (shape) ->
-    new Effect(shape.getX(), shape.getY() - 2, SquareEnum.EFFECT, 'slow')
-    new Effect(shape.getX() + 32, shape.getY() - 2, SquareEnum.EFFECT, 'slow')
+    e1 = new Effect(shape.getX(), shape.getY() - 2, SquareEnum.EFFECT, 'slow')
+    e2 = new Effect(shape.getX() + 32, shape.getY() - 2, SquareEnum.EFFECT, 'slow')
     obj = shape.getName()
     obj.type = 'cube'
+    obj.child = [e1, e2]
     shape.setName(obj)
 
   explosionEffet: (shape) ->

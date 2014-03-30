@@ -7,12 +7,6 @@ class SparkManPart extends Boss
     @life = 0
     @alive = true
 
-  changeSide: (side) ->
-    if side is 'x'
-      @sideX *= -1
-    else
-      @sideY *= -1
-
   reset: ->
     super()
     bossManager.currentBoss.attackFinished++
