@@ -85,11 +85,7 @@ class NetworkManager
           self.playersId.splice(i, 1)
 
     @socket.on 'message', (arr) ->
-      if arr[0] is null
-        name = 'Server'
-      else
-        name = self.players[arr[0]].name.getText()
-      game.addMessage(name, arr[1])
+      game.addMessage(arr[0], arr[1])
 
   sendLaunch: ->
     @socket.emit 'launch'

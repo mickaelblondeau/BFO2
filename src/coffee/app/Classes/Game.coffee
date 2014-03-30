@@ -91,7 +91,7 @@ class Game
       @writting = false
       if document.activeElement.value isnt undefined and document.activeElement.value.trim() isnt ''
         networkManager.sendMessage(document.getElementById('chatMessage').value)
-        @addMessage('Me', document.getElementById('chatMessage').value)
+        @addMessage(-1, document.getElementById('chatMessage').value)
       document.getElementById('chatMessage').blur()
       document.getElementById('chatMessage').value = null
       @openHist(3000)
@@ -100,13 +100,19 @@ class Game
       @openHist(9999999999)
       document.getElementById('chatMessage').focus()
 
-  addMessage: (name, message) ->
+  addMessage: (id, message) ->
     contentLoader.play('beep')
+    if id is null
+      name = 'Server'
+    else if id is -1
+      name = 'You'
+    else
+      name = networkManager.players[id].name.getText()
     @chatHist.push([name, message])
     if @chatHist.length > @chatHistLen
       @chatHist.shift()
     @composeHistoric()
-    if name isnt 'Me'
+    if id isnt -1
       timeout = 3000 + message.length * 30
       @openHist(timeout)
 

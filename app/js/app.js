@@ -268,7 +268,7 @@
         this.writting = false;
         if (document.activeElement.value !== void 0 && document.activeElement.value.trim() !== '') {
           networkManager.sendMessage(document.getElementById('chatMessage').value);
-          this.addMessage('Me', document.getElementById('chatMessage').value);
+          this.addMessage(-1, document.getElementById('chatMessage').value);
         }
         document.getElementById('chatMessage').blur();
         document.getElementById('chatMessage').value = null;
@@ -280,15 +280,22 @@
       }
     };
 
-    Game.prototype.addMessage = function(name, message) {
-      var timeout;
+    Game.prototype.addMessage = function(id, message) {
+      var name, timeout;
       contentLoader.play('beep');
+      if (id === null) {
+        name = 'Server';
+      } else if (id === -1) {
+        name = 'You';
+      } else {
+        name = networkManager.players[id].name.getText();
+      }
       this.chatHist.push([name, message]);
       if (this.chatHist.length > this.chatHistLen) {
         this.chatHist.shift();
       }
       this.composeHistoric();
-      if (name !== 'Me') {
+      if (id !== -1) {
         timeout = 3000 + message.length * 30;
         return this.openHist(timeout);
       }
@@ -2654,13 +2661,7 @@
         return _results;
       });
       return this.socket.on('message', function(arr) {
-        var name;
-        if (arr[0] === null) {
-          name = 'Server';
-        } else {
-          name = self.players[arr[0]].name.getText();
-        }
-        return game.addMessage(name, arr[1]);
+        return game.addMessage(arr[0], arr[1]);
       });
     };
 
