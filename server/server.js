@@ -202,7 +202,8 @@
     CubeManager.prototype.start = function(level, rate) {
       if (!this.running && !this.waiting) {
         if (levelManager.level !== 0) {
-          new Bonus(4, 0, 5);
+          networkManager.sendBonus(4, 5, this.map[4], this.bonusId);
+          this.bonusId++;
         }
         this.updateRate = rate;
         this.current = 0;
@@ -498,7 +499,19 @@
     };
 
     CubeManager.prototype.debug = function() {
-      var b3, b4, fn, self;
+      var b1, b2, b3, b4, fn, self;
+      b1 = {
+        proba: 20,
+        size: SquareEnum.MEDIUM,
+        width: SquareEnum.MEDIUM.x / 32,
+        height: SquareEnum.MEDIUM.y / 32
+      };
+      b2 = {
+        proba: 5,
+        size: SquareEnum.LARGE,
+        width: SquareEnum.LARGE.x / 32,
+        height: SquareEnum.LARGE.y / 32
+      };
       b3 = {
         proba: 5,
         size: SquareEnum.MEDIUM,

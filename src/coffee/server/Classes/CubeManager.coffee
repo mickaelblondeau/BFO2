@@ -159,7 +159,8 @@ class CubeManager
   start: (level, rate) ->
     if !@running and !@waiting
       if levelManager.level != 0
-        new Bonus(4, 0, 5)
+        networkManager.sendBonus(4, 5, @map[4], @bonusId)
+        @bonusId++
       @updateRate = rate
       @current = 0
       @levelHeight = level
@@ -332,6 +333,18 @@ class CubeManager
       @cubeMap[i] = []
 
   debug: ->
+    b1 = {
+      proba: 20
+      size: SquareEnum.MEDIUM
+      width: SquareEnum.MEDIUM.x/32
+      height: SquareEnum.MEDIUM.y/32
+    }
+    b2 = {
+      proba: 5
+      size: SquareEnum.LARGE
+      width: SquareEnum.LARGE.x/32
+      height: SquareEnum.LARGE.y/32
+    }
     b3 = {
       proba: 5
       size: SquareEnum.MEDIUM
