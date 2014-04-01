@@ -4,9 +4,9 @@ class SparkMan extends Boss
     @id = 5
 
   getPattern: ->
-    speed = Math.round((0.5 + 0.03 * levelManager.level) * 100) / 100
-    attackSpeed = Math.round((0.2 + 0.005 * (levelManager.level - 1)) * 100) / 100
-    interval = 4000 - 20 * levelManager.level
+    speed = Math.round((0.5 + 0.03 * (levelManager.level + config.bossDifficulty)) * 100) / 100
+    attackSpeed = Math.round((0.2 + 0.005 * ((levelManager.level + config.bossDifficulty) - 1)) * 100) / 100
+    interval = 4000 - 20 * (levelManager.level + config.bossDifficulty)
     options = [speed, attackSpeed, interval]
     attacks = @makeLevel(attackSpeed)
     return [options, attacks]

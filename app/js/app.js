@@ -268,7 +268,9 @@
         this.writting = false;
         if (document.activeElement.value !== void 0 && document.activeElement.value.trim() !== '') {
           networkManager.sendMessage(document.getElementById('chatMessage').value);
-          this.addMessage(-1, document.getElementById('chatMessage').value);
+          if (document.getElementById('chatMessage').value[0] !== '/') {
+            this.addMessage(-1, document.getElementById('chatMessage').value);
+          }
         }
         document.getElementById('chatMessage').blur();
         document.getElementById('chatMessage').value = null;
@@ -302,15 +304,32 @@
     };
 
     Game.prototype.composeHistoric = function() {
-      var hist, i, _i, _len, _ref, _results;
+      var hist, i, message, name, _i, _len, _ref, _results;
       document.getElementById('chatHistoric').innerHTML = "";
       _ref = this.chatHist;
       _results = [];
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
         hist = _ref[i];
-        _results.push(document.getElementById('chatHistoric').innerHTML += '<div class="message"><span class="from">&#60;' + hist[0] + '&#62; </span><span class="content">' + hist[1] + '</span></div>');
+        name = this.escapeHtml(hist[0]);
+        message = this.escapeHtml(hist[1]);
+        _results.push(document.getElementById('chatHistoric').innerHTML += '<div class="message"><span class="from">&#60;' + name + '&#62; </span><span class="content">' + message + '</span></div>');
       }
       return _results;
+    };
+
+    Game.prototype.escapeHtml = function(str) {
+      var entityMap;
+      entityMap = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': '&quot;',
+        "'": '&#39;',
+        "/": '&#x2F;'
+      };
+      return str.replace(/[&<>"'\/]/g, function(s) {
+        return entityMap[s];
+      });
     };
 
     Game.prototype.openHist = function(time) {
@@ -323,6 +342,11 @@
 
     Game.prototype.closeHist = function() {
       return document.querySelector('#chatHistoric').style.display = 'none';
+    };
+
+    Game.prototype.config = function() {
+      document.querySelector('#login-loading').style.display = 'none';
+      return document.querySelector('#config').style.display = 'block';
     };
 
     return Game;
@@ -2453,11 +2477,19 @@
       shape.destroy();
       cubes = dynamicEntities.find('Sprite');
       cubes.each(function(cube) {
-        var pos, _i, _len, _results;
+        var child, obj, pos, _i, _j, _len, _len1, _ref, _results;
         _results = [];
         for (_i = 0, _len = map.length; _i < _len; _i++) {
           pos = map[_i];
           if (collisionManager.pointInCube(cube, pos)) {
+            obj = cube.getName();
+            if (obj !== null && obj !== void 0 && obj.child !== void 0) {
+              _ref = obj.child;
+              for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+                child = _ref[_j];
+                child.shape.destroy();
+              }
+            }
             _results.push(cube.destroy());
           } else {
             _results.push(void 0);

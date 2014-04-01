@@ -60,7 +60,10 @@ class NetworkManager
         socket.broadcast.emit 'resurection'
 
       socket.on 'message', (message) ->
-        socket.broadcast.emit 'message', [socket.id, message]
+        if message[0] is '/'
+          commandManager.exec(socket, message)
+        else
+          socket.broadcast.emit 'message', [socket.id, message]
 
       socket.on 'disconnect', ->
         socket.broadcast.emit 'disconnect', socket.id
@@ -160,6 +163,7 @@ class NetworkManager
           socket.get 'skin', (error, skin) ->
             socket.broadcast.emit 'connection', [socket.id, name, skin]
             socket.broadcast.emit 'message', [null, name + ' has joined the game !']
+            socket.emit 'message', [null, 'Welcome !']
         players = self.io.sockets.clients()
         for player in players
           if player.id != socket.id

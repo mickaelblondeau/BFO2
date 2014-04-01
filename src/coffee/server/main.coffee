@@ -5,6 +5,7 @@ game = new Game()
 cubeManager = new CubeManager()
 levelManager = new LevelManager()
 bossManager = new BossManager()
+commandManager = new CommandManager()
 
 setInterval(
   () ->

@@ -91,7 +91,8 @@ class Game
       @writting = false
       if document.activeElement.value isnt undefined and document.activeElement.value.trim() isnt ''
         networkManager.sendMessage(document.getElementById('chatMessage').value)
-        @addMessage(-1, document.getElementById('chatMessage').value)
+        if document.getElementById('chatMessage').value[0] isnt '/'
+          @addMessage(-1, document.getElementById('chatMessage').value)
       document.getElementById('chatMessage').blur()
       document.getElementById('chatMessage').value = null
       @openHist(3000)
@@ -119,7 +120,21 @@ class Game
   composeHistoric: ->
     document.getElementById('chatHistoric').innerHTML = ""
     for hist, i in @chatHist
-      document.getElementById('chatHistoric').innerHTML += '<div class="message"><span class="from">&#60;'+hist[0]+'&#62; </span><span class="content">'+hist[1]+'</span></div>'
+      name = @escapeHtml(hist[0])
+      message = @escapeHtml(hist[1])
+      document.getElementById('chatHistoric').innerHTML += '<div class="message"><span class="from">&#60;'+name+'&#62; </span><span class="content">'+message+'</span></div>'
+
+  escapeHtml: (str) ->
+    entityMap = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': '&quot;',
+      "'": '&#39;',
+      "/": '&#x2F;'
+    }
+    str.replace /[&<>"'\/]/g, (s) ->
+      entityMap[s]
 
   openHist: (time) ->
     if @closeTime isnt undefined
@@ -129,3 +144,7 @@ class Game
 
   closeHist: ->
     document.querySelector('#chatHistoric').style.display = 'none'
+
+  config: ->
+    document.querySelector('#login-loading').style.display = 'none'
+    document.querySelector('#config').style.display = 'block'

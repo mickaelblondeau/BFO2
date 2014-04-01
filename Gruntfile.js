@@ -66,6 +66,7 @@ module.exports = function(grunt) {
                     'src/coffee/server/Classes/CubeManager.coffee',
                     'src/coffee/server/Classes/LevelManager.coffee',
                     'src/coffee/server/Classes/NetworkManager.coffee',
+                    'src/coffee/server/Classes/CommandManager.coffee',
                     'src/coffee/server/Classes/Blocks/*.coffee',
                     'src/coffee/server/Classes/Events/*.coffee',
                     'src/coffee/server/Classes/Bosses/Boss.coffee',

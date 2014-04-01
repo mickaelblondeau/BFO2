@@ -1,9 +1,11 @@
 (function() {
-  var Block, Bonus, Bonuses, Boss, BossManager, CubeManager, Event, FreezeMan, Game, HomingMan, LabiMan, LevelManager, MissileMan, NetworkManager, PoingMan, RoueMan, SparkMan, Special, SpecialCubes, SquareEnum, bonusEvents, bossManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
+  var Block, Bonus, Bonuses, Boss, BossManager, CommandManager, CubeManager, Event, FreezeMan, Game, HomingMan, LabiMan, LevelManager, MissileMan, NetworkManager, PoingMan, RoueMan, SparkMan, Special, SpecialCubes, SquareEnum, bonusEvents, bossManager, commandManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   config = {
+    debug: false,
     FPS: 60,
     lowFPS: 0.1,
     levelSpeed: 1000,
@@ -11,7 +13,11 @@
     speedPerLevel: 35,
     timeout: 5000,
     randomEventProb: 0.6,
-    debug: false
+    checkpoint: true,
+    checkpoints: [6, 12, 18],
+    minLevel: 6,
+    maxLevel: 10,
+    bossDifficulty: 1
   };
 
   Game = (function() {
@@ -196,8 +202,7 @@
     CubeManager.prototype.start = function(level, rate) {
       if (!this.running && !this.waiting) {
         if (levelManager.level !== 0) {
-          networkManager.sendBonus(4, 5, this.map[4], this.bonusId);
-          this.bonusId++;
+          new Bonus(4, 0, 5);
         }
         this.updateRate = rate;
         this.current = 0;
@@ -493,19 +498,7 @@
     };
 
     CubeManager.prototype.debug = function() {
-      var b1, b2, b3, b4, fn, self;
-      b1 = {
-        proba: 20,
-        size: SquareEnum.MEDIUM,
-        width: SquareEnum.MEDIUM.x / 32,
-        height: SquareEnum.MEDIUM.y / 32
-      };
-      b2 = {
-        proba: 5,
-        size: SquareEnum.LARGE,
-        width: SquareEnum.LARGE.x / 32,
-        height: SquareEnum.LARGE.y / 32
-      };
+      var b3, b4, fn, self;
       b3 = {
         proba: 5,
         size: SquareEnum.MEDIUM,
@@ -577,8 +570,8 @@
 
     LevelManager.prototype.randomizeHeight = function() {
       var max, min;
-      min = Math.round(4 + this.level / 2);
-      max = Math.round(8 + this.level / 2);
+      min = Math.round(config.minLevel + this.level / 2);
+      max = Math.round(config.maxLevel + this.level / 2);
       return Math.floor((Math.random() * (max - min)) + min);
     };
 
@@ -604,7 +597,7 @@
 
     LevelManager.prototype.passNextLevel = function() {
       var _ref;
-      if ((_ref = this.level) === 4 || _ref === 8 || _ref === 12 || _ref === 16 || _ref === 20) {
+      if (config.checkpoint && (_ref = this.level, __indexOf.call(config.checkpoints, _ref) >= 0)) {
         this.savedLevel = this.level;
         bossManager.saveBosses();
         networkManager.sendMessage('Checkpoint !');
@@ -612,6 +605,87 @@
       cubeManager.waiting = false;
       bossManager.launched = false;
       return levelManager.nextLevel();
+    };
+
+    LevelManager.prototype.setDifficulty = function(level) {
+      if (level === 'hell') {
+        networkManager.sendMessage('Difficulty changed to hell.');
+        networkManager.sendMessage('You shall not pass.');
+        this.difficultyHell();
+        return false;
+      } else if (level === 'hard') {
+        networkManager.sendMessage('Difficulty changed to hard.');
+        this.difficultyHard();
+        return false;
+      } else if (level === 'medium') {
+        networkManager.sendMessage('Difficulty changed to medium.');
+        this.difficultyMedium();
+        return false;
+      } else if (level === 'easy') {
+        networkManager.sendMessage('Difficulty changed to easy.');
+        this.difficultyEasy();
+        return false;
+      } else {
+        return 'Difficulty not changed, invalid option.';
+      }
+    };
+
+    LevelManager.prototype.difficultyHell = function() {
+      this.savedLevel = 0;
+      config.checkpoint = false;
+      config.levelSpeed = 600;
+      config.fastLevelSpeed = 300;
+      config.speedPerLevel = 50;
+      config.randomEventProb = 0.8;
+      config.minLevel = 6;
+      config.maxLevel = 12;
+      config.bossDifficulty = 3;
+      return this.reset();
+    };
+
+    LevelManager.prototype.difficultyHard = function() {
+      this.savedLevel = 0;
+      config.checkpoint = false;
+      config.levelSpeed = 800;
+      config.fastLevelSpeed = 400;
+      config.speedPerLevel = 40;
+      config.randomEventProb = 0.7;
+      config.minLevel = 6;
+      config.maxLevel = 12;
+      config.bossDifficulty = 2;
+      return this.reset();
+    };
+
+    LevelManager.prototype.difficultyMedium = function() {
+      this.savedLevel = 0;
+      config.checkpoint = true;
+      ({
+        checkpoints: [6, 12, 18]
+      });
+      config.levelSpeed = 1000;
+      config.fastLevelSpeed = 500;
+      config.speedPerLevel = 35;
+      config.randomEventProb = 0.6;
+      config.minLevel = 6;
+      config.maxLevel = 10;
+      config.bossDifficulty = 1;
+      return this.reset();
+    };
+
+    LevelManager.prototype.difficultyEasy = function() {
+      this.savedLevel = 0;
+      config.checkpoint = true;
+      ({
+        checkpoints: [4, 8, 12, 16, 20]
+      });
+      config.levelSpeed = 1200;
+      config.fastLevelSpeed = 600;
+      config.speedPerLevel = 30;
+      config.randomEventProb = 0.5;
+      config.minLevel = 4;
+      config.maxLevel = 8;
+      config.bossDifficulty = 0;
+      return this.reset();
     };
 
     return LevelManager;
@@ -689,7 +763,11 @@
           return socket.broadcast.emit('resurection');
         });
         socket.on('message', function(message) {
-          return socket.broadcast.emit('message', [socket.id, message]);
+          if (message[0] === '/') {
+            return commandManager.exec(socket, message);
+          } else {
+            return socket.broadcast.emit('message', [socket.id, message]);
+          }
         });
         return socket.on('disconnect', function() {
           socket.broadcast.emit('disconnect', socket.id);
@@ -832,7 +910,8 @@
           socket.get('name', function(error, name) {
             return socket.get('skin', function(error, skin) {
               socket.broadcast.emit('connection', [socket.id, name, skin]);
-              return socket.broadcast.emit('message', [null, name + ' has joined the game !']);
+              socket.broadcast.emit('message', [null, name + ' has joined the game !']);
+              return socket.emit('message', [null, 'Welcome !']);
             });
           });
           players = self.io.sockets.clients();
@@ -870,6 +949,98 @@
     };
 
     return NetworkManager;
+
+  })();
+
+  CommandManager = (function() {
+    function CommandManager() {
+      this.allowedCommands = [
+        {
+          cmd: ['difficulty', 'diff'],
+          params: 0,
+          exec: 'commandManager.help("difficulty")'
+        }, {
+          cmd: ['difficulty', 'diff'],
+          params: 1,
+          type: 'str',
+          exec: 'levelManager.setDifficulty'
+        }
+      ];
+    }
+
+    CommandManager.prototype.exec = function(socket, cmd) {
+      var msg, obj;
+      cmd = cmd.split('/')[1];
+      obj = this.exist(cmd);
+      if (obj && this.isAdmin(socket)) {
+        msg = this.execFunction(obj, cmd);
+        if (msg) {
+          return socket.emit('message', [null, msg]);
+        }
+      } else {
+        return socket.emit('message', [null, 'Command not found !']);
+      }
+    };
+
+    CommandManager.prototype.exist = function(cmd) {
+      var alias, command, params, tmp, _i, _j, _len, _len1, _ref, _ref1;
+      tmp = cmd.split(' ');
+      cmd = tmp[0];
+      params = tmp.length - 1;
+      _ref = this.allowedCommands;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        command = _ref[_i];
+        _ref1 = command.cmd;
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          alias = _ref1[_j];
+          if (alias === cmd && command.params === params) {
+            return command;
+          }
+        }
+      }
+      return false;
+    };
+
+    CommandManager.prototype.isAdmin = function(socket) {
+      return socket.id === networkManager.io.sockets.clients()[0].id;
+    };
+
+    CommandManager.prototype.execFunction = function(cmd, params) {
+      var i, p, _i, _ref;
+      params = params.split(' ');
+      if (cmd.params === 0 && cmd.exec !== void 0) {
+        return eval(cmd.exec);
+      } else if (cmd.exec !== void 0) {
+        p = '';
+        for (i = _i = 1, _ref = cmd.params; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
+          p += this.sanitizeParameter(params[i], cmd.type) + ',';
+        }
+        p = p.substr(0, p.length - 1);
+        return eval(cmd.exec + '(' + p + ')');
+      } else {
+        return 'Command unknown';
+      }
+    };
+
+    CommandManager.prototype.sanitizeParameter = function(param, rule) {
+      if (rule === 'bool') {
+        return param === 'true';
+      } else if (rule === 'int') {
+        return parseInt(param);
+      } else {
+        return '"' + param + '"';
+      }
+    };
+
+    CommandManager.prototype.help = function(cmd) {
+      if (cmd === 'difficulty') {
+        return 'Command usage : /difficulty easy|medium|hard|hell';
+      } else {
+        return 'Command unknown';
+      }
+    };
+
+    return CommandManager;
 
   })();
 
@@ -1076,7 +1247,7 @@
     RoueMan.prototype.getPattern = function() {
       var attacks, options, speed, speedPerLevel;
       speedPerLevel = 0.03;
-      speed = Math.round((0.6 + speedPerLevel * levelManager.level) * 100) / 100;
+      speed = Math.round((0.6 + speedPerLevel * (levelManager.level + config.bossDifficulty)) * 100) / 100;
       options = speed;
       attacks = this.generateAttacks();
       return [options, attacks];
@@ -1120,8 +1291,8 @@
 
     FreezeMan.prototype.getPattern = function() {
       var attack, attacks, i, interval, options, speed, _i;
-      speed = Math.round((0.4 + 0.05 * levelManager.level) * 100) / 100;
-      interval = 1500 - 50 * levelManager.level;
+      speed = Math.round((0.4 + 0.05 * (levelManager.level + config.bossDifficulty)) * 100) / 100;
+      interval = 1500 - 50 * (levelManager.level + config.bossDifficulty);
       options = [speed, interval];
       attacks = [];
       for (i = _i = 0; _i <= 5; i = ++_i) {
@@ -1145,9 +1316,9 @@
 
     PoingMan.prototype.getPattern = function() {
       var attack, attackSpeed, attacks, i, options, speed, waitTime, _i;
-      speed = Math.round((0.4 + 0.035 * levelManager.level) * 100) / 100;
-      attackSpeed = Math.round((0.6 + 0.04 * levelManager.level) * 100) / 100;
-      waitTime = 300 - 15 * levelManager.level;
+      speed = Math.round((0.4 + 0.035 * (levelManager.level + config.bossDifficulty)) * 100) / 100;
+      attackSpeed = Math.round((0.6 + 0.04 * (levelManager.level + config.bossDifficulty)) * 100) / 100;
+      waitTime = 300 - 15 * (levelManager.level + config.bossDifficulty);
       options = [speed, attackSpeed, waitTime];
       attacks = [];
       for (i = _i = 0; _i <= 5; i = ++_i) {
@@ -1177,8 +1348,8 @@
     LabiMan.prototype.getPattern = function() {
       var attackSpeed, attacks, options, speed, wait;
       speed = 0.4;
-      attackSpeed = Math.round((0.075 + 0.0075 * (levelManager.level - 1)) * 100) / 100;
-      wait = 4000 - 50 * levelManager.level;
+      attackSpeed = Math.round((0.075 + 0.0075 * ((levelManager.level + config.bossDifficulty) - 1)) * 100) / 100;
+      wait = 4000 - 50 * (levelManager.level + config.bossDifficulty);
       options = [speed, attackSpeed, wait];
       attacks = this.makeLevel();
       return [options, attacks];
@@ -1243,9 +1414,9 @@
 
     SparkMan.prototype.getPattern = function() {
       var attackSpeed, attacks, interval, options, speed;
-      speed = Math.round((0.5 + 0.03 * levelManager.level) * 100) / 100;
-      attackSpeed = Math.round((0.2 + 0.005 * (levelManager.level - 1)) * 100) / 100;
-      interval = 4000 - 20 * levelManager.level;
+      speed = Math.round((0.5 + 0.03 * (levelManager.level + config.bossDifficulty)) * 100) / 100;
+      attackSpeed = Math.round((0.2 + 0.005 * ((levelManager.level + config.bossDifficulty) - 1)) * 100) / 100;
+      interval = 4000 - 20 * (levelManager.level + config.bossDifficulty);
       options = [speed, attackSpeed, interval];
       attacks = this.makeLevel(attackSpeed);
       return [options, attacks];
@@ -1281,7 +1452,7 @@
     HomingMan.prototype.getPattern = function() {
       var attackSpeed, attacks, options, speed;
       speed = 0.5;
-      attackSpeed = Math.round((0.4 + 0.01 * (levelManager.level - 1)) * 100) / 100;
+      attackSpeed = Math.round((0.4 + 0.01 * ((levelManager.level + config.bossDifficulty) - 1)) * 100) / 100;
       options = [speed, attackSpeed];
       attacks = this.getLevel();
       return [options, attacks];
@@ -1336,8 +1507,8 @@
 
     MissileMan.prototype.getPattern = function() {
       var attacks, interval, options, speed;
-      speed = Math.round((0.5 + 0.025 * levelManager.level) * 100) / 100;
-      interval = 500 - levelManager.level * 30;
+      speed = Math.round((0.5 + 0.025 * (levelManager.level + config.bossDifficulty)) * 100) / 100;
+      interval = 500 - (levelManager.level + config.bossDifficulty) * 30;
       options = [speed, interval];
       attacks = this.genAttacks();
       return [options, attacks];
@@ -1375,6 +1546,8 @@
   levelManager = new LevelManager();
 
   bossManager = new BossManager();
+
+  commandManager = new CommandManager();
 
   setInterval(function() {
     return game.loop();

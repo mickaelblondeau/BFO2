@@ -27,8 +27,8 @@ class LevelManager
     @moveStage()
 
   randomizeHeight: ->
-    min = Math.round(4+@level/2)
-    max = Math.round(8+@level/2)
+    min = Math.round(config.minLevel+@level/2)
+    max = Math.round(config.maxLevel+@level/2)
     return Math.floor((Math.random()*(max-min))+min)
 
   nextLevel: ->
@@ -47,10 +47,81 @@ class LevelManager
       bossManager.launch()
 
   passNextLevel: ->
-    if @level in [4, 8, 12, 16, 20]
+    if config.checkpoint and @level in config.checkpoints
       @savedLevel = @level
       bossManager.saveBosses()
       networkManager.sendMessage('Checkpoint !')
     cubeManager.waiting = false
     bossManager.launched = false
     levelManager.nextLevel()
+
+  setDifficulty: (level) ->
+    if level is 'hell'
+      networkManager.sendMessage('Difficulty changed to hell.')
+      networkManager.sendMessage('You shall not pass.')
+      @difficultyHell()
+      return false
+    else if level is 'hard'
+      networkManager.sendMessage('Difficulty changed to hard.')
+      @difficultyHard()
+      return false
+    else if level is 'medium'
+      networkManager.sendMessage('Difficulty changed to medium.')
+      @difficultyMedium()
+      return false
+    else if level is 'easy'
+      networkManager.sendMessage('Difficulty changed to easy.')
+      @difficultyEasy()
+      return false
+    else
+      'Difficulty not changed, invalid option.'
+
+  difficultyHell: ->
+    @savedLevel = 0
+    config.checkpoint = false
+    config.levelSpeed = 600
+    config.fastLevelSpeed = 300
+    config.speedPerLevel = 50
+    config.randomEventProb = 0.8
+    config.minLevel = 6
+    config.maxLevel = 12
+    config.bossDifficulty = 3
+    @reset()
+
+  difficultyHard: ->
+    @savedLevel = 0
+    config.checkpoint = false
+    config.levelSpeed = 800
+    config.fastLevelSpeed = 400
+    config.speedPerLevel = 40
+    config.randomEventProb = 0.7
+    config.minLevel = 6
+    config.maxLevel = 12
+    config.bossDifficulty = 2
+    @reset()
+
+  difficultyMedium: ->
+    @savedLevel = 0
+    config.checkpoint = true
+    checkpoints: [6, 12, 18]
+    config.levelSpeed = 1000
+    config.fastLevelSpeed = 500
+    config.speedPerLevel = 35
+    config.randomEventProb = 0.6
+    config.minLevel = 6
+    config.maxLevel = 10
+    config.bossDifficulty = 1
+    @reset()
+
+  difficultyEasy: ->
+    @savedLevel = 0
+    config.checkpoint = true
+    checkpoints: [4, 8, 12, 16, 20]
+    config.levelSpeed = 1200
+    config.fastLevelSpeed = 600
+    config.speedPerLevel = 30
+    config.randomEventProb = 0.5
+    config.minLevel = 4
+    config.maxLevel = 8
+    config.bossDifficulty = 0
+    @reset()

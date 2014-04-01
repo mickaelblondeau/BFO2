@@ -91,6 +91,10 @@ class CubeManager
     cubes.each (cube) ->
       for pos in map
         if collisionManager.pointInCube(cube, pos)
+          obj = cube.getName()
+          if obj isnt null and obj isnt undefined and obj.child isnt undefined
+            for child in obj.child
+              child.shape.destroy()
           cube.destroy()
     @reinitPhysic()
 

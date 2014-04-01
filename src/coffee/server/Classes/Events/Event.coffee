@@ -16,9 +16,7 @@ class Event
     @id = id
     @send()
     if @id is 1
-      fn = ->
-        @spawnBonuses()
-      setTimeout(fn, 2000)
+      @spawnBonuses()
 
   send: ->
     networkManager.sendRandomEvent(@id)

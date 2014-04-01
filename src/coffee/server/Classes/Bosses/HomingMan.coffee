@@ -5,7 +5,7 @@ class HomingMan extends Boss
 
   getPattern: ->
     speed = 0.5
-    attackSpeed = Math.round((0.4 + 0.01 * (levelManager.level - 1)) * 100) / 100
+    attackSpeed = Math.round((0.4 + 0.01 * ((levelManager.level + config.bossDifficulty) - 1)) * 100) / 100
     options = [speed, attackSpeed]
     attacks = @getLevel()
     return [options, attacks]
