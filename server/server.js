@@ -1240,9 +1240,7 @@
       return this.tmpBeatenBosses = [];
     };
 
-    BossManager.prototype.restart = function() {
-      return this.boss = this.initBosses;
-    };
+    BossManager.prototype.restart = function() {};
 
     return BossManager;
 

@@ -779,7 +779,7 @@
 
     Player.prototype.spawn = function() {
       this.shape.setX(336);
-      return this.shape.setY(stage.getY() * -1 - 160);
+      return this.shape.setY(stage.getY() * -1 - 224);
     };
 
     Player.prototype.reset = function() {
@@ -2112,7 +2112,7 @@
         new Effect(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL, 'speedBonus', null, true);
       } else if (event === 'tp') {
         player.shape.setX(this.shape.getX() + 16);
-        player.shape.setY(this.shape.getY() - 384);
+        player.shape.setY(this.shape.getY() - 448);
         new Effect(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL, 'tp', null, true);
       }
       return this.shape.destroy();
@@ -3482,7 +3482,9 @@
       var cubes;
       cubes = dynamicEntities.find('Sprite');
       cubes.each(function(cube) {
-        return cube.destroy();
+        if (cube.getName().type !== 'boss') {
+          return cube.destroy();
+        }
       });
       cubes = staticCubes.find('Sprite');
       return cubes.each(function(cube) {
