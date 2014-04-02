@@ -139,3 +139,15 @@ class ContentLoader
     else
       @currentSong = @musics
       @playMusic('music' + @currentSong)
+
+  setEffectVolume: (vol) ->
+    for sound in @soundsToLoad
+      if sound.type is 'effect'
+        @sounds[sound.name].volume = vol/100
+    document.querySelector('#sound-effect').innerHTML = localStorage.getItem('volume_effect') || 10
+
+  setMusicVolume: (vol) ->
+    for sound in @soundsToLoad
+      if sound.type is 'music'
+        @sounds[sound.name].volume = vol/100
+    document.querySelector('#sound-music').innerHTML = localStorage.getItem('volume_music') || 10

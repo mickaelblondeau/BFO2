@@ -574,6 +574,30 @@
       }
     };
 
+    ContentLoader.prototype.setEffectVolume = function(vol) {
+      var sound, _i, _len, _ref;
+      _ref = this.soundsToLoad;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        sound = _ref[_i];
+        if (sound.type === 'effect') {
+          this.sounds[sound.name].volume = vol / 100;
+        }
+      }
+      return document.querySelector('#sound-effect').innerHTML = localStorage.getItem('volume_effect') || 10;
+    };
+
+    ContentLoader.prototype.setMusicVolume = function(vol) {
+      var sound, _i, _len, _ref;
+      _ref = this.soundsToLoad;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        sound = _ref[_i];
+        if (sound.type === 'music') {
+          this.sounds[sound.name].volume = vol / 100;
+        }
+      }
+      return document.querySelector('#sound-music').innerHTML = localStorage.getItem('volume_music') || 10;
+    };
+
     return ContentLoader;
 
   })();
@@ -2831,7 +2855,9 @@
       localStorage.setItem('player_head', skinManager.getSkin('head'));
       localStorage.setItem('player_body', skinManager.getSkin('body'));
       localStorage.setItem('player_leg', skinManager.getSkin('leg'));
-      return localStorage.setItem('player_shoes', skinManager.getSkin('shoes'));
+      localStorage.setItem('player_shoes', skinManager.getSkin('shoes'));
+      localStorage.setItem('volume_effect', document.querySelector('#sound-effect').innerHTML);
+      return localStorage.setItem('volume_music', document.querySelector('#sound-music').innerHTML);
     };
 
     SaveManager.prototype.loadOptions = function() {
@@ -2841,7 +2867,9 @@
       skinManager.setSkin('head', localStorage.getItem('player_head') || 1);
       skinManager.setSkin('body', localStorage.getItem('player_body') || 1);
       skinManager.setSkin('leg', localStorage.getItem('player_leg') || 1);
-      return skinManager.setSkin('shoes', localStorage.getItem('player_shoes') || 1);
+      skinManager.setSkin('shoes', localStorage.getItem('player_shoes') || 1);
+      contentLoader.setEffectVolume(localStorage.getItem('volume_effect') || 10);
+      return contentLoader.setMusicVolume(localStorage.getItem('volume_music') || 10);
     };
 
     return SaveManager;
