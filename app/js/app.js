@@ -2393,10 +2393,9 @@
           if (collide) {
             cube.setY(collide.getY() - cube.getHeight());
             obj = cube.getName();
-            if (obj === null || obj === void 0) {
-              obj = {};
+            if (obj.type !== 'bonus') {
+              obj.falling = false;
             }
-            obj.falling = false;
             if (obj.child !== void 0) {
               _ref = obj.child;
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
