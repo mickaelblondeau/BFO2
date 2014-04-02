@@ -1,18 +1,21 @@
 class ControllablePlayer extends Player
   constructor: (skin) ->
     super(skin)
-    @speed = config.playerSpeed
-    @couchedSpeedRatio = 0.5
-    @fallMinAcceleration = 0.1
-    @fallMaxAcceleration = 0.6
-    @fallAcceleration = 1.10
+    @reinitStats()
+
+  reinitStats: ->
+    @speed = config.player.speed
+    @jumpHeight = config.player.jumpHeight
+    @jumpMax = config.player.jumpMax
+    @couchedSpeedRatio = config.player.couchedSpeedRation
+    @fallMinAcceleration = config.player.fallMinAcceleration
+    @fallMaxAcceleration = config.player.fallMaxAcceleration
+    @fallAcceleration = config.player.fallAcceleration
+    @jumpMinAcceleration = config.player.jumpMinAcceleration
+    @jumpMaxAcceleration = config.player.jumpMaxAcceleration
+    @jumpDeceleration = config.player.jumpDeceleration
+    @jumpCurrentAcceleration = config.player.jumpCurrentAcceleration
     @fallCurrentAcceleration = @fallMinAcceleration
-    @jumpMinAcceleration = 0.1
-    @jumpMaxAcceleration = 0.6
-    @jumpDeceleration = 0.90
-    @jumpCurrentAcceleration = 0
-    @jumpHeight = config.playerJumpHeight
-    @jumpMax = config.playerJumpMax
     @jump = false
     @canJump = true
     @jumpStart = 0
@@ -28,6 +31,10 @@ class ControllablePlayer extends Player
     @cached = {}
     @availableDoubleJump = 0
     @availableGrab = 0
+
+  reset: ->
+    @reinitStats()
+    super()
 
   update: (frameTime) ->
     if !(!@alive and @shape.getY() > stage.getY()*-1 + stage.getHeight())

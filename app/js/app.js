@@ -18,6 +18,19 @@
       leg: 3,
       shoes: 4,
       skin: 4
+    },
+    player: {
+      jumpMax: 2,
+      jumpHeight: 82,
+      speed: 0.17,
+      couchedSpeedRation: 0.5,
+      fallMinAcceleration: 0.1,
+      fallMaxAcceleration: 0.6,
+      fallAcceleration: 1.10,
+      jumpMinAcceleration: 0.1,
+      jumpMaxAcceleration: 0.6,
+      jumpDeceleration: 0.90,
+      jumpCurrentAcceleration: 0
     }
   };
 
@@ -783,16 +796,7 @@
     };
 
     Player.prototype.reset = function() {
-      this.spawn();
-      this.alive = true;
-      this.falling = true;
-      this.jumpMax = config.playerJumpMax;
-      this.speed = config.playerSpeed;
-      this.jumpHeight = config.playerJumpHeight;
-      this.availableDoubleJump = 0;
-      this.availableGrab = 0;
-      this.grabbing = false;
-      return this.coopJump = false;
+      return this.spawn();
     };
 
     Player.prototype.resurection = function() {
@@ -862,18 +866,22 @@
 
     function ControllablePlayer(skin) {
       ControllablePlayer.__super__.constructor.call(this, skin);
-      this.speed = config.playerSpeed;
-      this.couchedSpeedRatio = 0.5;
-      this.fallMinAcceleration = 0.1;
-      this.fallMaxAcceleration = 0.6;
-      this.fallAcceleration = 1.10;
+      this.reinitStats();
+    }
+
+    ControllablePlayer.prototype.reinitStats = function() {
+      this.speed = config.player.speed;
+      this.jumpHeight = config.player.jumpHeight;
+      this.jumpMax = config.player.jumpMax;
+      this.couchedSpeedRatio = config.player.couchedSpeedRation;
+      this.fallMinAcceleration = config.player.fallMinAcceleration;
+      this.fallMaxAcceleration = config.player.fallMaxAcceleration;
+      this.fallAcceleration = config.player.fallAcceleration;
+      this.jumpMinAcceleration = config.player.jumpMinAcceleration;
+      this.jumpMaxAcceleration = config.player.jumpMaxAcceleration;
+      this.jumpDeceleration = config.player.jumpDeceleration;
+      this.jumpCurrentAcceleration = config.player.jumpCurrentAcceleration;
       this.fallCurrentAcceleration = this.fallMinAcceleration;
-      this.jumpMinAcceleration = 0.1;
-      this.jumpMaxAcceleration = 0.6;
-      this.jumpDeceleration = 0.90;
-      this.jumpCurrentAcceleration = 0;
-      this.jumpHeight = config.playerJumpHeight;
-      this.jumpMax = config.playerJumpMax;
       this.jump = false;
       this.canJump = true;
       this.jumpStart = 0;
@@ -888,8 +896,13 @@
       this.actualCollisions = [];
       this.cached = {};
       this.availableDoubleJump = 0;
-      this.availableGrab = 0;
-    }
+      return this.availableGrab = 0;
+    };
+
+    ControllablePlayer.prototype.reset = function() {
+      this.reinitStats();
+      return ControllablePlayer.__super__.reset.call(this);
+    };
 
     ControllablePlayer.prototype.update = function(frameTime) {
       var collide, moveSide, moveSpeed;

@@ -58,15 +58,6 @@ class Player
 
   reset: ->
     @spawn()
-    @alive = true
-    @falling = true
-    @jumpMax = config.playerJumpMax
-    @speed = config.playerSpeed
-    @jumpHeight = config.playerJumpHeight
-    @availableDoubleJump = 0
-    @availableGrab = 0
-    @grabbing = false
-    @coopJump = false
 
   resurection: ->
     if !@alive
