@@ -7,8 +7,7 @@ config = {
   speedPerLevel: 35
   timeout: 5000
   randomEventProb: 0.6
-  checkpoint: true
-  checkpoints: [6, 12, 18]
+  checkpoints: [4, 8, 12, 16]
   minLevel: 6
   maxLevel: 10
   bossDifficulty: 1

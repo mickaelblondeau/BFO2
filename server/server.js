@@ -13,8 +13,7 @@
     speedPerLevel: 35,
     timeout: 5000,
     randomEventProb: 0.6,
-    checkpoint: true,
-    checkpoints: [6, 12, 18],
+    checkpoints: [4, 8, 12, 16],
     minLevel: 6,
     maxLevel: 10,
     bossDifficulty: 1
@@ -610,7 +609,7 @@
 
     LevelManager.prototype.passNextLevel = function() {
       var _ref;
-      if (config.checkpoint && (_ref = this.level, __indexOf.call(config.checkpoints, _ref) >= 0)) {
+      if (_ref = this.level, __indexOf.call(config.checkpoints, _ref) >= 0) {
         this.savedLevel = this.level;
         bossManager.saveBosses();
         networkManager.sendMessage('Checkpoint !');
@@ -645,7 +644,6 @@
 
     LevelManager.prototype.difficultyHell = function() {
       this.savedLevel = 0;
-      config.checkpoint = false;
       config.levelSpeed = 600;
       config.fastLevelSpeed = 300;
       config.speedPerLevel = 50;
@@ -653,12 +651,11 @@
       config.minLevel = 6;
       config.maxLevel = 12;
       config.bossDifficulty = 3;
-      return this.reset();
+      return this.restart();
     };
 
     LevelManager.prototype.difficultyHard = function() {
       this.savedLevel = 0;
-      config.checkpoint = false;
       config.levelSpeed = 800;
       config.fastLevelSpeed = 400;
       config.speedPerLevel = 40;
@@ -666,15 +663,11 @@
       config.minLevel = 6;
       config.maxLevel = 12;
       config.bossDifficulty = 2;
-      return this.reset();
+      return this.restart();
     };
 
     LevelManager.prototype.difficultyMedium = function() {
       this.savedLevel = 0;
-      config.checkpoint = true;
-      ({
-        checkpoints: [6, 12, 18]
-      });
       config.levelSpeed = 1000;
       config.fastLevelSpeed = 500;
       config.speedPerLevel = 35;
@@ -682,15 +675,11 @@
       config.minLevel = 6;
       config.maxLevel = 10;
       config.bossDifficulty = 1;
-      return this.reset();
+      return this.restart();
     };
 
     LevelManager.prototype.difficultyEasy = function() {
       this.savedLevel = 0;
-      config.checkpoint = true;
-      ({
-        checkpoints: [4, 8, 12, 16, 20]
-      });
       config.levelSpeed = 1200;
       config.fastLevelSpeed = 600;
       config.speedPerLevel = 30;
@@ -698,6 +687,11 @@
       config.minLevel = 4;
       config.maxLevel = 8;
       config.bossDifficulty = 0;
+      return this.restart();
+    };
+
+    LevelManager.prototype.restart = function() {
+      bossManager.restart();
       return this.reset();
     };
 
@@ -1185,7 +1179,8 @@
   BossManager = (function() {
     function BossManager() {
       this.launched = false;
-      this.boss = ['roueman', 'freezeman', 'poingman', 'labiman', 'sparkman', 'homingman', 'missileman'];
+      this.initBosses = ['roueman', 'freezeman', 'poingman', 'labiman', 'sparkman', 'homingman', 'missileman'];
+      this.boss = this.initBosses;
       this.tmpBeatenBosses = [];
       this.beatenBosses = [];
     }
@@ -1243,6 +1238,10 @@
 
     BossManager.prototype.saveBosses = function() {
       return this.tmpBeatenBosses = [];
+    };
+
+    BossManager.prototype.restart = function() {
+      return this.boss = this.initBosses;
     };
 
     return BossManager;

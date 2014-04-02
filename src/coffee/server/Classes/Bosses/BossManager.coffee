@@ -1,7 +1,8 @@
 class BossManager
   constructor: ->
     @launched = false
-    @boss = ['roueman', 'freezeman', 'poingman', 'labiman', 'sparkman', 'homingman', 'missileman']
+    @initBosses = ['roueman', 'freezeman', 'poingman', 'labiman', 'sparkman', 'homingman', 'missileman']
+    @boss = @initBosses
     @tmpBeatenBosses = []
     @beatenBosses = []
 
@@ -48,3 +49,6 @@ class BossManager
 
   saveBosses: ->
     @tmpBeatenBosses = []
+
+  restart: ->
+    @boss = @initBosses

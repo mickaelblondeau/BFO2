@@ -47,7 +47,7 @@ class LevelManager
       bossManager.launch()
 
   passNextLevel: ->
-    if config.checkpoint and @level in config.checkpoints
+    if @level in config.checkpoints
       @savedLevel = @level
       bossManager.saveBosses()
       networkManager.sendMessage('Checkpoint !')
@@ -78,7 +78,6 @@ class LevelManager
 
   difficultyHell: ->
     @savedLevel = 0
-    config.checkpoint = false
     config.levelSpeed = 600
     config.fastLevelSpeed = 300
     config.speedPerLevel = 50
@@ -86,11 +85,10 @@ class LevelManager
     config.minLevel = 6
     config.maxLevel = 12
     config.bossDifficulty = 3
-    @reset()
+    @restart()
 
   difficultyHard: ->
     @savedLevel = 0
-    config.checkpoint = false
     config.levelSpeed = 800
     config.fastLevelSpeed = 400
     config.speedPerLevel = 40
@@ -98,12 +96,10 @@ class LevelManager
     config.minLevel = 6
     config.maxLevel = 12
     config.bossDifficulty = 2
-    @reset()
+    @restart()
 
   difficultyMedium: ->
     @savedLevel = 0
-    config.checkpoint = true
-    checkpoints: [6, 12, 18]
     config.levelSpeed = 1000
     config.fastLevelSpeed = 500
     config.speedPerLevel = 35
@@ -111,12 +107,10 @@ class LevelManager
     config.minLevel = 6
     config.maxLevel = 10
     config.bossDifficulty = 1
-    @reset()
+    @restart()
 
   difficultyEasy: ->
     @savedLevel = 0
-    config.checkpoint = true
-    checkpoints: [4, 8, 12, 16, 20]
     config.levelSpeed = 1200
     config.fastLevelSpeed = 600
     config.speedPerLevel = 30
@@ -124,4 +118,8 @@ class LevelManager
     config.minLevel = 4
     config.maxLevel = 8
     config.bossDifficulty = 0
+    @restart()
+
+  restart: ->
+    bossManager.restart()
     @reset()
