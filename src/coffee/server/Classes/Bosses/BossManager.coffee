@@ -13,7 +13,7 @@ class BossManager
       @launched = true
       @updateBosses(boss.name)
     else
-      networkManager.sendMessage('YAY GG !')
+      levelManager.passNextLevel()
 
   reset: ->
     @launched = false

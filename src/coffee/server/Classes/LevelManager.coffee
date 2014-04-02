@@ -80,7 +80,7 @@ class LevelManager
     @savedLevel = 0
     config.levelSpeed = 600
     config.fastLevelSpeed = 300
-    config.speedPerLevel = 50
+    config.speedPerLevel = 40
     config.randomEventProb = 0.8
     config.minLevel = 6
     config.maxLevel = 12
@@ -91,7 +91,7 @@ class LevelManager
     @savedLevel = 0
     config.levelSpeed = 800
     config.fastLevelSpeed = 400
-    config.speedPerLevel = 40
+    config.speedPerLevel = 35
     config.randomEventProb = 0.7
     config.minLevel = 6
     config.maxLevel = 12

@@ -353,25 +353,29 @@ class CubeManager
       special: 'explosion'
       id: 1
     }
-    b4 = {
-      proba: 2
-      size: SquareEnum.MEDIUM
-      width: SquareEnum.MEDIUM.x/32
-      height: SquareEnum.MEDIUM.y/32
-      special: 'slowblock'
-      id: 2
-    }
-    new Special(1, 0, b4)
+    new Block(0, 0, b2, true)
     networkManager.sendMap(@cubeMap)
 
     self = @
 
-    fn = ->
-      new Special(0, 2, b4)
-      networkManager.sendMap(self.cubeMap)
-    setTimeout(fn, 500)
+    interval = config.levelSpeed
 
     fn = ->
-      new Special(3, 0, b3)
+      new Block(1, 4, b1, true)
       networkManager.sendMap(self.cubeMap)
-    setTimeout(fn, 1000)
+    setTimeout(fn, interval*1)
+
+    fn = ->
+      new Block(2, 6, b1, true)
+      networkManager.sendMap(self.cubeMap)
+    setTimeout(fn, interval*2)
+
+    fn = ->
+      new Block(0, 8, b2, true)
+      networkManager.sendMap(self.cubeMap)
+    setTimeout(fn, interval*3)
+
+    fn = ->
+      new Special(4, 0, b3)
+      networkManager.sendMap(self.cubeMap)
+    setTimeout(fn, interval*4)
