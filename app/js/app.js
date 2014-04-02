@@ -7,9 +7,6 @@
     levelHeight: 976,
     levelWidth: 704,
     levelSpeed: 1000,
-    playerJumpMax: 2,
-    playerJumpHeight: 82,
-    playerSpeed: 0.17,
     debug: false,
     skins: {
       body: 4,
@@ -2573,7 +2570,10 @@
         rand = Math.floor(Math.random() * positions.length);
         player.shape.setX(positions[rand].x);
         player.shape.setY(positions[rand].y);
-        player.couched = positions[rand].couched;
+        player.grabbing = false;
+        if (positions[rand].couched) {
+          player.startCouch();
+        }
         player.jump = false;
       }
       return shape.destroy();
@@ -2923,7 +2923,7 @@
       if (text !== this.jump.getText()) {
         this.jump.setText(text);
       }
-      text = 'Speed : ' + Math.floor(player.speed / config.playerSpeed * 100) + "%";
+      text = 'Speed : ' + Math.floor(player.speed / config.player.speed * 100) + "%";
       if (text !== this.speed.getText()) {
         this.speed.setText(text);
       }

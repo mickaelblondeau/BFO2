@@ -142,7 +142,9 @@ class CubeManager
       rand = Math.floor((Math.random()*positions.length))
       player.shape.setX(positions[rand].x)
       player.shape.setY(positions[rand].y)
-      player.couched = positions[rand].couched
+      player.grabbing = false
+      if positions[rand].couched
+        player.startCouch()
       player.jump = false
     shape.destroy()
 
