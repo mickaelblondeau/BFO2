@@ -18,28 +18,59 @@ class BonusManager
       {
         name: 'speedBonus'
         attribute: 'speed'
-        value: 0.015
+        value: 0.03
+        max: 3
       },
       {
         name: 'jumpHeightBonus'
         attribute: 'jumpHeight'
-        value: 3
+        value: 18
+        max: 3
       },
     ]
-    @timers = []
+    @playerBonuses = {}
+    @resetBonuses()
+
+  resetBonuses: ->
+    @playerBonuses = {
+      jumpHeightBonus: 0
+      speedBonus: 0
+    }
 
   getBonus: (bonusName) ->
-    contentLoader.play('pickup')
+    bonus = @findBonus(bonusName)
+    if @canTake(bonus)
+      contentLoader.play('pickup')
+      @addBonus(bonus)
+      return true
+    else
+      return false
+
+  canTake: (bonus) ->
+    if bonus.max isnt undefined
+      switch bonus.attribute
+        when "speed"
+          @playerBonuses.speedBonus < bonus.max
+        when "jumpHeight"
+          return @playerBonuses.jumpHeightBonus < bonus.max
+        else
+          return false
+    else
+      return true
+
+  findBonus: (bonusName) ->
     for bonus in @bonuses
       if bonusName is bonus.name
-        @addBonus(bonus)
+        return bonus
 
   addBonus: (bonus) ->
     switch bonus.attribute
       when "speed"
         player.speed += bonus.value
+        @playerBonuses.speedBonus++
       when "jumpHeight"
-        player.jumpHeight += bonus.value
+        player.addJumpHeight(bonus.value)
+        @playerBonuses.jumpHeightBonus++
       when "jumpCount"
         player.availableDoubleJump += bonus.value
       when "grab"

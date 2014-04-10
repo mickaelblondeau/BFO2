@@ -12,8 +12,7 @@ class CubeManager
         if collide
           cube.setY(collide.getY() - cube.getHeight())
           obj = cube.getName()
-          if obj.type isnt 'bonus'
-            obj.falling = false
+          obj.falling = false
           if obj.child isnt undefined
             for child in obj.child
               child.shape.setY(cube.getY() - 2)

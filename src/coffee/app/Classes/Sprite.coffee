@@ -458,8 +458,8 @@ spriteAnimations = {
     height: 32
   }],
   doubleJumpBonus: [{
-    x: 0
-    y: 0
+    x: 34
+    y: 34
     width: 32
     height: 32
   }],

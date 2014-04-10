@@ -8,11 +8,11 @@ class HUD
     if text != @level.getText()
       @level.setText(text)
 
-    text = 'Jump : ' + Math.floor(player.jumpHeight/32*100)/100
+    text = 'Jump : ' + bonusManager.playerBonuses.jumpHeightBonus + '/' + bonusManager.bonuses[4].max
     if text != @jump.getText()
       @jump.setText(text)
 
-    text = 'Speed : ' + Math.floor(player.speed/config.player.speed*100) + "%"
+    text = 'Speed : ' + bonusManager.playerBonuses.speedBonus + '/' + bonusManager.bonuses[3].max
     if text != @speed.getText()
       @speed.setText(text)
 

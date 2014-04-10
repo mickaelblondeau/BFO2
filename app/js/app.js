@@ -813,7 +813,8 @@
 
     Player.prototype.spawn = function() {
       this.shape.setX(336);
-      return this.shape.setY(stage.getY() * -1 - 224);
+      this.shape.setY(stage.getY() * -1 - 224);
+      return this.shape.setHeight(this.height);
     };
 
     Player.prototype.reset = function() {
@@ -1174,10 +1175,10 @@
     };
 
     ControllablePlayer.prototype.takeBonus = function(bonus) {
-      bonusManager.getBonus(bonus.getName().name);
-      bonus.destroy();
-      dynamicEntities.draw();
-      return networkManager.sendBonusTaken(bonus.getId());
+      if (bonusManager.getBonus(bonus.getName().name)) {
+        bonus.destroy();
+        return networkManager.sendBonusTaken(bonus.getId());
+      }
     };
 
     ControllablePlayer.prototype.changeAnimation = function(animation) {
@@ -1252,8 +1253,16 @@
         this.alive = false;
         contentLoader.play('death');
         new Effect(this.shape.getX() - 16, this.shape.getY(), SquareEnum.SMALL, 'blood', true);
-        return networkManager.sendDie();
+        networkManager.sendDie();
+        return bonusManager.resetBonuses();
       }
+    };
+
+    ControllablePlayer.prototype.addJumpHeight = function(height) {
+      this.jumpHeight += height;
+      this.jumpMinAcceleration = 0.1;
+      this.jumpMaxAcceleration += height / 200;
+      return this.jumpDeceleration += height / 2000;
     };
 
     return ControllablePlayer;
@@ -1845,8 +1854,8 @@
     ],
     doubleJumpBonus: [
       {
-        x: 0,
-        y: 0,
+        x: 34,
+        y: 34,
         width: 32,
         height: 32
       }
@@ -2241,38 +2250,72 @@
         }, {
           name: 'speedBonus',
           attribute: 'speed',
-          value: 0.015
+          value: 0.03,
+          max: 3
         }, {
           name: 'jumpHeightBonus',
           attribute: 'jumpHeight',
-          value: 3
+          value: 18,
+          max: 3
         }
       ];
-      this.timers = [];
+      this.playerBonuses = {};
+      this.resetBonuses();
     }
 
+    BonusManager.prototype.resetBonuses = function() {
+      return this.playerBonuses = {
+        jumpHeightBonus: 0,
+        speedBonus: 0
+      };
+    };
+
     BonusManager.prototype.getBonus = function(bonusName) {
-      var bonus, _i, _len, _ref, _results;
-      contentLoader.play('pickup');
+      var bonus;
+      bonus = this.findBonus(bonusName);
+      if (this.canTake(bonus)) {
+        contentLoader.play('pickup');
+        this.addBonus(bonus);
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    BonusManager.prototype.canTake = function(bonus) {
+      if (bonus.max !== void 0) {
+        switch (bonus.attribute) {
+          case "speed":
+            return this.playerBonuses.speedBonus < bonus.max;
+          case "jumpHeight":
+            return this.playerBonuses.jumpHeightBonus < bonus.max;
+          default:
+            return false;
+        }
+      } else {
+        return true;
+      }
+    };
+
+    BonusManager.prototype.findBonus = function(bonusName) {
+      var bonus, _i, _len, _ref;
       _ref = this.bonuses;
-      _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         bonus = _ref[_i];
         if (bonusName === bonus.name) {
-          _results.push(this.addBonus(bonus));
-        } else {
-          _results.push(void 0);
+          return bonus;
         }
       }
-      return _results;
     };
 
     BonusManager.prototype.addBonus = function(bonus) {
       switch (bonus.attribute) {
         case "speed":
-          return player.speed += bonus.value;
+          player.speed += bonus.value;
+          return this.playerBonuses.speedBonus++;
         case "jumpHeight":
-          return player.jumpHeight += bonus.value;
+          player.addJumpHeight(bonus.value);
+          return this.playerBonuses.jumpHeightBonus++;
         case "jumpCount":
           return player.availableDoubleJump += bonus.value;
         case "grab":
@@ -2393,9 +2436,7 @@
           if (collide) {
             cube.setY(collide.getY() - cube.getHeight());
             obj = cube.getName();
-            if (obj.type !== 'bonus') {
-              obj.falling = false;
-            }
+            obj.falling = false;
             if (obj.child !== void 0) {
               _ref = obj.child;
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -2946,11 +2987,11 @@
       if (text !== this.level.getText()) {
         this.level.setText(text);
       }
-      text = 'Jump : ' + Math.floor(player.jumpHeight / 32 * 100) / 100;
+      text = 'Jump : ' + bonusManager.playerBonuses.jumpHeightBonus + '/' + bonusManager.bonuses[4].max;
       if (text !== this.jump.getText()) {
         this.jump.setText(text);
       }
-      text = 'Speed : ' + Math.floor(player.speed / config.player.speed * 100) + "%";
+      text = 'Speed : ' + bonusManager.playerBonuses.speedBonus + '/' + bonusManager.bonuses[3].max;
       if (text !== this.speed.getText()) {
         this.speed.setText(text);
       }

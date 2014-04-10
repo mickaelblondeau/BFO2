@@ -240,10 +240,9 @@ class ControllablePlayer extends Player
     return false
 
   takeBonus: (bonus) ->
-    bonusManager.getBonus(bonus.getName().name)
-    bonus.destroy()
-    dynamicEntities.draw()
-    networkManager.sendBonusTaken(bonus.getId())
+    if bonusManager.getBonus(bonus.getName().name)
+      bonus.destroy()
+      networkManager.sendBonusTaken(bonus.getId())
 
   changeAnimation: (animation) ->
     if @skin.getAnimation() != animation
@@ -300,3 +299,10 @@ class ControllablePlayer extends Player
       contentLoader.play('death')
       new Effect(@shape.getX() - 16, @shape.getY(), SquareEnum.SMALL, 'blood', true)
       networkManager.sendDie()
+      bonusManager.resetBonuses()
+
+  addJumpHeight: (height) ->
+    @jumpHeight += height
+    @jumpMinAcceleration = 0.1
+    @jumpMaxAcceleration += height/200
+    @jumpDeceleration += height/2000
