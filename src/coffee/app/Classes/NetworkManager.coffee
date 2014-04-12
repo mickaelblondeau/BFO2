@@ -87,6 +87,16 @@ class NetworkManager
     @socket.on 'message', (arr) ->
       game.addMessage(arr[0], arr[1])
 
+    @socket.on 'tpBonus', (id) ->
+      if self.players[id] isnt undefined
+        vPlayer = self.players[id]
+        player.shape.setX(vPlayer.shape.getX())
+        player.shape.setY(vPlayer.shape.getY())
+        player.grabbing = false
+        if vPlayer.skin.getAnimation() is 'couch' or vPlayer.skin.getAnimation() is 'couchMove'
+          player.startCouch()
+        player.jump = false
+
   sendLaunch: ->
     @socket.emit 'launch'
 
@@ -119,3 +129,6 @@ class NetworkManager
 
   sendMessage: (message) ->
     @socket.emit 'message', message
+
+  sendTp: ->
+    @socket.emit 'tpBonus'

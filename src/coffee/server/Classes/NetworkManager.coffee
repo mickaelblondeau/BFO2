@@ -65,6 +65,9 @@ class NetworkManager
         else
           socket.broadcast.emit 'message', [socket.id, message]
 
+      socket.on 'tpBonus', (message) ->
+        socket.broadcast.emit 'tpBonus', socket.id
+
       socket.on 'disconnect', ->
         socket.broadcast.emit 'disconnect', socket.id
         socket.get 'name', (error, name) ->

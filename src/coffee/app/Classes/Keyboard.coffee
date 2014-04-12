@@ -59,5 +59,12 @@ class Keyboard
         on_keydown    : ->
           game.chat()
       },
+      {
+        keys          : "t",
+        on_keydown    : ->
+          if !game.writting
+            if player isnt undefined
+              player.useTp()
+      },
     ]
     keypress.register_many(my_combos)

@@ -27,6 +27,18 @@ class BonusManager
         value: 18
         max: 3
       },
+      {
+        name: 'autoRezBonus'
+        attribute: 'rezBonus'
+        value: 1
+        max: 1
+      },
+      {
+        name: 'tpBonus'
+        attribute: 'tpBonus'
+        value: 1
+        max: 2
+      },
     ]
     @playerBonuses = {}
     @resetBonuses()
@@ -35,6 +47,8 @@ class BonusManager
     @playerBonuses = {
       jumpHeightBonus: 0
       speedBonus: 0
+      autoRezBonus: 0
+      tpBonus: 0
     }
 
   getBonus: (bonusName) ->
@@ -50,9 +64,13 @@ class BonusManager
     if bonus.max isnt undefined
       switch bonus.attribute
         when "speed"
-          @playerBonuses.speedBonus < bonus.max
+          return @playerBonuses.speedBonus < bonus.max
         when "jumpHeight"
           return @playerBonuses.jumpHeightBonus < bonus.max
+        when "rezBonus"
+          return @playerBonuses.autoRezBonus < bonus.max
+        when "tpBonus"
+          return @playerBonuses.tpBonus < bonus.max
         else
           return false
     else
@@ -78,6 +96,10 @@ class BonusManager
       when "resurection"
         networkManager.sendResurection()
         player.resurection()
+      when "rezBonus"
+        @playerBonuses.autoRezBonus++
+      when "tpBonus"
+        @playerBonuses.tpBonus++
 
   remove: (id) ->
     bonus = dynamicEntities.find('#' + id)

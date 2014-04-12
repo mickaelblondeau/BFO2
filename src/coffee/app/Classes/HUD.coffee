@@ -1,67 +1,80 @@
 class HUD
   constructor: ->
-    @buffs = []
+    @hud = {
+      left: [
+        {
+          text: "'Level : ' + levelManager.level"
+        }
+      ]
+      right: [
+        {
+          icon: 'jumpHeightBonus'
+          text: "bonusManager.playerBonuses.jumpHeightBonus + '/' + bonusManager.bonuses[4].max"
+        }
+        {
+          icon: 'speedBonus'
+          text: "bonusManager.playerBonuses.speedBonus + '/' + bonusManager.bonuses[3].max"
+        }
+        {
+          icon: 'autoRezBonus'
+          text: "bonusManager.playerBonuses.autoRezBonus + '/' + bonusManager.bonuses[5].max"
+        }
+        {
+          icon: 'tpBonus'
+          text: "bonusManager.playerBonuses.tpBonus + '/' + bonusManager.bonuses[6].max + ' (T)'"
+        }
+        {
+          icon: 'doubleJumpBonus'
+          text: "player.availableDoubleJump"
+        }
+        {
+          icon: 'grabbingBonus'
+          text: "player.availableGrab"
+        }
+      ]
+    }
+    @elements = {
+      left: []
+      right: []
+    }
     @drawHUD()
 
   update: (frameTime) ->
-    text = 'Level : ' + levelManager.level
-    if text != @level.getText()
-      @level.setText(text)
-
-    text = 'Jump : ' + bonusManager.playerBonuses.jumpHeightBonus + '/' + bonusManager.bonuses[4].max
-    if text != @jump.getText()
-      @jump.setText(text)
-
-    text = 'Speed : ' + bonusManager.playerBonuses.speedBonus + '/' + bonusManager.bonuses[3].max
-    if text != @speed.getText()
-      @speed.setText(text)
-
-    text = 'Double Jumps : ' + player.availableDoubleJump
-    if text != @doubleJump.getText()
-      @doubleJump.setText(text)
-
-    text = 'Hook time : ' + player.availableGrab
-    if text != @grabbing.getText()
-      @grabbing.setText(text)
-
+    for elm, i in @hud.left
+      @elements.left[i].setText(eval(elm.text))
+    for elm, i in @hud.right
+      @elements.right[i].setText(eval(elm.text))
     hudLayer.draw()
 
   drawHUD: ->
-    @level = new Kinetic.Text
-      y: arena.y
-      fill: 'black'
-      fontFamily: 'Calibri'
-      fontSize: 18
-    hudLayer.add @level
+    for elm, i in @hud.left
+      tmp = new Kinetic.Text
+        y: arena.y - @elements.left.length * 32
+        fill: 'black'
+        fontFamily: 'Calibri'
+        fontSize: 18
+      hudLayer.add tmp
+      @elements.left[i] = tmp
 
-    @jump = new Kinetic.Text
-      y: arena.y
-      x: stage.getWidth() - 128
-      fill: 'black'
-      fontFamily: 'Calibri'
-      fontSize: 18
-    hudLayer.add @jump
-
-    @speed = new Kinetic.Text
-      y: arena.y - 20
-      x: stage.getWidth() - 128
-      fill: 'black'
-      fontFamily: 'Calibri'
-      fontSize: 18
-    hudLayer.add @speed
-
-    @doubleJump = new Kinetic.Text
-      y: arena.y - 40
-      x: stage.getWidth() - 128
-      fill: 'black'
-      fontFamily: 'Calibri'
-      fontSize: 18
-    hudLayer.add @doubleJump
-
-    @grabbing = new Kinetic.Text
-      y: arena.y - 60
-      x: stage.getWidth() - 128
-      fill: 'black'
-      fontFamily: 'Calibri'
-      fontSize: 18
-    hudLayer.add @grabbing
+    for elm, i in @hud.right
+      if elm.icon isnt undefined
+        icon = new Sprite(stage.getWidth() - 128 + 16, arena.y - @elements.right.length * 36, SquareEnum.SMALL, 'bonus', elm.icon)
+        icon = icon.shape
+        hudLayer.add icon
+        tmp = new Kinetic.Text
+          y: arena.y - @elements.right.length * 36 + 10
+          x: stage.getWidth() - 128 + 64
+          fill: 'black'
+          fontFamily: 'Calibri'
+          fontSize: 18
+        hudLayer.add tmp
+        @elements.right[i] = tmp
+      else
+        tmp = new Kinetic.Text
+          y: arena.y - @elements.right.length * 36
+          x: stage.getWidth() - 128
+          fill: 'black'
+          fontFamily: 'Calibri'
+          fontSize: 18
+        hudLayer.add tmp
+        @elements.right[i] = tmp

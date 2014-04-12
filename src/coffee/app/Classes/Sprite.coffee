@@ -475,6 +475,18 @@ spriteAnimations = {
     width: 32
     height: 32
   }],
+  autoRezBonus: [{
+    x: 68
+    y: 34
+    width: 32
+    height: 32
+  }],
+  tpBonus: [{
+    x: 102
+    y: 34
+    width: 32
+    height: 32
+  }],
   tp: [{
     x: 0
     y: 34

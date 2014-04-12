@@ -299,10 +299,19 @@ class ControllablePlayer extends Player
       contentLoader.play('death')
       new Effect(@shape.getX() - 16, @shape.getY(), SquareEnum.SMALL, 'blood', true)
       networkManager.sendDie()
-      bonusManager.resetBonuses()
+      if bonusManager.playerBonuses.autoRezBonus > 0
+        bonusManager.playerBonuses.autoRezBonus--
+        @resurection()
+      else
+        bonusManager.resetBonuses()
 
   addJumpHeight: (height) ->
     @jumpHeight += height
     @jumpMinAcceleration = 0.1
     @jumpMaxAcceleration += height/200
     @jumpDeceleration += height/2000
+
+  useTp: ->
+    if bonusManager.playerBonuses.tpBonus > 0
+      bonusManager.playerBonuses.tpBonus--
+      networkManager.sendTp()

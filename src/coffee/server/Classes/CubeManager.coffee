@@ -31,7 +31,7 @@ class CubeManager
 
     @types = [
       {
-        proba: 2
+        proba: 1
         size: SquareEnum.MEDIUM
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
@@ -39,7 +39,7 @@ class CubeManager
         id: 0
       },
       {
-        proba: 2
+        proba: 1
         size: SquareEnum.MEDIUM
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
@@ -47,7 +47,7 @@ class CubeManager
         id: 1
       },
       {
-        proba: 2
+        proba: 1
         size: SquareEnum.MEDIUM
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
@@ -55,7 +55,7 @@ class CubeManager
         id: 2
       },
       {
-        proba: 2
+        proba: 1
         size: SquareEnum.MEDIUM
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
@@ -63,7 +63,7 @@ class CubeManager
         id: 3
       },
       {
-        proba: 2
+        proba: 1
         size: SquareEnum.MEDIUM
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
@@ -71,7 +71,7 @@ class CubeManager
         id: 4
       },
       {
-        proba: 2
+        proba: 1
         size: SquareEnum.MEDIUM
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
@@ -79,7 +79,7 @@ class CubeManager
         id: 5
       },
       {
-        proba: 2
+        proba: 1
         size: SquareEnum.MEDIUM
         width: SquareEnum.MEDIUM.x/32
         height: SquareEnum.MEDIUM.y/32
@@ -87,7 +87,7 @@ class CubeManager
         id: 6
       },
       {
-        proba: 2
+        proba: 1
         size: SquareEnum.SMALL
         width: SquareEnum.SMALL.x/32
         height: SquareEnum.SMALL.y/32
@@ -95,7 +95,7 @@ class CubeManager
         id: 1
       },
       {
-        proba: 2
+        proba: 1
         size: SquareEnum.SMALL
         width: SquareEnum.SMALL.x/32
         height: SquareEnum.SMALL.y/32
@@ -117,6 +117,22 @@ class CubeManager
         height: SquareEnum.SMALL.y/32
         bonus: 'grabbing'
         id: 4
+      },
+      {
+        proba: 1
+        size: SquareEnum.SMALL
+        width: SquareEnum.SMALL.x/32
+        height: SquareEnum.SMALL.y/32
+        bonus: 'autoRezBonus'
+        id: 6
+      },
+      {
+        proba: 2
+        size: SquareEnum.SMALL
+        width: SquareEnum.SMALL.x/32
+        height: SquareEnum.SMALL.y/32
+        bonus: 'tpBonus'
+        id: 7
       },
       {
         proba: 5

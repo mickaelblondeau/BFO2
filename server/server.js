@@ -88,63 +88,63 @@
       this.cubes = [];
       this.types = [
         {
-          proba: 2,
+          proba: 1,
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
           special: 'iceExplosion',
           id: 0
         }, {
-          proba: 2,
+          proba: 1,
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
           special: 'explosion',
           id: 1
         }, {
-          proba: 2,
+          proba: 1,
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
           special: 'slowblock',
           id: 2
         }, {
-          proba: 2,
+          proba: 1,
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
           special: 'stompblock',
           id: 3
         }, {
-          proba: 2,
+          proba: 1,
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
           special: 'swapblock',
           id: 4
         }, {
-          proba: 2,
+          proba: 1,
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
           special: 'tpblock',
           id: 5
         }, {
-          proba: 2,
+          proba: 1,
           size: SquareEnum.MEDIUM,
           width: SquareEnum.MEDIUM.x / 32,
           height: SquareEnum.MEDIUM.y / 32,
           special: 'randblock',
           id: 6
         }, {
-          proba: 2,
+          proba: 1,
           size: SquareEnum.SMALL,
           width: SquareEnum.SMALL.x / 32,
           height: SquareEnum.SMALL.y / 32,
           bonus: 'speed',
           id: 1
         }, {
-          proba: 2,
+          proba: 1,
           size: SquareEnum.SMALL,
           width: SquareEnum.SMALL.x / 32,
           height: SquareEnum.SMALL.y / 32,
@@ -164,6 +164,20 @@
           height: SquareEnum.SMALL.y / 32,
           bonus: 'grabbing',
           id: 4
+        }, {
+          proba: 1,
+          size: SquareEnum.SMALL,
+          width: SquareEnum.SMALL.x / 32,
+          height: SquareEnum.SMALL.y / 32,
+          bonus: 'autoRezBonus',
+          id: 6
+        }, {
+          proba: 2,
+          size: SquareEnum.SMALL,
+          width: SquareEnum.SMALL.x / 32,
+          height: SquareEnum.SMALL.y / 32,
+          bonus: 'tpBonus',
+          id: 7
         }, {
           proba: 5,
           size: SquareEnum.LARGE,
@@ -779,6 +793,9 @@
             return socket.broadcast.emit('message', [socket.id, message]);
           }
         });
+        socket.on('tpBonus', function(message) {
+          return socket.broadcast.emit('tpBonus', socket.id);
+        });
         return socket.on('disconnect', function() {
           socket.broadcast.emit('disconnect', socket.id);
           return socket.get('name', function(error, name) {
@@ -1304,7 +1321,7 @@
 
     FreezeMan.prototype.getPattern = function() {
       var attack, attacks, i, interval, options, speed, _i;
-      speed = Math.round((0.4 + 0.05 * (levelManager.level + config.bossDifficulty)) * 100) / 100;
+      speed = Math.round((0.5 + 0.03 * (levelManager.level + config.bossDifficulty)) * 100) / 100;
       interval = 1500 - 50 * (levelManager.level + config.bossDifficulty);
       options = [speed, interval];
       attacks = [];

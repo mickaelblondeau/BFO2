@@ -100,6 +100,15 @@
           on_keydown: function() {
             return game.chat();
           }
+        }, {
+          keys: "t",
+          on_keydown: function() {
+            if (!game.writting) {
+              if (player !== void 0) {
+                return player.useTp();
+              }
+            }
+          }
         }
       ];
       return keypress.register_many(my_combos);
@@ -1254,7 +1263,12 @@
         contentLoader.play('death');
         new Effect(this.shape.getX() - 16, this.shape.getY(), SquareEnum.SMALL, 'blood', true);
         networkManager.sendDie();
-        return bonusManager.resetBonuses();
+        if (bonusManager.playerBonuses.autoRezBonus > 0) {
+          bonusManager.playerBonuses.autoRezBonus--;
+          return this.resurection();
+        } else {
+          return bonusManager.resetBonuses();
+        }
       }
     };
 
@@ -1263,6 +1277,13 @@
       this.jumpMinAcceleration = 0.1;
       this.jumpMaxAcceleration += height / 200;
       return this.jumpDeceleration += height / 2000;
+    };
+
+    ControllablePlayer.prototype.useTp = function() {
+      if (bonusManager.playerBonuses.tpBonus > 0) {
+        bonusManager.playerBonuses.tpBonus--;
+        return networkManager.sendTp();
+      }
     };
 
     return ControllablePlayer;
@@ -1876,6 +1897,22 @@
         height: 32
       }
     ],
+    autoRezBonus: [
+      {
+        x: 68,
+        y: 34,
+        width: 32,
+        height: 32
+      }
+    ],
+    tpBonus: [
+      {
+        x: 102,
+        y: 34,
+        width: 32,
+        height: 32
+      }
+    ],
     tp: [
       {
         x: 0,
@@ -2199,6 +2236,12 @@
     }, {
       id: 5,
       name: 'resurectionBonus'
+    }, {
+      id: 6,
+      name: 'autoRezBonus'
+    }, {
+      id: 7,
+      name: 'tpBonus'
     }
   ];
 
@@ -2257,6 +2300,16 @@
           attribute: 'jumpHeight',
           value: 18,
           max: 3
+        }, {
+          name: 'autoRezBonus',
+          attribute: 'rezBonus',
+          value: 1,
+          max: 1
+        }, {
+          name: 'tpBonus',
+          attribute: 'tpBonus',
+          value: 1,
+          max: 2
         }
       ];
       this.playerBonuses = {};
@@ -2266,7 +2319,9 @@
     BonusManager.prototype.resetBonuses = function() {
       return this.playerBonuses = {
         jumpHeightBonus: 0,
-        speedBonus: 0
+        speedBonus: 0,
+        autoRezBonus: 0,
+        tpBonus: 0
       };
     };
 
@@ -2289,6 +2344,10 @@
             return this.playerBonuses.speedBonus < bonus.max;
           case "jumpHeight":
             return this.playerBonuses.jumpHeightBonus < bonus.max;
+          case "rezBonus":
+            return this.playerBonuses.autoRezBonus < bonus.max;
+          case "tpBonus":
+            return this.playerBonuses.tpBonus < bonus.max;
           default:
             return false;
         }
@@ -2323,6 +2382,10 @@
         case "resurection":
           networkManager.sendResurection();
           return player.resurection();
+        case "rezBonus":
+          return this.playerBonuses.autoRezBonus++;
+        case "tpBonus":
+          return this.playerBonuses.tpBonus++;
       }
     };
 
@@ -2764,8 +2827,21 @@
         }
         return _results;
       });
-      return this.socket.on('message', function(arr) {
+      this.socket.on('message', function(arr) {
         return game.addMessage(arr[0], arr[1]);
+      });
+      return this.socket.on('tpBonus', function(id) {
+        var vPlayer;
+        if (self.players[id] !== void 0) {
+          vPlayer = self.players[id];
+          player.shape.setX(vPlayer.shape.getX());
+          player.shape.setY(vPlayer.shape.getY());
+          player.grabbing = false;
+          if (vPlayer.skin.getAnimation() === 'couch' || vPlayer.skin.getAnimation() === 'couchMove') {
+            player.startCouch();
+          }
+          return player.jump = false;
+        }
       });
     };
 
@@ -2811,6 +2887,10 @@
 
     NetworkManager.prototype.sendMessage = function(message) {
       return this.socket.emit('message', message);
+    };
+
+    NetworkManager.prototype.sendTp = function() {
+      return this.socket.emit('tpBonus');
     };
 
     return NetworkManager;
@@ -2977,75 +3057,100 @@
 
   HUD = (function() {
     function HUD() {
-      this.buffs = [];
+      this.hud = {
+        left: [
+          {
+            text: "'Level : ' + levelManager.level"
+          }
+        ],
+        right: [
+          {
+            icon: 'jumpHeightBonus',
+            text: "bonusManager.playerBonuses.jumpHeightBonus + '/' + bonusManager.bonuses[4].max"
+          }, {
+            icon: 'speedBonus',
+            text: "bonusManager.playerBonuses.speedBonus + '/' + bonusManager.bonuses[3].max"
+          }, {
+            icon: 'autoRezBonus',
+            text: "bonusManager.playerBonuses.autoRezBonus + '/' + bonusManager.bonuses[5].max"
+          }, {
+            icon: 'tpBonus',
+            text: "bonusManager.playerBonuses.tpBonus + '/' + bonusManager.bonuses[6].max + ' (T)'"
+          }, {
+            icon: 'doubleJumpBonus',
+            text: "player.availableDoubleJump"
+          }, {
+            icon: 'grabbingBonus',
+            text: "player.availableGrab"
+          }
+        ]
+      };
+      this.elements = {
+        left: [],
+        right: []
+      };
       this.drawHUD();
     }
 
     HUD.prototype.update = function(frameTime) {
-      var text;
-      text = 'Level : ' + levelManager.level;
-      if (text !== this.level.getText()) {
-        this.level.setText(text);
+      var elm, i, _i, _j, _len, _len1, _ref, _ref1;
+      _ref = this.hud.left;
+      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        elm = _ref[i];
+        this.elements.left[i].setText(eval(elm.text));
       }
-      text = 'Jump : ' + bonusManager.playerBonuses.jumpHeightBonus + '/' + bonusManager.bonuses[4].max;
-      if (text !== this.jump.getText()) {
-        this.jump.setText(text);
-      }
-      text = 'Speed : ' + bonusManager.playerBonuses.speedBonus + '/' + bonusManager.bonuses[3].max;
-      if (text !== this.speed.getText()) {
-        this.speed.setText(text);
-      }
-      text = 'Double Jumps : ' + player.availableDoubleJump;
-      if (text !== this.doubleJump.getText()) {
-        this.doubleJump.setText(text);
-      }
-      text = 'Hook time : ' + player.availableGrab;
-      if (text !== this.grabbing.getText()) {
-        this.grabbing.setText(text);
+      _ref1 = this.hud.right;
+      for (i = _j = 0, _len1 = _ref1.length; _j < _len1; i = ++_j) {
+        elm = _ref1[i];
+        this.elements.right[i].setText(eval(elm.text));
       }
       return hudLayer.draw();
     };
 
     HUD.prototype.drawHUD = function() {
-      this.level = new Kinetic.Text({
-        y: arena.y,
-        fill: 'black',
-        fontFamily: 'Calibri',
-        fontSize: 18
-      });
-      hudLayer.add(this.level);
-      this.jump = new Kinetic.Text({
-        y: arena.y,
-        x: stage.getWidth() - 128,
-        fill: 'black',
-        fontFamily: 'Calibri',
-        fontSize: 18
-      });
-      hudLayer.add(this.jump);
-      this.speed = new Kinetic.Text({
-        y: arena.y - 20,
-        x: stage.getWidth() - 128,
-        fill: 'black',
-        fontFamily: 'Calibri',
-        fontSize: 18
-      });
-      hudLayer.add(this.speed);
-      this.doubleJump = new Kinetic.Text({
-        y: arena.y - 40,
-        x: stage.getWidth() - 128,
-        fill: 'black',
-        fontFamily: 'Calibri',
-        fontSize: 18
-      });
-      hudLayer.add(this.doubleJump);
-      this.grabbing = new Kinetic.Text({
-        y: arena.y - 60,
-        x: stage.getWidth() - 128,
-        fill: 'black',
-        fontFamily: 'Calibri',
-        fontSize: 18
-      });
-      return hudLayer.add(this.grabbing);
+      var elm, i, icon, tmp, _i, _j, _len, _len1, _ref, _ref1, _results;
+      _ref = this.hud.left;
+      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        elm = _ref[i];
+        tmp = new Kinetic.Text({
+          y: arena.y - this.elements.left.length * 32,
+          fill: 'black',
+          fontFamily: 'Calibri',
+          fontSize: 18
+        });
+        hudLayer.add(tmp);
+        this.elements.left[i] = tmp;
+      }
+      _ref1 = this.hud.right;
+      _results = [];
+      for (i = _j = 0, _len1 = _ref1.length; _j < _len1; i = ++_j) {
+        elm = _ref1[i];
+        if (elm.icon !== void 0) {
+          icon = new Sprite(stage.getWidth() - 128 + 16, arena.y - this.elements.right.length * 36, SquareEnum.SMALL, 'bonus', elm.icon);
+          icon = icon.shape;
+          hudLayer.add(icon);
+          tmp = new Kinetic.Text({
+            y: arena.y - this.elements.right.length * 36 + 10,
+            x: stage.getWidth() - 128 + 64,
+            fill: 'black',
+            fontFamily: 'Calibri',
+            fontSize: 18
+          });
+          hudLayer.add(tmp);
+          _results.push(this.elements.right[i] = tmp);
+        } else {
+          tmp = new Kinetic.Text({
+            y: arena.y - this.elements.right.length * 36,
+            x: stage.getWidth() - 128,
+            fill: 'black',
+            fontFamily: 'Calibri',
+            fontSize: 18
+          });
+          hudLayer.add(tmp);
+          _results.push(this.elements.right[i] = tmp);
+        }
+      }
+      return _results;
     };
 
     return HUD;

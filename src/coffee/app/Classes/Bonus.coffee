@@ -1,19 +1,27 @@
-bonusTypesId = [{
-  id: 1
-  name: 'speedBonus'
-}, {
-  id: 2
-  name: 'jumpHeightBonus'
-}, {
-  id: 3
-  name: 'doubleJumpBonus'
-}, {
-  id: 4
-  name: 'grabbingBonus'
-}, {
-  id: 5
-  name: 'resurectionBonus'
-}]
+bonusTypesId = [
+  {
+    id: 1
+    name: 'speedBonus'
+  }, {
+    id: 2
+    name: 'jumpHeightBonus'
+  }, {
+    id: 3
+    name: 'doubleJumpBonus'
+  }, {
+    id: 4
+    name: 'grabbingBonus'
+  }, {
+    id: 5
+    name: 'resurectionBonus'
+  }, {
+    id: 6
+    name: 'autoRezBonus'
+  }, {
+    id: 7
+    name: 'tpBonus'
+  }
+]
 
 class Bonus extends Sprite
   constructor: (col, typeId, id) ->
