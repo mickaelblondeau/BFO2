@@ -59,6 +59,7 @@ class Player
 
   reset: ->
     @spawn()
+    bonusManager.resetBonuses()
 
   resurection: ->
     if !@alive

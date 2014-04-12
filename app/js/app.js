@@ -827,7 +827,8 @@
     };
 
     Player.prototype.reset = function() {
-      return this.spawn();
+      this.spawn();
+      return bonusManager.resetBonuses();
     };
 
     Player.prototype.resurection = function() {
