@@ -96,6 +96,7 @@ class NetworkManager
         if vPlayer.skin.getAnimation() is 'couch' or vPlayer.skin.getAnimation() is 'couchMove'
           player.startCouch()
         player.jump = false
+        new Effect(vPlayer.shape.getX() - 24, vPlayer.shape.getY(), SquareEnum.SMALL, 'tp', null, true)
 
   sendLaunch: ->
     @socket.emit 'launch'

@@ -1282,7 +1282,8 @@
     ControllablePlayer.prototype.useTp = function() {
       if (bonusManager.playerBonuses.tpBonus > 0) {
         bonusManager.playerBonuses.tpBonus--;
-        return networkManager.sendTp();
+        networkManager.sendTp();
+        return new Effect(this.shape.getX() - 24, this.shape.getY(), SquareEnum.SMALL, 'tp', null, true);
       }
     };
 
@@ -2840,7 +2841,8 @@
           if (vPlayer.skin.getAnimation() === 'couch' || vPlayer.skin.getAnimation() === 'couchMove') {
             player.startCouch();
           }
-          return player.jump = false;
+          player.jump = false;
+          return new Effect(vPlayer.shape.getX() - 24, vPlayer.shape.getY(), SquareEnum.SMALL, 'tp', null, true);
         }
       });
     };

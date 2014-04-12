@@ -315,3 +315,4 @@ class ControllablePlayer extends Player
     if bonusManager.playerBonuses.tpBonus > 0
       bonusManager.playerBonuses.tpBonus--
       networkManager.sendTp()
+      new Effect(@shape.getX() - 24, @shape.getY(), SquareEnum.SMALL, 'tp', null, true)
