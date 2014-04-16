@@ -43,18 +43,6 @@ class Keyboard
           keyboard.keys.up = false
       },
       {
-        keys          : "r",
-        on_keydown    : ->
-          if !game.writting
-            game.reset()
-      },
-      {
-        keys          : "e",
-        on_keydown    : ->
-          if !game.writting
-            game.launch()
-      },
-      {
         keys          : "enter",
         on_keydown    : ->
           game.chat()
@@ -71,7 +59,7 @@ class Keyboard
         on_keydown    : ->
           if !game.writting
             if player isnt undefined
-              player.useJumpBlock()
+              player.use()
       },
     ]
     keypress.register_many(my_combos)
