@@ -7,6 +7,7 @@ SquareEnum = {
   LONG_RECT : { x: 32, y: 128 }
   BONUS : { x: 20, y: 20 }
   EFFECT : { x: 32, y: 12 }
+  HALF_SMALL : { x: 32, y: 16 }
 }
 
 spriteAnimations = {
@@ -149,7 +150,7 @@ spriteAnimations = {
     height: 32
   }],
 
-  # SPECIAL CUBES ANIMAtiONS
+  # SPECIAL CUBES ANIMATIONS
   'iceExplosion': [{
     x: 0
     y: 0
@@ -203,6 +204,12 @@ spriteAnimations = {
     y: 64
     width: 64
     height: 64
+  }],
+  jumpBlock: [{
+    x: 64
+    y: 0
+    width: 32
+    height: 16
   }],
 
   # EFFECT ANIMATIONS
@@ -484,6 +491,12 @@ spriteAnimations = {
   tpBonus: [{
     x: 102
     y: 34
+    width: 32
+    height: 32
+  }],
+  jumpBlockBonus: [{
+    x: 0
+    y: 68
     width: 32
     height: 32
   }],

@@ -66,5 +66,12 @@ class Keyboard
             if player isnt undefined
               player.useTp()
       },
+      {
+        keys          : "y",
+        on_keydown    : ->
+          if !game.writting
+            if player isnt undefined
+              player.useJumpBlock()
+      },
     ]
     keypress.register_many(my_combos)

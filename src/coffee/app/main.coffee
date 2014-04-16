@@ -98,6 +98,8 @@ contentLoader.contentsLoaded = ->
       players.draw()
       dynamicEntities.draw()
 
+    new Bonus(0, 8, 0)
+
   document.querySelector('#play').onclick = ->
     ip = document.querySelector('#ip').value.replace(" ","")
     name = document.querySelector('#name').value

@@ -20,6 +20,9 @@ bonusTypesId = [
   }, {
     id: 7
     name: 'tpBonus'
+  }, {
+    id: 8
+    name: 'jumpBlockBonus'
   }
 ]
 

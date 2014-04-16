@@ -261,6 +261,22 @@ class ControllablePlayer extends Player
       @sliding = true
     if effect.getName().name is 'slow'
       @slowed = true
+    if effect.getName().name is 'jumpBlock' and @falling and !@jump
+      @oldStats = {
+        jumpHeight: @jumpHeight
+        jumpMinAcceleration: @jumpMinAcceleration
+        jumpMaxAcceleration: @jumpMaxAcceleration
+        jumpDeceleration: @jumpDeceleration
+      }
+      @jumpStart = player.shape.getY()
+      @jumpHeight = 256
+      @jumpMinAcceleration = 0.2
+      @jumpMaxAcceleration = 1.4
+      @jumpCurrentAcceleration = @jumpMaxAcceleration
+      @jumpDeceleration = 0.91
+      @jumpCount = player.jumpMax
+      @stomped = true
+      @jump = true
 
   getCornerCollisions: ->
     grab = false
@@ -316,3 +332,11 @@ class ControllablePlayer extends Player
       bonusManager.playerBonuses.tpBonus--
       networkManager.sendTp()
       new Effect(@shape.getX() - 24, @shape.getY(), SquareEnum.SMALL, 'tp', null, true)
+
+  useJumpBlock: ->
+    if bonusManager.playerBonuses.jumpBlockBonus > 0
+      bonusManager.playerBonuses.jumpBlockBonus--
+      @tmp = new Effect(Math.round(@shape.getX()/32)*32, Math.floor((@shape.getY() + @shape.getHeight() - 16)/32)*32, SquareEnum.HALF_SMALL, 'jumpBlock')
+      obj = @tmp.shape.getName()
+      obj.falling = true
+      @tmp.shape.setName(obj)

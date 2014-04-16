@@ -109,6 +109,15 @@
               }
             }
           }
+        }, {
+          keys: "y",
+          on_keydown: function() {
+            if (!game.writting) {
+              if (player !== void 0) {
+                return player.useJumpBlock();
+              }
+            }
+          }
         }
       ];
       return keypress.register_many(my_combos);
@@ -1212,7 +1221,24 @@
         this.sliding = true;
       }
       if (effect.getName().name === 'slow') {
-        return this.slowed = true;
+        this.slowed = true;
+      }
+      if (effect.getName().name === 'jumpBlock' && this.falling && !this.jump) {
+        this.oldStats = {
+          jumpHeight: this.jumpHeight,
+          jumpMinAcceleration: this.jumpMinAcceleration,
+          jumpMaxAcceleration: this.jumpMaxAcceleration,
+          jumpDeceleration: this.jumpDeceleration
+        };
+        this.jumpStart = player.shape.getY();
+        this.jumpHeight = 256;
+        this.jumpMinAcceleration = 0.2;
+        this.jumpMaxAcceleration = 1.4;
+        this.jumpCurrentAcceleration = this.jumpMaxAcceleration;
+        this.jumpDeceleration = 0.91;
+        this.jumpCount = player.jumpMax;
+        this.stomped = true;
+        return this.jump = true;
       }
     };
 
@@ -1285,6 +1311,17 @@
         bonusManager.playerBonuses.tpBonus--;
         networkManager.sendTp();
         return new Effect(this.shape.getX() - 24, this.shape.getY(), SquareEnum.SMALL, 'tp', null, true);
+      }
+    };
+
+    ControllablePlayer.prototype.useJumpBlock = function() {
+      var obj;
+      if (bonusManager.playerBonuses.jumpBlockBonus > 0) {
+        bonusManager.playerBonuses.jumpBlockBonus--;
+        this.tmp = new Effect(Math.round(this.shape.getX() / 32) * 32, Math.floor((this.shape.getY() + this.shape.getHeight() - 16) / 32) * 32, SquareEnum.HALF_SMALL, 'jumpBlock');
+        obj = this.tmp.shape.getName();
+        obj.falling = true;
+        return this.tmp.shape.setName(obj);
       }
     };
 
@@ -1367,6 +1404,10 @@
     EFFECT: {
       x: 32,
       y: 12
+    },
+    HALF_SMALL: {
+      x: 32,
+      y: 16
     }
   };
 
@@ -1606,6 +1647,14 @@
         y: 64,
         width: 64,
         height: 64
+      }
+    ],
+    jumpBlock: [
+      {
+        x: 64,
+        y: 0,
+        width: 32,
+        height: 16
       }
     ],
     'blood': [
@@ -1911,6 +1960,14 @@
       {
         x: 102,
         y: 34,
+        width: 32,
+        height: 32
+      }
+    ],
+    jumpBlockBonus: [
+      {
+        x: 0,
+        y: 68,
         width: 32,
         height: 32
       }
@@ -2244,6 +2301,9 @@
     }, {
       id: 7,
       name: 'tpBonus'
+    }, {
+      id: 8,
+      name: 'jumpBlockBonus'
     }
   ];
 
@@ -2312,6 +2372,11 @@
           attribute: 'tpBonus',
           value: 1,
           max: 2
+        }, {
+          name: 'jumpBlockBonus',
+          attribute: 'jumpBlockBonus',
+          value: 1,
+          max: 1
         }
       ];
       this.playerBonuses = {};
@@ -2323,7 +2388,8 @@
         jumpHeightBonus: 0,
         speedBonus: 0,
         autoRezBonus: 0,
-        tpBonus: 0
+        tpBonus: 0,
+        jumpBlockBonus: 0
       };
     };
 
@@ -2350,6 +2416,8 @@
             return this.playerBonuses.autoRezBonus < bonus.max;
           case "tpBonus":
             return this.playerBonuses.tpBonus < bonus.max;
+          case "jumpBlockBonus":
+            return this.playerBonuses.jumpBlockBonus < bonus.max;
           default:
             return false;
         }
@@ -2388,6 +2456,8 @@
           return this.playerBonuses.autoRezBonus++;
         case "tpBonus":
           return this.playerBonuses.tpBonus++;
+        case "jumpBlockBonus":
+          return this.playerBonuses.jumpBlockBonus++;
       }
     };
 
@@ -3085,6 +3155,9 @@
           }, {
             icon: 'grabbingBonus',
             text: "player.availableGrab"
+          }, {
+            icon: 'jumpBlockBonus',
+            text: "bonusManager.playerBonuses.jumpBlockBonus + '/' + bonusManager.bonuses[7].max + ' (Y)'"
           }
         ]
       };
@@ -4303,10 +4376,11 @@
         cubeManager.update(frameTime);
         return pidgeon.update(frameTime);
       };
-      return game.draw = function() {
+      game.draw = function() {
         players.draw();
         return dynamicEntities.draw();
       };
+      return new Bonus(0, 8, 0);
     };
     return document.querySelector('#play').onclick = function() {
       var ip, name;

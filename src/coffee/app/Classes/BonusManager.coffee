@@ -39,6 +39,12 @@ class BonusManager
         value: 1
         max: 2
       },
+      {
+        name: 'jumpBlockBonus'
+        attribute: 'jumpBlockBonus'
+        value: 1
+        max: 1
+      },
     ]
     @playerBonuses = {}
     @resetBonuses()
@@ -49,6 +55,7 @@ class BonusManager
       speedBonus: 0
       autoRezBonus: 0
       tpBonus: 0
+      jumpBlockBonus: 0
     }
 
   getBonus: (bonusName) ->
@@ -71,6 +78,8 @@ class BonusManager
           return @playerBonuses.autoRezBonus < bonus.max
         when "tpBonus"
           return @playerBonuses.tpBonus < bonus.max
+        when "jumpBlockBonus"
+          return @playerBonuses.jumpBlockBonus < bonus.max
         else
           return false
     else
@@ -100,6 +109,8 @@ class BonusManager
         @playerBonuses.autoRezBonus++
       when "tpBonus"
         @playerBonuses.tpBonus++
+      when "jumpBlockBonus"
+        @playerBonuses.jumpBlockBonus++
 
   remove: (id) ->
     bonus = dynamicEntities.find('#' + id)

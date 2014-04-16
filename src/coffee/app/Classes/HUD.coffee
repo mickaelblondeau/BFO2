@@ -31,6 +31,10 @@ class HUD
           icon: 'grabbingBonus'
           text: "player.availableGrab"
         }
+        {
+          icon: 'jumpBlockBonus'
+          text: "bonusManager.playerBonuses.jumpBlockBonus + '/' + bonusManager.bonuses[7].max + ' (Y)'"
+        }
       ]
     }
     @elements = {
