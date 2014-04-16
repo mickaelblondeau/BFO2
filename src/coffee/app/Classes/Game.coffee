@@ -52,6 +52,14 @@ class Game
     document.getElementById("container").style.margin = "-"+(config.levelHeight-window.innerHeight)+" auto"
     document.getElementById("container").style.width = config.levelWidth
 
+  reset: ->
+    if networkManager.socket isnt undefined
+      networkManager.sendReset()
+
+  launch: ->
+    if networkManager.socket isnt undefined
+      networkManager.sendLaunch()
+
   loadAssets: ->
     contentLoader.loadImage({ name:'cubes', url:'../assets/cubes.jpg' })
     contentLoader.loadImage({ name:'cubes_red', url:'../assets/cubes_red.jpg' })

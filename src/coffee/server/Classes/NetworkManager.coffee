@@ -22,6 +22,15 @@ class NetworkManager
         else
           socket.broadcast.emit 'message', [null, arr[0] + ' is waiting to join !']
 
+      socket.on 'launch', ->
+        if socket.id is self.io.sockets.clients()[0].id
+          game.launch()
+
+      socket.on 'reset', ->
+        if socket.id is self.io.sockets.clients()[0].id
+          game.reset()
+          self.sendResetLevel()
+
       socket.on 'die', ->
         socket.broadcast.emit 'kill', socket.id
 
@@ -56,11 +65,8 @@ class NetworkManager
         else
           socket.broadcast.emit 'message', [socket.id, message]
 
-      socket.on 'tpBonus', ->
+      socket.on 'tpBonus', (message) ->
         socket.broadcast.emit 'tpBonus', socket.id
-
-      socket.on 'sendJumpBlock', (coords) ->
-        socket.broadcast.emit 'sendJumpBlock', coords
 
       socket.on 'disconnect', ->
         socket.broadcast.emit 'disconnect', socket.id

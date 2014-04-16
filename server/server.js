@@ -800,11 +800,8 @@
             return socket.broadcast.emit('message', [socket.id, message]);
           }
         });
-        socket.on('tpBonus', function() {
+        socket.on('tpBonus', function(message) {
           return socket.broadcast.emit('tpBonus', socket.id);
-        });
-        socket.on('sendJumpBlock', function(coords) {
-          return socket.broadcast.emit('sendJumpBlock', coords);
         });
         return socket.on('disconnect', function() {
           socket.broadcast.emit('disconnect', socket.id);
@@ -1001,6 +998,14 @@
           params: 1,
           type: 'str',
           exec: 'levelManager.setDifficulty'
+        }, {
+          cmd: ['start', 's'],
+          params: 0,
+          exec: 'game.launch'
+        }, {
+          cmd: ['reset', 'r'],
+          params: 0,
+          exec: 'game.reset'
         }
       ];
     }
