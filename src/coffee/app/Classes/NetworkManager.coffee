@@ -90,7 +90,7 @@ class NetworkManager
     @socket.on 'tpBonus', (id) ->
       if self.players[id] isnt undefined
         vPlayer = self.players[id]
-        if vPlayer.getY() > player.shape.getY() and !(player.skin.getAnimation() is 'couch' or player.skin.getAnimation() is 'couchMove')
+        if vPlayer.shape.getY() < player.shape.getY()
           player.shape.setX(vPlayer.shape.getX())
           player.shape.setY(vPlayer.shape.getY())
           player.grabbing = false

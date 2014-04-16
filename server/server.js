@@ -1001,14 +1001,6 @@
           params: 1,
           type: 'str',
           exec: 'levelManager.setDifficulty'
-        }, {
-          cmd: ['start', 's'],
-          params: 0,
-          exec: 'game.launch'
-        }, {
-          cmd: ['reset', 'r'],
-          params: 0,
-          exec: 'game.reset'
         }
       ];
     }

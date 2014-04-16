@@ -2936,7 +2936,7 @@
         var vPlayer;
         if (self.players[id] !== void 0) {
           vPlayer = self.players[id];
-          if (vPlayer.getY() > player.shape.getY() && !(player.skin.getAnimation() === 'couch' || player.skin.getAnimation() === 'couchMove')) {
+          if (vPlayer.shape.getY() < player.shape.getY()) {
             player.shape.setX(vPlayer.shape.getX());
             player.shape.setY(vPlayer.shape.getY());
             player.grabbing = false;
