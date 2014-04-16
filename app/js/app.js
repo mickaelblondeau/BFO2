@@ -1315,13 +1315,9 @@
     };
 
     ControllablePlayer.prototype.useJumpBlock = function() {
-      var obj;
       if (bonusManager.playerBonuses.jumpBlockBonus > 0) {
         bonusManager.playerBonuses.jumpBlockBonus--;
-        this.tmp = new Effect(Math.round(this.shape.getX() / 32) * 32, Math.floor((this.shape.getY() + this.shape.getHeight() - 16) / 32) * 32, SquareEnum.HALF_SMALL, 'jumpBlock');
-        obj = this.tmp.shape.getName();
-        obj.falling = true;
-        return this.tmp.shape.setName(obj);
+        return networkManager.sendJumpBlock(Math.round(this.shape.getX() / 32) * 32, Math.floor((this.shape.getY() + this.shape.getHeight() - 16) / 32) * 32);
       }
     };
 
@@ -2792,6 +2788,14 @@
       return player.jump = false;
     };
 
+    CubeManager.prototype.sendJumpBlock = function(x, y) {
+      var obj;
+      this.tmp = new Effect(x, y, SquareEnum.HALF_SMALL, 'jumpBlock');
+      obj = this.tmp.shape.getName();
+      obj.falling = true;
+      return this.tmp.shape.setName(obj);
+    };
+
     return CubeManager;
 
   })();
@@ -2902,7 +2906,7 @@
       this.socket.on('message', function(arr) {
         return game.addMessage(arr[0], arr[1]);
       });
-      return this.socket.on('tpBonus', function(id) {
+      this.socket.on('tpBonus', function(id) {
         var vPlayer;
         if (self.players[id] !== void 0) {
           vPlayer = self.players[id];
@@ -2915,6 +2919,9 @@
           player.jump = false;
           return new Effect(vPlayer.shape.getX() - 24, vPlayer.shape.getY(), SquareEnum.SMALL, 'tp', null, true);
         }
+      });
+      return this.socket.on('sendJumpBlock', function(coords) {
+        return cubeManager.sendJumpBlock(coords[0], coords[1]);
       });
     };
 
@@ -2964,6 +2971,11 @@
 
     NetworkManager.prototype.sendTp = function() {
       return this.socket.emit('tpBonus');
+    };
+
+    NetworkManager.prototype.sendJumpBlock = function(x, y) {
+      cubeManager.sendJumpBlock(x, y);
+      return this.socket.emit('sendJumpBlock', [x, y]);
     };
 
     return NetworkManager;
@@ -4376,11 +4388,10 @@
         cubeManager.update(frameTime);
         return pidgeon.update(frameTime);
       };
-      game.draw = function() {
+      return game.draw = function() {
         players.draw();
         return dynamicEntities.draw();
       };
-      return new Bonus(0, 8, 0);
     };
     return document.querySelector('#play').onclick = function() {
       var ip, name;

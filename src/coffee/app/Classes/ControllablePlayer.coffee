@@ -336,7 +336,4 @@ class ControllablePlayer extends Player
   useJumpBlock: ->
     if bonusManager.playerBonuses.jumpBlockBonus > 0
       bonusManager.playerBonuses.jumpBlockBonus--
-      @tmp = new Effect(Math.round(@shape.getX()/32)*32, Math.floor((@shape.getY() + @shape.getHeight() - 16)/32)*32, SquareEnum.HALF_SMALL, 'jumpBlock')
-      obj = @tmp.shape.getName()
-      obj.falling = true
-      @tmp.shape.setName(obj)
+      networkManager.sendJumpBlock(Math.round(@shape.getX()/32)*32, Math.floor((@shape.getY() + @shape.getHeight() - 16)/32)*32)

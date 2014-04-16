@@ -65,8 +65,11 @@ class NetworkManager
         else
           socket.broadcast.emit 'message', [socket.id, message]
 
-      socket.on 'tpBonus', (message) ->
+      socket.on 'tpBonus', ->
         socket.broadcast.emit 'tpBonus', socket.id
+
+      socket.on 'sendJumpBlock', (coords) ->
+        socket.broadcast.emit 'sendJumpBlock', coords
 
       socket.on 'disconnect', ->
         socket.broadcast.emit 'disconnect', socket.id

@@ -154,3 +154,9 @@ class CubeManager
     player.shape.setX(pos.x)
     player.shape.setY(pos.y)
     player.jump = false
+
+  sendJumpBlock: (x, y) ->
+    @tmp = new Effect(x, y, SquareEnum.HALF_SMALL, 'jumpBlock')
+    obj = @tmp.shape.getName()
+    obj.falling = true
+    @tmp.shape.setName(obj)

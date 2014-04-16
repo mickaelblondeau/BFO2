@@ -135,6 +135,14 @@ class CubeManager
         id: 7
       },
       {
+        proba: 1
+        size: SquareEnum.SMALL
+        width: SquareEnum.SMALL.x/32
+        height: SquareEnum.SMALL.y/32
+        bonus: 'jumpBlockBonus'
+        id: 8
+      },
+      {
         proba: 5
         size: SquareEnum.LARGE
         width: SquareEnum.LARGE.x/32

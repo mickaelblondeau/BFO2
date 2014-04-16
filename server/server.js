@@ -179,6 +179,13 @@
           bonus: 'tpBonus',
           id: 7
         }, {
+          proba: 1,
+          size: SquareEnum.SMALL,
+          width: SquareEnum.SMALL.x / 32,
+          height: SquareEnum.SMALL.y / 32,
+          bonus: 'jumpBlockBonus',
+          id: 8
+        }, {
           proba: 5,
           size: SquareEnum.LARGE,
           width: SquareEnum.LARGE.x / 32,
@@ -793,8 +800,11 @@
             return socket.broadcast.emit('message', [socket.id, message]);
           }
         });
-        socket.on('tpBonus', function(message) {
+        socket.on('tpBonus', function() {
           return socket.broadcast.emit('tpBonus', socket.id);
+        });
+        socket.on('sendJumpBlock', function(coords) {
+          return socket.broadcast.emit('sendJumpBlock', coords);
         });
         return socket.on('disconnect', function() {
           socket.broadcast.emit('disconnect', socket.id);

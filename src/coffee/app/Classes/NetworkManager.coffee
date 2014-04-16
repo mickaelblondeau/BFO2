@@ -98,6 +98,9 @@ class NetworkManager
         player.jump = false
         new Effect(vPlayer.shape.getX() - 24, vPlayer.shape.getY(), SquareEnum.SMALL, 'tp', null, true)
 
+    @socket.on 'sendJumpBlock', (coords) ->
+      cubeManager.sendJumpBlock(coords[0], coords[1])
+
   sendLaunch: ->
     @socket.emit 'launch'
 
@@ -133,3 +136,7 @@ class NetworkManager
 
   sendTp: ->
     @socket.emit 'tpBonus'
+
+  sendJumpBlock: (x, y) ->
+    cubeManager.sendJumpBlock(x, y)
+    @socket.emit 'sendJumpBlock', [x, y]
