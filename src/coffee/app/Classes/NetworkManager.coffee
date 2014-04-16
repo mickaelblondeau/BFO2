@@ -90,13 +90,14 @@ class NetworkManager
     @socket.on 'tpBonus', (id) ->
       if self.players[id] isnt undefined
         vPlayer = self.players[id]
-        player.shape.setX(vPlayer.shape.getX())
-        player.shape.setY(vPlayer.shape.getY())
-        player.grabbing = false
-        if vPlayer.skin.getAnimation() is 'couch' or vPlayer.skin.getAnimation() is 'couchMove'
-          player.startCouch()
-        player.jump = false
-        new Effect(vPlayer.shape.getX() - 24, vPlayer.shape.getY(), SquareEnum.SMALL, 'tp', null, true)
+        if vPlayer.getY() > player.shape.getY() and !(player.skin.getAnimation() is 'couch' or player.skin.getAnimation() is 'couchMove')
+          player.shape.setX(vPlayer.shape.getX())
+          player.shape.setY(vPlayer.shape.getY())
+          player.grabbing = false
+          if vPlayer.skin.getAnimation() is 'couch' or vPlayer.skin.getAnimation() is 'couchMove'
+            player.startCouch()
+          player.jump = false
+          new Effect(vPlayer.shape.getX() - 24, vPlayer.shape.getY(), SquareEnum.SMALL, 'tp', null, true)
 
     @socket.on 'sendJumpBlock', (coords) ->
       cubeManager.sendJumpBlock(coords[0], coords[1])

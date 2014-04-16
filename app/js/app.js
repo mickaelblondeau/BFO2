@@ -2936,14 +2936,16 @@
         var vPlayer;
         if (self.players[id] !== void 0) {
           vPlayer = self.players[id];
-          player.shape.setX(vPlayer.shape.getX());
-          player.shape.setY(vPlayer.shape.getY());
-          player.grabbing = false;
-          if (vPlayer.skin.getAnimation() === 'couch' || vPlayer.skin.getAnimation() === 'couchMove') {
-            player.startCouch();
+          if (vPlayer.getY() > player.shape.getY() && !(player.skin.getAnimation() === 'couch' || player.skin.getAnimation() === 'couchMove')) {
+            player.shape.setX(vPlayer.shape.getX());
+            player.shape.setY(vPlayer.shape.getY());
+            player.grabbing = false;
+            if (vPlayer.skin.getAnimation() === 'couch' || vPlayer.skin.getAnimation() === 'couchMove') {
+              player.startCouch();
+            }
+            player.jump = false;
+            return new Effect(vPlayer.shape.getX() - 24, vPlayer.shape.getY(), SquareEnum.SMALL, 'tp', null, true);
           }
-          player.jump = false;
-          return new Effect(vPlayer.shape.getX() - 24, vPlayer.shape.getY(), SquareEnum.SMALL, 'tp', null, true);
         }
       });
       return this.socket.on('sendJumpBlock', function(coords) {
