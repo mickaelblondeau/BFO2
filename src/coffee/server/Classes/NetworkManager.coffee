@@ -68,6 +68,9 @@ class NetworkManager
       socket.on 'tpBonus', (message) ->
         socket.broadcast.emit 'tpBonus', socket.id
 
+      socket.on 'sendJumpBlock', (coords) ->
+        socket.broadcast.emit 'sendJumpBlock', coords
+
       socket.on 'disconnect', ->
         socket.broadcast.emit 'disconnect', socket.id
         socket.get 'name', (error, name) ->

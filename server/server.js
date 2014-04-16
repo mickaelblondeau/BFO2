@@ -803,6 +803,9 @@
         socket.on('tpBonus', function(message) {
           return socket.broadcast.emit('tpBonus', socket.id);
         });
+        socket.on('sendJumpBlock', function(coords) {
+          return socket.broadcast.emit('sendJumpBlock', coords);
+        });
         return socket.on('disconnect', function() {
           socket.broadcast.emit('disconnect', socket.id);
           return socket.get('name', function(error, name) {
