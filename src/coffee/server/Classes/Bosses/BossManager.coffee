@@ -51,3 +51,6 @@ class BossManager
     @tmpBeatenBosses = []
 
   restart: ->
+    @beatenBosses = []
+    @tmpBeatenBosses = []
+    @boss = @initBosses
