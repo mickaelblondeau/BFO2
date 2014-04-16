@@ -616,6 +616,32 @@
       return document.querySelector('#sound-music').innerHTML = localStorage.getItem('volume_music') || 10;
     };
 
+    ContentLoader.prototype.setBG = function(color) {
+      if (color === "White") {
+        document.querySelector('body').style.background = "White";
+        document.querySelector('#sound-controller').style.color = "Black";
+        return document.querySelector('#color-switch a').innerHTML = "White";
+      } else {
+        document.querySelector('body').style.background = "Black";
+        document.querySelector('#sound-controller').style.color = "White";
+        return document.querySelector('#color-switch a').innerHTML = "Black";
+      }
+    };
+
+    ContentLoader.prototype.changeBG = function() {
+      var color;
+      color = document.querySelector('#color-switch a').innerHTML;
+      if (color === "White") {
+        document.querySelector('body').style.background = "Black";
+        document.querySelector('#sound-controller').style.color = "White";
+        return document.querySelector('#color-switch a').innerHTML = "Black";
+      } else {
+        document.querySelector('body').style.background = "White";
+        document.querySelector('#sound-controller').style.color = "Black";
+        return document.querySelector('#color-switch a').innerHTML = "White";
+      }
+    };
+
     return ContentLoader;
 
   })();
@@ -3062,7 +3088,8 @@
       localStorage.setItem('player_leg', skinManager.getSkin('leg'));
       localStorage.setItem('player_shoes', skinManager.getSkin('shoes'));
       localStorage.setItem('volume_effect', document.querySelector('#sound-effect').innerHTML);
-      return localStorage.setItem('volume_music', document.querySelector('#sound-music').innerHTML);
+      localStorage.setItem('volume_music', document.querySelector('#sound-music').innerHTML);
+      return localStorage.setItem('bg_color', document.querySelector('#color-switch a').innerHTML);
     };
 
     SaveManager.prototype.loadOptions = function() {
@@ -3074,7 +3101,8 @@
       skinManager.setSkin('leg', localStorage.getItem('player_leg') || 1);
       skinManager.setSkin('shoes', localStorage.getItem('player_shoes') || 1);
       contentLoader.setEffectVolume(localStorage.getItem('volume_effect') || 10);
-      return contentLoader.setMusicVolume(localStorage.getItem('volume_music') || 10);
+      contentLoader.setMusicVolume(localStorage.getItem('volume_music') || 10);
+      return contentLoader.setBG(localStorage.getItem('bg_color') || "White");
     };
 
     return SaveManager;
@@ -4442,6 +4470,10 @@
 
   document.querySelector('#music-next').onclick = function() {
     return contentLoader.nextSong();
+  };
+
+  document.querySelector('#color-switch').onclick = function() {
+    return contentLoader.changeBG();
   };
 
   divs = document.querySelectorAll('#skin-control div a');

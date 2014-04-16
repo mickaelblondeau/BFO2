@@ -151,3 +151,24 @@ class ContentLoader
       if sound.type is 'music'
         @sounds[sound.name].volume = vol/100
     document.querySelector('#sound-music').innerHTML = localStorage.getItem('volume_music') || 10
+
+  setBG: (color) ->
+    if color is "White"
+      document.querySelector('body').style.background = "White"
+      document.querySelector('#sound-controller').style.color = "Black"
+      document.querySelector('#color-switch a').innerHTML = "White"
+    else
+      document.querySelector('body').style.background = "Black"
+      document.querySelector('#sound-controller').style.color = "White"
+      document.querySelector('#color-switch a').innerHTML = "Black"
+
+  changeBG: ->
+    color = document.querySelector('#color-switch a').innerHTML
+    if color is "White"
+      document.querySelector('body').style.background = "Black"
+      document.querySelector('#sound-controller').style.color = "White"
+      document.querySelector('#color-switch a').innerHTML = "Black"
+    else
+      document.querySelector('body').style.background = "White"
+      document.querySelector('#sound-controller').style.color = "Black"
+      document.querySelector('#color-switch a').innerHTML = "White"

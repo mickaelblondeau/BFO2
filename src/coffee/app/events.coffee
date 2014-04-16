@@ -23,6 +23,9 @@ document.querySelector('#music-prev').onclick = ->
 document.querySelector('#music-next').onclick = ->
   contentLoader.nextSong()
 
+document.querySelector('#color-switch').onclick = ->
+  contentLoader.changeBG()
+
 
 divs = document.querySelectorAll('#skin-control div a')
 for div in divs
