@@ -263,32 +263,38 @@
       contentLoader.loadSound({
         name: 'music1',
         url: '../assets/sounds/music/music.ogg',
-        type: 'music'
+        type: 'music',
+        title: '?'
       });
       contentLoader.loadSound({
         name: 'music2',
         url: '../assets/sounds/music/music2.ogg',
-        type: 'music'
+        type: 'music',
+        title: '?'
       });
       contentLoader.loadSound({
         name: 'music3',
         url: '../assets/sounds/music/music3.ogg',
-        type: 'music'
+        type: 'music',
+        title: 'Rolemusic - Another beek beep beer please'
       });
       contentLoader.loadSound({
         name: 'music4',
         url: '../assets/sounds/music/music4.ogg',
-        type: 'music'
+        type: 'music',
+        title: 'Super Hexagon - Hexagonest Stage'
       });
       contentLoader.loadSound({
         name: 'music5',
         url: '../assets/sounds/music/music5.ogg',
-        type: 'music'
+        type: 'music',
+        title: 'VVVVVV - Pushing Onwards'
       });
       contentLoader.loadSound({
         name: 'music6',
         url: '../assets/sounds/music/music6.ogg',
-        type: 'music'
+        type: 'music',
+        title: 'VVVVVV - Predestined Fate'
       });
       return contentLoader.load();
     };
@@ -428,6 +434,9 @@
         audioObj = new Audio();
         audioObj.src = sound.url;
         audioObj.volume = 0.1;
+        if (sound.title !== void 0) {
+          audioObj.title = sound.title;
+        }
         this.sounds[sound.name] = audioObj;
         audioObj.oncanplaythrough = function() {
           self.count++;
@@ -562,7 +571,8 @@
     ContentLoader.prototype.playMusic = function(sound) {
       this.sounds[sound].pause();
       this.sounds[sound].currentTime = 0;
-      return this.sounds[sound].play();
+      this.sounds[sound].play();
+      return document.querySelector('#current-music').innerHTML = this.sounds[sound].title;
     };
 
     ContentLoader.prototype.playSong = function() {

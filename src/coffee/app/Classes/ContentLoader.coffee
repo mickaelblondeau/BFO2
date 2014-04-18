@@ -35,6 +35,8 @@ class ContentLoader
       audioObj = new Audio()
       audioObj.src = sound.url
       audioObj.volume = 0.1
+      if sound.title isnt undefined
+        audioObj.title = sound.title
       @sounds[sound.name] = audioObj
       audioObj.oncanplaythrough  = ->
         self.count++
@@ -116,6 +118,7 @@ class ContentLoader
     @sounds[sound].pause()
     @sounds[sound].currentTime = 0
     @sounds[sound].play()
+    document.querySelector('#current-music').innerHTML = @sounds[sound].title
 
   playSong: ->
     songNumber = Math.floor((Math.random()*@musics)+1)

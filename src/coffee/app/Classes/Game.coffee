@@ -79,12 +79,12 @@ class Game
     contentLoader.loadSound({ name:'death', url:'../assets/sounds/death.wav', type: 'effect' })
     contentLoader.loadSound({ name:'explosion', url:'../assets/sounds/explosion.wav', type: 'effect' })
     contentLoader.loadSound({ name:'pickup', url:'../assets/sounds/pickup.wav', type: 'effect' })
-    contentLoader.loadSound({ name:'music1', url:'../assets/sounds/music/music.ogg', type: 'music' })
-    contentLoader.loadSound({ name:'music2', url:'../assets/sounds/music/music2.ogg', type: 'music' })
-    contentLoader.loadSound({ name:'music3', url:'../assets/sounds/music/music3.ogg', type: 'music' })
-    contentLoader.loadSound({ name:'music4', url:'../assets/sounds/music/music4.ogg', type: 'music' })
-    contentLoader.loadSound({ name:'music5', url:'../assets/sounds/music/music5.ogg', type: 'music' })
-    contentLoader.loadSound({ name:'music6', url:'../assets/sounds/music/music6.ogg', type: 'music' })
+    contentLoader.loadSound({ name:'music1', url:'../assets/sounds/music/music.ogg', type: 'music', title: '?' })
+    contentLoader.loadSound({ name:'music2', url:'../assets/sounds/music/music2.ogg', type: 'music', title: '?' })
+    contentLoader.loadSound({ name:'music3', url:'../assets/sounds/music/music3.ogg', type: 'music', title: 'Rolemusic - Another beek beep beer please' })
+    contentLoader.loadSound({ name:'music4', url:'../assets/sounds/music/music4.ogg', type: 'music', title: 'Super Hexagon - Hexagonest Stage' })
+    contentLoader.loadSound({ name:'music5', url:'../assets/sounds/music/music5.ogg', type: 'music', title: 'VVVVVV - Pushing Onwards' })
+    contentLoader.loadSound({ name:'music6', url:'../assets/sounds/music/music6.ogg', type: 'music', title: 'VVVVVV - Predestined Fate' })
 
     contentLoader.load()
 
