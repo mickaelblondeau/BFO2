@@ -70,10 +70,10 @@ contentLoader.contentsLoaded = ->
   contentLoader.playSong()
 
   launchGame = (ip, name) ->
-    bg = new Kinetic.Rect
+    bg = new Kinetic.Image
       width: stage.getWidth()
       height: stage.getHeight()
-      fillPatternImage: contentLoader.images['bg']
+      image: contentLoader.images['bg']
     staticBg.add bg
     bg.setZIndex(-1)
     bg.draw()

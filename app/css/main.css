@@ -1,7 +1,7 @@
 body { overflow: hidden; margin: 0; }
 .clear { clear: both; }
 #container { margin: auto; display: none; }
-#login { width: 704px; height: 100%; margin: auto; background: url('../assets/bg.jpg'); background-size: 100% 100%; }
+#login { width: 704px; height: 100%; margin: auto; background: url('../assets/bg_grasslands.png'); background-size: 100% 100%; }
 #login label { display: block; }
 #login .form-line { margin: auto; width: 300px; padding-top: 20px; }
 #login input { padding: 10px; border: 1px solid grey; border-radius: 10px; width: 300px; }
@@ -16,6 +16,8 @@ body { overflow: hidden; margin: 0; }
 #chat .from { font-weight: bold; }
 
 #sound-controller { position: absolute; top: 0px; right: 0px; padding: 10px; text-align: center; width: 200px; }
+#sound-controller a { color: darkorange; text-decoration: none; }
+#sound-controller a:hover { color: orangered; text-decoration: none; }
 #sound-controller span { display: block; }
 #sound-controller div { display: inline-block; }
 #sound-controller .un-muted, #sound-controller .muted, #sound-controller .add, #sound-controller .sub { width: 23px; height: 23px; cursor: pointer; }

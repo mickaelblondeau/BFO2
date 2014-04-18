@@ -226,7 +226,7 @@
       });
       contentLoader.loadImage({
         name: 'bg',
-        url: '../assets/bg.jpg'
+        url: '../assets/bg_grasslands.png'
       });
       contentLoader.loadImage({
         name: 'boss',
@@ -264,13 +264,13 @@
         name: 'music1',
         url: '../assets/sounds/music/music.ogg',
         type: 'music',
-        title: '?'
+        title: 'Rolemusic - Savage Steel Fun Club'
       });
       contentLoader.loadSound({
         name: 'music2',
         url: '../assets/sounds/music/music2.ogg',
         type: 'music',
-        title: '?'
+        title: 'Rolemusic - L3GO'
       });
       contentLoader.loadSound({
         name: 'music3',
@@ -281,18 +281,6 @@
       contentLoader.loadSound({
         name: 'music4',
         url: '../assets/sounds/music/music4.ogg',
-        type: 'music',
-        title: 'Super Hexagon - Hexagonest Stage'
-      });
-      contentLoader.loadSound({
-        name: 'music5',
-        url: '../assets/sounds/music/music5.ogg',
-        type: 'music',
-        title: 'VVVVVV - Pushing Onwards'
-      });
-      contentLoader.loadSound({
-        name: 'music6',
-        url: '../assets/sounds/music/music6.ogg',
         type: 'music',
         title: 'VVVVVV - Predestined Fate'
       });
@@ -1355,7 +1343,7 @@
     ControllablePlayer.prototype.useJumpBlock = function() {
       if (bonusManager.playerBonuses.jumpBlockBonus > 0) {
         bonusManager.playerBonuses.jumpBlockBonus--;
-        return networkManager.sendJumpBlock(Math.round(this.shape.getX() / 32) * 32, Math.floor((this.shape.getY() + this.shape.getHeight() - 16) / 32) * 32);
+        return networkManager.sendJumpBlock(Math.round(this.shape.getX() / 32) * 32, Math.floor((this.shape.getY() + this.shape.getHeight()) / 32) * 32 - 32);
       }
     };
 
@@ -1688,7 +1676,7 @@
         x: 64,
         y: 0,
         width: 32,
-        height: 16
+        height: 32
       }
     ],
     'blood': [
@@ -1944,31 +1932,31 @@
     ],
     speedBonus: [
       {
-        x: 102,
-        y: 0,
+        x: 64,
+        y: 32,
         width: 32,
         height: 32
       }
     ],
     jumpHeightBonus: [
       {
-        x: 0,
-        y: 0,
+        x: 32,
+        y: 32,
         width: 32,
         height: 32
       }
     ],
     doubleJumpBonus: [
       {
-        x: 34,
-        y: 34,
+        x: 0,
+        y: 64,
         width: 32,
         height: 32
       }
     ],
     grabbingBonus: [
       {
-        x: 34,
+        x: 0,
         y: 0,
         width: 32,
         height: 32
@@ -1976,7 +1964,7 @@
     ],
     resurectionBonus: [
       {
-        x: 68,
+        x: 96,
         y: 0,
         width: 32,
         height: 32
@@ -1984,16 +1972,16 @@
     ],
     autoRezBonus: [
       {
-        x: 68,
-        y: 34,
+        x: 96,
+        y: 32,
         width: 32,
         height: 32
       }
     ],
     tpBonus: [
       {
-        x: 102,
-        y: 34,
+        x: 64,
+        y: 0,
         width: 32,
         height: 32
       }
@@ -2001,15 +1989,15 @@
     jumpBlockBonus: [
       {
         x: 0,
-        y: 68,
+        y: 32,
         width: 32,
         height: 32
       }
     ],
     tp: [
       {
-        x: 0,
-        y: 34,
+        x: 32,
+        y: 0,
         width: 32,
         height: 32
       }
@@ -2018,17 +2006,12 @@
       {
         x: 0,
         y: 0,
-        width: 63,
+        width: 64,
         height: 64
       }, {
         x: 64,
         y: 0,
-        width: 63,
-        height: 64
-      }, {
-        x: 128,
-        y: 0,
-        width: 63,
+        width: 64,
         height: 64
       }
     ],
@@ -2042,7 +2025,7 @@
     ],
     poingman: [
       {
-        x: 256,
+        x: 192,
         y: 0,
         width: 64,
         height: 64
@@ -2050,7 +2033,7 @@
     ],
     labiman: [
       {
-        x: 192,
+        x: 128,
         y: 0,
         width: 64,
         height: 64
@@ -2059,17 +2042,22 @@
     sparkman: [
       {
         x: 0,
-        y: 128,
+        y: 96,
         width: 64,
         height: 64
       }, {
         x: 64,
-        y: 128,
+        y: 96,
         width: 64,
         height: 64
       }, {
         x: 128,
-        y: 128,
+        y: 96,
+        width: 64,
+        height: 64
+      }, {
+        x: 192,
+        y: 96,
         width: 64,
         height: 64
       }
@@ -2077,54 +2065,46 @@
     spark: [
       {
         x: 0,
-        y: 96,
+        y: 160,
         width: 32,
         height: 32
       }, {
         x: 32,
-        y: 96,
+        y: 160,
         width: 32,
         height: 32
       }, {
         x: 64,
-        y: 96,
+        y: 160,
+        width: 32,
+        height: 32
+      }, {
+        x: 96,
+        y: 160,
         width: 32,
         height: 32
       }
     ],
     homingman: [
       {
-        x: 192,
-        y: 96,
+        x: 256,
+        y: 0,
         width: 64,
         height: 64
       }
     ],
     missileman: [
       {
-        x: 448,
+        x: 320,
         y: 0,
         width: 32,
         height: 64
       }
     ],
-    powerSpark: [
-      {
-        x: 96,
-        y: 96,
-        width: 32,
-        height: 32
-      }, {
-        x: 128,
-        y: 96,
-        width: 32,
-        height: 32
-      }
-    ],
     phantom: [
       {
-        x: 160,
-        y: 96,
+        x: 128,
+        y: 160,
         width: 32,
         height: 32
       }
@@ -2828,7 +2808,7 @@
 
     CubeManager.prototype.sendJumpBlock = function(x, y) {
       var obj;
-      this.tmp = new Effect(x, y, SquareEnum.HALF_SMALL, 'jumpBlock');
+      this.tmp = new Effect(x, y, SquareEnum.SMALL, 'jumpBlock');
       obj = this.tmp.shape.getName();
       obj.falling = true;
       return this.tmp.shape.setName(obj);
@@ -4035,7 +4015,7 @@
     __extends(SparkManPart, _super);
 
     function SparkManPart(x, y, attack) {
-      SparkManPart.__super__.constructor.call(this, 'powerSpark', x, y, 32, 32);
+      SparkManPart.__super__.constructor.call(this, 'spark', x, y, 32, 32);
       this.sideX = attack[0];
       this.sideY = attack[1];
       this.ySpeed = attack[2];
@@ -4409,10 +4389,10 @@
     contentLoader.playSong();
     launchGame = function(ip, name) {
       var bg, pidgeon;
-      bg = new Kinetic.Rect({
+      bg = new Kinetic.Image({
         width: stage.getWidth(),
         height: stage.getHeight(),
-        fillPatternImage: contentLoader.images['bg']
+        image: contentLoader.images['bg']
       });
       staticBg.add(bg);
       bg.setZIndex(-1);

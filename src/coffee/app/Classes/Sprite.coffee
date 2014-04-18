@@ -209,7 +209,7 @@ spriteAnimations = {
     x: 64
     y: 0
     width: 32
-    height: 16
+    height: 32
   }],
 
   # EFFECT ANIMATIONS
@@ -453,56 +453,56 @@ spriteAnimations = {
 
   # BONUS ANIMATIONS
   speedBonus: [{
-    x: 102
-    y: 0
+    x: 64
+    y: 32
     width: 32
     height: 32
   }],
   jumpHeightBonus: [{
-    x: 0
-    y: 0
+    x: 32
+    y: 32
     width: 32
     height: 32
   }],
   doubleJumpBonus: [{
-    x: 34
-    y: 34
+    x: 0
+    y: 64
     width: 32
     height: 32
   }],
   grabbingBonus: [{
-    x: 34
+    x: 0
     y: 0
     width: 32
     height: 32
   }],
   resurectionBonus: [{
-    x: 68
+    x: 96
     y: 0
     width: 32
     height: 32
   }],
   autoRezBonus: [{
-    x: 68
-    y: 34
+    x: 96
+    y: 32
     width: 32
     height: 32
   }],
   tpBonus: [{
-    x: 102
-    y: 34
+    x: 64
+    y: 0
     width: 32
     height: 32
   }],
   jumpBlockBonus: [{
     x: 0
-    y: 68
+    y: 32
     width: 32
     height: 32
   }],
   tp: [{
-    x: 0
-    y: 34
+    x: 32
+    y: 0
     width: 32
     height: 32
   }],
@@ -511,17 +511,12 @@ spriteAnimations = {
   roueman: [{
     x: 0
     y: 0
-    width: 63
+    width: 64
     height: 64
   }, {
     x: 64
     y: 0
-    width: 63
-    height: 64
-  }, {
-    x: 128
-    y: 0
-    width: 63
+    width: 64
     height: 64
   }],
   freezeman: [{
@@ -531,75 +526,74 @@ spriteAnimations = {
     height: 30
   }],
   poingman: [{
-    x: 256
+    x: 192
     y: 0
     width: 64
     height: 64
   }],
   labiman: [{
-    x: 192
+    x: 128
     y: 0
     width: 64
     height: 64
   }],
   sparkman: [{
     x: 0
-    y: 128
+    y: 96
     width: 64
     height: 64
   }, {
     x: 64
-    y: 128
+    y: 96
     width: 64
     height: 64
   }, {
     x: 128
-    y: 128
+    y: 96
     width: 64
     height: 64
-  }],
-  spark: [{
-    x: 0
-    y: 96
-    width: 32
-    height: 32
   }, {
-    x: 32
-    y: 96
-    width: 32
-    height: 32
-  }, {
-    x: 64
-    y: 96
-    width: 32
-    height: 32
-  }],
-  homingman: [{
     x: 192
     y: 96
     width: 64
     height: 64
   }],
+  spark: [{
+    x: 0
+    y: 160
+    width: 32
+    height: 32
+  }, {
+    x: 32
+    y: 160
+    width: 32
+    height: 32
+  }, {
+    x: 64
+    y: 160
+    width: 32
+    height: 32
+  }, {
+    x: 96
+    y: 160
+    width: 32
+    height: 32
+  }],
+  homingman: [{
+    x: 256
+    y: 0
+    width: 64
+    height: 64
+  }],
   missileman: [{
-    x: 448
+    x: 320
     y: 0
     width: 32
     height: 64
   }],
-  powerSpark: [{
-    x: 96
-    y: 96
-    width: 32
-    height: 32
-  }, {
-    x: 128
-    y: 96
-    width: 32
-    height: 32
-  }],
   phantom: [{
-    x: 160
-    y: 96
+    x: 128
+    y: 160
     width: 32
     height: 32
   }],
