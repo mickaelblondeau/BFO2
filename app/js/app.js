@@ -171,14 +171,16 @@
     Game.prototype.start = function() {
       document.querySelector('#login').style.display = 'none';
       document.querySelector('#container').style.display = 'block';
+      document.querySelector('#container').style.bottom = 0;
+      document.querySelector('#container').style.position = 'absolute';
       this.lastFrame = Date.now();
       this.resize();
       return this.loop();
     };
 
     Game.prototype.resize = function() {
-      document.getElementById("container").style.margin = "-" + (config.levelHeight - window.innerHeight) + " auto";
-      return document.getElementById("container").style.width = config.levelWidth;
+      document.querySelector('#container').style.left = (window.innerWidth / 2 - config.levelWidth / 2) + 'px';
+      return document.querySelector('#container').style.width = config.levelWidth;
     };
 
     Game.prototype.reset = function() {

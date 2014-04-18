@@ -44,13 +44,15 @@ class Game
   start: ->
     document.querySelector('#login').style.display = 'none'
     document.querySelector('#container').style.display = 'block'
+    document.querySelector('#container').style.bottom = 0
+    document.querySelector('#container').style.position = 'absolute'
     @lastFrame = Date.now()
     @resize()
     @loop()
 
   resize: ->
-    document.getElementById("container").style.margin = "-"+(config.levelHeight-window.innerHeight)+" auto"
-    document.getElementById("container").style.width = config.levelWidth
+    document.querySelector('#container').style.left = (window.innerWidth/2 - config.levelWidth/2) + 'px'
+    document.querySelector('#container').style.width = config.levelWidth
 
   reset: ->
     if networkManager.socket isnt undefined
