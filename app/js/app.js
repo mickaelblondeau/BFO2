@@ -416,7 +416,7 @@
         imageObj.name = img.name;
         this.images[img.name] = imageObj;
         imageObj.onload = function() {
-          return self.updateLoader(imageObj.name);
+          return self.updateLoader(this.name);
         };
       }
       _ref1 = this.soundsToLoad;
@@ -432,7 +432,7 @@
         }
         this.sounds[sound.name] = audioObj;
         audioObj.oncanplaythrough = function() {
-          return self.updateLoader(audioObj.name);
+          return self.updateLoader(this.name);
         };
         if (sound.type === 'music') {
           this.musics++;

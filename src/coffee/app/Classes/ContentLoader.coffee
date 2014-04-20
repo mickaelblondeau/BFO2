@@ -28,7 +28,7 @@ class ContentLoader
       imageObj.name = img.name
       @images[img.name] = imageObj
       imageObj.onload = ->
-        self.updateLoader(imageObj.name)
+        self.updateLoader(@name)
 
     for sound in @soundsToLoad
       audioObj = new Audio()
@@ -39,7 +39,7 @@ class ContentLoader
         audioObj.title = sound.title
       @sounds[sound.name] = audioObj
       audioObj.oncanplaythrough  = ->
-        self.updateLoader(audioObj.name)
+        self.updateLoader(@name)
       if sound.type is 'music'
         @musics++
         audioObj.addEventListener "ended", ->
