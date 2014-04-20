@@ -176,13 +176,13 @@ spriteAnimations = {
     height: 64
   }],
   'swapblock': [{
-    x: 64
+    x: 128
     y: 64
     width: 64
     height: 64
   }],
   'tpblock': [{
-    x: 128
+    x: 64
     y: 64
     width: 64
     height: 64
