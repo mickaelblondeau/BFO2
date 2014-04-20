@@ -79,10 +79,12 @@ class Game
     contentLoader.loadSound({ name:'death', url:'../assets/sounds/death.wav', type: 'effect' })
     contentLoader.loadSound({ name:'explosion', url:'../assets/sounds/explosion.wav', type: 'effect' })
     contentLoader.loadSound({ name:'pickup', url:'../assets/sounds/pickup.wav', type: 'effect' })
+
     contentLoader.loadSound({ name:'music1', url:'../assets/sounds/music/music.ogg', type: 'music', title: 'Rolemusic - Savage Steel Fun Club' })
     contentLoader.loadSound({ name:'music2', url:'../assets/sounds/music/music2.ogg', type: 'music', title: 'Rolemusic - L3GO' })
     contentLoader.loadSound({ name:'music3', url:'../assets/sounds/music/music3.ogg', type: 'music', title: 'Rolemusic - Another beek beep beer please' })
     contentLoader.loadSound({ name:'music4', url:'../assets/sounds/music/music4.ogg', type: 'music', title: 'VVVVVV - Predestined Fate' })
+    contentLoader.loadSound({ name:'music5', url:'../assets/sounds/music/music5.ogg', type: 'music', title: 'VVVVVV - Positive Force' })
 
     contentLoader.load()
 
@@ -98,7 +100,7 @@ class Game
       @openHist(3000)
     else
       @writting = true
-      @openHist(9999999999)
+      @openHist(100000)
       document.getElementById('chatMessage').focus()
 
   addMessage: (id, message) ->

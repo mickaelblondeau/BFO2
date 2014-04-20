@@ -27,9 +27,7 @@ class ContentLoader
       imageObj.src = img.url
       @images[img.name] = imageObj
       imageObj.onload = ->
-        self.count++
-        if self.count is self.total
-          self.contentsLoaded()
+        self.updateLoader(img.name)
 
     for sound in @soundsToLoad
       audioObj = new Audio()
@@ -39,13 +37,17 @@ class ContentLoader
         audioObj.title = sound.title
       @sounds[sound.name] = audioObj
       audioObj.oncanplaythrough  = ->
-        self.count++
-        if self.count is self.total
-          self.contentsLoaded()
+        self.updateLoader(sound.name)
       if sound.type is 'music'
         @musics++
         audioObj.addEventListener "ended", ->
           self.nextSong()
+
+  updateLoader: (file) ->
+    @count++
+    document.querySelector('#login-loading').innerHTML = 'Loading ... <br> ' + file + '<br>' + Math.round((@count/@total)*100) + '%'
+    if @count is @total
+      @contentsLoaded()
 
   contentsLoaded: ->
 

@@ -284,6 +284,12 @@
         type: 'music',
         title: 'VVVVVV - Predestined Fate'
       });
+      contentLoader.loadSound({
+        name: 'music5',
+        url: '../assets/sounds/music/music5.ogg',
+        type: 'music',
+        title: 'VVVVVV - Positive Force'
+      });
       return contentLoader.load();
     };
 
@@ -301,7 +307,7 @@
         return this.openHist(3000);
       } else {
         this.writting = true;
-        this.openHist(9999999999);
+        this.openHist(100000);
         return document.getElementById('chatMessage').focus();
       }
     };
@@ -409,10 +415,7 @@
         imageObj.src = img.url;
         this.images[img.name] = imageObj;
         imageObj.onload = function() {
-          self.count++;
-          if (self.count === self.total) {
-            return self.contentsLoaded();
-          }
+          return self.updateLoader(img.name);
         };
       }
       _ref1 = this.soundsToLoad;
@@ -427,10 +430,7 @@
         }
         this.sounds[sound.name] = audioObj;
         audioObj.oncanplaythrough = function() {
-          self.count++;
-          if (self.count === self.total) {
-            return self.contentsLoaded();
-          }
+          return self.updateLoader(sound.name);
         };
         if (sound.type === 'music') {
           this.musics++;
@@ -442,6 +442,14 @@
         }
       }
       return _results;
+    };
+
+    ContentLoader.prototype.updateLoader = function(file) {
+      this.count++;
+      document.querySelector('#login-loading').innerHTML = 'Loading ... <br> ' + file + '<br>' + Math.round((this.count / this.total) * 100) + '%';
+      if (this.count === this.total) {
+        return this.contentsLoaded();
+      }
     };
 
     ContentLoader.prototype.contentsLoaded = function() {};
