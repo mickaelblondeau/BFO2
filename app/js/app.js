@@ -413,10 +413,9 @@
         img = _ref[_i];
         imageObj = new Image();
         imageObj.src = img.url;
-        imageObj.name = img.name;
         this.images[img.name] = imageObj;
         imageObj.onload = function() {
-          return self.updateLoader(this.name);
+          return self.updateLoader(this.src);
         };
       }
       _ref1 = this.soundsToLoad;
@@ -426,13 +425,12 @@
         audioObj = new Audio();
         audioObj.src = sound.url;
         audioObj.volume = 0.1;
-        audioObj.name = sound.name;
         if (sound.title !== void 0) {
           audioObj.title = sound.title;
         }
         this.sounds[sound.name] = audioObj;
         audioObj.oncanplaythrough = function() {
-          return self.updateLoader(this.name);
+          return self.updateLoader(this.src);
         };
         if (sound.type === 'music') {
           this.musics++;
@@ -447,10 +445,16 @@
     };
 
     ContentLoader.prototype.updateLoader = function(name) {
-      this.count++;
-      document.querySelector('#login-loading').innerHTML = 'Loading ... <br> ' + name + '<br>' + Math.round((this.count / this.total) * 100) + '%';
-      if (this.count === this.total) {
-        return this.contentsLoaded();
+      var file, tmp;
+      if (this.count < this.total) {
+        this.count++;
+        tmp = name.split('/');
+        file = tmp[tmp.length - 1];
+        document.querySelector('#login-loading').innerHTML = 'Loading ... <br> ' + file + '<br>' + Math.round((this.count / this.total) * 100) + '%';
+        if (this.count === this.total) {
+          this.contentsLoaded();
+          return document.querySelector('#login-loading').innerHTML = '';
+        }
       }
     };
 
