@@ -25,27 +25,29 @@ class ContentLoader
     for img in @imagesToLoad
       imageObj = new Image()
       imageObj.src = img.url
+      imageObj.name = img.name
       @images[img.name] = imageObj
       imageObj.onload = ->
-        self.updateLoader(img.name)
+        self.updateLoader(imageObj.name)
 
     for sound in @soundsToLoad
       audioObj = new Audio()
       audioObj.src = sound.url
       audioObj.volume = 0.1
+      audioObj.name = sound.name
       if sound.title isnt undefined
         audioObj.title = sound.title
       @sounds[sound.name] = audioObj
       audioObj.oncanplaythrough  = ->
-        self.updateLoader(sound.name)
+        self.updateLoader(audioObj.name)
       if sound.type is 'music'
         @musics++
         audioObj.addEventListener "ended", ->
           self.nextSong()
 
-  updateLoader: (file) ->
+  updateLoader: (name) ->
     @count++
-    document.querySelector('#login-loading').innerHTML = 'Loading ... <br> ' + file + '<br>' + Math.round((@count/@total)*100) + '%'
+    document.querySelector('#login-loading').innerHTML = 'Loading ... <br> ' + name + '<br>' + Math.round((@count/@total)*100) + '%'
     if @count is @total
       @contentsLoaded()
 

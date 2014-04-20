@@ -413,9 +413,10 @@
         img = _ref[_i];
         imageObj = new Image();
         imageObj.src = img.url;
+        imageObj.name = img.name;
         this.images[img.name] = imageObj;
         imageObj.onload = function() {
-          return self.updateLoader(img.name);
+          return self.updateLoader(imageObj.name);
         };
       }
       _ref1 = this.soundsToLoad;
@@ -425,12 +426,13 @@
         audioObj = new Audio();
         audioObj.src = sound.url;
         audioObj.volume = 0.1;
+        audioObj.name = sound.name;
         if (sound.title !== void 0) {
           audioObj.title = sound.title;
         }
         this.sounds[sound.name] = audioObj;
         audioObj.oncanplaythrough = function() {
-          return self.updateLoader(sound.name);
+          return self.updateLoader(audioObj.name);
         };
         if (sound.type === 'music') {
           this.musics++;
@@ -444,9 +446,9 @@
       return _results;
     };
 
-    ContentLoader.prototype.updateLoader = function(file) {
+    ContentLoader.prototype.updateLoader = function(name) {
       this.count++;
-      document.querySelector('#login-loading').innerHTML = 'Loading ... <br> ' + file + '<br>' + Math.round((this.count / this.total) * 100) + '%';
+      document.querySelector('#login-loading').innerHTML = 'Loading ... <br> ' + name + '<br>' + Math.round((this.count / this.total) * 100) + '%';
       if (this.count === this.total) {
         return this.contentsLoaded();
       }
