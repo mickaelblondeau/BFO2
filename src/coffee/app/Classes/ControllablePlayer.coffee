@@ -324,7 +324,8 @@ class ControllablePlayer extends Player
 
   lootBonus: ->
     id = bonusManager.getRandomBonus()
-    networkManager.sendLootBonus(Math.round(@shape.getX()/32)*32, Math.floor((@shape.getY() + @shape.getHeight())/32)*32-32, id)
+    if id isnt undefined
+      networkManager.sendLootBonus(Math.round(@shape.getX()/32)*32, Math.floor((@shape.getY() + @shape.getHeight())/32)*32-32, id)
 
   addJumpHeight: (height) ->
     @jumpHeight += height

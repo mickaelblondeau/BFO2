@@ -18,6 +18,15 @@ class CubeManager
             self.doEffect(cube, cube.getId())
         else
           cube.setY(cube.getY() + 0.1*frameTime)
+    @reinitBonusPhysic()
+
+  reinitBonusPhysic: ->
+    shapes = dynamicEntities.find('Sprite')
+    shapes.each (shape) ->
+      if shape.getName() isnt undefined and shape.getName().type is 'bonus' and collisionManager.checkPresence(shape.getX() + 8, shape.getY() + shape.getHeight() + 8)
+        obj = shape.getName()
+        obj.falling = true
+        shape.setName(obj)
 
   testMove: (shape, y) ->
     shape.setY(y)

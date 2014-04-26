@@ -1350,7 +1350,9 @@
     ControllablePlayer.prototype.lootBonus = function() {
       var id;
       id = bonusManager.getRandomBonus();
-      return networkManager.sendLootBonus(Math.round(this.shape.getX() / 32) * 32, Math.floor((this.shape.getY() + this.shape.getHeight()) / 32) * 32 - 32, id);
+      if (id !== void 0) {
+        return networkManager.sendLootBonus(Math.round(this.shape.getX() / 32) * 32, Math.floor((this.shape.getY() + this.shape.getHeight()) / 32) * 32 - 32, id);
+      }
     };
 
     ControllablePlayer.prototype.addJumpHeight = function(height) {
@@ -2633,7 +2635,7 @@
       var cubes, self;
       self = this;
       cubes = dynamicEntities.find('Sprite');
-      return cubes.each(function(cube) {
+      cubes.each(function(cube) {
         var collide, obj;
         if (cube.getName() !== void 0 && cube.getName() !== null && cube.getName().falling) {
           collide = self.testMove(cube, cube.getY() + self.speed * frameTime);
@@ -2648,6 +2650,20 @@
           } else {
             return cube.setY(cube.getY() + 0.1 * frameTime);
           }
+        }
+      });
+      return this.reinitBonusPhysic();
+    };
+
+    CubeManager.prototype.reinitBonusPhysic = function() {
+      var shapes;
+      shapes = dynamicEntities.find('Sprite');
+      return shapes.each(function(shape) {
+        var obj;
+        if (shape.getName() !== void 0 && shape.getName().type === 'bonus' && collisionManager.checkPresence(shape.getX() + 8, shape.getY() + shape.getHeight() + 8)) {
+          obj = shape.getName();
+          obj.falling = true;
+          return shape.setName(obj);
         }
       });
     };
