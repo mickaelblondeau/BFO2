@@ -989,7 +989,7 @@
 
     ControllablePlayer.prototype.reset = function() {
       this.reinitStats();
-      return ControllablePlayer.__super__.reset.call(this);
+      return this.spawn();
     };
 
     ControllablePlayer.prototype.update = function(frameTime) {
@@ -1339,7 +1339,7 @@
         networkManager.sendDie();
         if (bonusManager.playerBonuses.autoRezBonus > 0) {
           bonusManager.playerBonuses.autoRezBonus--;
-          return this.resurection();
+          return this.reset();
         } else {
           return bonusManager.resetBonuses();
         }

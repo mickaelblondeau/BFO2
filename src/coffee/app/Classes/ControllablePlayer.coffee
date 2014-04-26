@@ -34,7 +34,7 @@ class ControllablePlayer extends Player
 
   reset: ->
     @reinitStats()
-    super()
+    @spawn()
 
   update: (frameTime) ->
     if !(!@alive and @shape.getY() > stage.getY()*-1 + stage.getHeight())
@@ -317,7 +317,7 @@ class ControllablePlayer extends Player
       networkManager.sendDie()
       if bonusManager.playerBonuses.autoRezBonus > 0
         bonusManager.playerBonuses.autoRezBonus--
-        @resurection()
+        @reset()
       else
         bonusManager.resetBonuses()
 
