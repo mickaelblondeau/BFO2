@@ -17,6 +17,7 @@ body { overflow: hidden; margin: 0; }
 #chat .message.server { color: darkslategrey; }
 #chat .message.you { color: royalblue; }
 #chat .message.other { color: lightskyblue; }
+#chat .message { text-shadow: 2px 0 0 #fff; }
 
 #sound-controller { position: absolute; top: 0px; right: 0px; padding: 10px; text-align: center; width: 200px; }
 #sound-controller a { color: darkorange; text-decoration: none; }

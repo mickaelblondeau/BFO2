@@ -4,7 +4,7 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   config = {
-    debug: false,
+    debug: true,
     levelHeight: 976,
     levelWidth: 704,
     levelSpeed: 1000,
@@ -2212,7 +2212,7 @@
 
   })(Sprite);
 
-  SpecialCubes = ['iceExplosion', 'explosion', 'slowblock', 'stompblock', 'swapblock', 'tpblock', 'randblock'];
+  SpecialCubes = ['iceExplosion', 'slowblock', 'stompblock', 'swapblock', 'tpblock', 'randblock'];
 
   SpecialCube = (function(_super) {
     __extends(SpecialCube, _super);
@@ -2222,6 +2222,7 @@
       x = col * 32 + 160;
       y = stage.getY() * -1;
       this.type = SpecialCubes[type];
+      console.log(type);
       SpecialCube.__super__.constructor.call(this, x, y, size, 'cubes_special', this.type);
       dynamicEntities.add(this.shape);
       if (randType !== void 0) {
@@ -2600,50 +2601,20 @@
       self = this;
       cubes = dynamicEntities.find('Sprite');
       return cubes.each(function(cube) {
-        var child, collide, obj, _i, _j, _len, _len1, _ref, _ref1, _results;
+        var collide, obj;
         if (cube.getName() !== void 0 && cube.getName() !== null && cube.getName().falling) {
           collide = self.testMove(cube, cube.getY() + self.speed * frameTime);
           if (collide) {
             cube.setY(collide.getY() - cube.getHeight());
             obj = cube.getName();
             obj.falling = false;
-            if (obj.child !== void 0) {
-              _ref = obj.child;
-              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                child = _ref[_i];
-                child.shape.setY(cube.getY() - 2);
-              }
-            }
             cube.setName(obj);
             if (cube.getId() !== void 0) {
               return self.doEffect(cube, cube.getId());
             }
           } else {
-            cube.setY(cube.getY() + 0.1 * frameTime);
-            obj = cube.getName();
-            if (obj !== null && obj !== void 0 && obj.child !== void 0) {
-              _ref1 = obj.child;
-              _results = [];
-              for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-                child = _ref1[_j];
-                _results.push(child.shape.setY(cube.getY() - 2));
-              }
-              return _results;
-            }
+            return cube.setY(cube.getY() + 0.1 * frameTime);
           }
-        }
-      });
-    };
-
-    CubeManager.prototype.reinitPhysic = function() {
-      var cubes;
-      cubes = dynamicEntities.find('Sprite');
-      return cubes.each(function(cube) {
-        var obj;
-        obj = cube.getName();
-        if (obj.type === 'cube' || obj.type === 'bonus') {
-          obj.falling = true;
-          return cube.setName(obj);
         }
       });
     };
@@ -2669,12 +2640,16 @@
       });
     };
 
+    CubeManager.prototype.convertToCube = function(shape) {
+      var obj;
+      obj = shape.getName();
+      obj.type = 'cube';
+      return shape.setName(obj);
+    };
+
     CubeManager.prototype.doEffect = function(shape, type) {
       if (type === 'iceExplosion') {
         this.iceExplosionEffect(shape);
-      }
-      if (type === 'explosion') {
-        this.explosionEffet(shape);
       }
       if (type === 'slowblock') {
         this.slowExplosionEffet(shape);
@@ -2694,65 +2669,15 @@
     };
 
     CubeManager.prototype.iceExplosionEffect = function(shape) {
-      var e1, e2, obj;
-      e1 = new Effect(shape.getX(), shape.getY() - 2, SquareEnum.EFFECT, 'ice');
-      e2 = new Effect(shape.getX() + 32, shape.getY() - 2, SquareEnum.EFFECT, 'ice');
-      obj = shape.getName();
-      obj.type = 'cube';
-      obj.child = [e1, e2];
-      return shape.setName(obj);
+      new Effect(shape.getX(), shape.getY() - 2, SquareEnum.EFFECT, 'ice');
+      new Effect(shape.getX() + 32, shape.getY() - 2, SquareEnum.EFFECT, 'ice');
+      return this.convertToCube(shape);
     };
 
     CubeManager.prototype.slowExplosionEffet = function(shape) {
-      var e1, e2, obj;
-      e1 = new Effect(shape.getX(), shape.getY() - 2, SquareEnum.EFFECT, 'slow');
-      e2 = new Effect(shape.getX() + 32, shape.getY() - 2, SquareEnum.EFFECT, 'slow');
-      obj = shape.getName();
-      obj.type = 'cube';
-      obj.child = [e1, e2];
-      return shape.setName(obj);
-    };
-
-    CubeManager.prototype.explosionEffet = function(shape) {
-      var cubes, map;
-      contentLoader.play('explosion');
-      new Effect(shape.getX() - shape.getWidth() / 2 - 16, shape.getY() - shape.getHeight() / 2 - 32, SquareEnum.SMALL, 'explosionEffect', true);
-      map = this.createExplosionMap(shape.getX(), shape.getY());
-      shape.destroy();
-      cubes = dynamicEntities.find('Sprite');
-      cubes.each(function(cube) {
-        var child, obj, pos, _i, _j, _len, _len1, _ref, _results;
-        _results = [];
-        for (_i = 0, _len = map.length; _i < _len; _i++) {
-          pos = map[_i];
-          if (collisionManager.pointInCube(cube, pos)) {
-            obj = cube.getName();
-            if (obj !== null && obj !== void 0 && obj.child !== void 0) {
-              _ref = obj.child;
-              for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-                child = _ref[_j];
-                child.shape.destroy();
-              }
-            }
-            _results.push(cube.destroy());
-          } else {
-            _results.push(void 0);
-          }
-        }
-        return _results;
-      });
-      return this.reinitPhysic();
-    };
-
-    CubeManager.prototype.createExplosionMap = function(x, y) {
-      var i, j, map, _i, _j;
-      map = [];
-      for (i = _i = -1; _i <= 2; i = ++_i) {
-        for (j = _j = -1; _j <= 2; j = ++_j) {
-          map.push([x + i * 32, y + j * 32]);
-        }
-      }
-      return map;
+      new Effect(shape.getX(), shape.getY() - 2, SquareEnum.EFFECT, 'slow');
+      new Effect(shape.getX() + 32, shape.getY() - 2, SquareEnum.EFFECT, 'slow');
+      return this.convertToCube(shape);
     };
 
     CubeManager.prototype.stompEffet = function(shape) {
@@ -2775,7 +2700,7 @@
         player.stomped = true;
         player.jump = true;
       }
-      return shape.destroy();
+      return this.convertToCube(shape);
     };
 
     CubeManager.prototype.swapEffet = function(shape) {
@@ -2810,21 +2735,16 @@
         }
         player.jump = false;
       }
-      return shape.destroy();
+      return this.convertToCube(shape);
     };
 
     CubeManager.prototype.tpEffet = function(shape) {
-      var pos;
       contentLoader.play('explosion');
       new Effect(shape.getX(), shape.getY(), SquareEnum.SMALL, 'tp', null, true);
-      pos = {
-        x: shape.getX() + 16,
-        y: shape.getY()
-      };
-      shape.destroy();
-      player.shape.setX(pos.x);
-      player.shape.setY(pos.y);
-      return player.jump = false;
+      player.shape.setX(shape.getX() + 16);
+      player.shape.setY(shape.getY() - 64);
+      player.jump = false;
+      return this.convertToCube(shape);
     };
 
     CubeManager.prototype.sendJumpBlock = function(x, y) {
@@ -2870,7 +2790,7 @@
         return new SpecialCube(data[0], data[1], data[2]);
       });
       this.socket.on('fallingRandSpecial', function(data) {
-        return new SpecialCube(data[0], data[1], 6, data[2]);
+        return new SpecialCube(data[0], data[1], 5, data[2]);
       });
       this.socket.on('randomEvent', function(data) {
         return new RandomEvent(data);
@@ -3984,8 +3904,8 @@
     };
 
     SparkMan.prototype.attack = function() {
-      this.parts.push(new SparkManPart(this.shape.getX(), this.shape.getY() + 64, this.attacks[this.attackIndex]));
-      this.parts.push(new SparkManPart(this.shape.getX(), this.shape.getY() + 64, this.attacks[this.attackIndex + 1]));
+      this.parts.push(new SparkManPart(this.shape.getX() + 16, this.shape.getY() + 64, this.attacks[this.attackIndex]));
+      this.parts.push(new SparkManPart(this.shape.getX() + 16, this.shape.getY() + 64, this.attacks[this.attackIndex + 1]));
       this.attackCount += 2;
       return this.attackIndex += 2;
     };

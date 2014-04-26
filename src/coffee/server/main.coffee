@@ -26,5 +26,4 @@ game.update = (frameTime) ->
 slowLoop = () ->
   networkManager.sendPlayerList()
   if (cubeManager.running or bossManager.launched) and Math.random() > config.randomEventProb
-    id = Math.floor((Math.random()*bonusEvents.length))
-    new Event(id)
+    new Event()

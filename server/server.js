@@ -72,7 +72,7 @@
     }
   };
 
-  SpecialCubes = ['iceExplosion', 'explosion', 'slowblock', 'stompblock', 'swapblock', 'tpblock'];
+  SpecialCubes = ['iceExplosion', 'slowblock', 'stompblock', 'swapblock', 'tpblock'];
 
   CubeManager = (function() {
     function CubeManager() {
@@ -86,138 +86,68 @@
       this.waiting = false;
       this.bonusId = 0;
       this.cubes = [];
-      this.types = [
-        {
-          proba: 1,
-          size: SquareEnum.MEDIUM,
-          width: SquareEnum.MEDIUM.x / 32,
-          height: SquareEnum.MEDIUM.y / 32,
-          special: 'iceExplosion',
-          id: 0
-        }, {
-          proba: 1,
-          size: SquareEnum.MEDIUM,
-          width: SquareEnum.MEDIUM.x / 32,
-          height: SquareEnum.MEDIUM.y / 32,
-          special: 'explosion',
-          id: 1
-        }, {
-          proba: 1,
-          size: SquareEnum.MEDIUM,
-          width: SquareEnum.MEDIUM.x / 32,
-          height: SquareEnum.MEDIUM.y / 32,
-          special: 'slowblock',
-          id: 2
-        }, {
-          proba: 1,
-          size: SquareEnum.MEDIUM,
-          width: SquareEnum.MEDIUM.x / 32,
-          height: SquareEnum.MEDIUM.y / 32,
-          special: 'stompblock',
-          id: 3
-        }, {
-          proba: 1,
-          size: SquareEnum.MEDIUM,
-          width: SquareEnum.MEDIUM.x / 32,
-          height: SquareEnum.MEDIUM.y / 32,
-          special: 'swapblock',
-          id: 4
-        }, {
-          proba: 1,
-          size: SquareEnum.MEDIUM,
-          width: SquareEnum.MEDIUM.x / 32,
-          height: SquareEnum.MEDIUM.y / 32,
-          special: 'tpblock',
-          id: 5
-        }, {
-          proba: 1,
-          size: SquareEnum.MEDIUM,
-          width: SquareEnum.MEDIUM.x / 32,
-          height: SquareEnum.MEDIUM.y / 32,
-          special: 'randblock',
-          id: 6
-        }, {
-          proba: 1,
-          size: SquareEnum.SMALL,
-          width: SquareEnum.SMALL.x / 32,
-          height: SquareEnum.SMALL.y / 32,
-          bonus: 'speed',
-          id: 1
-        }, {
-          proba: 1,
-          size: SquareEnum.SMALL,
-          width: SquareEnum.SMALL.x / 32,
-          height: SquareEnum.SMALL.y / 32,
-          bonus: 'jumpHeight',
-          id: 2
-        }, {
-          proba: 2,
-          size: SquareEnum.SMALL,
-          width: SquareEnum.SMALL.x / 32,
-          height: SquareEnum.SMALL.y / 32,
-          bonus: 'doubleJump',
-          id: 3
-        }, {
-          proba: 2,
-          size: SquareEnum.SMALL,
-          width: SquareEnum.SMALL.x / 32,
-          height: SquareEnum.SMALL.y / 32,
-          bonus: 'grabbing',
-          id: 4
-        }, {
-          proba: 1,
-          size: SquareEnum.SMALL,
-          width: SquareEnum.SMALL.x / 32,
-          height: SquareEnum.SMALL.y / 32,
-          bonus: 'autoRezBonus',
-          id: 6
-        }, {
-          proba: 2,
-          size: SquareEnum.SMALL,
-          width: SquareEnum.SMALL.x / 32,
-          height: SquareEnum.SMALL.y / 32,
-          bonus: 'tpBonus',
-          id: 7
-        }, {
-          proba: 1,
-          size: SquareEnum.SMALL,
-          width: SquareEnum.SMALL.x / 32,
-          height: SquareEnum.SMALL.y / 32,
-          bonus: 'jumpBlockBonus',
-          id: 8
-        }, {
-          proba: 5,
-          size: SquareEnum.LARGE,
-          width: SquareEnum.LARGE.x / 32,
-          height: SquareEnum.LARGE.y / 32
-        }, {
-          proba: 20,
-          size: SquareEnum.MEDIUM,
-          width: SquareEnum.MEDIUM.x / 32,
-          height: SquareEnum.MEDIUM.y / 32
-        }, {
-          proba: 15,
-          size: SquareEnum.SMALL,
-          width: SquareEnum.SMALL.x / 32,
-          height: SquareEnum.SMALL.y / 32
-        }, {
-          proba: 10,
-          size: SquareEnum.MEDIUM_RECT,
-          width: SquareEnum.MEDIUM_RECT.x / 32,
-          height: SquareEnum.MEDIUM_RECT.y / 32
-        }, {
-          proba: 5,
-          size: SquareEnum.LARGE_RECT,
-          width: SquareEnum.LARGE_RECT.x / 32,
-          height: SquareEnum.LARGE_RECT.y / 32
-        }, {
-          proba: 5,
-          size: SquareEnum.LONG_RECT,
-          width: SquareEnum.LONG_RECT.x / 32,
-          height: SquareEnum.LONG_RECT.y / 32
-        }
-      ];
+      this.types = [];
+      this.initTypes();
     }
+
+    CubeManager.prototype.initTypes = function() {
+      this.addBlock(5, SquareEnum.LARGE);
+      this.addBlock(20, SquareEnum.MEDIUM);
+      this.addBlock(15, SquareEnum.SMALL);
+      this.addBlock(10, SquareEnum.MEDIUM_RECT);
+      this.addBlock(5, SquareEnum.LARGE_RECT);
+      this.addBlock(5, SquareEnum.LONG_RECT);
+      this.addSpecialBlock(1, SquareEnum.MEDIUM, 'iceExplosion', 0);
+      this.addSpecialBlock(1, SquareEnum.MEDIUM, 'slowblock', 1);
+      this.addSpecialBlock(1, SquareEnum.MEDIUM, 'stompblock', 2);
+      this.addSpecialBlock(1, SquareEnum.MEDIUM, 'swapblock', 3);
+      this.addSpecialBlock(1, SquareEnum.MEDIUM, 'tpblock', 4);
+      this.addSpecialBlock(1, SquareEnum.MEDIUM, 'randblock', 5);
+      this.addBonus(2, SquareEnum.SMALL, 'speed', 1);
+      this.addBonus(2, SquareEnum.SMALL, 'jumpHeight', 2);
+      this.addBonus(2, SquareEnum.SMALL, 'doubleJump', 3);
+      this.addBonus(2, SquareEnum.SMALL, 'grabbing', 4);
+      this.addBonus(2, SquareEnum.SMALL, 'autoRezBonus', 6);
+      this.addBonus(2, SquareEnum.SMALL, 'tpBonus', 7);
+      return this.addBonus(2, SquareEnum.SMALL, 'jumpBlockBonus', 8);
+    };
+
+    CubeManager.prototype.addBlock = function(proba, size) {
+      var obj;
+      obj = {
+        proba: proba,
+        size: size,
+        width: size.x / 32,
+        height: size.y / 32
+      };
+      return this.types.push(obj);
+    };
+
+    CubeManager.prototype.addSpecialBlock = function(proba, size, name, id) {
+      var obj;
+      obj = {
+        proba: proba,
+        size: size,
+        width: size.x / 32,
+        height: size.y / 32,
+        special: name,
+        id: id
+      };
+      return this.types.push(obj);
+    };
+
+    CubeManager.prototype.addBonus = function(proba, size, name, id) {
+      var obj;
+      obj = {
+        proba: proba,
+        size: size,
+        width: size.x / 32,
+        height: size.y / 32,
+        bonus: name,
+        id: id
+      };
+      return this.types.push(obj);
+    };
 
     CubeManager.prototype.start = function(level, rate) {
       if (!this.running && !this.waiting) {
@@ -1127,32 +1057,18 @@
 
     function Special(col, line, type) {
       var solid;
-      solid = false;
-      if (type.special === 'slowblock' || type.special === 'iceExplosion') {
-        solid = true;
-      }
+      solid = true;
       Special.__super__.constructor.call(this, col, line, type, solid);
     }
 
     Special.prototype.send = function() {
-      var id, randType;
-      if (this.type.special === 'explosion') {
-        cubeManager.explodeMap(this.col, this.line);
-      }
-      if (this.type.special === 'slowblock' || this.type.special === 'iceExplosion') {
-        cubeManager.addCubeToMap(this.col, this.line, this.type);
-      }
+      var id;
       if (this.type.special === 'randblock') {
         id = Math.floor(Math.random() * (SpecialCubes.length - 1));
-        randType = SpecialCubes[id];
-        if (randType === 'explosion') {
-          cubeManager.explodeMap(this.col, this.line);
-        }
-        if (randType === 'slowblock' || randType === 'iceExplosion') {
-          cubeManager.addCubeToMap(this.col, this.line, this.type);
-        }
+        cubeManager.addCubeToMap(this.col, this.line, this.type);
         return networkManager.sendRanSpecial(this.col, this.type.size, id);
       } else {
+        cubeManager.addCubeToMap(this.col, this.line, this.type);
         return networkManager.sendSpecial(this.col, this.type.size, this.type.id);
       }
     };
@@ -1166,8 +1082,8 @@
   Bonuses = ['speed', 'jumpHeight', 'doubleJump', 'grabbing'];
 
   Event = (function() {
-    function Event(id) {
-      this.id = id;
+    function Event() {
+      this.id = Math.floor(Math.random() * bonusEvents.length);
       this.send();
       if (this.id === 1) {
         this.spawnBonuses();
@@ -1607,11 +1523,9 @@
   };
 
   slowLoop = function() {
-    var id;
     networkManager.sendPlayerList();
     if ((cubeManager.running || bossManager.launched) && Math.random() > config.randomEventProb) {
-      id = Math.floor(Math.random() * bonusEvents.length);
-      return new Event(id);
+      return new Event();
     }
   };
 

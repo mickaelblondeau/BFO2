@@ -9,7 +9,6 @@ SquareEnum = {
 
 SpecialCubes = [
   'iceExplosion',
-  'explosion',
   'slowblock',
   'stompblock',
   'swapblock',
@@ -28,157 +27,60 @@ class CubeManager
     @waiting = false
     @bonusId = 0
     @cubes = []
+    @types = []
+    @initTypes()
 
-    @types = [
-      {
-        proba: 1
-        size: SquareEnum.MEDIUM
-        width: SquareEnum.MEDIUM.x/32
-        height: SquareEnum.MEDIUM.y/32
-        special: 'iceExplosion'
-        id: 0
-      },
-      {
-        proba: 1
-        size: SquareEnum.MEDIUM
-        width: SquareEnum.MEDIUM.x/32
-        height: SquareEnum.MEDIUM.y/32
-        special: 'explosion'
-        id: 1
-      },
-      {
-        proba: 1
-        size: SquareEnum.MEDIUM
-        width: SquareEnum.MEDIUM.x/32
-        height: SquareEnum.MEDIUM.y/32
-        special: 'slowblock'
-        id: 2
-      },
-      {
-        proba: 1
-        size: SquareEnum.MEDIUM
-        width: SquareEnum.MEDIUM.x/32
-        height: SquareEnum.MEDIUM.y/32
-        special: 'stompblock'
-        id: 3
-      },
-      {
-        proba: 1
-        size: SquareEnum.MEDIUM
-        width: SquareEnum.MEDIUM.x/32
-        height: SquareEnum.MEDIUM.y/32
-        special: 'swapblock'
-        id: 4
-      },
-      {
-        proba: 1
-        size: SquareEnum.MEDIUM
-        width: SquareEnum.MEDIUM.x/32
-        height: SquareEnum.MEDIUM.y/32
-        special: 'tpblock'
-        id: 5
-      },
-      {
-        proba: 1
-        size: SquareEnum.MEDIUM
-        width: SquareEnum.MEDIUM.x/32
-        height: SquareEnum.MEDIUM.y/32
-        special: 'randblock'
-        id: 6
-      },
-      {
-        proba: 1
-        size: SquareEnum.SMALL
-        width: SquareEnum.SMALL.x/32
-        height: SquareEnum.SMALL.y/32
-        bonus: 'speed'
-        id: 1
-      },
-      {
-        proba: 1
-        size: SquareEnum.SMALL
-        width: SquareEnum.SMALL.x/32
-        height: SquareEnum.SMALL.y/32
-        bonus: 'jumpHeight'
-        id: 2
-      },
-      {
-        proba: 2
-        size: SquareEnum.SMALL
-        width: SquareEnum.SMALL.x/32
-        height: SquareEnum.SMALL.y/32
-        bonus: 'doubleJump'
-        id: 3
-      },
-      {
-        proba: 2
-        size: SquareEnum.SMALL
-        width: SquareEnum.SMALL.x/32
-        height: SquareEnum.SMALL.y/32
-        bonus: 'grabbing'
-        id: 4
-      },
-      {
-        proba: 1
-        size: SquareEnum.SMALL
-        width: SquareEnum.SMALL.x/32
-        height: SquareEnum.SMALL.y/32
-        bonus: 'autoRezBonus'
-        id: 6
-      },
-      {
-        proba: 2
-        size: SquareEnum.SMALL
-        width: SquareEnum.SMALL.x/32
-        height: SquareEnum.SMALL.y/32
-        bonus: 'tpBonus'
-        id: 7
-      },
-      {
-        proba: 1
-        size: SquareEnum.SMALL
-        width: SquareEnum.SMALL.x/32
-        height: SquareEnum.SMALL.y/32
-        bonus: 'jumpBlockBonus'
-        id: 8
-      },
-      {
-        proba: 5
-        size: SquareEnum.LARGE
-        width: SquareEnum.LARGE.x/32
-        height: SquareEnum.LARGE.y/32
-      },
-      {
-        proba: 20
-        size: SquareEnum.MEDIUM
-        width: SquareEnum.MEDIUM.x/32
-        height: SquareEnum.MEDIUM.y/32
-      },
-      {
-        proba: 15
-        size: SquareEnum.SMALL
-        width: SquareEnum.SMALL.x/32
-        height: SquareEnum.SMALL.y/32
-      },
-      {
-        proba: 10
-        size: SquareEnum.MEDIUM_RECT
-        width: SquareEnum.MEDIUM_RECT.x/32
-        height: SquareEnum.MEDIUM_RECT.y/32
-      },
-      {
-        proba: 5
-        size: SquareEnum.LARGE_RECT
-        width: SquareEnum.LARGE_RECT.x/32
-        height: SquareEnum.LARGE_RECT.y/32
-      },
-      {
-        proba: 5
-        size: SquareEnum.LONG_RECT
-        width: SquareEnum.LONG_RECT.x/32
-        height: SquareEnum.LONG_RECT.y/32
-      }
-    ]
+  initTypes: ->
+    @addBlock(5, SquareEnum.LARGE)
+    @addBlock(20, SquareEnum.MEDIUM)
+    @addBlock(15, SquareEnum.SMALL)
+    @addBlock(10, SquareEnum.MEDIUM_RECT)
+    @addBlock(5, SquareEnum.LARGE_RECT)
+    @addBlock(5, SquareEnum.LONG_RECT)
+    @addSpecialBlock(1, SquareEnum.MEDIUM, 'iceExplosion', 0)
+    @addSpecialBlock(1, SquareEnum.MEDIUM, 'slowblock', 1)
+    @addSpecialBlock(1, SquareEnum.MEDIUM, 'stompblock', 2)
+    @addSpecialBlock(1, SquareEnum.MEDIUM, 'swapblock', 3)
+    @addSpecialBlock(1, SquareEnum.MEDIUM, 'tpblock', 4)
+    @addSpecialBlock(1, SquareEnum.MEDIUM, 'randblock', 5)
+    @addBonus(2, SquareEnum.SMALL, 'speed', 1)
+    @addBonus(2, SquareEnum.SMALL, 'jumpHeight', 2)
+    @addBonus(2, SquareEnum.SMALL, 'doubleJump', 3)
+    @addBonus(2, SquareEnum.SMALL, 'grabbing', 4)
+    @addBonus(2, SquareEnum.SMALL, 'autoRezBonus', 6)
+    @addBonus(2, SquareEnum.SMALL, 'tpBonus', 7)
+    @addBonus(2, SquareEnum.SMALL, 'jumpBlockBonus', 8)
+
+  addBlock: (proba, size) ->
+    obj = {
+      proba: proba
+      size: size
+      width: size.x/32
+      height: size.y/32
+    }
+    @types.push(obj)
+
+  addSpecialBlock: (proba, size, name, id) ->
+    obj = {
+      proba: proba
+      size: size
+      width: size.x/32
+      height: size.y/32
+      special: name
+      id: id
+    }
+    @types.push(obj)
+
+  addBonus: (proba, size, name, id) ->
+    obj = {
+      proba: proba
+      size: size
+      width: size.x/32
+      height: size.y/32
+      bonus: name
+      id: id
+    }
+    @types.push(obj)
 
   start: (level, rate) ->
     if !@running and !@waiting

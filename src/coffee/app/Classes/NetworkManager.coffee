@@ -26,7 +26,7 @@ class NetworkManager
       new SpecialCube(data[0], data[1], data[2])
 
     @socket.on 'fallingRandSpecial', (data) ->
-      new SpecialCube(data[0], data[1], 6, data[2])
+      new SpecialCube(data[0], data[1], 5, data[2])
 
     @socket.on 'randomEvent', (data) ->
       new RandomEvent(data)

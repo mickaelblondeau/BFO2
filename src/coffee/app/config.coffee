@@ -1,5 +1,5 @@
 config = {
-  debug: false
+  debug: true
   levelHeight: 976
   levelWidth: 704
   levelSpeed: 1000

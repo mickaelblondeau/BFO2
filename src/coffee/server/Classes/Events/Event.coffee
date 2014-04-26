@@ -12,8 +12,8 @@ Bonuses = [
 ]
 
 class Event
-  constructor: (id) ->
-    @id = id
+  constructor: ->
+    @id = Math.floor((Math.random()*bonusEvents.length))
     @send()
     if @id is 1
       @spawnBonuses()
