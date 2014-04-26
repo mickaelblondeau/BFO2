@@ -170,8 +170,9 @@ class CubeManager
       randomMap.push { index: index, percent: randomCount, type: possibleType.type }
     rand = Math.floor(Math.random()*randomCount)+1
 
-    if biggest.width is 1 and biggest.height is 1
+    if biggest.width is 1 or biggest.height is 1
       @updateRate = config.fastLevelSpeed
+      return possibleTypes[0]
 
     for item in randomMap
       if !(biggest.width is 1 and biggest.height is 1 and item.type.bonus isnt undefined)
