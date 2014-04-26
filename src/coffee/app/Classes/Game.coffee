@@ -116,15 +116,21 @@ class Game
       @chatHist.shift()
     @composeHistoric()
     if id isnt -1
-      timeout = 3000 + message.length * 30
+      timeout = 5000 + message.length * 30
       @openHist(timeout)
 
   composeHistoric: ->
     document.getElementById('chatHistoric').innerHTML = ""
     for hist, i in @chatHist
       name = @escapeHtml(hist[0])
+      if name is 'Server'
+        type = 'server'
+      else if name is 'You'
+        type = 'you'
+      else
+        type = 'other'
       message = @escapeHtml(hist[1])
-      document.getElementById('chatHistoric').innerHTML += '<div class="message"><span class="from">&#60;'+name+'&#62; </span><span class="content">'+message+'</span></div>'
+      document.getElementById('chatHistoric').innerHTML += '<div class="message '+type+'"><span class="from">'+name+':</span><span class="content">'+message+'</span></div>'
 
   escapeHtml: (str) ->
     entityMap = {

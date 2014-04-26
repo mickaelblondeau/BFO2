@@ -10,10 +10,13 @@ body { overflow: hidden; margin: 0; }
 #login-form { display: none; }
 #login-loading { text-align: center; }
 .pt-1 { padding-top: 100px; }
-#chat { position: absolute; width: 600px; z-index: 999; left: 50%; margin-left: -300px; bottom: 0; padding: 10px; }
+#chat { position: absolute; width: 600px; z-index: 999; left: 50%; margin-left: -300px; bottom: 0; padding: 10px; font-family: 'Comic Sans MS'; }
 #chat input { position: absolute; bottom: 0; border: 0; background: none; width: 100%; }
 #chat span { word-wrap: break-word; }
-#chat .from { font-weight: bold; }
+#chat .from { font-weight: bold; width: 100px; text-align: right; display: inline-block; margin-right: 10px; }
+#chat .message.server { color: darkslategrey; }
+#chat .message.you { color: royalblue; }
+#chat .message.other { color: lightskyblue; }
 
 #sound-controller { position: absolute; top: 0px; right: 0px; padding: 10px; text-align: center; width: 200px; }
 #sound-controller a { color: darkorange; text-decoration: none; }

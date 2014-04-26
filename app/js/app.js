@@ -328,21 +328,28 @@
       }
       this.composeHistoric();
       if (id !== -1) {
-        timeout = 3000 + message.length * 30;
+        timeout = 5000 + message.length * 30;
         return this.openHist(timeout);
       }
     };
 
     Game.prototype.composeHistoric = function() {
-      var hist, i, message, name, _i, _len, _ref, _results;
+      var hist, i, message, name, type, _i, _len, _ref, _results;
       document.getElementById('chatHistoric').innerHTML = "";
       _ref = this.chatHist;
       _results = [];
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
         hist = _ref[i];
         name = this.escapeHtml(hist[0]);
+        if (name === 'Server') {
+          type = 'server';
+        } else if (name === 'You') {
+          type = 'you';
+        } else {
+          type = 'other';
+        }
         message = this.escapeHtml(hist[1]);
-        _results.push(document.getElementById('chatHistoric').innerHTML += '<div class="message"><span class="from">&#60;' + name + '&#62; </span><span class="content">' + message + '</span></div>');
+        _results.push(document.getElementById('chatHistoric').innerHTML += '<div class="message ' + type + '"><span class="from">' + name + ':</span><span class="content">' + message + '</span></div>');
       }
       return _results;
     };
