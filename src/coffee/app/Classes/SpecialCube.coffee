@@ -12,7 +12,6 @@ class SpecialCube extends Sprite
     x = col * 32 + 160
     y = stage.getY() * -1
     @type = SpecialCubes[type]
-    console.log type
     super(x, y, size, 'cubes_special', @type)
     dynamicEntities.add @shape
     if randType isnt undefined

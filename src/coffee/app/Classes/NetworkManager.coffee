@@ -102,6 +102,9 @@ class NetworkManager
     @socket.on 'sendJumpBlock', (coords) ->
       cubeManager.sendJumpBlock(coords[0], coords[1])
 
+    @socket.on 'sendLootBonus', (coords) ->
+      cubeManager.sendLootBonus(coords[0], coords[1], coords[2])
+
   sendLaunch: ->
     @socket.emit 'launch'
 
@@ -141,3 +144,7 @@ class NetworkManager
   sendJumpBlock: (x, y) ->
     cubeManager.sendJumpBlock(x, y)
     @socket.emit 'sendJumpBlock', [x, y]
+
+  sendLootBonus: (x, y, id) ->
+    cubeManager.sendLootBonus(x, y, id)
+    @socket.emit 'sendLootBonus', [x, y, id]

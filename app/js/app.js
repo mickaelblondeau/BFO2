@@ -1341,9 +1341,16 @@
           bonusManager.playerBonuses.autoRezBonus--;
           return this.reset();
         } else {
+          this.lootBonus();
           return bonusManager.resetBonuses();
         }
       }
+    };
+
+    ControllablePlayer.prototype.lootBonus = function() {
+      var id;
+      id = bonusManager.getRandomBonus();
+      return networkManager.sendLootBonus(Math.round(this.shape.getX() / 32) * 32, Math.floor((this.shape.getY() + this.shape.getHeight()) / 32) * 32 - 32, id);
     };
 
     ControllablePlayer.prototype.addJumpHeight = function(height) {
@@ -2222,7 +2229,6 @@
       x = col * 32 + 160;
       y = stage.getY() * -1;
       this.type = SpecialCubes[type];
-      console.log(type);
       SpecialCube.__super__.constructor.call(this, x, y, size, 'cubes_special', this.type);
       dynamicEntities.add(this.shape);
       if (randType !== void 0) {
@@ -2503,6 +2509,33 @@
       return bonus.destroy();
     };
 
+    BonusManager.prototype.getRandomBonus = function() {
+      var bonuses;
+      bonuses = [];
+      if (bonusManager.playerBonuses.speedBonus > 0) {
+        bonuses.push(1);
+      }
+      if (bonusManager.playerBonuses.jumpHeightBonus > 0) {
+        bonuses.push(2);
+      }
+      if (player.availableDoubleJump > 0) {
+        bonuses.push(3);
+      }
+      if (player.availableGrab > 0) {
+        bonuses.push(4);
+      }
+      if (bonusManager.playerBonuses.autoRezBonus > 0) {
+        bonuses.push(6);
+      }
+      if (bonusManager.playerBonuses.tpBonus > 0) {
+        bonuses.push(7);
+      }
+      if (bonusManager.playerBonuses.jumpBlockBonus > 0) {
+        bonuses.push(8);
+      }
+      return bonuses[Math.floor(Math.random() * (bonuses.length - 1))];
+    };
+
     return BonusManager;
 
   })();
@@ -2757,6 +2790,12 @@
       return this.tmp.shape.setOffsetY(12);
     };
 
+    CubeManager.prototype.sendLootBonus = function(x, y, id) {
+      this.tmp = new Bonus(0, id, x + y);
+      this.tmp.shape.setX(x + 6);
+      return this.tmp.shape.setY(y);
+    };
+
     return CubeManager;
 
   })();
@@ -2883,8 +2922,11 @@
           }
         }
       });
-      return this.socket.on('sendJumpBlock', function(coords) {
+      this.socket.on('sendJumpBlock', function(coords) {
         return cubeManager.sendJumpBlock(coords[0], coords[1]);
+      });
+      return this.socket.on('sendLootBonus', function(coords) {
+        return cubeManager.sendLootBonus(coords[0], coords[1], coords[2]);
       });
     };
 
@@ -2939,6 +2981,11 @@
     NetworkManager.prototype.sendJumpBlock = function(x, y) {
       cubeManager.sendJumpBlock(x, y);
       return this.socket.emit('sendJumpBlock', [x, y]);
+    };
+
+    NetworkManager.prototype.sendLootBonus = function(x, y, id) {
+      cubeManager.sendLootBonus(x, y, id);
+      return this.socket.emit('sendLootBonus', [x, y, id]);
     };
 
     return NetworkManager;

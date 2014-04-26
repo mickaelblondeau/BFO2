@@ -737,6 +737,9 @@
         socket.on('sendJumpBlock', function(coords) {
           return socket.broadcast.emit('sendJumpBlock', coords);
         });
+        socket.on('sendLootBonus', function(coords) {
+          return socket.broadcast.emit('sendLootBonus', coords);
+        });
         return socket.on('disconnect', function() {
           socket.broadcast.emit('disconnect', socket.id);
           return socket.get('name', function(error, name) {

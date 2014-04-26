@@ -120,3 +120,8 @@ class CubeManager
     @tmp.shape.setName(obj)
     @tmp.shape.setOffsetX(6)
     @tmp.shape.setOffsetY(12)
+
+  sendLootBonus: (x, y, id) ->
+    @tmp = new Bonus(0, id, x + y)
+    @tmp.shape.setX(x + 6)
+    @tmp.shape.setY(y)

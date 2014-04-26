@@ -319,7 +319,12 @@ class ControllablePlayer extends Player
         bonusManager.playerBonuses.autoRezBonus--
         @reset()
       else
+        @lootBonus()
         bonusManager.resetBonuses()
+
+  lootBonus: ->
+    id = bonusManager.getRandomBonus()
+    networkManager.sendLootBonus(Math.round(@shape.getX()/32)*32, Math.floor((@shape.getY() + @shape.getHeight())/32)*32-32, id)
 
   addJumpHeight: (height) ->
     @jumpHeight += height

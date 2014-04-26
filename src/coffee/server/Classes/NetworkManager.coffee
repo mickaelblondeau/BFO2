@@ -71,6 +71,9 @@ class NetworkManager
       socket.on 'sendJumpBlock', (coords) ->
         socket.broadcast.emit 'sendJumpBlock', coords
 
+      socket.on 'sendLootBonus', (coords) ->
+        socket.broadcast.emit 'sendLootBonus', coords
+
       socket.on 'disconnect', ->
         socket.broadcast.emit 'disconnect', socket.id
         socket.get 'name', (error, name) ->
