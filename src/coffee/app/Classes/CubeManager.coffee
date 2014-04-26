@@ -114,7 +114,9 @@ class CubeManager
     @convertToCube(shape)
 
   sendJumpBlock: (x, y) ->
-    @tmp = new Effect(x, y, SquareEnum.SMALL, 'jumpBlock')
+    @tmp = new Effect(x + 6, y, SquareEnum.BONUS, 'jumpBlock')
     obj = @tmp.shape.getName()
     obj.falling = true
     @tmp.shape.setName(obj)
+    @tmp.shape.setOffsetX(6)
+    @tmp.shape.setOffsetY(12)

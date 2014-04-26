@@ -2749,10 +2749,12 @@
 
     CubeManager.prototype.sendJumpBlock = function(x, y) {
       var obj;
-      this.tmp = new Effect(x, y, SquareEnum.SMALL, 'jumpBlock');
+      this.tmp = new Effect(x + 6, y, SquareEnum.BONUS, 'jumpBlock');
       obj = this.tmp.shape.getName();
       obj.falling = true;
-      return this.tmp.shape.setName(obj);
+      this.tmp.shape.setName(obj);
+      this.tmp.shape.setOffsetX(6);
+      return this.tmp.shape.setOffsetY(12);
     };
 
     return CubeManager;
