@@ -32,8 +32,8 @@ class SparkMan extends MultiPartBoss
       self.updateParts(frameTime)
 
   attack: ->
-    @parts.push(new SparkManPart(@shape.getX(), @shape.getY() + 64, @attacks[@attackIndex]))
-    @parts.push(new SparkManPart(@shape.getX(), @shape.getY() + 64, @attacks[@attackIndex+1]))
+    @parts.push(new SparkManPart(@shape.getX() + 16, @shape.getY() + 64, @attacks[@attackIndex]))
+    @parts.push(new SparkManPart(@shape.getX() + 16, @shape.getY() + 64, @attacks[@attackIndex+1]))
     @attackCount += 2
     @attackIndex += 2
 
