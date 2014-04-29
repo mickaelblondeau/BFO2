@@ -120,18 +120,18 @@ class BonusManager
 
   getRandomBonus: ->
     bonuses = []
-    if bonusManager.playerBonuses.speedBonus > 0
+    if @playerBonuses.speedBonus > 0
       bonuses.push(1)
-    if bonusManager.playerBonuses.jumpHeightBonus > 0
+    if @playerBonuses.jumpHeightBonus > 0
       bonuses.push(2)
-    if player.availableDoubleJump > 0
+    if @playerBonuses.doubleJumpBonus > 0
       bonuses.push(3)
-    if player.availableGrab > 0
+    if @playerBonuses.grabbingBonus > 0
       bonuses.push(4)
-    if bonusManager.playerBonuses.autoRezBonus > 0
+    if @playerBonuses.autoRezBonus > 0
       bonuses.push(6)
-    if bonusManager.playerBonuses.tpBonus > 0
+    if @playerBonuses.tpBonus > 0
       bonuses.push(7)
-    if bonusManager.playerBonuses.jumpBlockBonus > 0
+    if @playerBonuses.jumpBlockBonus > 0
       bonuses.push(8)
     return bonuses[Math.floor(Math.random()*(bonuses.length-1))]
