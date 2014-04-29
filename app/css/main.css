@@ -16,7 +16,7 @@ body { overflow: hidden; margin: 0; }
 #chat .from { font-weight: bold; width: 100px; text-align: right; display: inline-block; margin-right: 10px; }
 #chat .message.server { color: darkslategrey; }
 #chat .message.you { color: royalblue; }
-#chat .message.other { color: lightskyblue; }
+#chat .message.other { color: forestgreen; }
 #chat .message { text-shadow: 2px 0 0 #fff; }
 
 #sound-controller { position: absolute; top: 0px; right: 0px; padding: 10px; text-align: center; width: 200px; }

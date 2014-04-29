@@ -1255,7 +1255,7 @@
 
     FreezeMan.prototype.getPattern = function() {
       var attack, attacks, i, interval, options, speed, _i;
-      speed = Math.round((0.5 + 0.03 * (levelManager.level + config.bossDifficulty)) * 100) / 100;
+      speed = Math.round((0.5 + 0.02 * (levelManager.level + config.bossDifficulty)) * 100) / 100;
       interval = 1500 - 50 * (levelManager.level + config.bossDifficulty);
       options = [speed, interval];
       attacks = [];

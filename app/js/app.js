@@ -958,8 +958,8 @@
     }
 
     ControllablePlayer.prototype.reinitStats = function() {
-      this.speed = config.player.speed;
-      this.jumpHeight = config.player.jumpHeight;
+      this.speed = config.player.speed + bonusManager.findBonus('speedBonus').value * bonusManager.playerBonuses.speedBonus;
+      this.jumpHeight = config.player.jumpHeight + bonusManager.findBonus('jumpHeightBonus').value * bonusManager.playerBonuses.jumpHeightBonus;
       this.jumpMax = config.player.jumpMax;
       this.couchedSpeedRatio = config.player.couchedSpeedRation;
       this.fallMinAcceleration = config.player.fallMinAcceleration;
@@ -983,8 +983,8 @@
       this.stomped = false;
       this.actualCollisions = [];
       this.cached = {};
-      this.availableDoubleJump = 0;
-      return this.availableGrab = 0;
+      this.availableDoubleJump = bonusManager.playerBonuses.doubleJumpBonus;
+      return this.availableGrab = bonusManager.playerBonuses.grabbingBonus;
     };
 
     ControllablePlayer.prototype.reset = function() {

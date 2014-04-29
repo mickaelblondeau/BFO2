@@ -4,8 +4,8 @@ class ControllablePlayer extends Player
     @reinitStats()
 
   reinitStats: ->
-    @speed = config.player.speed
-    @jumpHeight = config.player.jumpHeight
+    @speed = config.player.speed + bonusManager.findBonus('speedBonus').value * bonusManager.playerBonuses.speedBonus
+    @jumpHeight = config.player.jumpHeight + bonusManager.findBonus('jumpHeightBonus').value * bonusManager.playerBonuses.jumpHeightBonus
     @jumpMax = config.player.jumpMax
     @couchedSpeedRatio = config.player.couchedSpeedRation
     @fallMinAcceleration = config.player.fallMinAcceleration
@@ -29,8 +29,8 @@ class ControllablePlayer extends Player
     @stomped = false
     @actualCollisions = []
     @cached = {}
-    @availableDoubleJump = 0
-    @availableGrab = 0
+    @availableDoubleJump = bonusManager.playerBonuses.doubleJumpBonus
+    @availableGrab = bonusManager.playerBonuses.grabbingBonus
 
   reset: ->
     @reinitStats()
