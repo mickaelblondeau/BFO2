@@ -25,11 +25,11 @@ class HUD
         }
         {
           icon: 'doubleJumpBonus'
-          text: "player.availableDoubleJump"
+          text: "bonusManager.playerBonuses.doubleJumpBonus"
         }
         {
           icon: 'grabbingBonus'
-          text: "player.availableGrab"
+          text: "bonusManager.playerBonuses.grabbingBonus"
         }
         {
           icon: 'jumpBlockBonus'

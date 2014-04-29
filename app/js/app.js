@@ -982,9 +982,7 @@
       this.alive = true;
       this.stomped = false;
       this.actualCollisions = [];
-      this.cached = {};
-      this.availableDoubleJump = bonusManager.playerBonuses.doubleJumpBonus;
-      return this.availableGrab = bonusManager.playerBonuses.grabbingBonus;
+      return this.cached = {};
     };
 
     ControllablePlayer.prototype.reset = function() {
@@ -1125,9 +1123,9 @@
 
     ControllablePlayer.prototype.startJump = function() {
       this.canJump = false;
-      if (!this.couched && this.jumpCount === 0 || (this.jumpCount < this.jumpMax && this.availableDoubleJump > 0)) {
+      if (!this.couched && this.jumpCount === 0 || (this.jumpCount < this.jumpMax && bonusManager.playerBonuses.doubleJumpBonus > 0)) {
         if (this.jumpCount > 0) {
-          this.availableDoubleJump--;
+          bonusManager.playerBonuses.doubleJumpBonus--;
         }
         if (collisionManager.getPlayerCollision()) {
           this.coopJump = true;
@@ -1300,7 +1298,7 @@
           this.grab(collision, false);
           grab = true;
           break;
-        } else if (this.availableGrab > 0) {
+        } else if (bonusManager.playerBonuses.grabbingBonus > 0) {
           this.grab(collision, true);
           grab = true;
           break;
@@ -1326,7 +1324,7 @@
 
     ControllablePlayer.prototype.stopGrab = function() {
       if (this.grabbed) {
-        this.availableGrab--;
+        bonusManager.playerBonuses.grabbingBonus--;
         return this.grabbed = false;
       }
     };
@@ -2433,7 +2431,9 @@
         speedBonus: 0,
         autoRezBonus: 0,
         tpBonus: 0,
-        jumpBlockBonus: 0
+        jumpBlockBonus: 0,
+        doubleJumpBonus: 0,
+        grabbingBonus: 0
       };
     };
 
@@ -2490,9 +2490,9 @@
           player.addJumpHeight(bonus.value);
           return this.playerBonuses.jumpHeightBonus++;
         case "jumpCount":
-          return player.availableDoubleJump += bonus.value;
+          return this.playerBonuses.doubleJumpBonus += bonus.value;
         case "grab":
-          return player.availableGrab += bonus.value;
+          return this.playerBonuses.grabbingBonus += bonus.value;
         case "resurection":
           networkManager.sendResurection();
           return player.resurection();
@@ -3191,10 +3191,10 @@
             text: "bonusManager.playerBonuses.tpBonus + '/' + bonusManager.bonuses[6].max + ' (T)'"
           }, {
             icon: 'doubleJumpBonus',
-            text: "player.availableDoubleJump"
+            text: "bonusManager.playerBonuses.doubleJumpBonus"
           }, {
             icon: 'grabbingBonus',
-            text: "player.availableGrab"
+            text: "bonusManager.playerBonuses.grabbingBonus"
           }, {
             icon: 'jumpBlockBonus',
             text: "bonusManager.playerBonuses.jumpBlockBonus + '/' + bonusManager.bonuses[7].max + ' (Y)'"

@@ -56,6 +56,8 @@ class BonusManager
       autoRezBonus: 0
       tpBonus: 0
       jumpBlockBonus: 0
+      doubleJumpBonus: 0
+      grabbingBonus: 0
     }
 
   getBonus: (bonusName) ->
@@ -99,9 +101,9 @@ class BonusManager
         player.addJumpHeight(bonus.value)
         @playerBonuses.jumpHeightBonus++
       when "jumpCount"
-        player.availableDoubleJump += bonus.value
+        @playerBonuses.doubleJumpBonus += bonus.value
       when "grab"
-        player.availableGrab += bonus.value
+        @playerBonuses.grabbingBonus += bonus.value
       when "resurection"
         networkManager.sendResurection()
         player.resurection()

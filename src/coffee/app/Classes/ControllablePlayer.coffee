@@ -29,8 +29,6 @@ class ControllablePlayer extends Player
     @stomped = false
     @actualCollisions = []
     @cached = {}
-    @availableDoubleJump = bonusManager.playerBonuses.doubleJumpBonus
-    @availableGrab = bonusManager.playerBonuses.grabbingBonus
 
   reset: ->
     @reinitStats()
@@ -151,9 +149,9 @@ class ControllablePlayer extends Player
 
   startJump: ->
     @canJump = false
-    if !@couched and @jumpCount is 0 or (@jumpCount < @jumpMax and @availableDoubleJump > 0)
+    if !@couched and @jumpCount is 0 or (@jumpCount < @jumpMax and bonusManager.playerBonuses.doubleJumpBonus > 0)
       if @jumpCount > 0
-        @availableDoubleJump--
+        bonusManager.playerBonuses.doubleJumpBonus--
       if collisionManager.getPlayerCollision()
         @coopJump = true
 
@@ -287,7 +285,7 @@ class ControllablePlayer extends Player
         @grab(collision, false)
         grab = true
         break
-      else if @availableGrab > 0
+      else if bonusManager.playerBonuses.grabbingBonus > 0
         @grab(collision, true)
         grab = true
         break
@@ -306,7 +304,7 @@ class ControllablePlayer extends Player
 
   stopGrab: ->
     if @grabbed
-      @availableGrab--
+      bonusManager.playerBonuses.grabbingBonus--
       @grabbed = false
 
   kill: ->
