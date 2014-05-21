@@ -25,9 +25,11 @@ class ControllablePlayer extends Player
     @addJumpHeight(bonusManager.findBonus('jumpHeightBonus').value * bonusManager.playerBonuses.jumpHeightBonus)
 
     @maxV = config.player.maxV
+    @maxJumpV = config.player.maxV
     @minV = config.player.minV
     @vAcc = config.player.vAcc
-    @vy = 0
+    @vDecc = config.player.vDecc
+    @vy = @minV
 
   reset: ->
     @reinitStats()
@@ -38,12 +40,12 @@ class ControllablePlayer extends Player
       @sliding = false
       @slowed = false
 
-      if !@testMove(0, @shape.getY())
+      if !collisionManager.checkPresence(@shape.getX() + @shape.getWidth()/2, @shape.getY() + @shape.getHeight() + 8)
         @falling = true
 
-      if !@jump and !@grabbing
+      if !@jump and !@grabbing and @falling
         @doFall(frameTime)
-      else
+      else if @jump
         @doJump(frameTime)
 
       if @couched and !@jump
@@ -129,12 +131,13 @@ class ControllablePlayer extends Player
   doFall: (frameTime) ->
     if @jumpCount is 0
       @jumpCount = 1
-      @vy = @minV
-    @vy += @vAcc*frameTime
-    if @vy > @maxV
-      @vy = @maxV
-    y = @shape.getY() + @vy*frameTime
-    collide = @testMove(0, y)
+    console.log 'falling'
+    collide = @testMove(0, @shape.getY() + @vy*frameTime)
+    tmpAcc = @vy*@vAcc
+    if tmpAcc <= @maxJumpV
+      @vy = tmpAcc
+    else
+      @vy = @maxJumpV
     if collide
       @stopFall(collide.getY())
     else
@@ -144,6 +147,7 @@ class ControllablePlayer extends Player
     @shape.setY(y - @shape.getHeight())
     @jumpCount = 0
     @falling = false
+    @vy = @minV
 
   startJump: ->
     @canJump = false
@@ -156,16 +160,16 @@ class ControllablePlayer extends Player
       @jumpCount++
       @jump = true
       @jumpStart = @shape.getY()
-
       @vy = @maxV
 
   doJump: (frameTime) ->
     if(@jumpStart - @shape.getY() < @jumpHeight) and @jump
-      @vy -= @vAcc*frameTime
-      if @vy < @minV
+      collide = @testMove(0, @shape.getY() - @vy*frameTime)
+      tmpAcc = @vy*@vDecc
+      if tmpAcc >= @minV
+        @vy = tmpAcc
+      else
         @vy = @minV
-      y = @shape.getY() - @vy*frameTime
-      collide = @testMove(0, y)
       if collide
         @shape.setY(collide.getY() + collide.getHeight())
         @stopJump()
@@ -182,7 +186,7 @@ class ControllablePlayer extends Player
   reinitJump: ->
     @jumpHeight = @oldStats.jumpHeight
     @maxV = @oldStats.maxV
-    @minV = @oldStats.minV
+    @vDecc = @oldStats.vDecc
     @stomped = false
     @coopJump = false
 
@@ -300,11 +304,6 @@ class ControllablePlayer extends Player
     if id isnt undefined
       networkManager.sendLootBonus(Math.round(@shape.getX()/32)*32, Math.floor((@shape.getY() + @shape.getHeight())/32)*32-32, id)
 
-  addJumpHeight: (h) ->
-    @jumpHeight += h
-    @maxV += h/500
-    @minV += h/500
-
   useTp: ->
     if bonusManager.playerBonuses.tpBonus > 0
       bonusManager.playerBonuses.tpBonus--
@@ -316,12 +315,18 @@ class ControllablePlayer extends Player
       bonusManager.playerBonuses.jumpBlockBonus--
       networkManager.sendJumpBlock(Math.round(@shape.getX()/32)*32, Math.floor((@shape.getY() + @shape.getHeight())/32)*32-32)
 
+  addJumpHeight: (h) ->
+    @jumpHeight += h
+    @maxV += h/200
+    @vDecc += h/5000
+
   addTempheight: (h) ->
     @oldStats = {
       jumpHeight: @jumpHeight
       maxV: @maxV
-      minV: @minV
+      vDecc: @vDecc
     }
     @jumpHeight = h
     @maxV += h/500
-    @minV += h/500
+    @vDecc = 0.999
+    @vy = @maxV

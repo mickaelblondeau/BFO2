@@ -21,9 +21,10 @@
       jumpHeight: 82,
       speed: 0.17,
       couchedSpeedRation: 0.5,
-      maxV: 0.7,
-      minV: 0.3,
-      vAcc: 0.003
+      maxV: 0.6,
+      minV: 0.1,
+      vAcc: 1.1,
+      vDecc: 0.9
     }
   };
 
@@ -973,9 +974,11 @@
       this.cached = {};
       this.addJumpHeight(bonusManager.findBonus('jumpHeightBonus').value * bonusManager.playerBonuses.jumpHeightBonus);
       this.maxV = config.player.maxV;
+      this.maxJumpV = config.player.maxV;
       this.minV = config.player.minV;
       this.vAcc = config.player.vAcc;
-      return this.vy = 0;
+      this.vDecc = config.player.vDecc;
+      return this.vy = this.minV;
     };
 
     ControllablePlayer.prototype.reset = function() {
@@ -988,12 +991,12 @@
       if (!(!this.alive && this.shape.getY() > stage.getY() * -1 + stage.getHeight())) {
         this.sliding = false;
         this.slowed = false;
-        if (!this.testMove(0, this.shape.getY())) {
+        if (!collisionManager.checkPresence(this.shape.getX() + this.shape.getWidth() / 2, this.shape.getY() + this.shape.getHeight() + 8)) {
           this.falling = true;
         }
-        if (!this.jump && !this.grabbing) {
+        if (!this.jump && !this.grabbing && this.falling) {
           this.doFall(frameTime);
-        } else {
+        } else if (this.jump) {
           this.doJump(frameTime);
         }
         if (this.couched && !this.jump) {
@@ -1089,17 +1092,18 @@
     };
 
     ControllablePlayer.prototype.doFall = function(frameTime) {
-      var collide, y;
+      var collide, tmpAcc;
       if (this.jumpCount === 0) {
         this.jumpCount = 1;
-        this.vy = this.minV;
       }
-      this.vy += this.vAcc * frameTime;
-      if (this.vy > this.maxV) {
-        this.vy = this.maxV;
+      console.log('falling');
+      collide = this.testMove(0, this.shape.getY() + this.vy * frameTime);
+      tmpAcc = this.vy * this.vAcc;
+      if (tmpAcc <= this.maxJumpV) {
+        this.vy = tmpAcc;
+      } else {
+        this.vy = this.maxJumpV;
       }
-      y = this.shape.getY() + this.vy * frameTime;
-      collide = this.testMove(0, y);
       if (collide) {
         return this.stopFall(collide.getY());
       } else {
@@ -1110,7 +1114,8 @@
     ControllablePlayer.prototype.stopFall = function(y) {
       this.shape.setY(y - this.shape.getHeight());
       this.jumpCount = 0;
-      return this.falling = false;
+      this.falling = false;
+      return this.vy = this.minV;
     };
 
     ControllablePlayer.prototype.startJump = function() {
@@ -1131,14 +1136,15 @@
     };
 
     ControllablePlayer.prototype.doJump = function(frameTime) {
-      var collide, y;
+      var collide, tmpAcc;
       if ((this.jumpStart - this.shape.getY() < this.jumpHeight) && this.jump) {
-        this.vy -= this.vAcc * frameTime;
-        if (this.vy < this.minV) {
+        collide = this.testMove(0, this.shape.getY() - this.vy * frameTime);
+        tmpAcc = this.vy * this.vDecc;
+        if (tmpAcc >= this.minV) {
+          this.vy = tmpAcc;
+        } else {
           this.vy = this.minV;
         }
-        y = this.shape.getY() - this.vy * frameTime;
-        collide = this.testMove(0, y);
         if (collide) {
           this.shape.setY(collide.getY() + collide.getHeight());
           this.stopJump();
@@ -1160,7 +1166,7 @@
     ControllablePlayer.prototype.reinitJump = function() {
       this.jumpHeight = this.oldStats.jumpHeight;
       this.maxV = this.oldStats.maxV;
-      this.minV = this.oldStats.minV;
+      this.vDecc = this.oldStats.vDecc;
       this.stomped = false;
       return this.coopJump = false;
     };
@@ -1324,12 +1330,6 @@
       }
     };
 
-    ControllablePlayer.prototype.addJumpHeight = function(h) {
-      this.jumpHeight += h;
-      this.maxV += h / 500;
-      return this.minV += h / 500;
-    };
-
     ControllablePlayer.prototype.useTp = function() {
       if (bonusManager.playerBonuses.tpBonus > 0) {
         bonusManager.playerBonuses.tpBonus--;
@@ -1345,15 +1345,22 @@
       }
     };
 
+    ControllablePlayer.prototype.addJumpHeight = function(h) {
+      this.jumpHeight += h;
+      this.maxV += h / 200;
+      return this.vDecc += h / 5000;
+    };
+
     ControllablePlayer.prototype.addTempheight = function(h) {
       this.oldStats = {
         jumpHeight: this.jumpHeight,
         maxV: this.maxV,
-        minV: this.minV
+        vDecc: this.vDecc
       };
       this.jumpHeight = h;
       this.maxV += h / 500;
-      return this.minV += h / 500;
+      this.vDecc = 0.999;
+      return this.vy = this.maxV;
     };
 
     return ControllablePlayer;
@@ -4391,13 +4398,6 @@
         players.draw();
         return dynamicEntities.draw();
       };
-
-      /*
-      new Bonus(0, 2, 0)
-      new Bonus(1, 2, 1)
-      new Bonus(2, 2, 2)
-      new SpecialCube(8, SquareEnum.MEDIUM, 2)
-       */
     };
     return document.querySelector('#play').onclick = function() {
       var ip, name;
