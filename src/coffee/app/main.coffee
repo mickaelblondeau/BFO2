@@ -63,13 +63,12 @@ if config.debug
 contentLoader.contentsLoaded = ->
   document.querySelector('#login-form').style.display = 'block'
   document.querySelector('#login-loading').style.display = 'none'
-  document.querySelector('#ip').value = window.location.host
 
   saveManager.loadOptions()
 
   contentLoader.playSong()
 
-  launchGame = (ip, name) ->
+  launchGame = (name) ->
     bg = new Kinetic.Image
       width: stage.getWidth()
       height: stage.getHeight()
@@ -82,7 +81,7 @@ contentLoader.contentsLoaded = ->
     player = new ControllablePlayer(skin)
     hud = new HUD()
 
-    networkManager.connect(ip, name, skin)
+    networkManager.connect(window.location.host, name, skin)
 
     pidgeon = new Pidgeon()
 
@@ -99,11 +98,10 @@ contentLoader.contentsLoaded = ->
       dynamicEntities.draw()
 
   document.querySelector('#play').onclick = ->
-    ip = document.querySelector('#ip').value.replace(" ","")
     name = document.querySelector('#name').value
     document.querySelector('#login-form').style.display = 'none'
     document.querySelector('#login-loading').style.display = 'block'
-    document.querySelector('#login-loading').innerHTML = 'Waiting for '+ip+'...'
-    launchGame(ip, name)
+    document.querySelector('#login-loading').innerHTML = 'Connecting...'
+    launchGame(name)
     contentLoader.play('beep')
     saveManager.saveOptions()

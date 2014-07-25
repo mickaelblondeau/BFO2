@@ -1096,7 +1096,6 @@
       if (this.jumpCount === 0) {
         this.jumpCount = 1;
       }
-      console.log('falling');
       collide = this.testMove(0, this.shape.getY() + this.vy * frameTime);
       tmpAcc = this.vy * this.vAcc;
       if (tmpAcc <= this.maxJumpV) {
@@ -2801,7 +2800,7 @@
     }
 
     NetworkManager.prototype.connect = function(ip, name, skin) {
-      this.socket = io.connect('http://' + ip + ':8080');
+      this.socket = io.connect('ws://' + ip);
       this.socket.emit('login', [name, skin]);
       return this.listener();
     };
@@ -4368,10 +4367,9 @@
     var launchGame;
     document.querySelector('#login-form').style.display = 'block';
     document.querySelector('#login-loading').style.display = 'none';
-    document.querySelector('#ip').value = window.location.host;
     saveManager.loadOptions();
     contentLoader.playSong();
-    launchGame = function(ip, name) {
+    launchGame = function(name) {
       var bg, pidgeon;
       bg = new Kinetic.Image({
         width: stage.getWidth(),
@@ -4384,7 +4382,7 @@
       arena = new Arena();
       player = new ControllablePlayer(skin);
       hud = new HUD();
-      networkManager.connect(ip, name, skin);
+      networkManager.connect(window.location.host, name, skin);
       pidgeon = new Pidgeon();
       game.update = function(frameTime) {
         game.draw();
@@ -4400,13 +4398,12 @@
       };
     };
     return document.querySelector('#play').onclick = function() {
-      var ip, name;
-      ip = document.querySelector('#ip').value.replace(" ", "");
+      var name;
       name = document.querySelector('#name').value;
       document.querySelector('#login-form').style.display = 'none';
       document.querySelector('#login-loading').style.display = 'block';
-      document.querySelector('#login-loading').innerHTML = 'Waiting for ' + ip + '...';
-      launchGame(ip, name);
+      document.querySelector('#login-loading').innerHTML = 'Connecting...';
+      launchGame(name);
       contentLoader.play('beep');
       return saveManager.saveOptions();
     };

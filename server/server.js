@@ -655,20 +655,27 @@
   })();
 
   NetworkManager = (function() {
-    function NetworkManager() {
-      this.io = require('socket.io').listen(8080);
+    function NetworkManager(port) {
+      var http, server;
+      this.express = require('express');
+      this.app = this.express();
+      http = require('http');
+      server = http.createServer(this.app);
+      this.io = require('socket.io').listen(server);
       this.io.enable('browser client minification');
       this.io.enable('browser client etag');
       this.io.enable('browser client gzip');
       this.io.set('log level', 1);
       this.waitingFor = 0;
       this.responseOk = 0;
+      server.listen(port);
       this.listener();
     }
 
     NetworkManager.prototype.listener = function() {
       var self;
       self = this;
+      this.app.use(this.express["static"](__dirname + '/../app'));
       return this.io.sockets.on('connection', function(socket) {
         socket.on('login', function(arr) {
           socket.set('name', arr[0]);
@@ -1501,7 +1508,7 @@
 
   })(Boss);
 
-  networkManager = new NetworkManager();
+  networkManager = new NetworkManager(80);
 
   game = new Game();
 

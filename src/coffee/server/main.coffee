@@ -1,4 +1,4 @@
-networkManager = new NetworkManager()
+networkManager = new NetworkManager(80)
 
 game = new Game()
 

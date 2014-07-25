@@ -1,16 +1,22 @@
 class NetworkManager
-  constructor: ->
-    @io = require('socket.io').listen(8080)
+  constructor: (port) ->
+    @express = require 'express'
+    @app = @express()
+    http = require 'http'
+    server = http.createServer @app
+    @io = require('socket.io').listen server
     @io.enable('browser client minification')
     @io.enable('browser client etag')
     @io.enable('browser client gzip')
     @io.set('log level', 1)
     @waitingFor = 0
     @responseOk = 0
+    server.listen port
     @listener()
 
   listener: ->
     self = @
+    @app.use(@express.static(__dirname + '/../app'));
     @io.sockets.on 'connection', (socket) ->
 
       socket.on 'login', (arr) ->
