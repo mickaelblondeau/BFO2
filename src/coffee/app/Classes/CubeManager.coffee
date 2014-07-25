@@ -75,8 +75,18 @@ class CubeManager
     contentLoader.play('explosion')
     new Effect(shape.getX(), shape.getY(), SquareEnum.SMALL, 'tp', null, true)
     if !player.jump and !player.falling
-      player.addTempheight(300)
+      player.oldStats = {
+        jumpHeight: player.jumpHeight
+        jumpMinAcceleration: player.jumpMinAcceleration
+        jumpMaxAcceleration: player.jumpMaxAcceleration
+        jumpDeceleration: player.jumpDeceleration
+      }
       player.jumpStart = player.shape.getY()
+      player.jumpHeight = 300
+      player.jumpMinAcceleration = 0.1
+      player.jumpMaxAcceleration = 1.5
+      player.jumpCurrentAcceleration = player.jumpMaxAcceleration
+      player.jumpDeceleration = 0.92
       player.jumpCount = player.jumpMax
       player.stomped = true
       player.jump = true
