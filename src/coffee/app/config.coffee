@@ -9,9 +9,12 @@ config = {
     jumpHeight: 82
     speed: 0.17
     couchedSpeedRation: 0.5
-    maxV: 0.6
-    minV: 0.1
-    vAcc: 1.1
-    vDecc: 0.9
+    fallMinAcceleration: 0.1
+    fallMaxAcceleration: 0.6
+    fallAcceleration: 1.10
+    jumpMinAcceleration: 0.1
+    jumpMaxAcceleration: 0.6
+    jumpDeceleration: 0.90
+    jumpCurrentAcceleration: 0
   }
 }

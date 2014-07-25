@@ -1,4 +1,16 @@
-networkManager = new NetworkManager()
+nconf = require 'nconf'
+
+nconf.argv().env()
+
+nconf.file {
+    file: __dirname + '/../config.json'
+}
+
+nconf.defaults {
+    port: 80
+}
+
+networkManager = new NetworkManager nconf.get 'port'
 
 game = new Game()
 

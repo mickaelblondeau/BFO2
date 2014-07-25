@@ -5,9 +5,17 @@ class ControllablePlayer extends Player
 
   reinitStats: ->
     @speed = config.player.speed + bonusManager.findBonus('speedBonus').value * bonusManager.playerBonuses.speedBonus
-    @jumpHeight = config.player.jumpHeight
+    @jumpHeight = config.player.jumpHeight + bonusManager.findBonus('jumpHeightBonus').value * bonusManager.playerBonuses.jumpHeightBonus
     @jumpMax = config.player.jumpMax
     @couchedSpeedRatio = config.player.couchedSpeedRation
+    @fallMinAcceleration = config.player.fallMinAcceleration
+    @fallMaxAcceleration = config.player.fallMaxAcceleration
+    @fallAcceleration = config.player.fallAcceleration
+    @jumpMinAcceleration = config.player.jumpMinAcceleration
+    @jumpMaxAcceleration = config.player.jumpMaxAcceleration
+    @jumpDeceleration = config.player.jumpDeceleration
+    @jumpCurrentAcceleration = config.player.jumpCurrentAcceleration
+    @fallCurrentAcceleration = @fallMinAcceleration
     @jump = false
     @canJump = true
     @jumpStart = 0
@@ -22,15 +30,6 @@ class ControllablePlayer extends Player
     @actualCollisions = []
     @cached = {}
 
-    @addJumpHeight(bonusManager.findBonus('jumpHeightBonus').value * bonusManager.playerBonuses.jumpHeightBonus)
-
-    @maxV = config.player.maxV
-    @maxJumpV = config.player.maxV
-    @minV = config.player.minV
-    @vAcc = config.player.vAcc
-    @vDecc = config.player.vDecc
-    @vy = @minV
-
   reset: ->
     @reinitStats()
     @spawn()
@@ -40,12 +39,12 @@ class ControllablePlayer extends Player
       @sliding = false
       @slowed = false
 
-      if !collisionManager.checkPresence(@shape.getX() + @shape.getWidth()/2, @shape.getY() + @shape.getHeight() + 8)
+      if !@testMove(0, @shape.getY())
         @falling = true
 
-      if !@jump and !@grabbing and @falling
+      if !@jump and !@grabbing
         @doFall(frameTime)
-      else if @jump
+      else
         @doJump(frameTime)
 
       if @couched and !@jump
@@ -131,13 +130,12 @@ class ControllablePlayer extends Player
   doFall: (frameTime) ->
     if @jumpCount is 0
       @jumpCount = 1
-    console.log 'falling'
-    collide = @testMove(0, @shape.getY() + @vy*frameTime)
-    tmpAcc = @vy*@vAcc
-    if tmpAcc <= @maxJumpV
-      @vy = tmpAcc
+    collide = @testMove(0, @shape.getY() + @fallCurrentAcceleration*frameTime)
+    tmpAcceleration = @fallCurrentAcceleration*@fallAcceleration
+    if tmpAcceleration <= @fallMaxAcceleration
+      @fallCurrentAcceleration = tmpAcceleration
     else
-      @vy = @maxJumpV
+      @fallCurrentAcceleration = @fallMaxAcceleration
     if collide
       @stopFall(collide.getY())
     else
@@ -146,8 +144,8 @@ class ControllablePlayer extends Player
   stopFall: (y) ->
     @shape.setY(y - @shape.getHeight())
     @jumpCount = 0
+    @fallCurrentAcceleration = @fallMinAcceleration
     @falling = false
-    @vy = @minV
 
   startJump: ->
     @canJump = false
@@ -156,20 +154,32 @@ class ControllablePlayer extends Player
         bonusManager.playerBonuses.doubleJumpBonus--
       if collisionManager.getPlayerCollision()
         @coopJump = true
-        @addTempheight(@jumpHeight + 40)
+
+        @oldStats = {
+          jumpHeight: @jumpHeight
+          jumpMinAcceleration: @jumpMinAcceleration
+          jumpMaxAcceleration: @jumpMaxAcceleration
+          jumpDeceleration: @jumpDeceleration
+        }
+
+        @jumpHeight += 40
+        @jumpMinAcceleration = 0.1
+        @jumpMaxAcceleration = 0.7
+        @jumpDeceleration = 0.92
+
       @jumpCount++
       @jump = true
+      @jumpCurrentAcceleration = @jumpMaxAcceleration
       @jumpStart = @shape.getY()
-      @vy = @maxV
 
   doJump: (frameTime) ->
     if(@jumpStart - @shape.getY() < @jumpHeight) and @jump
-      collide = @testMove(0, @shape.getY() - @vy*frameTime)
-      tmpAcc = @vy*@vDecc
-      if tmpAcc >= @minV
-        @vy = tmpAcc
+      collide = @testMove(0, @shape.getY() - @jumpCurrentAcceleration*frameTime)
+      tmpAcceleration = @jumpCurrentAcceleration*@jumpDeceleration
+      if tmpAcceleration >= @jumpMinAcceleration
+        @jumpCurrentAcceleration = tmpAcceleration
       else
-        @vy = @minV
+        @jumpCurrentAcceleration = @jumpMinAcceleration
       if collide
         @shape.setY(collide.getY() + collide.getHeight())
         @stopJump()
@@ -185,8 +195,9 @@ class ControllablePlayer extends Player
 
   reinitJump: ->
     @jumpHeight = @oldStats.jumpHeight
-    @maxV = @oldStats.maxV
-    @vDecc = @oldStats.vDecc
+    @jumpMinAcceleration = @oldStats.jumpMinAcceleration
+    @jumpMaxAcceleration = @oldStats.jumpMaxAcceleration
+    @jumpDeceleration = @oldStats.jumpDeceleration
     @stomped = false
     @coopJump = false
 
@@ -249,8 +260,18 @@ class ControllablePlayer extends Player
     if effect.getName().name is 'slow'
       @slowed = true
     if effect.getName().name is 'jumpBlock' and @falling and !@jump
-      @addTempheight(256)
+      @oldStats = {
+        jumpHeight: @jumpHeight
+        jumpMinAcceleration: @jumpMinAcceleration
+        jumpMaxAcceleration: @jumpMaxAcceleration
+        jumpDeceleration: @jumpDeceleration
+      }
       @jumpStart = player.shape.getY()
+      @jumpHeight = 256
+      @jumpMinAcceleration = 0.2
+      @jumpMaxAcceleration = 1.4
+      @jumpCurrentAcceleration = @jumpMaxAcceleration
+      @jumpDeceleration = 0.91
       @jumpCount = player.jumpMax
       @stomped = true
       @jump = true
@@ -304,6 +325,12 @@ class ControllablePlayer extends Player
     if id isnt undefined
       networkManager.sendLootBonus(Math.round(@shape.getX()/32)*32, Math.floor((@shape.getY() + @shape.getHeight())/32)*32-32, id)
 
+  addJumpHeight: (height) ->
+    @jumpHeight += height
+    @jumpMinAcceleration = 0.1
+    @jumpMaxAcceleration += height/200
+    @jumpDeceleration += height/2000
+
   useTp: ->
     if bonusManager.playerBonuses.tpBonus > 0
       bonusManager.playerBonuses.tpBonus--
@@ -314,19 +341,3 @@ class ControllablePlayer extends Player
     if bonusManager.playerBonuses.jumpBlockBonus > 0
       bonusManager.playerBonuses.jumpBlockBonus--
       networkManager.sendJumpBlock(Math.round(@shape.getX()/32)*32, Math.floor((@shape.getY() + @shape.getHeight())/32)*32-32)
-
-  addJumpHeight: (h) ->
-    @jumpHeight += h
-    @maxV += h/200
-    @vDecc += h/5000
-
-  addTempheight: (h) ->
-    @oldStats = {
-      jumpHeight: @jumpHeight
-      maxV: @maxV
-      vDecc: @vDecc
-    }
-    @jumpHeight = h
-    @maxV += h/500
-    @vDecc = 0.999
-    @vy = @maxV

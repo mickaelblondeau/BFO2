@@ -63,14 +63,14 @@ class Keyboard
         keys          : "t",
         on_keydown    : ->
           if !game.writting
-            if player isnt undefined
+            if player isnt null
               player.useTp()
       },
       {
         keys          : "y",
         on_keydown    : ->
           if !game.writting
-            if player isnt undefined
+            if player isnt null
               player.useJumpBlock()
       },
     ]

@@ -21,10 +21,13 @@
       jumpHeight: 82,
       speed: 0.17,
       couchedSpeedRation: 0.5,
-      maxV: 0.6,
-      minV: 0.1,
-      vAcc: 1.1,
-      vDecc: 0.9
+      fallMinAcceleration: 0.1,
+      fallMaxAcceleration: 0.6,
+      fallAcceleration: 1.10,
+      jumpMinAcceleration: 0.1,
+      jumpMaxAcceleration: 0.6,
+      jumpDeceleration: 0.90,
+      jumpCurrentAcceleration: 0
     }
   };
 
@@ -101,7 +104,7 @@
           keys: "t",
           on_keydown: function() {
             if (!game.writting) {
-              if (player !== void 0) {
+              if (player !== null) {
                 return player.useTp();
               }
             }
@@ -110,7 +113,7 @@
           keys: "y",
           on_keydown: function() {
             if (!game.writting) {
-              if (player !== void 0) {
+              if (player !== null) {
                 return player.useJumpBlock();
               }
             }
@@ -956,9 +959,17 @@
 
     ControllablePlayer.prototype.reinitStats = function() {
       this.speed = config.player.speed + bonusManager.findBonus('speedBonus').value * bonusManager.playerBonuses.speedBonus;
-      this.jumpHeight = config.player.jumpHeight;
+      this.jumpHeight = config.player.jumpHeight + bonusManager.findBonus('jumpHeightBonus').value * bonusManager.playerBonuses.jumpHeightBonus;
       this.jumpMax = config.player.jumpMax;
       this.couchedSpeedRatio = config.player.couchedSpeedRation;
+      this.fallMinAcceleration = config.player.fallMinAcceleration;
+      this.fallMaxAcceleration = config.player.fallMaxAcceleration;
+      this.fallAcceleration = config.player.fallAcceleration;
+      this.jumpMinAcceleration = config.player.jumpMinAcceleration;
+      this.jumpMaxAcceleration = config.player.jumpMaxAcceleration;
+      this.jumpDeceleration = config.player.jumpDeceleration;
+      this.jumpCurrentAcceleration = config.player.jumpCurrentAcceleration;
+      this.fallCurrentAcceleration = this.fallMinAcceleration;
       this.jump = false;
       this.canJump = true;
       this.jumpStart = 0;
@@ -971,14 +982,7 @@
       this.alive = true;
       this.stomped = false;
       this.actualCollisions = [];
-      this.cached = {};
-      this.addJumpHeight(bonusManager.findBonus('jumpHeightBonus').value * bonusManager.playerBonuses.jumpHeightBonus);
-      this.maxV = config.player.maxV;
-      this.maxJumpV = config.player.maxV;
-      this.minV = config.player.minV;
-      this.vAcc = config.player.vAcc;
-      this.vDecc = config.player.vDecc;
-      return this.vy = this.minV;
+      return this.cached = {};
     };
 
     ControllablePlayer.prototype.reset = function() {
@@ -991,12 +995,12 @@
       if (!(!this.alive && this.shape.getY() > stage.getY() * -1 + stage.getHeight())) {
         this.sliding = false;
         this.slowed = false;
-        if (!collisionManager.checkPresence(this.shape.getX() + this.shape.getWidth() / 2, this.shape.getY() + this.shape.getHeight() + 8)) {
+        if (!this.testMove(0, this.shape.getY())) {
           this.falling = true;
         }
-        if (!this.jump && !this.grabbing && this.falling) {
+        if (!this.jump && !this.grabbing) {
           this.doFall(frameTime);
-        } else if (this.jump) {
+        } else {
           this.doJump(frameTime);
         }
         if (this.couched && !this.jump) {
@@ -1092,17 +1096,16 @@
     };
 
     ControllablePlayer.prototype.doFall = function(frameTime) {
-      var collide, tmpAcc;
+      var collide, tmpAcceleration;
       if (this.jumpCount === 0) {
         this.jumpCount = 1;
       }
-      console.log('falling');
-      collide = this.testMove(0, this.shape.getY() + this.vy * frameTime);
-      tmpAcc = this.vy * this.vAcc;
-      if (tmpAcc <= this.maxJumpV) {
-        this.vy = tmpAcc;
+      collide = this.testMove(0, this.shape.getY() + this.fallCurrentAcceleration * frameTime);
+      tmpAcceleration = this.fallCurrentAcceleration * this.fallAcceleration;
+      if (tmpAcceleration <= this.fallMaxAcceleration) {
+        this.fallCurrentAcceleration = tmpAcceleration;
       } else {
-        this.vy = this.maxJumpV;
+        this.fallCurrentAcceleration = this.fallMaxAcceleration;
       }
       if (collide) {
         return this.stopFall(collide.getY());
@@ -1114,8 +1117,8 @@
     ControllablePlayer.prototype.stopFall = function(y) {
       this.shape.setY(y - this.shape.getHeight());
       this.jumpCount = 0;
-      this.falling = false;
-      return this.vy = this.minV;
+      this.fallCurrentAcceleration = this.fallMinAcceleration;
+      return this.falling = false;
     };
 
     ControllablePlayer.prototype.startJump = function() {
@@ -1126,24 +1129,33 @@
         }
         if (collisionManager.getPlayerCollision()) {
           this.coopJump = true;
-          this.addTempheight(this.jumpHeight + 40);
+          this.oldStats = {
+            jumpHeight: this.jumpHeight,
+            jumpMinAcceleration: this.jumpMinAcceleration,
+            jumpMaxAcceleration: this.jumpMaxAcceleration,
+            jumpDeceleration: this.jumpDeceleration
+          };
+          this.jumpHeight += 40;
+          this.jumpMinAcceleration = 0.1;
+          this.jumpMaxAcceleration = 0.7;
+          this.jumpDeceleration = 0.92;
         }
         this.jumpCount++;
         this.jump = true;
-        this.jumpStart = this.shape.getY();
-        return this.vy = this.maxV;
+        this.jumpCurrentAcceleration = this.jumpMaxAcceleration;
+        return this.jumpStart = this.shape.getY();
       }
     };
 
     ControllablePlayer.prototype.doJump = function(frameTime) {
-      var collide, tmpAcc;
+      var collide, tmpAcceleration;
       if ((this.jumpStart - this.shape.getY() < this.jumpHeight) && this.jump) {
-        collide = this.testMove(0, this.shape.getY() - this.vy * frameTime);
-        tmpAcc = this.vy * this.vDecc;
-        if (tmpAcc >= this.minV) {
-          this.vy = tmpAcc;
+        collide = this.testMove(0, this.shape.getY() - this.jumpCurrentAcceleration * frameTime);
+        tmpAcceleration = this.jumpCurrentAcceleration * this.jumpDeceleration;
+        if (tmpAcceleration >= this.jumpMinAcceleration) {
+          this.jumpCurrentAcceleration = tmpAcceleration;
         } else {
-          this.vy = this.minV;
+          this.jumpCurrentAcceleration = this.jumpMinAcceleration;
         }
         if (collide) {
           this.shape.setY(collide.getY() + collide.getHeight());
@@ -1165,8 +1177,9 @@
 
     ControllablePlayer.prototype.reinitJump = function() {
       this.jumpHeight = this.oldStats.jumpHeight;
-      this.maxV = this.oldStats.maxV;
-      this.vDecc = this.oldStats.vDecc;
+      this.jumpMinAcceleration = this.oldStats.jumpMinAcceleration;
+      this.jumpMaxAcceleration = this.oldStats.jumpMaxAcceleration;
+      this.jumpDeceleration = this.oldStats.jumpDeceleration;
       this.stomped = false;
       return this.coopJump = false;
     };
@@ -1256,8 +1269,18 @@
         this.slowed = true;
       }
       if (effect.getName().name === 'jumpBlock' && this.falling && !this.jump) {
-        this.addTempheight(256);
+        this.oldStats = {
+          jumpHeight: this.jumpHeight,
+          jumpMinAcceleration: this.jumpMinAcceleration,
+          jumpMaxAcceleration: this.jumpMaxAcceleration,
+          jumpDeceleration: this.jumpDeceleration
+        };
         this.jumpStart = player.shape.getY();
+        this.jumpHeight = 256;
+        this.jumpMinAcceleration = 0.2;
+        this.jumpMaxAcceleration = 1.4;
+        this.jumpCurrentAcceleration = this.jumpMaxAcceleration;
+        this.jumpDeceleration = 0.91;
         this.jumpCount = player.jumpMax;
         this.stomped = true;
         return this.jump = true;
@@ -1330,6 +1353,13 @@
       }
     };
 
+    ControllablePlayer.prototype.addJumpHeight = function(height) {
+      this.jumpHeight += height;
+      this.jumpMinAcceleration = 0.1;
+      this.jumpMaxAcceleration += height / 200;
+      return this.jumpDeceleration += height / 2000;
+    };
+
     ControllablePlayer.prototype.useTp = function() {
       if (bonusManager.playerBonuses.tpBonus > 0) {
         bonusManager.playerBonuses.tpBonus--;
@@ -1343,24 +1373,6 @@
         bonusManager.playerBonuses.jumpBlockBonus--;
         return networkManager.sendJumpBlock(Math.round(this.shape.getX() / 32) * 32, Math.floor((this.shape.getY() + this.shape.getHeight()) / 32) * 32 - 32);
       }
-    };
-
-    ControllablePlayer.prototype.addJumpHeight = function(h) {
-      this.jumpHeight += h;
-      this.maxV += h / 200;
-      return this.vDecc += h / 5000;
-    };
-
-    ControllablePlayer.prototype.addTempheight = function(h) {
-      this.oldStats = {
-        jumpHeight: this.jumpHeight,
-        maxV: this.maxV,
-        vDecc: this.vDecc
-      };
-      this.jumpHeight = h;
-      this.maxV += h / 500;
-      this.vDecc = 0.999;
-      return this.vy = this.maxV;
     };
 
     return ControllablePlayer;
@@ -2502,25 +2514,25 @@
     BonusManager.prototype.getRandomBonus = function() {
       var bonuses;
       bonuses = [];
-      if (this.playerBonuses.speedBonus > 0) {
+      if (bonusManager.playerBonuses.speedBonus > 0) {
         bonuses.push(1);
       }
-      if (this.playerBonuses.jumpHeightBonus > 0) {
+      if (bonusManager.playerBonuses.jumpHeightBonus > 0) {
         bonuses.push(2);
       }
-      if (this.playerBonuses.doubleJumpBonus > 0) {
+      if (player.availableDoubleJump > 0) {
         bonuses.push(3);
       }
-      if (this.playerBonuses.grabbingBonus > 0) {
+      if (player.availableGrab > 0) {
         bonuses.push(4);
       }
-      if (this.playerBonuses.autoRezBonus > 0) {
+      if (bonusManager.playerBonuses.autoRezBonus > 0) {
         bonuses.push(6);
       }
-      if (this.playerBonuses.tpBonus > 0) {
+      if (bonusManager.playerBonuses.tpBonus > 0) {
         bonuses.push(7);
       }
-      if (this.playerBonuses.jumpBlockBonus > 0) {
+      if (bonusManager.playerBonuses.jumpBlockBonus > 0) {
         bonuses.push(8);
       }
       return bonuses[Math.floor(Math.random() * (bonuses.length - 1))];
@@ -2721,8 +2733,18 @@
       contentLoader.play('explosion');
       new Effect(shape.getX(), shape.getY(), SquareEnum.SMALL, 'tp', null, true);
       if (!player.jump && !player.falling) {
-        player.addTempheight(300);
+        player.oldStats = {
+          jumpHeight: player.jumpHeight,
+          jumpMinAcceleration: player.jumpMinAcceleration,
+          jumpMaxAcceleration: player.jumpMaxAcceleration,
+          jumpDeceleration: player.jumpDeceleration
+        };
         player.jumpStart = player.shape.getY();
+        player.jumpHeight = 300;
+        player.jumpMinAcceleration = 0.1;
+        player.jumpMaxAcceleration = 1.5;
+        player.jumpCurrentAcceleration = player.jumpMaxAcceleration;
+        player.jumpDeceleration = 0.92;
         player.jumpCount = player.jumpMax;
         player.stomped = true;
         player.jump = true;
@@ -2801,7 +2823,7 @@
     }
 
     NetworkManager.prototype.connect = function(ip, name, skin) {
-      this.socket = io.connect('http://' + ip + ':8080');
+      this.socket = io.connect('ws://' + ip);
       this.socket.emit('login', [name, skin]);
       return this.listener();
     };
@@ -4368,10 +4390,9 @@
     var launchGame;
     document.querySelector('#login-form').style.display = 'block';
     document.querySelector('#login-loading').style.display = 'none';
-    document.querySelector('#ip').value = window.location.host;
     saveManager.loadOptions();
     contentLoader.playSong();
-    launchGame = function(ip, name) {
+    launchGame = function(name) {
       var bg, pidgeon;
       bg = new Kinetic.Image({
         width: stage.getWidth(),
@@ -4384,7 +4405,7 @@
       arena = new Arena();
       player = new ControllablePlayer(skin);
       hud = new HUD();
-      networkManager.connect(ip, name, skin);
+      networkManager.connect(window.location.host, name, skin);
       pidgeon = new Pidgeon();
       game.update = function(frameTime) {
         game.draw();
@@ -4400,13 +4421,12 @@
       };
     };
     return document.querySelector('#play').onclick = function() {
-      var ip, name;
-      ip = document.querySelector('#ip').value.replace(" ", "");
+      var name;
       name = document.querySelector('#name').value;
       document.querySelector('#login-form').style.display = 'none';
       document.querySelector('#login-loading').style.display = 'block';
-      document.querySelector('#login-loading').innerHTML = 'Waiting for ' + ip + '...';
-      launchGame(ip, name);
+      document.querySelector('#login-loading').innerHTML = 'Connecting...';
+      launchGame(name);
       contentLoader.play('beep');
       return saveManager.saveOptions();
     };

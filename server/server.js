@@ -1,5 +1,5 @@
 (function() {
-  var Block, Bonus, Bonuses, Boss, BossManager, CommandManager, CubeManager, Event, FreezeMan, Game, HomingMan, LabiMan, LevelManager, MissileMan, NetworkManager, PoingMan, RoueMan, SparkMan, Special, SpecialCubes, SquareEnum, bonusEvents, bossManager, commandManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
+  var Block, Bonus, Bonuses, Boss, BossManager, CommandManager, CubeManager, Event, FreezeMan, Game, HomingMan, LabiMan, LevelManager, MissileMan, NetworkManager, PoingMan, RoueMan, SparkMan, Special, SpecialCubes, SquareEnum, bonusEvents, bossManager, commandManager, config, cubeManager, game, levelManager, nconf, networkManager, slowLoop,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -655,20 +655,27 @@
   })();
 
   NetworkManager = (function() {
-    function NetworkManager() {
-      this.io = require('socket.io').listen(8080);
+    function NetworkManager(port) {
+      var http, server;
+      this.express = require('express');
+      this.app = this.express();
+      http = require('http');
+      server = http.createServer(this.app);
+      this.io = require('socket.io').listen(server);
       this.io.enable('browser client minification');
       this.io.enable('browser client etag');
       this.io.enable('browser client gzip');
       this.io.set('log level', 1);
       this.waitingFor = 0;
       this.responseOk = 0;
+      server.listen(port);
       this.listener();
     }
 
     NetworkManager.prototype.listener = function() {
       var self;
       self = this;
+      this.app.use(this.express["static"](__dirname + '/../app'));
       return this.io.sockets.on('connection', function(socket) {
         socket.on('login', function(arr) {
           socket.set('name', arr[0]);
@@ -1501,7 +1508,19 @@
 
   })(Boss);
 
-  networkManager = new NetworkManager();
+  nconf = require('nconf');
+
+  nconf.argv().env();
+
+  nconf.file({
+    file: __dirname + '/../config.json'
+  });
+
+  nconf.defaults({
+    port: 80
+  });
+
+  networkManager = new NetworkManager(nconf.get('port'));
 
   game = new Game();
 
