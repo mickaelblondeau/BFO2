@@ -1,5 +1,5 @@
 (function() {
-  var Block, Bonus, Bonuses, Boss, BossManager, CommandManager, CubeManager, Event, FreezeMan, Game, HomingMan, LabiMan, LevelManager, MissileMan, NetworkManager, PoingMan, RoueMan, SparkMan, Special, SpecialCubes, SquareEnum, bonusEvents, bossManager, commandManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
+  var Block, Bonus, Bonuses, Boss, BossManager, CommandManager, CubeManager, Event, FreezeMan, Game, HomingMan, LabiMan, LevelManager, MissileMan, NetworkManager, PoingMan, RoueMan, SparkMan, Special, SpecialCubes, SquareEnum, bonusEvents, bossManager, commandManager, config, cubeManager, game, levelManager, nconf, networkManager, slowLoop,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1508,7 +1508,19 @@
 
   })(Boss);
 
-  networkManager = new NetworkManager(80);
+  nconf = require('nconf');
+
+  nconf.argv().env();
+
+  nconf.file({
+    file: __dirname + '/../config.json'
+  });
+
+  nconf.defaults({
+    port: 80
+  });
+
+  networkManager = new NetworkManager(nconf.get('port'));
 
   game = new Game();
 
