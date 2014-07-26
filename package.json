@@ -4,7 +4,7 @@
   "description": "Web based multiplayer game",
   "repository": {
     "type": "git",
-    "url": "https://github.com/PapaStan/BFO2.git"
+    "url": "https://github.com/Chy59/BFO2.git"
   },
   "devDependencies": {
     "grunt": "~0.4.x",
