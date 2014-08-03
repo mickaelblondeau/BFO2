@@ -857,7 +857,11 @@
       players = this.io.sockets.clients();
       for (_i = 0, _len = players.length; _i < _len; _i++) {
         player = players[_i];
-        list.push(player.id);
+        player.get('inGame', function(error, ig) {
+          if (ig) {
+            return list.push(player.id);
+          }
+        });
       }
       this.io.sockets.emit('playerList', list);
       if (list.length === 0) {

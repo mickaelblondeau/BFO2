@@ -152,10 +152,13 @@ class NetworkManager
     list = []
     players = @io.sockets.clients()
     for player in players
-      list.push player.id
+      player.get 'inGame', (error, ig) ->
+        if ig
+          list.push player.id
     @io.sockets.emit 'playerList', list
     if list.length is 0
       game.reset()
+
 
   sendMap: (map) ->
     @io.sockets.emit 'debugMap', map
