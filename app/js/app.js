@@ -954,10 +954,10 @@
 
     function ControllablePlayer(skin) {
       ControllablePlayer.__super__.constructor.call(this, skin);
-      this.reinitStats();
+      this.initStats();
     }
 
-    ControllablePlayer.prototype.reinitStats = function() {
+    ControllablePlayer.prototype.initStats = function() {
       this.speed = config.player.speed + bonusManager.findBonus('speedBonus').value * bonusManager.playerBonuses.speedBonus;
       this.jumpHeight = config.player.jumpHeight + bonusManager.findBonus('jumpHeightBonus').value * bonusManager.playerBonuses.jumpHeightBonus;
       this.jumpMax = config.player.jumpMax;
@@ -985,9 +985,28 @@
       return this.cached = {};
     };
 
+    ControllablePlayer.prototype.reinitStats = function() {
+      this.jump = false;
+      this.canJump = true;
+      this.jumpStart = 0;
+      this.jumpCount = 0;
+      this.couched = false;
+      this.falling = true;
+      this.grabbing = false;
+      this.grabbed = false;
+      this.coopJump = false;
+      this.alive = true;
+      return this.stomped = false;
+    };
+
     ControllablePlayer.prototype.reset = function() {
-      this.reinitStats();
-      return this.spawn();
+      this.spawn();
+      return this.initStats();
+    };
+
+    ControllablePlayer.prototype.resurect = function() {
+      this.spawn();
+      return this.reinitStats();
     };
 
     ControllablePlayer.prototype.update = function(frameTime) {
@@ -1337,7 +1356,7 @@
         networkManager.sendDie();
         if (bonusManager.playerBonuses.autoRezBonus > 0) {
           bonusManager.playerBonuses.autoRezBonus--;
-          return this.reset();
+          return this.resurect();
         } else {
           this.lootBonus();
           return bonusManager.resetBonuses();

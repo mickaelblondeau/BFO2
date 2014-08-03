@@ -1,9 +1,9 @@
 class ControllablePlayer extends Player
   constructor: (skin) ->
     super(skin)
-    @reinitStats()
+    @initStats()
 
-  reinitStats: ->
+  initStats: ->
     @speed = config.player.speed + bonusManager.findBonus('speedBonus').value * bonusManager.playerBonuses.speedBonus
     @jumpHeight = config.player.jumpHeight + bonusManager.findBonus('jumpHeightBonus').value * bonusManager.playerBonuses.jumpHeightBonus
     @jumpMax = config.player.jumpMax
@@ -30,9 +30,26 @@ class ControllablePlayer extends Player
     @actualCollisions = []
     @cached = {}
 
+  reinitStats: ->
+    @jump = false
+    @canJump = true
+    @jumpStart = 0
+    @jumpCount = 0
+    @couched = false
+    @falling = true
+    @grabbing = false
+    @grabbed = false
+    @coopJump = false
+    @alive = true
+    @stomped = false
+
   reset: ->
-    @reinitStats()
     @spawn()
+    @initStats()
+
+  resurect: ->
+    @spawn()
+    @reinitStats()
 
   update: (frameTime) ->
     if !(!@alive and @shape.getY() > stage.getY()*-1 + stage.getHeight())
@@ -315,7 +332,7 @@ class ControllablePlayer extends Player
       networkManager.sendDie()
       if bonusManager.playerBonuses.autoRezBonus > 0
         bonusManager.playerBonuses.autoRezBonus--
-        @reset()
+        @resurect()
       else
         @lootBonus()
         bonusManager.resetBonuses()
