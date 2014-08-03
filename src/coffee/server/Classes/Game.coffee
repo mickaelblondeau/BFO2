@@ -16,6 +16,7 @@ class Game
     levelManager.reset()
     networkManager.joinPlayer()
     @running = false
+    @restartTimer = null
 
   launch: ->
     levelManager.launch()

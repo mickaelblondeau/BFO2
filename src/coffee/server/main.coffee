@@ -41,7 +41,7 @@ game.update = (frameTime) ->
   if game.running
     cubeManager.update(frameTime)
     networkManager.sendPositions()
-    if game.players is game.deadPlayers
+    if game.players is game.deadPlayers and game.restartTimer is null
       fn = ->
         game.reset()
       game.restartTimer = setTimeout(fn, config.timeBeforeReset)

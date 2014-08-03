@@ -42,7 +42,8 @@
     Game.prototype.reset = function() {
       levelManager.reset();
       networkManager.joinPlayer();
-      return this.running = false;
+      this.running = false;
+      return this.restartTimer = null;
     };
 
     Game.prototype.launch = function() {
@@ -1598,7 +1599,7 @@
     if (game.running) {
       cubeManager.update(frameTime);
       networkManager.sendPositions();
-      if (game.players === game.deadPlayers) {
+      if (game.players === game.deadPlayers && game.restartTimer === null) {
         fn = function() {
           return game.reset();
         };
