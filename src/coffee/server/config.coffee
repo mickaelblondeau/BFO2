@@ -5,6 +5,7 @@ config = {
   levelSpeed: 1000
   fastLevelSpeed: 500
   speedPerLevel: 35
+  maxLevelSpeed: 500
   timeout: 5000
   randomEventProb: 0.6
   checkpoints: [4, 8, 12, 16]

@@ -23,7 +23,11 @@ class LevelManager
 
   update: ->
     @level++
-    @speed = config.levelSpeed - config.speedPerLevel * @level
+    speed = config.levelSpeed - config.speedPerLevel * @level
+    if speed < config.maxLevelSpeed
+      @speed = config.levelSpeed - config.speedPerLevel * @level
+    else
+      @speed = config.maxLevelSpeed
     @moveStage()
 
   randomizeHeight: ->

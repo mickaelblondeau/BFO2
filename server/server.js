@@ -11,6 +11,7 @@
     levelSpeed: 1000,
     fastLevelSpeed: 500,
     speedPerLevel: 35,
+    maxLevelSpeed: 500,
     timeout: 5000,
     randomEventProb: 0.6,
     checkpoints: [4, 8, 12, 16],
@@ -530,8 +531,14 @@
     };
 
     LevelManager.prototype.update = function() {
+      var speed;
       this.level++;
-      this.speed = config.levelSpeed - config.speedPerLevel * this.level;
+      speed = config.levelSpeed - config.speedPerLevel * this.level;
+      if (speed < config.maxLevelSpeed) {
+        this.speed = config.levelSpeed - config.speedPerLevel * this.level;
+      } else {
+        this.speed = config.maxLevelSpeed;
+      }
       return this.moveStage();
     };
 
