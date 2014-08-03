@@ -17,12 +17,18 @@
     checkpoints: [4, 8, 12, 16],
     minLevel: 6,
     maxLevel: 10,
-    bossDifficulty: 1
+    bossDifficulty: 1,
+    timeBeforeReset: 2000,
+    timeBeforeStart: 2000
   };
 
   Game = (function() {
     function Game() {
       this.lastFrame = Date.now();
+      this.running = false;
+      this.players = 0;
+      this.timer = 0;
+      this.restartTimer = null;
     }
 
     Game.prototype.loop = function() {
@@ -35,11 +41,24 @@
 
     Game.prototype.reset = function() {
       levelManager.reset();
-      return networkManager.joinPlayer();
+      networkManager.joinPlayer();
+      return this.running = false;
     };
 
     Game.prototype.launch = function() {
-      return levelManager.launch();
+      levelManager.launch();
+      this.running = true;
+      return this.timer = config.timeBeforeStart;
+    };
+
+    Game.prototype.autoLaunch = function(frameTime) {
+      if (this.players > 0) {
+        if (this.timer > 0) {
+          return this.timer -= frameTime;
+        } else {
+          return this.launch();
+        }
+      }
     };
 
     return Game;
@@ -688,11 +707,13 @@
           socket.set('name', arr[0]);
           socket.set('skin', arr[1]);
           socket.set('inGame', false);
+          networkManager.updatePlayerList();
           if (!cubeManager.running && !bossManager.launched) {
-            return self.joinGame(socket);
+            self.joinGame(socket);
           } else {
-            return socket.broadcast.emit('message', [null, arr[0] + ' is waiting to join !']);
+            socket.broadcast.emit('message', [null, arr[0] + ' is waiting to join !']);
           }
+          return networkManager.updatePlayerList();
         });
         socket.on('launch', function() {
           if (socket.id === self.io.sockets.clients()[0].id) {
@@ -715,7 +736,12 @@
           });
         });
         socket.on('changeAnimation', function(animation) {
-          return socket.set('animation', animation);
+          socket.set('animation', animation);
+          if (animation === 8) {
+            return socket.set('dead', true);
+          } else {
+            return socket.set('dead', false);
+          }
         });
         socket.on('changeAnimationSide', function(side) {
           return socket.set('animationSide', side);
@@ -852,21 +878,33 @@
     };
 
     NetworkManager.prototype.sendPlayerList = function() {
-      var list, player, players, _i, _len;
+      return this.io.sockets.emit('playerList', this.updatePlayerList());
+    };
+
+    NetworkManager.prototype.updatePlayerList = function() {
+      var deads, list, player, players, _i, _len;
       list = [];
+      deads = [];
       players = this.io.sockets.clients();
       for (_i = 0, _len = players.length; _i < _len; _i++) {
         player = players[_i];
-        player.get('inGame', function(error, ig) {
-          if (ig) {
-            return list.push(player.id);
+        player.get('inGame', function(error, isInGame) {
+          if (isInGame) {
+            list.push(player.id);
+            return player.get('dead', function(error, isDead) {
+              if (isDead) {
+                return deads.push(player.id);
+              }
+            });
           }
         });
       }
-      this.io.sockets.emit('playerList', list);
       if (list.length === 0) {
-        return game.reset();
+        game.reset();
       }
+      game.players = list.length;
+      game.deadPlayers = deads.length;
+      return list;
     };
 
     NetworkManager.prototype.sendMap = function(map) {
@@ -1548,12 +1586,27 @@
   }, 1000 / config.FPS);
 
   setInterval(function() {
+    return networkManager.updatePlayerList();
+  }, 500);
+
+  setInterval(function() {
     return slowLoop();
   }, 1000 / config.lowFPS);
 
   game.update = function(frameTime) {
-    cubeManager.update(frameTime);
-    return networkManager.sendPositions();
+    var fn;
+    if (game.running) {
+      cubeManager.update(frameTime);
+      networkManager.sendPositions();
+      if (game.players === game.deadPlayers) {
+        fn = function() {
+          return game.reset();
+        };
+        return game.restartTimer = setTimeout(fn, config.timeBeforeReset);
+      }
+    } else {
+      return game.autoLaunch(frameTime);
+    }
   };
 
   slowLoop = function() {

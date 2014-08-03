@@ -12,4 +12,6 @@ config = {
   minLevel: 6
   maxLevel: 10
   bossDifficulty: 1
+  timeBeforeReset: 2000
+  timeBeforeStart: 2000
 }

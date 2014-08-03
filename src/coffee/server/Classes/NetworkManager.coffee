@@ -23,10 +23,12 @@ class NetworkManager
         socket.set('name', arr[0])
         socket.set('skin', arr[1])
         socket.set('inGame', false)
+        networkManager.updatePlayerList()
         if !cubeManager.running and !bossManager.launched
           self.joinGame(socket)
         else
           socket.broadcast.emit 'message', [null, arr[0] + ' is waiting to join !']
+        networkManager.updatePlayerList()
 
       socket.on 'launch', ->
         if socket.id is self.io.sockets.clients()[0].id
@@ -45,6 +47,10 @@ class NetworkManager
 
       socket.on 'changeAnimation', (animation) ->
         socket.set('animation', animation)
+        if animation is 8
+          socket.set('dead', true)
+        else
+          socket.set('dead', false)
 
       socket.on 'changeAnimationSide', (side) ->
         socket.set('animationSide', side)
@@ -149,16 +155,24 @@ class NetworkManager
     @timeout = setTimeout(callback, time)
 
   sendPlayerList: ->
+    @io.sockets.emit 'playerList', @updatePlayerList()
+
+  updatePlayerList: ->
     list = []
+    deads = []
     players = @io.sockets.clients()
     for player in players
-      player.get 'inGame', (error, ig) ->
-        if ig
+      player.get 'inGame', (error, isInGame) ->
+        if isInGame
           list.push player.id
-    @io.sockets.emit 'playerList', list
+          player.get 'dead', (error, isDead) ->
+            if isDead
+              deads.push player.id
     if list.length is 0
       game.reset()
-
+    game.players = list.length
+    game.deadPlayers = deads.length
+    return list
 
   sendMap: (map) ->
     @io.sockets.emit 'debugMap', map

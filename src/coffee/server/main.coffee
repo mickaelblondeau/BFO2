@@ -27,13 +27,26 @@ setInterval(
 
 setInterval(
   () ->
+    networkManager.updatePlayerList()
+, 500
+)
+
+setInterval(
+  () ->
     slowLoop()
 , 1000/config.lowFPS
 )
 
 game.update = (frameTime) ->
-  cubeManager.update(frameTime)
-  networkManager.sendPositions()
+  if game.running
+    cubeManager.update(frameTime)
+    networkManager.sendPositions()
+    if game.players is game.deadPlayers
+      fn = ->
+        game.reset()
+      game.restartTimer = setTimeout(fn, config.timeBeforeReset)
+  else
+    game.autoLaunch(frameTime)
 
 slowLoop = () ->
   networkManager.sendPlayerList()
