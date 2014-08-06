@@ -1,3 +1,6 @@
 {
-    "port": 80
+    "port": 80,
+    "host": "http://blockfallingonline.eu",
+    "server": "Your server name",
+    "masterServer": "http://your-server.tld"
 }

@@ -1,6 +1,6 @@
 {
   "name": "chy-bfo",
-  "version": "0.11.5",
+  "version": "0.11.6",
   "description": "Web based multiplayer game",
   "repository": {
     "type": "git",
@@ -14,6 +14,7 @@
     "grunt-contrib-concat": "~0.3.x",
     "nconf" : "~0.6.9",
     "socket.io": "~0.9.x",
-    "express": "~3.x"
+    "express": "~3.x",
+    "request": "*"
   }
 }
