@@ -708,6 +708,7 @@
           socket.set('name', arr[0]);
           socket.set('skin', arr[1]);
           socket.set('inGame', false);
+          socket.set('dead', true);
           networkManager.updatePlayerList();
           if (!cubeManager.running && !bossManager.launched) {
             self.joinGame(socket);
@@ -728,7 +729,11 @@
           }
         });
         socket.on('die', function() {
-          return socket.broadcast.emit('kill', socket.id);
+          socket.broadcast.emit('kill', socket.id);
+          return socket.set('dead', true);
+        });
+        socket.on('rez', function() {
+          return socket.set('dead', false);
         });
         socket.on('move', function(arr) {
           return socket.set('position', {
@@ -737,12 +742,7 @@
           });
         });
         socket.on('changeAnimation', function(animation) {
-          socket.set('animation', animation);
-          if (animation === 8) {
-            return socket.set('dead', true);
-          } else {
-            return socket.set('dead', false);
-          }
+          return socket.set('animation', animation);
         });
         socket.on('changeAnimationSide', function(side) {
           return socket.set('animationSide', side);

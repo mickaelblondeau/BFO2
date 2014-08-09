@@ -117,6 +117,9 @@ class NetworkManager
   sendDie: ->
     @socket.emit 'die'
 
+  sendRez: ->
+    @socket.emit 'rez'
+
   sendMoveLevelOk: ->
     @socket.emit 'moveLevelOk'
 

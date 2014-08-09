@@ -1001,12 +1001,14 @@
 
     ControllablePlayer.prototype.reset = function() {
       this.spawn();
-      return this.initStats();
+      this.initStats();
+      return networkManager.sendRez();
     };
 
     ControllablePlayer.prototype.resurect = function() {
       this.spawn();
-      return this.reinitStats();
+      this.reinitStats();
+      return networkManager.sendRez();
     };
 
     ControllablePlayer.prototype.update = function(frameTime) {
@@ -2979,6 +2981,10 @@
 
     NetworkManager.prototype.sendDie = function() {
       return this.socket.emit('die');
+    };
+
+    NetworkManager.prototype.sendRez = function() {
+      return this.socket.emit('rez');
     };
 
     NetworkManager.prototype.sendMoveLevelOk = function() {

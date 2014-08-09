@@ -23,6 +23,7 @@ class NetworkManager
         socket.set('name', arr[0])
         socket.set('skin', arr[1])
         socket.set('inGame', false)
+        socket.set('dead', true)
         networkManager.updatePlayerList()
         if !cubeManager.running and !bossManager.launched
           self.joinGame(socket)
@@ -41,16 +42,16 @@ class NetworkManager
 
       socket.on 'die', ->
         socket.broadcast.emit 'kill', socket.id
+        socket.set('dead', true)
+
+      socket.on 'rez', ->
+        socket.set('dead', false)
 
       socket.on 'move', (arr) ->
         socket.set('position', {x: parseInt(arr[0]), y: parseInt(arr[1])})
 
       socket.on 'changeAnimation', (animation) ->
         socket.set('animation', animation)
-        if animation is 8
-          socket.set('dead', true)
-        else
-          socket.set('dead', false)
 
       socket.on 'changeAnimationSide', (side) ->
         socket.set('animationSide', side)

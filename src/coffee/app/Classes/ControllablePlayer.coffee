@@ -46,10 +46,12 @@ class ControllablePlayer extends Player
   reset: ->
     @spawn()
     @initStats()
+    networkManager.sendRez()
 
   resurect: ->
     @spawn()
     @reinitStats()
+    networkManager.sendRez()
 
   update: (frameTime) ->
     if !(!@alive and @shape.getY() > stage.getY()*-1 + stage.getHeight())
