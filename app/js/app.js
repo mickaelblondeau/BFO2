@@ -957,19 +957,9 @@
       this.jumpDeceleration = config.player.jumpDeceleration;
       this.jumpCurrentAcceleration = config.player.jumpCurrentAcceleration;
       this.fallCurrentAcceleration = this.fallMinAcceleration;
-      this.jump = false;
-      this.canJump = true;
-      this.jumpStart = 0;
-      this.jumpCount = 0;
-      this.couched = false;
-      this.falling = true;
-      this.grabbing = false;
-      this.grabbed = false;
-      this.coopJump = false;
-      this.alive = true;
-      this.stomped = false;
       this.actualCollisions = [];
-      return this.cached = {};
+      this.cached = {};
+      return this.reinitStats();
     };
 
     ControllablePlayer.prototype.reinitStats = function() {
@@ -1254,7 +1244,7 @@
       return networkManager.sendAnimationSide(side);
     };
 
-    ControllablePlayer.prototype.collideBoss = function(boss) {
+    ControllablePlayer.prototype.collideBoss = function() {
       return this.kill();
     };
 

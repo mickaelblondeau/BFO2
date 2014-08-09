@@ -16,19 +16,9 @@ class ControllablePlayer extends Player
     @jumpDeceleration = config.player.jumpDeceleration
     @jumpCurrentAcceleration = config.player.jumpCurrentAcceleration
     @fallCurrentAcceleration = @fallMinAcceleration
-    @jump = false
-    @canJump = true
-    @jumpStart = 0
-    @jumpCount = 0
-    @couched = false
-    @falling = true
-    @grabbing = false
-    @grabbed = false
-    @coopJump = false
-    @alive = true
-    @stomped = false
     @actualCollisions = []
     @cached = {}
+    @reinitStats()
 
   reinitStats: ->
     @jump = false
@@ -44,6 +34,7 @@ class ControllablePlayer extends Player
     @stomped = false
 
   reset: ->
+    bonusManager.resetBonuses()
     @spawn()
     @initStats()
     networkManager.sendRez()
@@ -256,7 +247,7 @@ class ControllablePlayer extends Player
     super(side)
     networkManager.sendAnimationSide(side)
 
-  collideBoss: (boss) ->
+  collideBoss: ->
     @kill()
 
   collideEffect: (effect) ->
