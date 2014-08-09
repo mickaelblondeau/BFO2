@@ -1206,7 +1206,8 @@
         this.launched = true;
         return this.updateBosses(boss.name);
       } else {
-        return levelManager.passNextLevel();
+        this.restart();
+        return this.launch();
       }
     };
 

@@ -13,7 +13,8 @@ class BossManager
       @launched = true
       @updateBosses(boss.name)
     else
-      levelManager.passNextLevel()
+      @restart()
+      @launch()
 
   reset: ->
     @launched = false
