@@ -141,26 +141,13 @@
     }
 
     Game.prototype.loop = function() {
-      var frameTime, interval, thisFrame, tmpFrameTime;
+      var frameTime, thisFrame;
       this.stats.begin();
       thisFrame = Date.now();
       frameTime = thisFrame - this.lastFrame;
       animFrame(Game.prototype.loop.bind(this));
       this.lastFrame = thisFrame;
-      tmpFrameTime = frameTime;
-      while (true) {
-        if (tmpFrameTime <= 50) {
-          interval = tmpFrameTime;
-          tmpFrameTime = 0;
-        } else {
-          interval = 50;
-          tmpFrameTime -= 50;
-        }
-        game.update(interval);
-        if (tmpFrameTime === 0) {
-          break;
-        }
-      }
+      game.update(frameTime);
       return this.stats.end();
     };
 

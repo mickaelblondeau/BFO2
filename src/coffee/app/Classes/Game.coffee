@@ -17,24 +17,11 @@ class Game
 
   loop: ->
     @stats.begin()
-
     thisFrame = Date.now()
     frameTime = thisFrame - @lastFrame
     animFrame(Game.prototype.loop.bind(@))
     @lastFrame = thisFrame
-
-    tmpFrameTime = frameTime
-
-    loop
-      if tmpFrameTime <= 50
-        interval = tmpFrameTime
-        tmpFrameTime = 0
-      else
-        interval = 50
-        tmpFrameTime -= 50
-      game.update(interval)
-      break if tmpFrameTime == 0
-
+    game.update(frameTime)
     @stats.end()
 
   update: (frameTime) ->
