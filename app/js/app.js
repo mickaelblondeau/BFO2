@@ -977,6 +977,7 @@
     };
 
     ControllablePlayer.prototype.reset = function() {
+      bonusManager.resetBonuses();
       this.spawn();
       this.initStats();
       return networkManager.sendRez();
