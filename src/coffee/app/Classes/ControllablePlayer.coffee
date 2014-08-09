@@ -173,19 +173,7 @@ class ControllablePlayer extends Player
         bonusManager.playerBonuses.doubleJumpBonus--
       if collisionManager.getPlayerCollision()
         @coopJump = true
-
-        @oldStats = {
-          jumpHeight: @jumpHeight
-          jumpMinAcceleration: @jumpMinAcceleration
-          jumpMaxAcceleration: @jumpMaxAcceleration
-          jumpDeceleration: @jumpDeceleration
-        }
-
-        @jumpHeight += 40
-        @jumpMinAcceleration = 0.1
-        @jumpMaxAcceleration = 0.7
-        @jumpDeceleration = 0.92
-
+        @setTempJumpHeight(@jumpHeight + 40)
       @jumpCount++
       @jump = true
       @jumpCurrentAcceleration = @jumpMaxAcceleration
@@ -214,9 +202,7 @@ class ControllablePlayer extends Player
 
   reinitJump: ->
     @jumpHeight = @oldStats.jumpHeight
-    @jumpMinAcceleration = @oldStats.jumpMinAcceleration
     @jumpMaxAcceleration = @oldStats.jumpMaxAcceleration
-    @jumpDeceleration = @oldStats.jumpDeceleration
     @stomped = false
     @coopJump = false
 
@@ -279,18 +265,8 @@ class ControllablePlayer extends Player
     if effect.getName().name is 'slow'
       @slowed = true
     if effect.getName().name is 'jumpBlock' and @falling and !@jump
-      @oldStats = {
-        jumpHeight: @jumpHeight
-        jumpMinAcceleration: @jumpMinAcceleration
-        jumpMaxAcceleration: @jumpMaxAcceleration
-        jumpDeceleration: @jumpDeceleration
-      }
+      @setTempJumpHeight(256)
       @jumpStart = player.shape.getY()
-      @jumpHeight = 256
-      @jumpMinAcceleration = 0.2
-      @jumpMaxAcceleration = 1.4
-      @jumpCurrentAcceleration = @jumpMaxAcceleration
-      @jumpDeceleration = 0.91
       @jumpCount = player.jumpMax
       @stomped = true
       @jump = true
@@ -346,9 +322,16 @@ class ControllablePlayer extends Player
 
   addJumpHeight: (height) ->
     @jumpHeight += height
-    @jumpMinAcceleration = 0.1
     @jumpMaxAcceleration += height/200
-    @jumpDeceleration += height/2000
+
+  setTempJumpHeight: (height) ->
+    @oldStats = {
+      jumpHeight: @jumpHeight
+      jumpMaxAcceleration: @jumpMaxAcceleration
+    }
+    @jumpHeight = height
+    @jumpMaxAcceleration = height/200
+    @jumpCurrentAcceleration = @jumpMaxAcceleration
 
   useTp: ->
     if bonusManager.playerBonuses.tpBonus > 0

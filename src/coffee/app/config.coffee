@@ -12,7 +12,7 @@ config = {
     fallMinAcceleration: 0.1
     fallMaxAcceleration: 0.6
     fallAcceleration: 1.10
-    jumpMinAcceleration: 0.1
+    jumpMinAcceleration: 0.2
     jumpMaxAcceleration: 0.6
     jumpDeceleration: 0.90
     jumpCurrentAcceleration: 0

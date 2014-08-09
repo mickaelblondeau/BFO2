@@ -630,7 +630,6 @@
     };
 
     LevelManager.prototype.difficultyHell = function() {
-      this.savedLevel = 0;
       config.levelSpeed = 600;
       config.fastLevelSpeed = 300;
       config.speedPerLevel = 40;
@@ -642,7 +641,6 @@
     };
 
     LevelManager.prototype.difficultyHard = function() {
-      this.savedLevel = 0;
       config.levelSpeed = 800;
       config.fastLevelSpeed = 400;
       config.speedPerLevel = 35;
@@ -654,7 +652,6 @@
     };
 
     LevelManager.prototype.difficultyMedium = function() {
-      this.savedLevel = 0;
       config.levelSpeed = 1000;
       config.fastLevelSpeed = 500;
       config.speedPerLevel = 35;
@@ -666,7 +663,6 @@
     };
 
     LevelManager.prototype.difficultyEasy = function() {
-      this.savedLevel = 0;
       config.levelSpeed = 1200;
       config.fastLevelSpeed = 600;
       config.speedPerLevel = 30;
@@ -678,6 +674,7 @@
     };
 
     LevelManager.prototype.restart = function() {
+      this.savedLevel = 0;
       bossManager.restart();
       return this.reset();
     };

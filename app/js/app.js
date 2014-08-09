@@ -24,7 +24,7 @@
       fallMinAcceleration: 0.1,
       fallMaxAcceleration: 0.6,
       fallAcceleration: 1.10,
-      jumpMinAcceleration: 0.1,
+      jumpMinAcceleration: 0.2,
       jumpMaxAcceleration: 0.6,
       jumpDeceleration: 0.90,
       jumpCurrentAcceleration: 0
@@ -1137,16 +1137,7 @@
         }
         if (collisionManager.getPlayerCollision()) {
           this.coopJump = true;
-          this.oldStats = {
-            jumpHeight: this.jumpHeight,
-            jumpMinAcceleration: this.jumpMinAcceleration,
-            jumpMaxAcceleration: this.jumpMaxAcceleration,
-            jumpDeceleration: this.jumpDeceleration
-          };
-          this.jumpHeight += 40;
-          this.jumpMinAcceleration = 0.1;
-          this.jumpMaxAcceleration = 0.7;
-          this.jumpDeceleration = 0.92;
+          this.setTempJumpHeight(this.jumpHeight + 40);
         }
         this.jumpCount++;
         this.jump = true;
@@ -1185,9 +1176,7 @@
 
     ControllablePlayer.prototype.reinitJump = function() {
       this.jumpHeight = this.oldStats.jumpHeight;
-      this.jumpMinAcceleration = this.oldStats.jumpMinAcceleration;
       this.jumpMaxAcceleration = this.oldStats.jumpMaxAcceleration;
-      this.jumpDeceleration = this.oldStats.jumpDeceleration;
       this.stomped = false;
       return this.coopJump = false;
     };
@@ -1277,18 +1266,8 @@
         this.slowed = true;
       }
       if (effect.getName().name === 'jumpBlock' && this.falling && !this.jump) {
-        this.oldStats = {
-          jumpHeight: this.jumpHeight,
-          jumpMinAcceleration: this.jumpMinAcceleration,
-          jumpMaxAcceleration: this.jumpMaxAcceleration,
-          jumpDeceleration: this.jumpDeceleration
-        };
+        this.setTempJumpHeight(256);
         this.jumpStart = player.shape.getY();
-        this.jumpHeight = 256;
-        this.jumpMinAcceleration = 0.2;
-        this.jumpMaxAcceleration = 1.4;
-        this.jumpCurrentAcceleration = this.jumpMaxAcceleration;
-        this.jumpDeceleration = 0.91;
         this.jumpCount = player.jumpMax;
         this.stomped = true;
         return this.jump = true;
@@ -1363,9 +1342,17 @@
 
     ControllablePlayer.prototype.addJumpHeight = function(height) {
       this.jumpHeight += height;
-      this.jumpMinAcceleration = 0.1;
-      this.jumpMaxAcceleration += height / 200;
-      return this.jumpDeceleration += height / 2000;
+      return this.jumpMaxAcceleration += height / 200;
+    };
+
+    ControllablePlayer.prototype.setTempJumpHeight = function(height) {
+      this.oldStats = {
+        jumpHeight: this.jumpHeight,
+        jumpMaxAcceleration: this.jumpMaxAcceleration
+      };
+      this.jumpHeight = height;
+      this.jumpMaxAcceleration = height / 200;
+      return this.jumpCurrentAcceleration = this.jumpMaxAcceleration;
     };
 
     ControllablePlayer.prototype.useTp = function() {
@@ -2741,18 +2728,8 @@
       contentLoader.play('explosion');
       new Effect(shape.getX(), shape.getY(), SquareEnum.SMALL, 'tp', null, true);
       if (!player.jump && !player.falling) {
-        player.oldStats = {
-          jumpHeight: player.jumpHeight,
-          jumpMinAcceleration: player.jumpMinAcceleration,
-          jumpMaxAcceleration: player.jumpMaxAcceleration,
-          jumpDeceleration: player.jumpDeceleration
-        };
+        player.setTempJumpHeight(300);
         player.jumpStart = player.shape.getY();
-        player.jumpHeight = 300;
-        player.jumpMinAcceleration = 0.1;
-        player.jumpMaxAcceleration = 1.5;
-        player.jumpCurrentAcceleration = player.jumpMaxAcceleration;
-        player.jumpDeceleration = 0.92;
         player.jumpCount = player.jumpMax;
         player.stomped = true;
         player.jump = true;
