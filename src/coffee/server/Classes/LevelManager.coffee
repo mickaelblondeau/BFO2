@@ -81,7 +81,6 @@ class LevelManager
       'Difficulty not changed, invalid option.'
 
   difficultyHell: ->
-    @savedLevel = 0
     config.levelSpeed = 600
     config.fastLevelSpeed = 300
     config.speedPerLevel = 40
@@ -92,7 +91,6 @@ class LevelManager
     @restart()
 
   difficultyHard: ->
-    @savedLevel = 0
     config.levelSpeed = 800
     config.fastLevelSpeed = 400
     config.speedPerLevel = 35
@@ -103,7 +101,6 @@ class LevelManager
     @restart()
 
   difficultyMedium: ->
-    @savedLevel = 0
     config.levelSpeed = 1000
     config.fastLevelSpeed = 500
     config.speedPerLevel = 35
@@ -114,7 +111,6 @@ class LevelManager
     @restart()
 
   difficultyEasy: ->
-    @savedLevel = 0
     config.levelSpeed = 1200
     config.fastLevelSpeed = 600
     config.speedPerLevel = 30
@@ -125,5 +121,6 @@ class LevelManager
     @restart()
 
   restart: ->
+    @savedLevel = 0
     bossManager.restart()
     @reset()
