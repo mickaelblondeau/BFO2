@@ -1,20 +1,22 @@
 {
   "name": "chy-bfo",
-  "version": "0.11.6",
+  "version": "0.11.7",
   "description": "Web based multiplayer game",
   "repository": {
     "type": "git",
     "url": "https://github.com/Chy59/BFO2.git"
+  },
+  "dependencies": {
+    "nconf": "~0.6.9",
+    "socket.io": "~0.9.x",
+    "express": "~3.x",
+    "request": "*"
   },
   "devDependencies": {
     "grunt": "~0.4.x",
     "grunt-contrib-uglify": "~0.4.x",
     "grunt-contrib-coffee": "~0.10.x",
     "grunt-contrib-watch": "~0.6.x",
-    "grunt-contrib-concat": "~0.3.x",
-    "nconf" : "~0.6.9",
-    "socket.io": "~0.9.x",
-    "express": "~3.x",
-    "request": "*"
+    "grunt-contrib-concat": "~0.3.x"
   }
 }
