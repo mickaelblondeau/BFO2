@@ -23,12 +23,13 @@ class NetworkManager
         socket.set('name', arr[0])
         socket.set('skin', arr[1])
         socket.set('inGame', false)
-        socket.set('dead', true)
+        socket.set('dead', false)
         networkManager.updatePlayerList()
         if !cubeManager.running and !bossManager.launched
           self.joinGame(socket)
         else
           socket.broadcast.emit 'message', [null, arr[0] + ' is waiting to join !']
+          socket.set('dead', true)
         networkManager.updatePlayerList()
 
       socket.on 'launch', ->
@@ -169,7 +170,7 @@ class NetworkManager
           player.get 'dead', (error, isDead) ->
             if isDead
               deads.push player.id
-    if list.length is 0
+    if game.running and list.length is 0
       game.restart()
     game.players = list.length
     game.deadPlayers = deads.length

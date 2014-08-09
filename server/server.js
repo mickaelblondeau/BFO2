@@ -713,12 +713,13 @@
           socket.set('name', arr[0]);
           socket.set('skin', arr[1]);
           socket.set('inGame', false);
-          socket.set('dead', true);
+          socket.set('dead', false);
           networkManager.updatePlayerList();
           if (!cubeManager.running && !bossManager.launched) {
             self.joinGame(socket);
           } else {
             socket.broadcast.emit('message', [null, arr[0] + ' is waiting to join !']);
+            socket.set('dead', true);
           }
           return networkManager.updatePlayerList();
         });
@@ -905,7 +906,7 @@
           }
         });
       }
-      if (list.length === 0) {
+      if (game.running && list.length === 0) {
         game.restart();
       }
       game.players = list.length;
