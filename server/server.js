@@ -46,6 +46,11 @@
       return this.restartTimer = null;
     };
 
+    Game.prototype.restart = function() {
+      levelManager.restart();
+      return this.reset();
+    };
+
     Game.prototype.launch = function() {
       levelManager.launch();
       this.running = true;
@@ -901,7 +906,7 @@
         });
       }
       if (list.length === 0) {
-        game.reset();
+        game.restart();
       }
       game.players = list.length;
       game.deadPlayers = deads.length;

@@ -18,6 +18,10 @@ class Game
     @running = false
     @restartTimer = null
 
+  restart: ->
+    levelManager.restart()
+    @reset()
+
   launch: ->
     levelManager.launch()
     @running = true

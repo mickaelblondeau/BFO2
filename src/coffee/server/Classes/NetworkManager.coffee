@@ -170,7 +170,7 @@ class NetworkManager
             if isDead
               deads.push player.id
     if list.length is 0
-      game.reset()
+      game.restart()
     game.players = list.length
     game.deadPlayers = deads.length
     return list
