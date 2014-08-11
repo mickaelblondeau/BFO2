@@ -676,11 +676,17 @@
 
     CollisionManager.prototype.isCubeGrabbable = function(cube, player) {
       if (player.getX() > cube.getX()) {
-        if (this.checkPresence(cube.getX() + cube.getWidth() + 16, cube.getY() + 80)) {
+        if (this.pointInCube(player, {
+          x: cube.getX() + 16,
+          y: cube.getY() + 80
+        })) {
           return false;
         }
       } else {
-        if (this.checkPresence(cube.getX() - 16, cube.getY() + 80)) {
+        if (this.pointInCube(player, {
+          x: cube.getX() - 16,
+          y: cube.getY() + 80
+        })) {
           return false;
         }
       }
@@ -780,25 +786,6 @@
         }
       });
       return result;
-    };
-
-    CollisionManager.prototype.checkPresence = function(x, y) {
-      var tmp;
-      tmp = staticCubes.getIntersection({
-        x: x,
-        y: y
-      });
-      if (tmp !== null && tmp.shape) {
-        return tmp.shape;
-      }
-      tmp = dynamicEntities.getIntersection({
-        x: x,
-        y: y
-      });
-      if (tmp !== null && tmp.shape) {
-        return tmp.shape;
-      }
-      return false;
     };
 
     CollisionManager.prototype.pointInCube = function(shape, point) {
@@ -2621,7 +2608,7 @@
       var cubes, self;
       self = this;
       cubes = dynamicEntities.find('Sprite');
-      cubes.each(function(cube) {
+      return cubes.each(function(cube) {
         var collide, obj;
         if (cube.getName() !== void 0 && cube.getName() !== null && cube.getName().falling) {
           collide = self.testMove(cube, cube.getY() + self.speed * frameTime);
@@ -2636,20 +2623,6 @@
           } else {
             return cube.setY(cube.getY() + 0.1 * frameTime);
           }
-        }
-      });
-      return this.reinitBonusPhysic();
-    };
-
-    CubeManager.prototype.reinitBonusPhysic = function() {
-      var shapes;
-      shapes = dynamicEntities.find('Sprite');
-      return shapes.each(function(shape) {
-        var obj;
-        if (shape.getName() !== void 0 && shape.getName().type === 'bonus' && collisionManager.checkPresence(shape.getX() + 8, shape.getY() + shape.getHeight() + 8)) {
-          obj = shape.getName();
-          obj.falling = true;
-          return shape.setName(obj);
         }
       });
     };
@@ -3151,33 +3124,22 @@
   HUD = (function() {
     function HUD() {
       this.hud = {
-        left: [
-          {
-            text: "'Level : ' + levelManager.level"
-          }
-        ],
+        left: [{}],
         right: [
           {
-            icon: 'jumpHeightBonus',
-            text: "bonusManager.playerBonuses.jumpHeightBonus + '/' + bonusManager.bonuses[4].max"
+            icon: 'jumpHeightBonus'
           }, {
-            icon: 'speedBonus',
-            text: "bonusManager.playerBonuses.speedBonus + '/' + bonusManager.bonuses[3].max"
+            icon: 'speedBonus'
           }, {
-            icon: 'autoRezBonus',
-            text: "bonusManager.playerBonuses.autoRezBonus + '/' + bonusManager.bonuses[5].max"
+            icon: 'autoRezBonus'
           }, {
-            icon: 'tpBonus',
-            text: "bonusManager.playerBonuses.tpBonus + '/' + bonusManager.bonuses[6].max + ' (T)'"
+            icon: 'tpBonus'
           }, {
-            icon: 'doubleJumpBonus',
-            text: "bonusManager.playerBonuses.doubleJumpBonus"
+            icon: 'doubleJumpBonus'
           }, {
-            icon: 'grabbingBonus',
-            text: "bonusManager.playerBonuses.grabbingBonus"
+            icon: 'grabbingBonus'
           }, {
-            icon: 'jumpBlockBonus',
-            text: "bonusManager.playerBonuses.jumpBlockBonus + '/' + bonusManager.bonuses[7].max + ' (Y)'"
+            icon: 'jumpBlockBonus'
           }
         ]
       };
@@ -3189,16 +3151,40 @@
     }
 
     HUD.prototype.update = function(frameTime) {
-      var elm, i, _i, _j, _len, _len1, _ref, _ref1;
-      _ref = this.hud.left;
+      var elm, hud, i, _i, _j, _len, _len1, _ref, _ref1;
+      hud = {
+        left: [
+          {
+            text: 'Level : ' + levelManager.level
+          }
+        ],
+        right: [
+          {
+            text: bonusManager.playerBonuses.jumpHeightBonus + '/' + bonusManager.bonuses[4].max
+          }, {
+            text: bonusManager.playerBonuses.speedBonus + '/' + bonusManager.bonuses[3].max
+          }, {
+            text: bonusManager.playerBonuses.autoRezBonus + '/' + bonusManager.bonuses[5].max
+          }, {
+            text: bonusManager.playerBonuses.tpBonus + '/' + bonusManager.bonuses[6].max + ' (T)'
+          }, {
+            text: bonusManager.playerBonuses.doubleJumpBonus
+          }, {
+            text: bonusManager.playerBonuses.grabbingBonus
+          }, {
+            text: bonusManager.playerBonuses.jumpBlockBonus + '/' + bonusManager.bonuses[7].max + ' (Y)'
+          }
+        ]
+      };
+      _ref = hud.left;
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
         elm = _ref[i];
-        this.elements.left[i].setText(eval(elm.text));
+        this.elements.left[i].setText(elm.text);
       }
-      _ref1 = this.hud.right;
+      _ref1 = hud.right;
       for (i = _j = 0, _len1 = _ref1.length; _j < _len1; i = ++_j) {
         elm = _ref1[i];
-        this.elements.right[i].setText(eval(elm.text));
+        this.elements.right[i].setText(elm.text);
       }
       return hudLayer.draw();
     };

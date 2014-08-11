@@ -1,39 +1,28 @@
 class HUD
   constructor: ->
     @hud = {
-      left: [
-        {
-          text: "'Level : ' + levelManager.level"
-        }
-      ]
+      left: [{}],
       right: [
         {
           icon: 'jumpHeightBonus'
-          text: "bonusManager.playerBonuses.jumpHeightBonus + '/' + bonusManager.bonuses[4].max"
         }
         {
           icon: 'speedBonus'
-          text: "bonusManager.playerBonuses.speedBonus + '/' + bonusManager.bonuses[3].max"
         }
         {
           icon: 'autoRezBonus'
-          text: "bonusManager.playerBonuses.autoRezBonus + '/' + bonusManager.bonuses[5].max"
         }
         {
           icon: 'tpBonus'
-          text: "bonusManager.playerBonuses.tpBonus + '/' + bonusManager.bonuses[6].max + ' (T)'"
         }
         {
           icon: 'doubleJumpBonus'
-          text: "bonusManager.playerBonuses.doubleJumpBonus"
         }
         {
           icon: 'grabbingBonus'
-          text: "bonusManager.playerBonuses.grabbingBonus"
         }
         {
           icon: 'jumpBlockBonus'
-          text: "bonusManager.playerBonuses.jumpBlockBonus + '/' + bonusManager.bonuses[7].max + ' (Y)'"
         }
       ]
     }
@@ -44,10 +33,40 @@ class HUD
     @drawHUD()
 
   update: (frameTime) ->
-    for elm, i in @hud.left
-      @elements.left[i].setText(eval(elm.text))
-    for elm, i in @hud.right
-      @elements.right[i].setText(eval(elm.text))
+    hud = {
+      left: [
+        {
+          text: 'Level : ' + levelManager.level
+        }
+      ]
+      right: [
+        {
+          text: bonusManager.playerBonuses.jumpHeightBonus + '/' + bonusManager.bonuses[4].max
+        }
+        {
+          text: bonusManager.playerBonuses.speedBonus + '/' + bonusManager.bonuses[3].max
+        }
+        {
+          text: bonusManager.playerBonuses.autoRezBonus + '/' + bonusManager.bonuses[5].max
+        }
+        {
+          text: bonusManager.playerBonuses.tpBonus + '/' + bonusManager.bonuses[6].max + ' (T)'
+        }
+        {
+          text: bonusManager.playerBonuses.doubleJumpBonus
+        }
+        {
+          text: bonusManager.playerBonuses.grabbingBonus
+        }
+        {
+          text: bonusManager.playerBonuses.jumpBlockBonus + '/' + bonusManager.bonuses[7].max + ' (Y)'
+        }
+      ]
+    }
+    for elm, i in hud.left
+      @elements.left[i].setText(elm.text)
+    for elm, i in hud.right
+      @elements.right[i].setText(elm.text)
     hudLayer.draw()
 
   drawHUD: ->

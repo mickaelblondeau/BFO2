@@ -17,10 +17,10 @@ class CollisionManager
 
   isCubeGrabbable: (cube, player) ->
     if player.getX() > cube.getX()
-      if @checkPresence(cube.getX() + cube.getWidth() + 16, cube.getY() + 80)
+      if @pointInCube(player, {x: cube.getX() + 16, y: cube.getY() + 80})
         return false
     else
-      if @checkPresence(cube.getX() - 16, cube.getY() + 80)
+      if @pointInCube(player, {x: cube.getX() - 16, y: cube.getY() + 80})
         return false
     return true
 
@@ -86,15 +86,6 @@ class CollisionManager
           if collisionManager.collidingCorners(playerBoundBox, cubeBoundBox) and collisionManager.isCubeGrabbable(cube, player.shape)
             result.push(cube)
     return result
-
-  checkPresence: (x, y) ->
-    tmp = staticCubes.getIntersection({ x: x, y: y })
-    if tmp isnt null && tmp.shape
-      return tmp.shape
-    tmp = dynamicEntities.getIntersection({ x: x, y: y })
-    if tmp isnt null && tmp.shape
-      return tmp.shape
-    return false
 
   pointInCube: (shape, point) ->
     return point[0] >= shape.getX() and point[0] < shape.getX() + shape.getWidth() and point[1] >= shape.getY() and point[1] < shape.getY() + shape.getHeight()
