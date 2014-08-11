@@ -20,6 +20,8 @@ class Event
 
   send: ->
     networkManager.sendRandomEvent(@id)
+    if @id is 0 and @restartTimer isnt null
+      @restartTimer = null
 
   spawnBonuses: ->
     for i in [1..4]
