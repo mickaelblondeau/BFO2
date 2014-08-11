@@ -40,7 +40,7 @@ game.loadAssets()
 arena = null
 player = null
 hud = null
-skin = { body: 1, hair: 1, head: 1, leg: 1, shoes: 1, skin: 1 }
+skin = { body: 1, hair: 1, head: 1, leg: 1, shoes: 1, skin: 1, hat: 1 }
 
 if config.debug
   debugLayer = new Kinetic.Layer()
@@ -99,6 +99,8 @@ contentLoader.contentsLoaded = ->
 
   document.querySelector('#play').onclick = ->
     name = document.querySelector('#name').value
+    if name is 'MrChy'
+      skin.hat = 2
     document.querySelector('#login-form').style.display = 'none'
     document.querySelector('#login-loading').style.display = 'block'
     document.querySelector('#login-loading').innerHTML = 'Connecting...'

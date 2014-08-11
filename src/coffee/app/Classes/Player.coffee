@@ -29,7 +29,7 @@ playerAnimationIndexes = [
 class Player
   constructor: (skin) ->
     @heightCouched = 30
-    @height = 46
+    @height = 62
 
     @draw()
 
@@ -42,7 +42,7 @@ class Player
   draw: ->
     @shape = new Kinetic.Rect
       width: 22
-      height: @height
+      height: 62
     players.add @shape
 
     @skin = new Sprite(0, 0, SquareEnum.SMALL, 'playerSpirteSheet', 'fall').shape
@@ -71,9 +71,9 @@ class Player
     else
       @skin.setX(@shape.getX() - 12)
     if @skin.getAnimation() is 'couch' or @skin.getAnimation() is 'couchMove'
-      @skin.setY(@shape.getY() - 18)
+      @skin.setY(@shape.getY() - 34)
     else
-      @skin.setY(@shape.getY())
+      @skin.setY(@shape.getY() - 2)
 
   changeAnimation: (id) ->
     animation = @getAnimationByIndex(id)

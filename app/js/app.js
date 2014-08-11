@@ -9,12 +9,12 @@
     levelWidth: 704,
     levelSpeed: 1000,
     skins: {
-      body: 4,
-      hair: 4,
-      head: 3,
-      leg: 3,
-      shoes: 4,
-      skin: 4
+      body: 3,
+      hair: 3,
+      head: 2,
+      leg: 2,
+      shoes: 3,
+      skin: 3
     },
     player: {
       jumpMax: 2,
@@ -828,7 +828,7 @@
     function Player(skin) {
       var callback, self;
       this.heightCouched = 30;
-      this.height = 46;
+      this.height = 62;
       this.draw();
       self = this;
       callback = function(image) {
@@ -841,7 +841,7 @@
     Player.prototype.draw = function() {
       this.shape = new Kinetic.Rect({
         width: 22,
-        height: this.height
+        height: 62
       });
       players.add(this.shape);
       this.skin = new Sprite(0, 0, SquareEnum.SMALL, 'playerSpirteSheet', 'fall').shape;
@@ -874,9 +874,9 @@
         this.skin.setX(this.shape.getX() - 12);
       }
       if (this.skin.getAnimation() === 'couch' || this.skin.getAnimation() === 'couchMove') {
-        return this.skin.setY(this.shape.getY() - 18);
+        return this.skin.setY(this.shape.getY() - 34);
       } else {
-        return this.skin.setY(this.shape.getY());
+        return this.skin.setY(this.shape.getY() - 2);
       }
     };
 
@@ -1441,14 +1441,14 @@
   };
 
   spriteAnimations = {
-    idle: [288, 0, 48, 48],
-    jump: [336, 0, 48, 48],
-    fall: [384, 0, 48, 48],
-    run: [0, 0, 48, 48, 48, 0, 48, 48, 96, 0, 48, 48, 144, 0, 48, 48, 192, 0, 48, 48, 240, 0, 48, 48],
-    couch: [0, 48, 48, 48],
-    couchMove: [48, 48, 48, 48, 96, 48, 48, 48, 144, 48, 48, 48, 192, 48, 48, 48, 240, 48, 48, 48],
-    grabbing: [0, 96, 48, 48],
-    dead: [288, 48, 48, 48],
+    idle: [288, 0, 48, 64],
+    jump: [336, 0, 48, 64],
+    fall: [384, 0, 48, 64],
+    run: [0, 0, 48, 64, 48, 0, 48, 64, 96, 0, 48, 64, 144, 0, 48, 64, 192, 0, 48, 64, 240, 0, 48, 64],
+    couch: [0, 64, 48, 64],
+    couchMove: [48, 64, 48, 64, 96, 64, 48, 64, 144, 64, 48, 64, 192, 64, 48, 64, 240, 64, 48, 64],
+    grabbing: [0, 128, 48, 64],
+    dead: [288, 64, 48, 64],
     '32-32': [192, 96, 32, 32],
     '64-64': [128, 64, 64, 64],
     '128-128': [0, 0, 128, 128],
@@ -2337,7 +2337,7 @@
 
   SkinManager = (function() {
     function SkinManager() {
-      this.parts = ['skin', 'hair', 'head', 'body', 'leg', 'shoes'];
+      this.parts = ['skin', 'hair', 'head', 'body', 'leg', 'shoes', 'hat'];
       this.skins = [];
       this.callback = [];
     }
@@ -3698,7 +3698,8 @@
     head: 1,
     leg: 1,
     shoes: 1,
-    skin: 1
+    skin: 1,
+    hat: 1
   };
 
   if (config.debug) {
@@ -3765,6 +3766,9 @@
     return document.querySelector('#play').onclick = function() {
       var name;
       name = document.querySelector('#name').value;
+      if (name === 'MrChy') {
+        skin.hat = 2;
+      }
       document.querySelector('#login-form').style.display = 'none';
       document.querySelector('#login-loading').style.display = 'block';
       document.querySelector('#login-loading').innerHTML = 'Connecting...';
