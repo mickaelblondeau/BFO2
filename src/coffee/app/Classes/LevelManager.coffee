@@ -27,23 +27,32 @@ class LevelManager
     arena.add(height/32)
     @levelHeight += height
     @ground = arena.y - @levelHeight
-    @tweens[0] = new Kinetic.Tween
+    twin = new Kinetic.Tween
       node: stage
       duration: 2
       y: stage.getY() + height
       onFinish: ->
         networkManager.sendMoveLevelOk()
-    @tweens[0].play()
-    @tweens[1] = new Kinetic.Tween
+    twin.play()
+    @tweens.push twin
+    twin = new Kinetic.Tween
       node: staticBg
       duration: 2
       y: staticBg.getY() - height
-    @tweens[1].play()
-    @tweens[2] = new Kinetic.Tween
+    twin.play()
+    @tweens.push twin
+    twin = new Kinetic.Tween
       node: hudLayer
       duration: 2
       y: hudLayer.getY() - height
-    @tweens[2].play()
+    twin.play()
+    @tweens.push twin
+    twin = new Kinetic.Tween
+      node: staticCubes
+      duration: 2
+      y: staticCubes.y()
+    twin.play()
+    @tweens.push twin
 
   clearLevel: ->
     bossManager.reset()

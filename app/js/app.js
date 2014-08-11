@@ -868,7 +868,7 @@
     };
 
     Player.prototype.fixSkinPos = function() {
-      if (this.skin.getScaleX() === -1) {
+      if (this.skin.getScale().x === -1) {
         this.skin.setX(this.shape.getX() - 12 + 48);
       } else {
         this.skin.setX(this.shape.getX() - 12);
@@ -891,10 +891,16 @@
 
     Player.prototype.changeSide = function(side) {
       if (side === -1) {
-        this.skin.setScaleX(-1);
+        this.skin.setScale({
+          x: -1,
+          y: 1
+        });
         return this.skin.setX(this.skin.getX() + 48);
       } else if (side === 1) {
-        this.skin.setScaleX(1);
+        this.skin.setScale({
+          x: 1,
+          y: 1
+        });
         return this.skin.setX(this.skin.getX() - 48);
       }
     };
@@ -1435,699 +1441,57 @@
   };
 
   spriteAnimations = {
-    idle: [
-      {
-        x: 288,
-        y: 0,
-        width: 48,
-        height: 48
-      }
-    ],
-    jump: [
-      {
-        x: 336,
-        y: 0,
-        width: 48,
-        height: 48
-      }
-    ],
-    fall: [
-      {
-        x: 384,
-        y: 0,
-        width: 48,
-        height: 48
-      }
-    ],
-    run: [
-      {
-        x: 0,
-        y: 0,
-        width: 48,
-        height: 48
-      }, {
-        x: 48,
-        y: 0,
-        width: 48,
-        height: 48
-      }, {
-        x: 96,
-        y: 0,
-        width: 48,
-        height: 48
-      }, {
-        x: 144,
-        y: 0,
-        width: 48,
-        height: 48
-      }, {
-        x: 192,
-        y: 0,
-        width: 48,
-        height: 48
-      }, {
-        x: 240,
-        y: 0,
-        width: 48,
-        height: 48
-      }
-    ],
-    couch: [
-      {
-        x: 0,
-        y: 48,
-        width: 48,
-        height: 48
-      }
-    ],
-    couchMove: [
-      {
-        x: 48,
-        y: 48,
-        width: 48,
-        height: 48
-      }, {
-        x: 96,
-        y: 48,
-        width: 48,
-        height: 48
-      }, {
-        x: 144,
-        y: 48,
-        width: 48,
-        height: 48
-      }, {
-        x: 192,
-        y: 48,
-        width: 48,
-        height: 48
-      }, {
-        x: 240,
-        y: 48,
-        width: 48,
-        height: 48
-      }
-    ],
-    grabbing: [
-      {
-        x: 0,
-        y: 96,
-        width: 48,
-        height: 48
-      }
-    ],
-    dead: [
-      {
-        x: 288,
-        y: 48,
-        width: 48,
-        height: 48
-      }
-    ],
-    '32-32': [
-      {
-        x: 192,
-        y: 96,
-        width: 32,
-        height: 32
-      }
-    ],
-    '64-64': [
-      {
-        x: 128,
-        y: 64,
-        width: 64,
-        height: 64
-      }
-    ],
-    '128-128': [
-      {
-        x: 0,
-        y: 0,
-        width: 128,
-        height: 128
-      }
-    ],
-    '64-32': [
-      {
-        x: 192,
-        y: 64,
-        width: 64,
-        height: 32
-      }
-    ],
-    '128-64': [
-      {
-        x: 128,
-        y: 0,
-        width: 128,
-        height: 64
-      }
-    ],
-    '32-128': [
-      {
-        x: 256,
-        y: 0,
-        width: 32,
-        height: 128
-      }
-    ],
-    'brokenCube': [
-      {
-        x: 224,
-        y: 96,
-        width: 32,
-        height: 32
-      }
-    ],
-    'iceExplosion': [
-      {
-        x: 0,
-        y: 0,
-        width: 64,
-        height: 64
-      }
-    ],
-    'explosion': [
-      {
-        x: 64,
-        y: 0,
-        width: 64,
-        height: 64
-      }
-    ],
-    'ice': [
-      {
-        x: 0,
-        y: 0,
-        width: 32,
-        height: 12
-      }
-    ],
-    'stompblock': [
-      {
-        x: 128,
-        y: 0,
-        width: 64,
-        height: 64
-      }
-    ],
-    'swapblock': [
-      {
-        x: 128,
-        y: 64,
-        width: 64,
-        height: 64
-      }
-    ],
-    'tpblock': [
-      {
-        x: 64,
-        y: 64,
-        width: 64,
-        height: 64
-      }
-    ],
-    'randblock': [
-      {
-        x: 0,
-        y: 128,
-        width: 64,
-        height: 64
-      }
-    ],
-    'randomEvent': [
-      {
-        x: 64,
-        y: 128,
-        width: 64,
-        height: 64
-      }
-    ],
-    'slowblock': [
-      {
-        x: 0,
-        y: 64,
-        width: 64,
-        height: 64
-      }
-    ],
-    jumpBlock: [
-      {
-        x: 64,
-        y: 0,
-        width: 32,
-        height: 32
-      }
-    ],
-    'blood': [
-      {
-        x: 160,
-        y: 0,
-        width: 64,
-        height: 64
-      }, {
-        x: 224,
-        y: 0,
-        width: 64,
-        height: 64
-      }, {
-        x: 288,
-        y: 0,
-        width: 64,
-        height: 64
-      }, {
-        x: 352,
-        y: 0,
-        width: 64,
-        height: 64
-      }, {
-        x: 416,
-        y: 0,
-        width: 64,
-        height: 64
-      }, {
-        x: 480,
-        y: 0,
-        width: 64,
-        height: 64
-      }
-    ],
-    'explosionEffect': [
-      {
-        x: 0,
-        y: 32,
-        width: 160,
-        height: 128
-      }, {
-        x: 160,
-        y: 32,
-        width: 160,
-        height: 128
-      }, {
-        x: 320,
-        y: 32,
-        width: 160,
-        height: 128
-      }, {
-        x: 480,
-        y: 32,
-        width: 160,
-        height: 128
-      }, {
-        x: 0,
-        y: 160,
-        width: 160,
-        height: 128
-      }, {
-        x: 160,
-        y: 160,
-        width: 160,
-        height: 128
-      }, {
-        x: 320,
-        y: 160,
-        width: 160,
-        height: 128
-      }, {
-        x: 480,
-        y: 160,
-        width: 160,
-        height: 128
-      }, {
-        x: 0,
-        y: 288,
-        width: 160,
-        height: 128
-      }, {
-        x: 160,
-        y: 288,
-        width: 160,
-        height: 128
-      }
-    ],
-    'iceExplosionEffect': [
-      {
-        x: 0,
-        y: 416,
-        width: 160,
-        height: 128
-      }, {
-        x: 160,
-        y: 416,
-        width: 160,
-        height: 128
-      }, {
-        x: 320,
-        y: 416,
-        width: 160,
-        height: 128
-      }, {
-        x: 480,
-        y: 416,
-        width: 160,
-        height: 128
-      }, {
-        x: 0,
-        y: 544,
-        width: 160,
-        height: 128
-      }, {
-        x: 160,
-        y: 544,
-        width: 160,
-        height: 128
-      }, {
-        x: 320,
-        y: 544,
-        width: 160,
-        height: 128
-      }, {
-        x: 480,
-        y: 544,
-        width: 160,
-        height: 128
-      }, {
-        x: 0,
-        y: 672,
-        width: 160,
-        height: 128
-      }, {
-        x: 160,
-        y: 672,
-        width: 160,
-        height: 128
-      }
-    ],
-    'slow': [
-      {
-        x: 32,
-        y: 0,
-        width: 32,
-        height: 12
-      }
-    ],
-    'bioExplosion': [
-      {
-        x: 0,
-        y: 834,
-        width: 128,
-        height: 128
-      }, {
-        x: 128,
-        y: 834,
-        width: 128,
-        height: 128
-      }, {
-        x: 256,
-        y: 834,
-        width: 128,
-        height: 128
-      }, {
-        x: 384,
-        y: 834,
-        width: 128,
-        height: 128
-      }, {
-        x: 512,
-        y: 834,
-        width: 128,
-        height: 128
-      }, {
-        x: 640,
-        y: 834,
-        width: 128,
-        height: 128
-      }
-    ],
-    'missileEffect': [
-      {
-        x: 0,
-        y: 32,
-        width: 32,
-        height: 32
-      }, {
-        x: 32,
-        y: 32,
-        width: 32,
-        height: 32
-      }, {
-        x: 64,
-        y: 32,
-        width: 32,
-        height: 32
-      }
-    ],
-    'smallExplosionEffect': [
-      {
-        x: 0,
-        y: 960,
-        width: 64,
-        height: 64
-      }, {
-        x: 64,
-        y: 960,
-        width: 64,
-        height: 64
-      }, {
-        x: 128,
-        y: 960,
-        width: 64,
-        height: 64
-      }, {
-        x: 192,
-        y: 960,
-        width: 64,
-        height: 64
-      }, {
-        x: 0,
-        y: 1024,
-        width: 64,
-        height: 64
-      }, {
-        x: 64,
-        y: 1024,
-        width: 64,
-        height: 64
-      }, {
-        x: 128,
-        y: 1024,
-        width: 64,
-        height: 64
-      }, {
-        x: 192,
-        y: 1024,
-        width: 64,
-        height: 64
-      }, {
-        x: 0,
-        y: 1088,
-        width: 64,
-        height: 64
-      }, {
-        x: 64,
-        y: 1088,
-        width: 64,
-        height: 64
-      }
-    ],
-    speedBonus: [
-      {
-        x: 64,
-        y: 32,
-        width: 32,
-        height: 32
-      }
-    ],
-    jumpHeightBonus: [
-      {
-        x: 32,
-        y: 32,
-        width: 32,
-        height: 32
-      }
-    ],
-    doubleJumpBonus: [
-      {
-        x: 0,
-        y: 64,
-        width: 32,
-        height: 32
-      }
-    ],
-    grabbingBonus: [
-      {
-        x: 0,
-        y: 0,
-        width: 32,
-        height: 32
-      }
-    ],
-    resurectionBonus: [
-      {
-        x: 96,
-        y: 0,
-        width: 32,
-        height: 32
-      }
-    ],
-    autoRezBonus: [
-      {
-        x: 96,
-        y: 32,
-        width: 32,
-        height: 32
-      }
-    ],
-    tpBonus: [
-      {
-        x: 64,
-        y: 0,
-        width: 32,
-        height: 32
-      }
-    ],
-    jumpBlockBonus: [
-      {
-        x: 0,
-        y: 32,
-        width: 32,
-        height: 32
-      }
-    ],
-    tp: [
-      {
-        x: 32,
-        y: 0,
-        width: 32,
-        height: 32
-      }
-    ],
-    roueman: [
-      {
-        x: 0,
-        y: 0,
-        width: 64,
-        height: 64
-      }, {
-        x: 64,
-        y: 0,
-        width: 64,
-        height: 64
-      }
-    ],
-    freezeman: [
-      {
-        x: 0,
-        y: 65,
-        width: 544,
-        height: 30
-      }
-    ],
-    poingman: [
-      {
-        x: 192,
-        y: 0,
-        width: 64,
-        height: 64
-      }
-    ],
-    labiman: [
-      {
-        x: 128,
-        y: 0,
-        width: 64,
-        height: 64
-      }
-    ],
-    sparkman: [
-      {
-        x: 0,
-        y: 96,
-        width: 64,
-        height: 64
-      }, {
-        x: 64,
-        y: 96,
-        width: 64,
-        height: 64
-      }, {
-        x: 128,
-        y: 96,
-        width: 64,
-        height: 64
-      }, {
-        x: 192,
-        y: 96,
-        width: 64,
-        height: 64
-      }
-    ],
-    spark: [
-      {
-        x: 0,
-        y: 160,
-        width: 32,
-        height: 32
-      }, {
-        x: 32,
-        y: 160,
-        width: 32,
-        height: 32
-      }, {
-        x: 64,
-        y: 160,
-        width: 32,
-        height: 32
-      }, {
-        x: 96,
-        y: 160,
-        width: 32,
-        height: 32
-      }
-    ],
-    homingman: [
-      {
-        x: 256,
-        y: 0,
-        width: 64,
-        height: 64
-      }
-    ],
-    missileman: [
-      {
-        x: 320,
-        y: 0,
-        width: 32,
-        height: 64
-      }
-    ],
-    phantom: [
-      {
-        x: 128,
-        y: 160,
-        width: 32,
-        height: 32
-      }
-    ],
-    fly: [
-      {
-        x: 0,
-        y: 0,
-        width: 32,
-        height: 32
-      }, {
-        x: 32,
-        y: 0,
-        width: 32,
-        height: 32
-      }, {
-        x: 64,
-        y: 0,
-        width: 32,
-        height: 32
-      }
-    ]
+    idle: [288, 0, 48, 48],
+    jump: [336, 0, 48, 48],
+    fall: [384, 0, 48, 48],
+    run: [0, 0, 48, 48, 48, 0, 48, 48, 96, 0, 48, 48, 144, 0, 48, 48, 192, 0, 48, 48, 240, 0, 48, 48],
+    couch: [0, 48, 48, 48],
+    couchMove: [48, 48, 48, 48, 96, 48, 48, 48, 144, 48, 48, 48, 192, 48, 48, 48, 240, 48, 48, 48],
+    grabbing: [0, 96, 48, 48],
+    dead: [288, 48, 48, 48],
+    '32-32': [192, 96, 32, 32],
+    '64-64': [128, 64, 64, 64],
+    '128-128': [0, 0, 128, 128],
+    '64-32': [192, 64, 64, 32],
+    '128-64': [128, 0, 128, 64],
+    '32-128': [256, 0, 32, 128],
+    brokenCube: [224, 96, 32, 32],
+    iceExplosion: [0, 0, 64, 64],
+    explosion: [64, 0, 64, 64],
+    ice: [0, 0, 32, 12],
+    stompblock: [128, 0, 64, 64],
+    swapblock: [128, 64, 64, 64],
+    tpblock: [64, 64, 64, 64],
+    randblock: [0, 128, 64, 64],
+    randomEvent: [64, 128, 64, 64],
+    slowblock: [0, 64, 64, 64],
+    jumpBlock: [64, 0, 32, 32],
+    blood: [160, 0, 64, 64, 224, 0, 64, 64, 288, 0, 64, 64, 352, 0, 64, 64, 416, 0, 64, 64, 480, 0, 64, 64],
+    explosionEffect: [0, 32, 160, 128, 160, 32, 160, 128, 320, 32, 160, 128, 480, 32, 160, 128, 0, 160, 160, 128, 160, 160, 160, 128, 320, 160, 160, 128, 480, 160, 160, 128, 0, 288, 160, 128, 160, 288, 160, 128],
+    iceExplosionEffect: [0, 416, 160, 128, 160, 416, 160, 128, 320, 416, 160, 128, 480, 416, 160, 128, 0, 544, 160, 128, 160, 544, 160, 128, 320, 544, 160, 128, 480, 544, 160, 128, 0, 672, 160, 128, 160, 672, 160, 128],
+    slow: [32, 0, 32, 12],
+    bioExplosion: [0, 834, 128, 128, 128, 834, 128, 128, 256, 834, 128, 128, 384, 834, 128, 128, 512, 834, 128, 128, 640, 834, 128, 128],
+    missileEffect: [0, 32, 32, 32, 32, 32, 32, 32, 64, 32, 32, 32],
+    smallExplosionEffect: [0, 960, 64, 64, 64, 960, 64, 64, 128, 960, 64, 64, 192, 960, 64, 64, 0, 1024, 64, 64, 64, 1024, 64, 64, 128, 1024, 64, 64, 192, 1024, 64, 64, 0, 1088, 64, 64, 64, 1088, 64, 64],
+    speedBonus: [64, 32, 32, 32],
+    jumpHeightBonus: [32, 32, 32, 32],
+    doubleJumpBonus: [0, 64, 32, 32],
+    grabbingBonus: [0, 0, 32, 32],
+    resurectionBonus: [96, 0, 32, 32],
+    autoRezBonus: [96, 32, 32, 32],
+    tpBonus: [64, 0, 32, 32],
+    jumpBlockBonus: [0, 32, 32, 32],
+    tp: [32, 0, 32, 32],
+    roueman: [0, 0, 64, 64, 64, 0, 64, 64],
+    freezeman: [0, 65, 544, 30],
+    poingman: [192, 0, 64, 64],
+    labiman: [128, 0, 64, 64],
+    sparkman: [0, 96, 64, 64, 64, 96, 64, 64, 128, 96, 64, 64, 192, 96, 64, 64],
+    spark: [0, 160, 32, 32, 32, 160, 32, 32, 64, 160, 32, 32, 96, 160, 32, 32],
+    homingman: [256, 0, 64, 64],
+    missileman: [320, 0, 32, 64],
+    phantom: [128, 160, 32, 32],
+    fly: [0, 0, 32, 32, 32, 0, 32, 32, 64, 0, 32, 32]
   };
 
   Sprite = (function() {
@@ -2141,8 +1505,7 @@
         animation: animation,
         animations: spriteAnimations,
         frameRate: 7,
-        index: 0,
-        transformsEnabled: 'position'
+        index: 0
       });
     }
 
@@ -2552,10 +1915,11 @@
     };
 
     LevelManager.prototype.moveLevel = function(height) {
+      var twin;
       arena.add(height / 32);
       this.levelHeight += height;
       this.ground = arena.y - this.levelHeight;
-      this.tweens[0] = new Kinetic.Tween({
+      twin = new Kinetic.Tween({
         node: stage,
         duration: 2,
         y: stage.getY() + height,
@@ -2563,19 +1927,29 @@
           return networkManager.sendMoveLevelOk();
         }
       });
-      this.tweens[0].play();
-      this.tweens[1] = new Kinetic.Tween({
+      twin.play();
+      this.tweens.push(twin);
+      twin = new Kinetic.Tween({
         node: staticBg,
         duration: 2,
         y: staticBg.getY() - height
       });
-      this.tweens[1].play();
-      this.tweens[2] = new Kinetic.Tween({
+      twin.play();
+      this.tweens.push(twin);
+      twin = new Kinetic.Tween({
         node: hudLayer,
         duration: 2,
         y: hudLayer.getY() - height
       });
-      return this.tweens[2].play();
+      twin.play();
+      this.tweens.push(twin);
+      twin = new Kinetic.Tween({
+        node: staticCubes,
+        duration: 2,
+        y: staticCubes.y()
+      });
+      twin.play();
+      return this.tweens.push(twin);
     };
 
     LevelManager.prototype.clearLevel = function() {
@@ -3284,9 +2658,11 @@
         this.shape.start();
         if (hasCycle !== void 0) {
           self = this;
-          len = this.shape.getAnimations()[this.shape.getAnimation()].length - 1;
-          this.shape.afterFrame(len, function() {
-            return self.shape.destroy();
+          len = (this.shape.getAnimations()[this.shape.getAnimation()].length / 4) - 1;
+          this.shape.on('frameIndexChange', function() {
+            if (self.shape.frameIndex() === len) {
+              return self.shape.destroy();
+            }
           });
         }
       }
@@ -4266,11 +3642,11 @@
     hitGraphEnabled: false
   });
 
-  hudLayer = new Kinetic.Layer({
+  hudLayer = new Kinetic.FastLayer({
     hitGraphEnabled: false
   });
 
-  tmpLayer = new Kinetic.Layer({
+  tmpLayer = new Kinetic.FastLayer({
     hitGraphEnabled: false
   });
 

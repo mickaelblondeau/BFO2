@@ -66,7 +66,7 @@ class Player
       @reset()
 
   fixSkinPos: ->
-    if @skin.getScaleX() is -1
+    if @skin.getScale().x is -1
       @skin.setX(@shape.getX() - 12 + 48)
     else
       @skin.setX(@shape.getX() - 12)
@@ -83,10 +83,10 @@ class Player
 
   changeSide: (side) ->
     if side is -1
-      @skin.setScaleX(-1)
+      @skin.setScale({x: -1, y: 1})
       @skin.setX(@skin.getX() + 48)
     else if side is 1
-      @skin.setScaleX(1)
+      @skin.setScale({x: 1, y: 1})
       @skin.setX(@skin.getX() - 48)
 
   getAnimationByIndex: (index) ->

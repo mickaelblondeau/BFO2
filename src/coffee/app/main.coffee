@@ -11,9 +11,9 @@ staticCubes = new Kinetic.Layer
   hitGraphEnabled: false
 staticBg = new Kinetic.Layer
   hitGraphEnabled: false
-hudLayer = new Kinetic.Layer
+hudLayer = new Kinetic.FastLayer
   hitGraphEnabled: false
-tmpLayer = new Kinetic.Layer
+tmpLayer = new Kinetic.FastLayer
   hitGraphEnabled: false
 
 stage.add staticBg

@@ -35,7 +35,7 @@ class Effect extends Sprite
 
       if hasCycle isnt undefined
         self = @
-        len = @shape.getAnimations()[@shape.getAnimation()].length - 1
-        @shape.afterFrame(len, () ->
-          self.shape.destroy()
-        )
+        len = (@shape.getAnimations()[@shape.getAnimation()].length/4) - 1
+        @shape.on 'frameIndexChange', ->
+          if self.shape.frameIndex() == len
+            self.shape.destroy()
