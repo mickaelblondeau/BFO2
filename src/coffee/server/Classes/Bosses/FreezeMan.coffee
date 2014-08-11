@@ -4,7 +4,8 @@ class FreezeMan extends Boss
     @id = 2
 
   getPattern: ->
-    speed = Math.round((0.5 + 0.02 * (levelManager.level + config.bossDifficulty)) * 100) / 100
+    speedPerLevel = 0.015
+    speed = Math.round((0.5 + speedPerLevel * (levelManager.level + config.bossDifficulty)) * 100) / 100
     interval = 1500 - 50 * (levelManager.level + config.bossDifficulty)
     options = [speed, interval]
     attacks = []

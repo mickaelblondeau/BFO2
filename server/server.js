@@ -1155,7 +1155,10 @@
     }
 
     Event.prototype.send = function() {
-      return networkManager.sendRandomEvent(this.id);
+      networkManager.sendRandomEvent(this.id);
+      if (this.id === 0 && this.restartTimer !== null) {
+        return this.restartTimer = null;
+      }
     };
 
     Event.prototype.spawnBonuses = function() {
@@ -1271,7 +1274,7 @@
 
     RoueMan.prototype.getPattern = function() {
       var attacks, options, speed, speedPerLevel;
-      speedPerLevel = 0.03;
+      speedPerLevel = 0.02;
       speed = Math.round((0.6 + speedPerLevel * (levelManager.level + config.bossDifficulty)) * 100) / 100;
       options = speed;
       attacks = this.generateAttacks();
@@ -1315,8 +1318,9 @@
     }
 
     FreezeMan.prototype.getPattern = function() {
-      var attack, attacks, i, interval, options, speed, _i;
-      speed = Math.round((0.5 + 0.02 * (levelManager.level + config.bossDifficulty)) * 100) / 100;
+      var attack, attacks, i, interval, options, speed, speedPerLevel, _i;
+      speedPerLevel = 0.015;
+      speed = Math.round((0.5 + speedPerLevel * (levelManager.level + config.bossDifficulty)) * 100) / 100;
       interval = 1500 - 50 * (levelManager.level + config.bossDifficulty);
       options = [speed, interval];
       attacks = [];
@@ -1475,18 +1479,19 @@
     }
 
     HomingMan.prototype.getPattern = function() {
-      var attackSpeed, attacks, options, speed;
+      var attackSpeed, attacks, options, secondWait, speed, speedPerLevel, wait;
       speed = 0.5;
-      attackSpeed = Math.round((0.4 + 0.01 * ((levelManager.level + config.bossDifficulty) - 1)) * 100) / 100;
+      speedPerLevel = 0.3;
+      attackSpeed = Math.round((0.4 + speedPerLevel * (levelManager.level + config.bossDifficulty)) * 100) / 100;
+      wait = 500 - (levelManager.level + config.bossDifficulty) * 25;
+      secondWait = 2000 - (levelManager.level + config.bossDifficulty) * 50;
       options = [speed, attackSpeed];
-      attacks = this.getLevel();
+      attacks = this.getLevel(wait, secondWait);
       return [options, attacks];
     };
 
-    HomingMan.prototype.getLevel = function() {
-      var attacks, i, j, patterns, randPat, secondWait, tmp, wait, _i, _j, _k, _l, _m;
-      wait = 500;
-      secondWait = 2000;
+    HomingMan.prototype.getLevel = function(wait, secondWait) {
+      var attacks, i, j, patterns, randPat, tmp, _i, _j, _k, _l, _m;
       attacks = [];
       patterns = [[1, 1, 0], [0, 1, 1], [0, 0, 1], [1, 0, 0]];
       randPat = [];
