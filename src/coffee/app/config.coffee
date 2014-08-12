@@ -3,7 +3,7 @@ config = {
   levelHeight: 976
   levelWidth: 704
   levelSpeed: 1000
-  skins: { body: 3, hair: 3, head: 2, leg: 2, shoes: 3, skin: 3 }
+  skins: { body: 5, hair: 4, head: 3, leg: 4, shoes: 5, skin: 4, hat: 4 }
   player: {
     jumpMax: 2
     jumpHeight: 82

@@ -9,12 +9,13 @@
     levelWidth: 704,
     levelSpeed: 1000,
     skins: {
-      body: 3,
-      hair: 3,
-      head: 2,
-      leg: 2,
-      shoes: 3,
-      skin: 3
+      body: 5,
+      hair: 4,
+      head: 3,
+      leg: 4,
+      shoes: 5,
+      skin: 4,
+      hat: 4
     },
     player: {
       jumpMax: 2,
@@ -2194,7 +2195,9 @@
         return self.playersId.push(arr[0]);
       });
       this.socket.on('disconnect', function(id) {
-        return self.players[id].remove();
+        if (self.players[id] !== void 0) {
+          return self.players[id].remove();
+        }
       });
       this.socket.on('move', function(arr) {
         if (self.players[arr[0]] !== void 0) {
@@ -2212,7 +2215,9 @@
         }
       });
       this.socket.on('kill', function(id) {
-        return self.players[id].kill();
+        if (self.players[id] !== void 0) {
+          return self.players[id].kill();
+        }
       });
       this.socket.on('spawnBoss', function(arr) {
         return bossManager.spawn(arr[0], arr[1]);
@@ -2337,7 +2342,7 @@
 
   SkinManager = (function() {
     function SkinManager() {
-      this.parts = ['skin', 'hair', 'head', 'body', 'leg', 'shoes', 'hat'];
+      this.parts = ['skin', 'leg', 'hair', 'head', 'body', 'shoes', 'hat'];
       this.skins = [];
       this.callback = [];
     }
@@ -2414,6 +2419,7 @@
       localStorage.setItem('player_body', skinManager.getSkin('body'));
       localStorage.setItem('player_leg', skinManager.getSkin('leg'));
       localStorage.setItem('player_shoes', skinManager.getSkin('shoes'));
+      localStorage.setItem('player_hat', skinManager.getSkin('hat'));
       localStorage.setItem('volume_effect', document.querySelector('#sound-effect').innerHTML);
       localStorage.setItem('volume_music', document.querySelector('#sound-music').innerHTML);
       return localStorage.setItem('bg_color', document.querySelector('#color-switch a').innerHTML);
@@ -2427,6 +2433,7 @@
       skinManager.setSkin('body', localStorage.getItem('player_body') || 1);
       skinManager.setSkin('leg', localStorage.getItem('player_leg') || 1);
       skinManager.setSkin('shoes', localStorage.getItem('player_shoes') || 1);
+      skinManager.setSkin('hat', localStorage.getItem('player_hat') || 1);
       contentLoader.setEffectVolume(localStorage.getItem('volume_effect') || 10);
       contentLoader.setMusicVolume(localStorage.getItem('volume_music') || 10);
       return contentLoader.setBG(localStorage.getItem('bg_color') || "White");
@@ -3766,9 +3773,6 @@
     return document.querySelector('#play').onclick = function() {
       var name;
       name = document.querySelector('#name').value;
-      if (name === 'MrChy') {
-        skin.hat = 2;
-      }
       document.querySelector('#login-form').style.display = 'none';
       document.querySelector('#login-loading').style.display = 'block';
       document.querySelector('#login-loading').innerHTML = 'Connecting...';

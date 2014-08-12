@@ -99,8 +99,6 @@ contentLoader.contentsLoaded = ->
 
   document.querySelector('#play').onclick = ->
     name = document.querySelector('#name').value
-    if name is 'MrChy'
-      skin.hat = 2
     document.querySelector('#login-form').style.display = 'none'
     document.querySelector('#login-loading').style.display = 'block'
     document.querySelector('#login-loading').innerHTML = 'Connecting...'
