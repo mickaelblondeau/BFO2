@@ -50,7 +50,8 @@ class NetworkManager
       self.playersId.push arr[0]
 
     @socket.on 'disconnect', (id) ->
-      self.players[id].remove()
+      if self.players[id] isnt undefined
+        self.players[id].remove()
 
     @socket.on 'move', (arr) ->
       if self.players[arr[0]] isnt undefined
@@ -65,7 +66,8 @@ class NetworkManager
         self.players[arr[0]].changeSide(arr[1])
 
     @socket.on 'kill', (id) ->
-      self.players[id].kill()
+      if self.players[id] isnt undefined
+        self.players[id].kill()
 
     @socket.on 'spawnBoss', (arr) ->
       bossManager.spawn(arr[0], arr[1])
