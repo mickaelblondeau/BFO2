@@ -135,7 +135,8 @@
       this.addBonus(2, SquareEnum.SMALL, 'grabbing', 4);
       this.addBonus(2, SquareEnum.SMALL, 'autoRezBonus', 6);
       this.addBonus(2, SquareEnum.SMALL, 'tpBonus', 7);
-      return this.addBonus(2, SquareEnum.SMALL, 'jumpBlockBonus', 8);
+      this.addBonus(2, SquareEnum.SMALL, 'jumpBlockBonus', 8);
+      return this.addBonus(2, SquareEnum.SMALL, 'deployedJumpBlockBonus', 0);
     };
 
     CubeManager.prototype.addBlock = function(proba, size) {
@@ -979,6 +980,10 @@
       });
     };
 
+    NetworkManager.prototype.sendJumpBlock = function(col) {
+      return this.io.sockets.emit('sendDeployedJumpBonus', col);
+    };
+
     return NetworkManager;
 
   })();
@@ -1108,8 +1113,12 @@
     }
 
     Bonus.prototype.send = function() {
-      networkManager.sendBonus(this.col, this.type.id, cubeManager.bonusId);
-      return cubeManager.bonusId++;
+      if (this.type.bonus === 'deployedJumpBlockBonus') {
+        return networkManager.sendJumpBlock(this.col);
+      } else {
+        networkManager.sendBonus(this.col, this.type.id, cubeManager.bonusId);
+        return cubeManager.bonusId++;
+      }
     };
 
     return Bonus;
@@ -1143,7 +1152,7 @@
 
   bonusEvents = ['resurection', 'bonuses', 'tp'];
 
-  Bonuses = ['speed', 'jumpHeight', 'doubleJump', 'grabbing'];
+  Bonuses = [1, 2, 3, 4, 6, 7, 8];
 
   Event = (function() {
     function Event() {
@@ -1156,8 +1165,8 @@
 
     Event.prototype.send = function() {
       networkManager.sendRandomEvent(this.id);
-      if (this.id === 0 && this.restartTimer !== null) {
-        return this.restartTimer = null;
+      if (this.id === 0 && game.restartTimer !== null) {
+        return game.restartTimer = null;
       }
     };
 
@@ -1166,9 +1175,9 @@
       _results = [];
       for (i = _i = 1; _i <= 4; i = ++_i) {
         rand = Math.floor(Math.random() * 12);
-        randType = Math.floor(Math.random() * (Bonuses.length - 1)) + 1;
+        randType = Math.floor(Math.random() * Bonuses.length);
         _results.push(new Bonus(rand, 0, {
-          id: randType
+          id: Bonuses[randType]
         }));
       }
       return _results;

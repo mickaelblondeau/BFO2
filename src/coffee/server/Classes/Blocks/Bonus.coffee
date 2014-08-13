@@ -3,5 +3,8 @@ class Bonus extends Block
     super(col, line, type, false)
 
   send: ->
-    networkManager.sendBonus(@col, @type.id, cubeManager.bonusId)
-    cubeManager.bonusId++
+    if @type.bonus is 'deployedJumpBlockBonus'
+      networkManager.sendJumpBlock(@col)
+    else
+      networkManager.sendBonus(@col, @type.id, cubeManager.bonusId)
+      cubeManager.bonusId++

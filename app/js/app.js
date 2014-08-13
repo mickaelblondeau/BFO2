@@ -2269,8 +2269,14 @@
       this.socket.on('sendJumpBlock', function(coords) {
         return cubeManager.sendJumpBlock(coords[0], coords[1]);
       });
-      return this.socket.on('sendLootBonus', function(coords) {
+      this.socket.on('sendLootBonus', function(coords) {
         return cubeManager.sendLootBonus(coords[0], coords[1], coords[2]);
+      });
+      return this.socket.on('sendDeployedJumpBonus', function(col) {
+        var x, y;
+        x = col * 32 + 160;
+        y = stage.getY() * -1;
+        return cubeManager.sendJumpBlock(x, y);
       });
     };
 

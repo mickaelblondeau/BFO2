@@ -213,3 +213,6 @@ class NetworkManager
             player.get 'animationSide', (error, animationSide) ->
               if animationSide isnt null
                 socket.emit 'changeAnimationSide', [player.id, animationSide]
+
+  sendJumpBlock: (col) ->
+    @io.sockets.emit 'sendDeployedJumpBonus', col
