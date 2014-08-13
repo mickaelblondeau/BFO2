@@ -5,10 +5,7 @@ bonusEvents = [
 ]
 
 Bonuses = [
-  'speed',
-  'jumpHeight',
-  'doubleJump',
-  'grabbing'
+  1, 2, 3, 4, 6, 7, 8
 ]
 
 class Event
@@ -26,5 +23,5 @@ class Event
   spawnBonuses: ->
     for i in [1..4]
       rand = Math.floor((Math.random()*12))
-      randType = Math.floor((Math.random()*(Bonuses.length - 1))) + 1
-      new Bonus(rand, 0, { id: randType })
+      randType = Math.floor(Math.random() * Bonuses.length)
+      new Bonus(rand, 0, { id: Bonuses[randType] })
