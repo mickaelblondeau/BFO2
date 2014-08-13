@@ -1194,6 +1194,14 @@
       this.options = options;
     }
 
+    Boss.prototype.getLevel = function(level, ratio) {
+      if (levelManager.level > level) {
+        return level + levelManager.level / ratio;
+      } else {
+        return levelManager.level;
+      }
+    };
+
     return Boss;
 
   })();
@@ -1327,9 +1335,10 @@
     }
 
     FreezeMan.prototype.getPattern = function() {
-      var attack, attacks, i, interval, options, speed, speedPerLevel, _i;
+      var attack, attacks, i, interval, level, options, speed, speedPerLevel, _i;
       speedPerLevel = 0.015;
-      speed = Math.round((0.5 + speedPerLevel * (levelManager.level + config.bossDifficulty)) * 100) / 100;
+      level = this.getLevel(6, 3);
+      speed = Math.round((0.5 + speedPerLevel * (level + config.bossDifficulty)) * 100) / 100;
       interval = 1500 - 50 * (levelManager.level + config.bossDifficulty);
       options = [speed, interval];
       attacks = [];
@@ -1353,10 +1362,11 @@
     }
 
     PoingMan.prototype.getPattern = function() {
-      var attack, attackSpeed, attacks, i, options, speed, waitTime, _i;
-      speed = Math.round((0.4 + 0.035 * (levelManager.level + config.bossDifficulty)) * 100) / 100;
-      attackSpeed = Math.round((0.6 + 0.04 * (levelManager.level + config.bossDifficulty)) * 100) / 100;
-      waitTime = 600 - 15 * (levelManager.level + config.bossDifficulty);
+      var attack, attackSpeed, attacks, i, level, options, speed, waitTime, _i;
+      level = this.getLevel(6, 2);
+      speed = Math.round((0.4 + 0.035 * (level + config.bossDifficulty)) * 100) / 100;
+      attackSpeed = Math.round((0.6 + 0.04 * (level + config.bossDifficulty)) * 100) / 100;
+      waitTime = 600 - 15 * (level + config.bossDifficulty);
       options = [speed, attackSpeed, waitTime];
       attacks = [];
       for (i = _i = 0; _i <= 5; i = ++_i) {
@@ -1384,9 +1394,10 @@
     }
 
     LabiMan.prototype.getPattern = function() {
-      var attackSpeed, attacks, options, speed, wait;
+      var attackSpeed, attacks, level, options, speed, wait;
       speed = 0.4;
-      attackSpeed = Math.round((0.075 + 0.0075 * ((levelManager.level + config.bossDifficulty) - 1)) * 100) / 100;
+      level = this.getLevel(6, 3);
+      attackSpeed = Math.round((0.075 + 0.0075 * ((level + config.bossDifficulty) - 1)) * 100) / 100;
       wait = 4000 - 50 * (levelManager.level + config.bossDifficulty);
       options = [speed, attackSpeed, wait];
       attacks = this.makeLevel();

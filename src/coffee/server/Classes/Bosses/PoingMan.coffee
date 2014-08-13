@@ -4,9 +4,10 @@ class PoingMan extends Boss
     @id = 3
 
   getPattern: ->
-    speed = Math.round((0.4 + 0.035 * (levelManager.level + config.bossDifficulty)) * 100) / 100
-    attackSpeed = Math.round((0.6 + 0.04 * (levelManager.level + config.bossDifficulty)) * 100) / 100
-    waitTime = 600 - 15 * (levelManager.level + config.bossDifficulty)
+    level = @getLevel(6, 2)
+    speed = Math.round((0.4 + 0.035 * (level + config.bossDifficulty)) * 100) / 100
+    attackSpeed = Math.round((0.6 + 0.04 * (level + config.bossDifficulty)) * 100) / 100
+    waitTime = 600 - 15 * (level + config.bossDifficulty)
     options = [speed, attackSpeed, waitTime]
     attacks = []
     for i in [0..5]
