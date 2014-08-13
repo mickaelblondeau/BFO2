@@ -71,6 +71,7 @@ class CubeManager
       player.jumpCount = player.jumpMax
       player.stomped = true
       player.jump = true
+      player.forceJump = true
     @convertToCube(shape)
 
   swapEffet: (shape) ->

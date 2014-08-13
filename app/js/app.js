@@ -968,6 +968,7 @@
       this.coopJump = false;
       this.alive = true;
       this.stomped = false;
+      this.forceJump = false;
       return bonusManager.playerBonuses.jumpBlockBonus = 1;
     };
 
@@ -995,7 +996,11 @@
         if (!this.jump && !this.grabbing) {
           this.doFall(frameTime);
         } else {
-          this.doJump(frameTime);
+          if (keyboard.keys.up || this.forceJump) {
+            this.doJump(frameTime);
+          } else {
+            this.stopJump();
+          }
         }
         if (this.couched && !this.jump) {
           moveSpeed = this.speed * frameTime * this.couchedSpeedRatio;
@@ -1155,6 +1160,7 @@
     ControllablePlayer.prototype.stopJump = function() {
       this.jump = false;
       this.falling = true;
+      this.forceJump = false;
       if (this.stomped || this.coopJump) {
         return this.reinitJump();
       }
@@ -1256,7 +1262,8 @@
         this.jumpStart = player.shape.getY();
         this.jumpCount = player.jumpMax;
         this.stomped = true;
-        return this.jump = true;
+        this.jump = true;
+        return this.forceJump = true;
       }
     };
 
@@ -2073,6 +2080,7 @@
         player.jumpCount = player.jumpMax;
         player.stomped = true;
         player.jump = true;
+        player.forceJump = true;
       }
       return this.convertToCube(shape);
     };

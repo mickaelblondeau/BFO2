@@ -32,6 +32,7 @@ class ControllablePlayer extends Player
     @coopJump = false
     @alive = true
     @stomped = false
+    @forceJump = false
     bonusManager.playerBonuses.jumpBlockBonus = 1
 
   reset: ->
@@ -56,7 +57,10 @@ class ControllablePlayer extends Player
       if !@jump and !@grabbing
         @doFall(frameTime)
       else
-        @doJump(frameTime)
+        if keyboard.keys.up or @forceJump
+          @doJump(frameTime)
+        else
+          @stopJump()
 
       if @couched and !@jump
         moveSpeed = @speed*frameTime*@couchedSpeedRatio
@@ -189,6 +193,7 @@ class ControllablePlayer extends Player
   stopJump: ->
     @jump = false
     @falling = true
+    @forceJump = false
     if @stomped or @coopJump
       @reinitJump()
 
@@ -262,6 +267,7 @@ class ControllablePlayer extends Player
       @jumpCount = player.jumpMax
       @stomped = true
       @jump = true
+      @forceJump = true
 
   getCornerCollisions: ->
     grab = false
