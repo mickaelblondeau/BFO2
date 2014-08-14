@@ -177,11 +177,16 @@
     };
 
     CubeManager.prototype.start = function(level, rate) {
+      var col;
       if (!this.running && !this.waiting) {
         if (levelManager.level !== 0) {
-          networkManager.sendBonus(4, 5, this.map[4], this.bonusId);
+          col = Math.floor(Math.random() * 12);
+          networkManager.sendBonus(col, 5, this.bonusId);
           this.bonusId++;
         }
+        col = Math.floor(Math.random() * 12);
+        networkManager.sendBonus(col, 8, this.bonusId);
+        this.bonusId++;
         this.updateRate = rate;
         this.current = 0;
         this.levelHeight = level;
@@ -371,99 +376,6 @@
         }
       }
       return available;
-    };
-
-    CubeManager.prototype.explodeMap = function(col, line) {
-      var cube, i, map, pos, _i, _j, _len, _len1, _ref;
-      map = this.createExplosionMap(col, line);
-      _ref = this.cubes;
-      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-        cube = _ref[i];
-        if (cube !== null) {
-          for (_j = 0, _len1 = map.length; _j < _len1; _j++) {
-            pos = map[_j];
-            if (cube.intersect(pos[0], pos[1])) {
-              this.cubes[i] = null;
-            }
-          }
-        }
-      }
-      this.cubes = this.cubes.filter(function(val) {
-        return val !== null;
-      });
-      return this.applyGravity();
-    };
-
-    CubeManager.prototype.createExplosionMap = function(col, line) {
-      var i, j, map, _i, _j;
-      map = [];
-      for (i = _i = -1; _i <= 2; i = ++_i) {
-        for (j = _j = -1; _j <= 2; j = ++_j) {
-          map.push([col + i, line + j]);
-        }
-      }
-      return map;
-    };
-
-    CubeManager.prototype.applyGravity = function() {
-      var canFall, cube, i, _i, _j, _len, _ref, _ref1, _results;
-      this.rebuildMap();
-      _ref = this.cubes;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        cube = _ref[_i];
-        if (cube !== null) {
-          canFall = true;
-          while (canFall) {
-            for (i = _j = 0, _ref1 = cube.type.width - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
-              if (this.cubeMap[cube.col + i][cube.line - 1] === 1) {
-                canFall = false;
-                break;
-              }
-            }
-            if (canFall) {
-              if (cube.line === 0) {
-                canFall = false;
-              } else {
-                cube.line -= 1;
-              }
-            }
-          }
-        }
-        _results.push(this.rebuildMap());
-      }
-      return _results;
-    };
-
-    CubeManager.prototype.rebuildMap = function() {
-      var columnPosition, cube, h, _i, _len, _ref, _results;
-      this.resetMap();
-      _ref = this.cubes;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        cube = _ref[_i];
-        if (cube !== null) {
-          _results.push((function() {
-            var _j, _ref1, _results1;
-            _results1 = [];
-            for (columnPosition = _j = 1, _ref1 = cube.type.width; 1 <= _ref1 ? _j <= _ref1 : _j >= _ref1; columnPosition = 1 <= _ref1 ? ++_j : --_j) {
-              this.map[cube.col + columnPosition - 1] = cube.line + cube.type.height;
-              _results1.push((function() {
-                var _k, _ref2, _results2;
-                _results2 = [];
-                for (h = _k = 0, _ref2 = cube.type.height - 1; 0 <= _ref2 ? _k <= _ref2 : _k >= _ref2; h = 0 <= _ref2 ? ++_k : --_k) {
-                  _results2.push(this.cubeMap[cube.col + columnPosition - 1][cube.line + h] = 1);
-                }
-                return _results2;
-              }).call(this));
-            }
-            return _results1;
-          }).call(this));
-        } else {
-          _results.push(void 0);
-        }
-      }
-      return _results;
     };
 
     CubeManager.prototype.fillMap = function() {

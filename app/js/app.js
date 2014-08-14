@@ -968,8 +968,7 @@
       this.coopJump = false;
       this.alive = true;
       this.stomped = false;
-      this.forceJump = false;
-      return bonusManager.playerBonuses.jumpBlockBonus = 1;
+      return this.forceJump = false;
     };
 
     ControllablePlayer.prototype.reset = function() {

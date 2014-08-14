@@ -86,8 +86,12 @@ class CubeManager
   start: (level, rate) ->
     if !@running and !@waiting
       if levelManager.level != 0
-        networkManager.sendBonus(4, 5, @map[4], @bonusId)
+        col = Math.floor((Math.random()*12))
+        networkManager.sendBonus(col, 5, @bonusId)
         @bonusId++
+      col = Math.floor((Math.random()*12))
+      networkManager.sendBonus(col, 8, @bonusId)
+      @bonusId++
       @updateRate = rate
       @current = 0
       @levelHeight = level
@@ -210,50 +214,6 @@ class CubeManager
             height: height
           }
     return available
-
-  explodeMap: (col, line) ->
-    map = @createExplosionMap(col, line)
-    for cube, i in @cubes
-      if cube isnt null
-        for pos in map
-          if cube.intersect(pos[0], pos[1])
-            @cubes[i] = null
-    @cubes = @cubes.filter (val) ->
-      val isnt null
-    @applyGravity()
-
-  createExplosionMap: (col, line) ->
-    map = []
-    for i in [-1..2]
-      for j in [-1..2]
-        map.push([col + i, line + j])
-    return map
-
-  applyGravity: ->
-    @rebuildMap()
-    for cube in @cubes
-      if cube isnt null
-        canFall = true
-        while(canFall)
-          for i in [0..cube.type.width-1]
-            if @cubeMap[cube.col + i][cube.line - 1] == 1
-              canFall = false
-              break
-          if canFall
-            if cube.line == 0
-              canFall = false
-            else
-              cube.line -= 1
-      @rebuildMap()
-
-  rebuildMap: ->
-    @resetMap()
-    for cube in @cubes
-      if cube isnt null
-        for columnPosition in [1..cube.type.width]
-          @map[cube.col + columnPosition - 1] = cube.line + cube.type.height
-          for h in [0..cube.type.height-1]
-            @cubeMap[cube.col + columnPosition - 1][cube.line + h] = 1
 
   fillMap: ->
     for i in [0..11]

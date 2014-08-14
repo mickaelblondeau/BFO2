@@ -33,7 +33,6 @@ class ControllablePlayer extends Player
     @alive = true
     @stomped = false
     @forceJump = false
-    bonusManager.playerBonuses.jumpBlockBonus = 1
 
   reset: ->
     bonusManager.resetBonuses()
