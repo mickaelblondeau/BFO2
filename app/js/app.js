@@ -735,7 +735,7 @@
       cubes = dynamicEntities.find('Sprite');
       cubes.each(function(cube) {
         var cubeBoundBox;
-        if (shape._id !== cube._id && cube.getName() !== void 0 && cube.getName() !== null && cube.getName().type === 'cube') {
+        if (shape._id !== cube._id && cube.getName() !== void 0 && cube.getName() !== null && cube.getName().type === 'cube' && !cube.getName().falling) {
           cubeBoundBox = collisionManager.getBoundBox(cube);
           if (collisionManager.colliding(thisBoundBox, cubeBoundBox)) {
             return result.push(cube);

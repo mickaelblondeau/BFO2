@@ -561,7 +561,7 @@
       this.level++;
       speed = config.levelSpeed - config.speedPerLevel * this.level;
       if (speed < config.maxLevelSpeed) {
-        this.speed = config.levelSpeed - config.speedPerLevel * this.level;
+        this.speed = speed;
       } else {
         this.speed = config.maxLevelSpeed;
       }
@@ -638,6 +638,7 @@
       config.minLevel = 6;
       config.maxLevel = 12;
       config.bossDifficulty = 3;
+      config.maxLevelSpeed = config.fastLevelSpeed;
       return this.restart();
     };
 
@@ -649,6 +650,7 @@
       config.minLevel = 6;
       config.maxLevel = 12;
       config.bossDifficulty = 2;
+      config.maxLevelSpeed = config.fastLevelSpeed;
       return this.restart();
     };
 
@@ -660,6 +662,7 @@
       config.minLevel = 6;
       config.maxLevel = 10;
       config.bossDifficulty = 1;
+      config.maxLevelSpeed = config.fastLevelSpeed;
       return this.restart();
     };
 
@@ -671,6 +674,7 @@
       config.minLevel = 4;
       config.maxLevel = 8;
       config.bossDifficulty = 0;
+      config.maxLevelSpeed = config.fastLevelSpeed;
       return this.restart();
     };
 

@@ -25,7 +25,7 @@ class LevelManager
     @level++
     speed = config.levelSpeed - config.speedPerLevel * @level
     if speed < config.maxLevelSpeed
-      @speed = config.levelSpeed - config.speedPerLevel * @level
+      @speed = speed
     else
       @speed = config.maxLevelSpeed
     @moveStage()
@@ -88,6 +88,7 @@ class LevelManager
     config.minLevel = 6
     config.maxLevel = 12
     config.bossDifficulty = 3
+    config.maxLevelSpeed = config.fastLevelSpeed
     @restart()
 
   difficultyHard: ->
@@ -98,6 +99,7 @@ class LevelManager
     config.minLevel = 6
     config.maxLevel = 12
     config.bossDifficulty = 2
+    config.maxLevelSpeed = config.fastLevelSpeed
     @restart()
 
   difficultyMedium: ->
@@ -108,6 +110,7 @@ class LevelManager
     config.minLevel = 6
     config.maxLevel = 10
     config.bossDifficulty = 1
+    config.maxLevelSpeed = config.fastLevelSpeed
     @restart()
 
   difficultyEasy: ->
@@ -118,6 +121,7 @@ class LevelManager
     config.minLevel = 4
     config.maxLevel = 8
     config.bossDifficulty = 0
+    config.maxLevelSpeed = config.fastLevelSpeed
     @restart()
 
   restart: ->

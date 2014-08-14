@@ -52,7 +52,7 @@ class CollisionManager
     thisBoundBox = @getBoundBox(shape)
     cubes = dynamicEntities.find('Sprite')
     cubes.each (cube) ->
-      if shape._id isnt cube._id and cube.getName() isnt undefined and cube.getName() isnt null and cube.getName().type is 'cube'
+      if shape._id isnt cube._id and cube.getName() isnt undefined and cube.getName() isnt null and cube.getName().type is 'cube' and !cube.getName().falling
         cubeBoundBox = collisionManager.getBoundBox(cube)
         if collisionManager.colliding(thisBoundBox, cubeBoundBox)
           result.push(cube)
