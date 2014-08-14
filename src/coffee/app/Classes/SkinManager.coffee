@@ -1,6 +1,6 @@
 class SkinManager
   constructor: ->
-    @parts = ['skin', 'leg', 'hair', 'head', 'body', 'shoes', 'hat']
+    @parts = ['skin', 'leg', 'head', 'beard', 'hair', 'body', 'shoes', 'hat']
     @skins = []
     @callback = []
 

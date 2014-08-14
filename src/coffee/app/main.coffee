@@ -40,7 +40,7 @@ game.loadAssets()
 arena = null
 player = null
 hud = null
-skin = { body: 1, hair: 1, head: 1, leg: 1, shoes: 1, skin: 1, hat: 1 }
+skin = { body: 1, hair: 1, head: 1, leg: 1, shoes: 1, skin: 1, hat: 1, beard: 1 }
 
 if config.debug
   debugLayer = new Kinetic.Layer()

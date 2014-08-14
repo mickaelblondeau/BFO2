@@ -10,12 +10,13 @@
     levelSpeed: 1000,
     skins: {
       body: 5,
-      hair: 4,
+      hair: 5,
       head: 3,
       leg: 4,
       shoes: 5,
       skin: 4,
-      hat: 4
+      hat: 4,
+      beard: 4
     },
     player: {
       jumpMax: 2,
@@ -2368,7 +2369,7 @@
 
   SkinManager = (function() {
     function SkinManager() {
-      this.parts = ['skin', 'leg', 'hair', 'head', 'body', 'shoes', 'hat'];
+      this.parts = ['skin', 'leg', 'hair', 'head', 'beard', 'body', 'shoes', 'hat'];
       this.skins = [];
       this.callback = [];
     }
@@ -2461,6 +2462,7 @@
       localStorage.setItem('player_leg', skinManager.getSkin('leg'));
       localStorage.setItem('player_shoes', skinManager.getSkin('shoes'));
       localStorage.setItem('player_hat', skinManager.getSkin('hat'));
+      localStorage.setItem('player_beard', skinManager.getSkin('beard'));
       localStorage.setItem('volume_effect', document.querySelector('#sound-effect').innerHTML);
       localStorage.setItem('volume_music', document.querySelector('#sound-music').innerHTML);
       return localStorage.setItem('bg_color', document.querySelector('#color-switch a').innerHTML);
@@ -2475,6 +2477,7 @@
       skinManager.setSkin('leg', localStorage.getItem('player_leg') || 1);
       skinManager.setSkin('shoes', localStorage.getItem('player_shoes') || 1);
       skinManager.setSkin('hat', localStorage.getItem('player_hat') || 1);
+      skinManager.setSkin('beard', localStorage.getItem('player_beard') || 1);
       contentLoader.setEffectVolume(localStorage.getItem('volume_effect') || 10);
       contentLoader.setMusicVolume(localStorage.getItem('volume_music') || 10);
       return contentLoader.setBG(localStorage.getItem('bg_color') || "White");
@@ -3747,7 +3750,8 @@
     leg: 1,
     shoes: 1,
     skin: 1,
-    hat: 1
+    hat: 1,
+    beard: 1
   };
 
   if (config.debug) {
