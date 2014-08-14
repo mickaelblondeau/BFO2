@@ -1159,8 +1159,8 @@
     ControllablePlayer.prototype.stopJump = function() {
       this.jump = false;
       this.falling = true;
-      this.forceJump = false;
-      if (this.stomped || this.coopJump) {
+      if (this.stomped || this.coopJump || this.forceJump) {
+        this.forceJump = false;
         return this.reinitJump();
       }
     };

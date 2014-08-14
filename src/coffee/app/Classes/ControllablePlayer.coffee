@@ -192,8 +192,8 @@ class ControllablePlayer extends Player
   stopJump: ->
     @jump = false
     @falling = true
-    @forceJump = false
-    if @stomped or @coopJump
+    if @stomped or @coopJump or @forceJump
+      @forceJump = false
       @reinitJump()
 
   reinitJump: ->
