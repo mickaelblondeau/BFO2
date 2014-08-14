@@ -1556,9 +1556,10 @@
     }
 
     MissileMan.prototype.getPattern = function() {
-      var attacks, interval, options, speed;
-      speed = Math.round((0.5 + 0.025 * (levelManager.level + config.bossDifficulty)) * 100) / 100;
-      interval = 500 - (levelManager.level + config.bossDifficulty) * 30;
+      var attacks, interval, level, options, speed;
+      level = this.getLevel(5, 3);
+      speed = Math.round((0.5 + 0.025 * (level + config.bossDifficulty)) * 100) / 100;
+      interval = 500 - (level + config.bossDifficulty) * 30;
       options = [speed, interval];
       attacks = this.genAttacks();
       return [options, attacks];

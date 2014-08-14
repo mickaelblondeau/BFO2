@@ -4,8 +4,9 @@ class MissileMan extends Boss
     @id = 7
 
   getPattern: ->
-    speed = Math.round((0.5 + 0.025 * (levelManager.level + config.bossDifficulty)) * 100) / 100
-    interval = 500 - (levelManager.level + config.bossDifficulty) * 30
+    level = @getLevel(5, 3)
+    speed = Math.round((0.5 + 0.025 * (level + config.bossDifficulty)) * 100) / 100
+    interval = 500 - (level + config.bossDifficulty) * 30
     options = [speed, interval]
     attacks = @genAttacks()
     return [options, attacks]
