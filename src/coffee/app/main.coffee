@@ -94,8 +94,8 @@ contentLoader.contentsLoaded = ->
       pidgeon.update(frameTime)
 
     game.draw = ->
-      players.draw()
-      dynamicEntities.draw()
+      players.drawScene()
+      dynamicEntities.drawScene()
 
   document.querySelector('#play').onclick = ->
     name = document.querySelector('#name').value

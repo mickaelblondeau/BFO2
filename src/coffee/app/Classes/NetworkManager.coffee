@@ -51,7 +51,7 @@ class NetworkManager
 
     @socket.on 'disconnect', (id) ->
       if self.players[id] isnt undefined
-        self.players[id].remove()
+        self.players[id].destroy()
 
     @socket.on 'move', (arr) ->
       if self.players[arr[0]] isnt undefined
@@ -83,7 +83,7 @@ class NetworkManager
       for id, i in self.playersId
         if arr.indexOf(id) is -1
           if self.players[id] isnt undefined
-            self.players[id].remove()
+            self.players[id].destroy()
           self.playersId.splice(i, 1)
 
     @socket.on 'message', (arr) ->

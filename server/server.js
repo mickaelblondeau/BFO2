@@ -1166,7 +1166,7 @@
     Event.prototype.send = function() {
       networkManager.sendRandomEvent(this.id);
       if (this.id === 0 && game.restartTimer !== null) {
-        return game.restartTimer = null;
+        return clearTimeout(game.restartTimer);
       }
     };
 

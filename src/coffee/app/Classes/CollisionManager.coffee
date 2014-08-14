@@ -67,7 +67,7 @@ class CollisionManager
     players.find('Rect').each (plr) ->
       if plr.getId() isnt undefined
         skin = collisionManager.getPlayerSkin(plr)
-        if plr.getName() is 'otherPlayer' and skin.getAnimation() is 'couch'
+        if skin isnt undefined and plr.getName() is 'otherPlayer' and skin.getAnimation() is 'couch'
           otherPlayerBoundBox = collisionManager.getBoundBox(plr)
           if collisionManager.colliding(playerBoundBox, otherPlayerBoundBox)
             response = true

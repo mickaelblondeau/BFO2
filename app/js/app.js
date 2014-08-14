@@ -757,7 +757,7 @@
         var otherPlayerBoundBox, skin;
         if (plr.getId() !== void 0) {
           skin = collisionManager.getPlayerSkin(plr);
-          if (plr.getName() === 'otherPlayer' && skin.getAnimation() === 'couch') {
+          if (skin !== void 0 && plr.getName() === 'otherPlayer' && skin.getAnimation() === 'couch') {
             otherPlayerBoundBox = collisionManager.getBoundBox(plr);
             if (collisionManager.colliding(playerBoundBox, otherPlayerBoundBox)) {
               return response = true;
@@ -2205,7 +2205,7 @@
       });
       this.socket.on('disconnect', function(id) {
         if (self.players[id] !== void 0) {
-          return self.players[id].remove();
+          return self.players[id].destroy();
         }
       });
       this.socket.on('move', function(arr) {
@@ -2247,7 +2247,7 @@
           id = _ref[i];
           if (arr.indexOf(id) === -1) {
             if (self.players[id] !== void 0) {
-              self.players[id].remove();
+              self.players[id].destroy();
             }
             _results.push(self.playersId.splice(i, 1));
           } else {
@@ -3781,8 +3781,8 @@
         return pidgeon.update(frameTime);
       };
       return game.draw = function() {
-        players.draw();
-        return dynamicEntities.draw();
+        players.drawScene();
+        return dynamicEntities.drawScene();
       };
     };
     return document.querySelector('#play').onclick = function() {
