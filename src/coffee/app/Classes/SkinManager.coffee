@@ -41,3 +41,11 @@ class SkinManager
 
   getSkin: (part) ->
     return document.querySelector('#skin-control .'+part+' .number').innerHTML
+
+  randomizeSkin: ->
+    for part in @parts
+      value = Math.floor(Math.random()*config.skins[part]) + 1
+      elm = document.querySelector('#skin-preview .' + part)
+      elm.style.background = 'url("assets/player/'+part+'/'+value+'.png") 140px 0'
+      skin[part] = value
+      document.querySelector('#skin-control .'+part+' .number').innerHTML = value

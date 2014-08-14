@@ -26,6 +26,8 @@ document.querySelector('#music-next').onclick = ->
 document.querySelector('#color-switch').onclick = ->
   contentLoader.changeBG()
 
+document.querySelector('#randomize').onclick = ->
+  skinManager.randomizeSkin()
 
 divs = document.querySelectorAll('#skin-control div a')
 for div in divs

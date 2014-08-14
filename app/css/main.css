@@ -5,7 +5,7 @@ body { overflow: hidden; margin: 0; }
 #login label { display: block; }
 #login .form-line { margin: auto; width: 300px; padding-top: 20px; }
 #login input { padding: 10px; border: 1px solid grey; border-radius: 10px; width: 300px; }
-#login button { padding: 10px; border: 1px solid grey; border-radius: 10px; background: springgreen; width: 100px; margin: auto; display: block; margin-top: 20px; }
+#login button { padding: 10px; border: 1px solid grey; border-radius: 10px; background: springgreen; width: 150px; margin: auto; display: block; margin-top: 20px; }
 #login button:hover { cursor: pointer; background: green; }
 #login-form { display: none; }
 #login-loading { text-align: center; }

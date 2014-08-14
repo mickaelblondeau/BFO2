@@ -2418,6 +2418,21 @@
       return document.querySelector('#skin-control .' + part + ' .number').innerHTML;
     };
 
+    SkinManager.prototype.randomizeSkin = function() {
+      var elm, part, value, _i, _len, _ref, _results;
+      _ref = this.parts;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        part = _ref[_i];
+        value = Math.floor(Math.random() * config.skins[part]) + 1;
+        elm = document.querySelector('#skin-preview .' + part);
+        elm.style.background = 'url("assets/player/' + part + '/' + value + '.png") 140px 0';
+        skin[part] = value;
+        _results.push(document.querySelector('#skin-control .' + part + ' .number').innerHTML = value);
+      }
+      return _results;
+    };
+
     return SkinManager;
 
   })();
@@ -3787,12 +3802,16 @@
     return document.querySelector('#play').onclick = function() {
       var name;
       name = document.querySelector('#name').value;
-      document.querySelector('#login-form').style.display = 'none';
-      document.querySelector('#login-loading').style.display = 'block';
-      document.querySelector('#login-loading').innerHTML = 'Connecting...';
-      launchGame(name);
-      contentLoader.play('beep');
-      return saveManager.saveOptions();
+      if (name) {
+        document.querySelector('#login-form').style.display = 'none';
+        document.querySelector('#login-loading').style.display = 'block';
+        document.querySelector('#login-loading').innerHTML = 'Connecting...';
+        launchGame(name);
+        contentLoader.play('beep');
+        return saveManager.saveOptions();
+      } else {
+        return alert('Name required');
+      }
     };
   };
 
@@ -3836,6 +3855,10 @@
 
   document.querySelector('#color-switch').onclick = function() {
     return contentLoader.changeBG();
+  };
+
+  document.querySelector('#randomize').onclick = function() {
+    return skinManager.randomizeSkin();
   };
 
   divs = document.querySelectorAll('#skin-control div a');
