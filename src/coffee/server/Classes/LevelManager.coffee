@@ -24,7 +24,7 @@ class LevelManager
   update: ->
     @level++
     speed = config.levelSpeed - config.speedPerLevel * @level
-    if speed < config.maxLevelSpeed
+    if speed > config.maxLevelSpeed
       @speed = speed
     else
       @speed = config.maxLevelSpeed

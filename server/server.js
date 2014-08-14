@@ -560,7 +560,7 @@
       var speed;
       this.level++;
       speed = config.levelSpeed - config.speedPerLevel * this.level;
-      if (speed < config.maxLevelSpeed) {
+      if (speed > config.maxLevelSpeed) {
         this.speed = speed;
       } else {
         this.speed = config.maxLevelSpeed;
