@@ -33,6 +33,7 @@ class ControllablePlayer extends Player
     @alive = true
     @stomped = false
     @forceJump = false
+    @setInvulnerable()
 
   reset: ->
     bonusManager.resetBonuses()
@@ -160,6 +161,7 @@ class ControllablePlayer extends Player
     @jumpCount = 0
     @fallCurrentAcceleration = @fallMinAcceleration
     @falling = false
+    @setVulnerable()
 
   startJump: ->
     @canJump = false
@@ -300,7 +302,7 @@ class ControllablePlayer extends Player
       @grabbed = false
 
   kill: ->
-    if @alive
+    if !@invulnerable and @alive
       @alive = false
       contentLoader.play('death')
       new Effect(@shape.getX() - 16, @shape.getY(), SquareEnum.SMALL, 'blood', true)
@@ -340,3 +342,11 @@ class ControllablePlayer extends Player
     if bonusManager.playerBonuses.jumpBlockBonus > 0
       bonusManager.playerBonuses.jumpBlockBonus--
       networkManager.sendJumpBlock(Math.round(@shape.getX()/32)*32, Math.floor((@shape.getY() + @shape.getHeight())/32)*32-32)
+
+  setInvulnerable: ->
+    @invulnerable = true
+    @skin.setOpacity(0.75)
+
+  setVulnerable: ->
+    @invulnerable = false
+    @skin.setOpacity(1)

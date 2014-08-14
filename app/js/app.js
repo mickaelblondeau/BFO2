@@ -968,7 +968,8 @@
       this.coopJump = false;
       this.alive = true;
       this.stomped = false;
-      return this.forceJump = false;
+      this.forceJump = false;
+      return this.setInvulnerable();
     };
 
     ControllablePlayer.prototype.reset = function() {
@@ -1116,7 +1117,8 @@
       this.shape.setY(y - this.shape.getHeight());
       this.jumpCount = 0;
       this.fallCurrentAcceleration = this.fallMinAcceleration;
-      return this.falling = false;
+      this.falling = false;
+      return this.setVulnerable();
     };
 
     ControllablePlayer.prototype.startJump = function() {
@@ -1309,7 +1311,7 @@
     };
 
     ControllablePlayer.prototype.kill = function() {
-      if (this.alive) {
+      if (!this.invulnerable && this.alive) {
         this.alive = false;
         contentLoader.play('death');
         new Effect(this.shape.getX() - 16, this.shape.getY(), SquareEnum.SMALL, 'blood', true);
@@ -1360,6 +1362,16 @@
         bonusManager.playerBonuses.jumpBlockBonus--;
         return networkManager.sendJumpBlock(Math.round(this.shape.getX() / 32) * 32, Math.floor((this.shape.getY() + this.shape.getHeight()) / 32) * 32 - 32);
       }
+    };
+
+    ControllablePlayer.prototype.setInvulnerable = function() {
+      this.invulnerable = true;
+      return this.skin.setOpacity(0.75);
+    };
+
+    ControllablePlayer.prototype.setVulnerable = function() {
+      this.invulnerable = false;
+      return this.skin.setOpacity(1);
     };
 
     return ControllablePlayer;
