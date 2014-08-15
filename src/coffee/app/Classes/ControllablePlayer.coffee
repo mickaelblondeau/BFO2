@@ -42,9 +42,12 @@ class ControllablePlayer extends Player
     networkManager.sendRez()
 
   resurect: ->
-    @spawn()
-    @reinitStats()
-    networkManager.sendRez()
+    self = @
+    fn = ->
+      self.spawn()
+      self.reinitStats()
+      networkManager.sendRez()
+    setTimeout(fn, 200)
 
   update: (frameTime) ->
     if !(!@alive and @shape.getY() > stage.getY()*-1 + stage.getHeight())
@@ -306,13 +309,13 @@ class ControllablePlayer extends Player
       @alive = false
       contentLoader.play('death')
       new Effect(@shape.getX() - 16, @shape.getY(), SquareEnum.SMALL, 'blood', true)
-      networkManager.sendDie()
       if bonusManager.playerBonuses.autoRezBonus > 0
         bonusManager.playerBonuses.autoRezBonus--
         @resurect()
       else
         @lootBonus()
         bonusManager.resetBonuses()
+        networkManager.sendDie()
 
   lootBonus: ->
     id = bonusManager.getRandomBonus()

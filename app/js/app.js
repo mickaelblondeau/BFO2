@@ -981,9 +981,14 @@
     };
 
     ControllablePlayer.prototype.resurect = function() {
-      this.spawn();
-      this.reinitStats();
-      return networkManager.sendRez();
+      var fn, self;
+      self = this;
+      fn = function() {
+        self.spawn();
+        self.reinitStats();
+        return networkManager.sendRez();
+      };
+      return setTimeout(fn, 200);
     };
 
     ControllablePlayer.prototype.update = function(frameTime) {
@@ -1316,13 +1321,13 @@
         this.alive = false;
         contentLoader.play('death');
         new Effect(this.shape.getX() - 16, this.shape.getY(), SquareEnum.SMALL, 'blood', true);
-        networkManager.sendDie();
         if (bonusManager.playerBonuses.autoRezBonus > 0) {
           bonusManager.playerBonuses.autoRezBonus--;
           return this.resurect();
         } else {
           this.lootBonus();
-          return bonusManager.resetBonuses();
+          bonusManager.resetBonuses();
+          return networkManager.sendDie();
         }
       }
     };
@@ -2369,7 +2374,7 @@
 
   SkinManager = (function() {
     function SkinManager() {
-      this.parts = ['skin', 'leg', 'hair', 'head', 'beard', 'body', 'shoes', 'hat'];
+      this.parts = ['skin', 'leg', 'head', 'beard', 'hair', 'body', 'shoes', 'hat'];
       this.skins = [];
       this.callback = [];
     }
