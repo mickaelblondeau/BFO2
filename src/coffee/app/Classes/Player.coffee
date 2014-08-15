@@ -37,6 +37,7 @@ class Player
     callback = (image) ->
       self.skin.setImage(image)
       self.fixSkinPos()
+      self.playerSkin = image
     skinManager.createSkin(skin, callback, self.skin._id)
 
   draw: ->
@@ -46,6 +47,7 @@ class Player
     players.add @shape
 
     @skin = new Sprite(0, 0, SquareEnum.SMALL, 'playerSpirteSheet', 'fall').shape
+    @playerSkin = @skin.getImage()
 
     players.add @skin
     @skin.start()
@@ -56,13 +58,15 @@ class Player
     @shape.setX(336)
     @shape.setY(stage.getY() * -1 - 224)
     @shape.setHeight(@height)
+    if @skin.getImage() isnt @playerSkin
+      @skin.setImage(@playerSkin)
 
   reset: ->
     @spawn()
     bonusManager.resetBonuses()
 
   resurection: ->
-    if !@alive
+    if !@alive or @ghost
       @reset()
 
   fixSkinPos: ->

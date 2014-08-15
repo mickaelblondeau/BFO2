@@ -29,3 +29,4 @@ class VirtualPlayer extends Player
   kill: ->
     contentLoader.play('death')
     new Effect(@shape.getX() - 16, @shape.getY(), SquareEnum.SMALL, 'blood', true)
+    @skin.setImage(contentLoader.images['ghostSpirteSheet'])

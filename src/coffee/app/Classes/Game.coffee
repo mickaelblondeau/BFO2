@@ -60,6 +60,7 @@ class Game
     contentLoader.loadImage({ name:'bg', url:'../assets/bg_grasslands.png' })
     contentLoader.loadImage({ name:'boss', url:'../assets/boss.png' })
     contentLoader.loadImage({ name:'playerSpirteSheet', url:'../assets/playerSpirteSheet.png' })
+    contentLoader.loadImage({ name:'ghostSpirteSheet', url:'../assets/ghostSpirteSheet.png' })
     contentLoader.loadImage({ name:'pidgeon', url:'../assets/pidgeon.png' })
 
     contentLoader.loadSound({ name:'beep', url:'../assets/sounds/beep.wav', type: 'effect' })
