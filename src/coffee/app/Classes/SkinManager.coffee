@@ -35,7 +35,7 @@ class SkinManager
 
   setSkin: (part, value) ->
     elm = document.querySelector('#skin-preview .' + part)
-    elm.style.background = 'url("assets/player/'+part+'/'+value+'.png") 140px 0'
+    elm.style.background = 'url("assets/player/'+part+'/'+value+'.png") 144px 0'
     skin[part] = value
     document.querySelector('#skin-control .'+part+' .number').innerHTML = value
 
@@ -46,6 +46,6 @@ class SkinManager
     for part in @parts
       value = Math.floor(Math.random()*config.skins[part]) + 1
       elm = document.querySelector('#skin-preview .' + part)
-      elm.style.background = 'url("assets/player/'+part+'/'+value+'.png") 140px 0'
+      elm.style.background = 'url("assets/player/'+part+'/'+value+'.png") 144px 0'
       skin[part] = value
       document.querySelector('#skin-control .'+part+' .number').innerHTML = value

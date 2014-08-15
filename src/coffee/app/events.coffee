@@ -41,6 +41,6 @@ for div in divs
       num = config.skins[@getAttribute("data-type")]
     else if num > config.skins[@getAttribute("data-type")]
       num = 1
-    elm.style.background = 'url("assets/player/'+ @getAttribute("data-type")+'/'+num+'.png") 140px 0'
+    elm.style.background = 'url("assets/player/'+ @getAttribute("data-type")+'/'+num+'.png") 144px 0'
     skin[@getAttribute("data-type")] = num
     document.querySelector('#skin-control .' + @getAttribute("data-type") + ' .number').innerHTML = num

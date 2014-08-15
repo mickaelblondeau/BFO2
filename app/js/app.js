@@ -9,13 +9,13 @@
     levelWidth: 704,
     levelSpeed: 1000,
     skins: {
-      body: 5,
+      body: 6,
       hair: 5,
-      head: 3,
-      leg: 4,
-      shoes: 5,
-      skin: 4,
-      hat: 4,
+      head: 4,
+      leg: 5,
+      shoes: 6,
+      skin: 5,
+      hat: 5,
       beard: 4
     },
     player: {
@@ -2468,7 +2468,7 @@
     SkinManager.prototype.setSkin = function(part, value) {
       var elm;
       elm = document.querySelector('#skin-preview .' + part);
-      elm.style.background = 'url("assets/player/' + part + '/' + value + '.png") 140px 0';
+      elm.style.background = 'url("assets/player/' + part + '/' + value + '.png") 144px 0';
       skin[part] = value;
       return document.querySelector('#skin-control .' + part + ' .number').innerHTML = value;
     };
@@ -2485,7 +2485,7 @@
         part = _ref[_i];
         value = Math.floor(Math.random() * config.skins[part]) + 1;
         elm = document.querySelector('#skin-preview .' + part);
-        elm.style.background = 'url("assets/player/' + part + '/' + value + '.png") 140px 0';
+        elm.style.background = 'url("assets/player/' + part + '/' + value + '.png") 144px 0';
         skin[part] = value;
         _results.push(document.querySelector('#skin-control .' + part + ' .number').innerHTML = value);
       }
@@ -3939,7 +3939,7 @@
       } else if (num > config.skins[this.getAttribute("data-type")]) {
         num = 1;
       }
-      elm.style.background = 'url("assets/player/' + this.getAttribute("data-type") + '/' + num + '.png") 140px 0';
+      elm.style.background = 'url("assets/player/' + this.getAttribute("data-type") + '/' + num + '.png") 144px 0';
       skin[this.getAttribute("data-type")] = num;
       return document.querySelector('#skin-control .' + this.getAttribute("data-type") + ' .number').innerHTML = num;
     };
