@@ -34,7 +34,6 @@ class ControllablePlayer extends Player
     @alive = true
     @stomped = false
     @forceJump = false
-    @ghost = false
     @setInvulnerable()
 
   reset: ->
@@ -324,7 +323,6 @@ class ControllablePlayer extends Player
         @lootBonus()
         bonusManager.resetBonuses()
         networkManager.sendDie()
-        @setGhost()
 
   lootBonus: ->
     id = bonusManager.getRandomBonus()
@@ -360,19 +358,5 @@ class ControllablePlayer extends Player
     @skin.setOpacity(0.75)
 
   setVulnerable: ->
-    if !@ghost
-      @invulnerable = false
+    @invulnerable = false
     @skin.setOpacity(1)
-
-  setGhost: ->
-    self = @
-    fn = ->
-      self.spawn()
-      bonusManager.resetBonuses()
-      bonusManager.playerBonuses.speedBonus = 3
-      bonusManager.playerBonuses.jumpHeightBonus = 3
-      bonusManager.playerBonuses.autoRezBonus = 1
-      self.initStats()
-      self.ghost = true
-      self.skin.setImage(contentLoader.images['ghostSpirteSheet'])
-    setTimeout(fn, 200)
