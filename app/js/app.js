@@ -954,6 +954,10 @@
       this.fallCurrentAcceleration = this.fallMinAcceleration;
       this.actualCollisions = [];
       this.cached = {};
+      this.moveVector = {
+        x: 0,
+        y: 0
+      };
       return this.reinitStats();
     };
 
@@ -994,6 +998,9 @@
     ControllablePlayer.prototype.update = function(frameTime) {
       var collide, moveSide, moveSpeed;
       if (!(!this.alive && this.shape.getY() > stage.getY() * -1 + stage.getHeight())) {
+        if (!this.sliding) {
+          this.moveVector.x = 0;
+        }
         this.sliding = false;
         this.slowed = false;
         if (!this.testMove(0, this.shape.getY())) {
@@ -1023,6 +1030,7 @@
             this.kill();
           }
           if (keyboard.keys.left) {
+            this.moveVector.x = -1;
             collide = this.testMove(this.shape.getX() - moveSpeed, 0);
             if (collide) {
               this.shape.setX(collide.getX() + collide.getWidth());
@@ -1031,6 +1039,7 @@
               moveSide = -1;
             }
           } else if (keyboard.keys.right) {
+            this.moveVector.x = 1;
             collide = this.testMove(this.shape.getX() + moveSpeed, 0);
             if (collide) {
               this.shape.setX(collide.getX() - this.shape.getWidth());
@@ -1086,11 +1095,13 @@
         }
         if (this.sliding) {
           if (this.skin.getScaleX() === -1) {
+            this.moveVector.x = -1;
             collide = this.testMove(this.shape.getX() - (this.speed * frameTime) / 2, 0);
             if (collide) {
               return this.shape.setX(collide.getX() + collide.getWidth());
             }
           } else {
+            this.moveVector.x = 1;
             collide = this.testMove(this.shape.getX() + (this.speed * frameTime) / 2, 0);
             if (collide) {
               return this.shape.setX(collide.getX() - this.shape.getWidth());
@@ -1258,7 +1269,7 @@
     };
 
     ControllablePlayer.prototype.collideEffect = function(effect) {
-      if (effect.getName().name === 'ice') {
+      if (effect.getName().name === 'ice' && this.moveVector.x !== 0) {
         this.sliding = true;
       }
       if (effect.getName().name === 'slow') {

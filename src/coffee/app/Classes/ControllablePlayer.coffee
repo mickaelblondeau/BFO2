@@ -18,6 +18,7 @@ class ControllablePlayer extends Player
     @fallCurrentAcceleration = @fallMinAcceleration
     @actualCollisions = []
     @cached = {}
+    @moveVector = { x: 0, y: 0 }
     @reinitStats()
 
   reinitStats: ->
@@ -51,6 +52,8 @@ class ControllablePlayer extends Player
 
   update: (frameTime) ->
     if !(!@alive and @shape.getY() > stage.getY()*-1 + stage.getHeight())
+      if !@sliding
+        @moveVector.x = 0
       @sliding = false
       @slowed = false
 
@@ -81,12 +84,14 @@ class ControllablePlayer extends Player
           @kill()
 
         if keyboard.keys.left
+          @moveVector.x = -1
           collide = @testMove(@shape.getX() - moveSpeed, 0)
           if collide
             @shape.setX(collide.getX() + collide.getWidth())
           if moveSide != -1
             moveSide = -1
         else if keyboard.keys.right
+          @moveVector.x = 1
           collide = @testMove(@shape.getX() + moveSpeed, 0)
           if collide
             @shape.setX(collide.getX() - @shape.getWidth())
@@ -137,10 +142,12 @@ class ControllablePlayer extends Player
 
       if @sliding
         if @skin.getScaleX() is -1
+          @moveVector.x = -1
           collide = @testMove(@shape.getX() - (@speed*frameTime)/2, 0)
           if collide
             @shape.setX(collide.getX() + collide.getWidth())
         else
+          @moveVector.x = 1
           collide = @testMove(@shape.getX() + (@speed*frameTime)/2, 0)
           if collide
             @shape.setX(collide.getX() - @shape.getWidth())
@@ -261,7 +268,7 @@ class ControllablePlayer extends Player
     @kill()
 
   collideEffect: (effect) ->
-    if effect.getName().name is 'ice'
+    if effect.getName().name is 'ice' and @moveVector.x isnt 0
       @sliding = true
     if effect.getName().name is 'slow'
       @slowed = true
