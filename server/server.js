@@ -1548,9 +1548,9 @@
 
   game.update = function(frameTime) {
     var fn;
+    networkManager.sendPositions();
     if (game.running) {
       cubeManager.update(frameTime);
-      networkManager.sendPositions();
       if (game.players === game.deadPlayers && game.restartTimer === null) {
         fn = function() {
           return game.reset();
