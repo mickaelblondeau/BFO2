@@ -226,10 +226,6 @@
         url: '../assets/playerSpirteSheet.png'
       });
       contentLoader.loadImage({
-        name: 'ghostSpirteSheet',
-        url: '../assets/ghostSpirteSheet.png'
-      });
-      contentLoader.loadImage({
         name: 'pidgeon',
         url: '../assets/pidgeon.png'
       });
@@ -839,8 +835,7 @@
       self = this;
       callback = function(image) {
         self.skin.setImage(image);
-        self.fixSkinPos();
-        return self.playerSkin = image;
+        return self.fixSkinPos();
       };
       skinManager.createSkin(skin, callback, self.skin._id);
     }
@@ -852,7 +847,6 @@
       });
       players.add(this.shape);
       this.skin = new Sprite(0, 0, SquareEnum.SMALL, 'playerSpirteSheet', 'fall').shape;
-      this.playerSkin = this.skin.getImage();
       players.add(this.skin);
       this.skin.start();
       return this.spawn();
@@ -873,7 +867,7 @@
     };
 
     Player.prototype.resurection = function() {
-      if (!this.alive || this.ghost) {
+      if (!this.alive) {
         return this.reset();
       }
     };
@@ -983,7 +977,6 @@
       this.alive = true;
       this.stomped = false;
       this.forceJump = false;
-      this.ghost = false;
       return this.setInvulnerable();
     };
 
@@ -1348,8 +1341,7 @@
         } else {
           this.lootBonus();
           bonusManager.resetBonuses();
-          networkManager.sendDie();
-          return this.setGhost();
+          return networkManager.sendDie();
         }
       }
     };
@@ -1398,26 +1390,8 @@
     };
 
     ControllablePlayer.prototype.setVulnerable = function() {
-      if (!this.ghost) {
-        this.invulnerable = false;
-      }
+      this.invulnerable = false;
       return this.skin.setOpacity(1);
-    };
-
-    ControllablePlayer.prototype.setGhost = function() {
-      var fn, self;
-      self = this;
-      fn = function() {
-        self.spawn();
-        bonusManager.resetBonuses();
-        bonusManager.playerBonuses.speedBonus = 3;
-        bonusManager.playerBonuses.jumpHeightBonus = 3;
-        bonusManager.playerBonuses.autoRezBonus = 1;
-        self.initStats();
-        self.ghost = true;
-        return self.skin.setImage(contentLoader.images['ghostSpirteSheet']);
-      };
-      return setTimeout(fn, 200);
     };
 
     return ControllablePlayer;
@@ -1460,8 +1434,7 @@
 
     VirtualPlayer.prototype.kill = function() {
       contentLoader.play('death');
-      new Effect(this.shape.getX() - 16, this.shape.getY(), SquareEnum.SMALL, 'blood', true);
-      return this.skin.setImage(contentLoader.images['ghostSpirteSheet']);
+      return new Effect(this.shape.getX() - 16, this.shape.getY(), SquareEnum.SMALL, 'blood', true);
     };
 
     return VirtualPlayer;
