@@ -34,6 +34,7 @@ class ControllablePlayer extends Player
     @alive = true
     @stomped = false
     @forceJump = false
+    @jetpackMode = false
     @setInvulnerable()
 
   reset: ->
@@ -98,7 +99,9 @@ class ControllablePlayer extends Player
           if moveSide != 1
             moveSide = 1
         if keyboard.keys.up
-          if @canJump
+          if bonusManager.playerBonuses.jetpackBonus > 0 and @jetpackMode
+            @useJetpack(frameTime)
+          else if @canJump
             @startJump()
         else
           @canJump = true
@@ -273,6 +276,8 @@ class ControllablePlayer extends Player
     if effect.getName().name is 'slow'
       @slowed = true
     if effect.getName().name is 'jumpBlock' and @falling and !@jump
+      if @invulnerable
+        @setVulnerable()
       @setTempJumpHeight(256)
       @jumpStart = player.shape.getY()
       @jumpCount = player.jumpMax
@@ -360,3 +365,24 @@ class ControllablePlayer extends Player
   setVulnerable: ->
     @invulnerable = false
     @skin.setOpacity(1)
+
+  useJetpack: (frameTime) ->
+    jetpackAccel = 0.8
+    @testMove(0, @shape.getY() - jetpackAccel*frameTime)
+    if bonusManager.playerBonuses.jetpackBonus - frameTime < 0
+      bonusManager.playerBonuses.jetpackBonus = 0
+    else
+      bonusManager.playerBonuses.jetpackBonus -=  frameTime
+
+  switchJetpack: ->
+    if bonusManager.playerBonuses.jetpackBonus > 0
+      if @jetpackMode
+        @jetpackMode = false
+      else
+        @jetpackMode = true
+
+  getJetpackText: ->
+    if @jetpackMode
+      return 'On'
+    else
+      return 'Off'

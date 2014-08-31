@@ -136,7 +136,8 @@
       this.addBonus(2, SquareEnum.SMALL, 'autoRezBonus', 6);
       this.addBonus(2, SquareEnum.SMALL, 'tpBonus', 7);
       this.addBonus(2, SquareEnum.SMALL, 'jumpBlockBonus', 8);
-      return this.addBonus(2, SquareEnum.SMALL, 'deployedJumpBlockBonus', 0);
+      this.addBonus(2, SquareEnum.SMALL, 'deployedJumpBlockBonus', 0);
+      return this.addBonus(2, SquareEnum.SMALL, 'jetpackBonus', 9);
     };
 
     CubeManager.prototype.addBlock = function(proba, size) {

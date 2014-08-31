@@ -24,6 +24,9 @@ class HUD
         {
           icon: 'jumpBlockBonus'
         }
+        {
+          icon: 'jetpackOffBonus'
+        }
       ]
     }
     @elements = {
@@ -32,7 +35,7 @@ class HUD
     }
     @drawHUD()
 
-  update: (frameTime) ->
+  update: ->
     hud = {
       left: [
         {
@@ -61,6 +64,9 @@ class HUD
         {
           text: bonusManager.playerBonuses.jumpBlockBonus + '/' + bonusManager.bonuses[7].max + ' (Y)'
         }
+        {
+          text: bonusManager.playerBonuses.jetpackBonus + ' (G)' + player.getJetpackText()
+        }
       ]
     }
     for elm, i in hud.left
@@ -81,12 +87,12 @@ class HUD
 
     for elm, i in @hud.right
       if elm.icon isnt undefined
-        icon = new Sprite(stage.getWidth() - 128 + 16, arena.y - @elements.right.length * 36, SquareEnum.SMALL, 'bonus', elm.icon)
+        icon = new Sprite(stage.getWidth() - 124, arena.y - @elements.right.length * 36, SquareEnum.SMALL, 'bonus', elm.icon)
         icon = icon.shape
         hudLayer.add icon
         tmp = new Kinetic.Text
           y: arena.y - @elements.right.length * 36 + 10
-          x: stage.getWidth() - 128 + 64
+          x: stage.getWidth() - 90
           fill: 'black'
           fontFamily: 'Calibri'
           fontSize: 18
@@ -95,7 +101,7 @@ class HUD
       else
         tmp = new Kinetic.Text
           y: arena.y - @elements.right.length * 36
-          x: stage.getWidth() - 128
+          x: stage.getWidth() - 96
           fill: 'black'
           fontFamily: 'Calibri'
           fontSize: 18

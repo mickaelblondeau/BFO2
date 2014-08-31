@@ -23,6 +23,9 @@ bonusTypesId = [
   }, {
     id: 8
     name: 'jumpBlockBonus'
+  }, {
+    id: 9
+    name: 'jetpackBonus'
   }
 ]
 

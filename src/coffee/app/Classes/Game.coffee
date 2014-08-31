@@ -72,6 +72,7 @@ class Game
     contentLoader.loadSound({ name:'music3', url:'../assets/sounds/music/music3.ogg', type: 'music', title: 'Rolemusic - Another beek beep beer please' })
     contentLoader.loadSound({ name:'music4', url:'../assets/sounds/music/music4.ogg', type: 'music', title: 'VVVVVV - Predestined Fate' })
     contentLoader.loadSound({ name:'music5', url:'../assets/sounds/music/music5.ogg', type: 'music', title: 'VVVVVV - Positive Force' })
+    contentLoader.loadSound({ name:'music6', url:'../assets/sounds/music/music6.ogg', type: 'music', title: 'BBT - Watermelon' })
 
     contentLoader.load()
 

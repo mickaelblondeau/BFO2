@@ -120,6 +120,15 @@
               }
             }
           }
+        }, {
+          keys: "g",
+          on_keydown: function() {
+            if (!game.writting) {
+              if (player !== null) {
+                return player.switchJetpack();
+              }
+            }
+          }
         }
       ];
       return keypress.register_many(my_combos);
@@ -278,6 +287,12 @@
         url: '../assets/sounds/music/music5.ogg',
         type: 'music',
         title: 'VVVVVV - Positive Force'
+      });
+      contentLoader.loadSound({
+        name: 'music6',
+        url: '../assets/sounds/music/music6.ogg',
+        type: 'music',
+        title: 'BBT - Watermelon'
       });
       return contentLoader.load();
     };
@@ -977,6 +992,7 @@
       this.alive = true;
       this.stomped = false;
       this.forceJump = false;
+      this.jetpackMode = false;
       return this.setInvulnerable();
     };
 
@@ -1052,7 +1068,9 @@
             }
           }
           if (keyboard.keys.up) {
-            if (this.canJump) {
+            if (bonusManager.playerBonuses.jetpackBonus > 0 && this.jetpackMode) {
+              this.useJetpack(frameTime);
+            } else if (this.canJump) {
               this.startJump();
             }
           } else {
@@ -1279,6 +1297,9 @@
         this.slowed = true;
       }
       if (effect.getName().name === 'jumpBlock' && this.falling && !this.jump) {
+        if (this.invulnerable) {
+          this.setVulnerable();
+        }
         this.setTempJumpHeight(256);
         this.jumpStart = player.shape.getY();
         this.jumpCount = player.jumpMax;
@@ -1392,6 +1413,35 @@
     ControllablePlayer.prototype.setVulnerable = function() {
       this.invulnerable = false;
       return this.skin.setOpacity(1);
+    };
+
+    ControllablePlayer.prototype.useJetpack = function(frameTime) {
+      var jetpackAccel;
+      jetpackAccel = 0.8;
+      this.testMove(0, this.shape.getY() - jetpackAccel * frameTime);
+      if (bonusManager.playerBonuses.jetpackBonus - frameTime < 0) {
+        return bonusManager.playerBonuses.jetpackBonus = 0;
+      } else {
+        return bonusManager.playerBonuses.jetpackBonus -= frameTime;
+      }
+    };
+
+    ControllablePlayer.prototype.switchJetpack = function() {
+      if (bonusManager.playerBonuses.jetpackBonus > 0) {
+        if (this.jetpackMode) {
+          return this.jetpackMode = false;
+        } else {
+          return this.jetpackMode = true;
+        }
+      }
+    };
+
+    ControllablePlayer.prototype.getJetpackText = function() {
+      if (this.jetpackMode) {
+        return 'On';
+      } else {
+        return 'Off';
+      }
     };
 
     return ControllablePlayer;
@@ -1522,6 +1572,8 @@
     tpBonus: [64, 0, 32, 32],
     jumpBlockBonus: [0, 32, 32, 32],
     tp: [32, 0, 32, 32],
+    jetpackBonus: [32, 64, 32, 32],
+    jetpackOffBonus: [64, 64, 32, 32],
     roueman: [0, 0, 64, 64, 64, 0, 64, 64],
     freezeman: [0, 65, 544, 30],
     poingman: [192, 0, 64, 64],
@@ -1670,6 +1722,7 @@
       } else if (event === 'tp') {
         player.shape.setX(this.shape.getX() + 16);
         player.shape.setY(this.shape.getY() - 448);
+        player.setInvulnerable();
         new Effect(this.shape.getX(), this.shape.getY(), SquareEnum.SMALL, 'tp', null, true);
       }
       return this.shape.destroy();
@@ -1722,6 +1775,9 @@
     }, {
       id: 8,
       name: 'jumpBlockBonus'
+    }, {
+      id: 9,
+      name: 'jetpackBonus'
     }
   ];
 
@@ -1795,6 +1851,11 @@
           attribute: 'jumpBlockBonus',
           value: 1,
           max: 1
+        }, {
+          name: 'jetpackBonus',
+          attribute: 'jetpackBonus',
+          value: 2000,
+          max: 500
         }
       ];
       this.playerBonuses = {};
@@ -1809,7 +1870,8 @@
         tpBonus: 0,
         jumpBlockBonus: 0,
         doubleJumpBonus: 0,
-        grabbingBonus: 0
+        grabbingBonus: 0,
+        jetpackBonus: 0
       };
     };
 
@@ -1838,6 +1900,8 @@
             return this.playerBonuses.tpBonus < bonus.max;
           case "jumpBlockBonus":
             return this.playerBonuses.jumpBlockBonus < bonus.max;
+          case "jetpackBonus":
+            return this.playerBonuses.jetpackBonus < bonus.max;
           default:
             return false;
         }
@@ -1878,6 +1942,8 @@
           return this.playerBonuses.tpBonus++;
         case "jumpBlockBonus":
           return this.playerBonuses.jumpBlockBonus++;
+        case "jetpackBonus":
+          return this.playerBonuses.jetpackBonus = bonus.value;
       }
     };
 
@@ -1896,12 +1962,6 @@
       if (bonusManager.playerBonuses.jumpHeightBonus > 0) {
         bonuses.push(2);
       }
-      if (player.availableDoubleJump > 0) {
-        bonuses.push(3);
-      }
-      if (player.availableGrab > 0) {
-        bonuses.push(4);
-      }
       if (bonusManager.playerBonuses.autoRezBonus > 0) {
         bonuses.push(6);
       }
@@ -1910,6 +1970,9 @@
       }
       if (bonusManager.playerBonuses.jumpBlockBonus > 0) {
         bonuses.push(8);
+      }
+      if (bonusManager.playerBonuses.jetpackBonus > 0) {
+        bonuses.push(9);
       }
       return bonuses[Math.floor(Math.random() * (bonuses.length - 1))];
     };
@@ -2584,6 +2647,8 @@
             icon: 'grabbingBonus'
           }, {
             icon: 'jumpBlockBonus'
+          }, {
+            icon: 'jetpackOffBonus'
           }
         ]
       };
@@ -2594,7 +2659,7 @@
       this.drawHUD();
     }
 
-    HUD.prototype.update = function(frameTime) {
+    HUD.prototype.update = function() {
       var elm, hud, i, _i, _j, _len, _len1, _ref, _ref1;
       hud = {
         left: [
@@ -2617,6 +2682,8 @@
             text: bonusManager.playerBonuses.grabbingBonus
           }, {
             text: bonusManager.playerBonuses.jumpBlockBonus + '/' + bonusManager.bonuses[7].max + ' (Y)'
+          }, {
+            text: bonusManager.playerBonuses.jetpackBonus + ' (G)' + player.getJetpackText()
           }
         ]
       };
@@ -2652,12 +2719,12 @@
       for (i = _j = 0, _len1 = _ref1.length; _j < _len1; i = ++_j) {
         elm = _ref1[i];
         if (elm.icon !== void 0) {
-          icon = new Sprite(stage.getWidth() - 128 + 16, arena.y - this.elements.right.length * 36, SquareEnum.SMALL, 'bonus', elm.icon);
+          icon = new Sprite(stage.getWidth() - 124, arena.y - this.elements.right.length * 36, SquareEnum.SMALL, 'bonus', elm.icon);
           icon = icon.shape;
           hudLayer.add(icon);
           tmp = new Kinetic.Text({
             y: arena.y - this.elements.right.length * 36 + 10,
-            x: stage.getWidth() - 128 + 64,
+            x: stage.getWidth() - 90,
             fill: 'black',
             fontFamily: 'Calibri',
             fontSize: 18
@@ -2667,7 +2734,7 @@
         } else {
           tmp = new Kinetic.Text({
             y: arena.y - this.elements.right.length * 36,
-            x: stage.getWidth() - 128,
+            x: stage.getWidth() - 96,
             fill: 'black',
             fontFamily: 'Calibri',
             fontSize: 18

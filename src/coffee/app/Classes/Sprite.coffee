@@ -153,6 +153,12 @@ spriteAnimations = {
   tp: [
     32, 0, 32, 32
   ]
+  jetpackBonus: [
+    32, 64, 32, 32
+  ]
+  jetpackOffBonus: [
+    64, 64, 32, 32
+  ]
   # BOSSES
   roueman: [
     0, 0, 64, 64

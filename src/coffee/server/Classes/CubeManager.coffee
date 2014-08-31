@@ -51,6 +51,7 @@ class CubeManager
     @addBonus(2, SquareEnum.SMALL, 'tpBonus', 7)
     @addBonus(2, SquareEnum.SMALL, 'jumpBlockBonus', 8)
     @addBonus(2, SquareEnum.SMALL, 'deployedJumpBlockBonus', 0)
+    @addBonus(2, SquareEnum.SMALL, 'jetpackBonus', 9)
 
   addBlock: (proba, size) ->
     obj = {

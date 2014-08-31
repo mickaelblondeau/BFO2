@@ -5,46 +5,52 @@ class BonusManager
         name: 'doubleJumpBonus'
         attribute: 'jumpCount'
         value: 1
-      },
+      }
       {
         name: 'grabbingBonus'
         attribute: 'grab'
         value: 2
-      },
+      }
       {
         name: 'resurectionBonus'
         attribute: 'resurection'
-      },
+      }
       {
         name: 'speedBonus'
         attribute: 'speed'
         value: 0.03
         max: 3
-      },
+      }
       {
         name: 'jumpHeightBonus'
         attribute: 'jumpHeight'
         value: 18
         max: 3
-      },
+      }
       {
         name: 'autoRezBonus'
         attribute: 'rezBonus'
         value: 1
         max: 1
-      },
+      }
       {
         name: 'tpBonus'
         attribute: 'tpBonus'
         value: 1
         max: 2
-      },
+      }
       {
         name: 'jumpBlockBonus'
         attribute: 'jumpBlockBonus'
         value: 1
         max: 1
-      },
+      }
+      {
+        name: 'jetpackBonus'
+        attribute: 'jetpackBonus'
+        value: 2000
+        max: 500
+      }
     ]
     @playerBonuses = {}
     @resetBonuses()
@@ -58,6 +64,7 @@ class BonusManager
       jumpBlockBonus: 0
       doubleJumpBonus: 0
       grabbingBonus: 0
+      jetpackBonus: 0
     }
 
   getBonus: (bonusName) ->
@@ -82,6 +89,8 @@ class BonusManager
           return @playerBonuses.tpBonus < bonus.max
         when "jumpBlockBonus"
           return @playerBonuses.jumpBlockBonus < bonus.max
+        when "jetpackBonus"
+          return @playerBonuses.jetpackBonus < bonus.max
         else
           return false
     else
@@ -113,6 +122,8 @@ class BonusManager
         @playerBonuses.tpBonus++
       when "jumpBlockBonus"
         @playerBonuses.jumpBlockBonus++
+      when "jetpackBonus"
+        @playerBonuses.jetpackBonus = bonus.value
 
   remove: (id) ->
     bonus = dynamicEntities.find('#' + id)
@@ -124,14 +135,12 @@ class BonusManager
       bonuses.push(1)
     if bonusManager.playerBonuses.jumpHeightBonus > 0
       bonuses.push(2)
-    if player.availableDoubleJump > 0
-      bonuses.push(3)
-    if player.availableGrab > 0
-      bonuses.push(4)
     if bonusManager.playerBonuses.autoRezBonus > 0
       bonuses.push(6)
     if bonusManager.playerBonuses.tpBonus > 0
       bonuses.push(7)
     if bonusManager.playerBonuses.jumpBlockBonus > 0
       bonuses.push(8)
+    if bonusManager.playerBonuses.jetpackBonus > 0
+      bonuses.push(9)
     return bonuses[Math.floor(Math.random()*(bonuses.length-1))]
