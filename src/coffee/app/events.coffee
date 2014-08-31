@@ -2,11 +2,19 @@ window.onresize = ->
   game.resize()
 
 document.querySelector('#sound-mute-effect').onclick = ->
-  @className = 'muted'
-  contentLoader.muteEffect()
+  if @className is 'muted'
+    @className = 'un-muted'
+    contentLoader.unmuteEffect()
+  else
+    @className = 'muted'
+    contentLoader.muteEffect()
 document.querySelector('#sound-mute-music').onclick = ->
-  @className = 'muted'
-  contentLoader.muteMusic()
+  if @className is 'muted'
+    @className = 'un-muted'
+    contentLoader.unmuteMusic()
+  else
+    @className = 'muted'
+    contentLoader.muteMusic()
 
 document.querySelector('#sound-add-effect').onclick = ->
   contentLoader.addVolumeEffect()

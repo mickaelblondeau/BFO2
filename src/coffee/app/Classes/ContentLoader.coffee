@@ -12,6 +12,9 @@ class ContentLoader
     @musics = 0
     @currentSong
 
+    @oldSoundLevel = 0
+    @oldMusicLevel = 0
+
   loadImage: (image) ->
     @imagesToLoad.push(image)
 
@@ -58,14 +61,28 @@ class ContentLoader
   muteEffect: ->
     for sound in @soundsToLoad
       if sound.type is 'effect'
+        @oldSoundLevel = Math.floor(@sounds[sound.name].volume*100)/100
         @sounds[sound.name].volume = 0
     document.querySelector('#sound-effect').innerHTML = 0
 
   muteMusic: ->
     for sound in @soundsToLoad
       if sound.type is 'music'
+        @oldMusicLevel = Math.floor(@sounds[sound.name].volume*100)/100
         @sounds[sound.name].volume = 0
     document.querySelector('#sound-music').innerHTML = 0
+
+  unmuteEffect: ->
+    for sound in @soundsToLoad
+      if sound.type is 'effect'
+        @sounds[sound.name].volume = @oldSoundLevel
+    document.querySelector('#sound-effect').innerHTML = @oldSoundLevel*100
+
+  unmuteMusic: ->
+    for sound in @soundsToLoad
+      if sound.type is 'music'
+        @sounds[sound.name].volume = @oldMusicLevel
+    document.querySelector('#sound-music').innerHTML = @oldMusicLevel*100
 
   addVolumeEffect: ->
     for sound in @soundsToLoad
@@ -153,13 +170,19 @@ class ContentLoader
     for sound in @soundsToLoad
       if sound.type is 'effect'
         @sounds[sound.name].volume = vol/100
-    document.querySelector('#sound-effect').innerHTML = localStorage.getItem('volume_effect') || 10
+    document.querySelector('#sound-effect').innerHTML = vol
+    if parseInt(vol) is 0
+      document.querySelector('#sound-mute-effect').className = 'muted'
+      @oldSoundLevel = 0.1
 
   setMusicVolume: (vol) ->
     for sound in @soundsToLoad
       if sound.type is 'music'
         @sounds[sound.name].volume = vol/100
-    document.querySelector('#sound-music').innerHTML = localStorage.getItem('volume_music') || 10
+    document.querySelector('#sound-music').innerHTML = vol
+    if parseInt(vol) is 0
+      document.querySelector('#sound-mute-music').className = 'muted'
+      @oldMusicLevel = 0.1
 
   setBG: (color) ->
     if color is "White"

@@ -405,6 +405,8 @@
       this.total = 0;
       this.musics = 0;
       this.currentSong;
+      this.oldSoundLevel = 0;
+      this.oldMusicLevel = 0;
     }
 
     ContentLoader.prototype.loadImage = function(image) {
@@ -477,6 +479,7 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         sound = _ref[_i];
         if (sound.type === 'effect') {
+          this.oldSoundLevel = Math.floor(this.sounds[sound.name].volume * 100) / 100;
           this.sounds[sound.name].volume = 0;
         }
       }
@@ -489,10 +492,35 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         sound = _ref[_i];
         if (sound.type === 'music') {
+          this.oldMusicLevel = Math.floor(this.sounds[sound.name].volume * 100) / 100;
           this.sounds[sound.name].volume = 0;
         }
       }
       return document.querySelector('#sound-music').innerHTML = 0;
+    };
+
+    ContentLoader.prototype.unmuteEffect = function() {
+      var sound, _i, _len, _ref;
+      _ref = this.soundsToLoad;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        sound = _ref[_i];
+        if (sound.type === 'effect') {
+          this.sounds[sound.name].volume = this.oldSoundLevel;
+        }
+      }
+      return document.querySelector('#sound-effect').innerHTML = this.oldSoundLevel * 100;
+    };
+
+    ContentLoader.prototype.unmuteMusic = function() {
+      var sound, _i, _len, _ref;
+      _ref = this.soundsToLoad;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        sound = _ref[_i];
+        if (sound.type === 'music') {
+          this.sounds[sound.name].volume = this.oldMusicLevel;
+        }
+      }
+      return document.querySelector('#sound-music').innerHTML = this.oldMusicLevel * 100;
     };
 
     ContentLoader.prototype.addVolumeEffect = function() {
@@ -626,7 +654,11 @@
           this.sounds[sound.name].volume = vol / 100;
         }
       }
-      return document.querySelector('#sound-effect').innerHTML = localStorage.getItem('volume_effect') || 10;
+      document.querySelector('#sound-effect').innerHTML = vol;
+      if (parseInt(vol) === 0) {
+        document.querySelector('#sound-mute-effect').className = 'muted';
+        return this.oldSoundLevel = 0.1;
+      }
     };
 
     ContentLoader.prototype.setMusicVolume = function(vol) {
@@ -638,7 +670,11 @@
           this.sounds[sound.name].volume = vol / 100;
         }
       }
-      return document.querySelector('#sound-music').innerHTML = localStorage.getItem('volume_music') || 10;
+      document.querySelector('#sound-music').innerHTML = vol;
+      if (parseInt(vol) === 0) {
+        document.querySelector('#sound-mute-music').className = 'muted';
+        return this.oldMusicLevel = 0.1;
+      }
     };
 
     ContentLoader.prototype.setBG = function(color) {
@@ -3922,13 +3958,23 @@
   };
 
   document.querySelector('#sound-mute-effect').onclick = function() {
-    this.className = 'muted';
-    return contentLoader.muteEffect();
+    if (this.className === 'muted') {
+      this.className = 'un-muted';
+      return contentLoader.unmuteEffect();
+    } else {
+      this.className = 'muted';
+      return contentLoader.muteEffect();
+    }
   };
 
   document.querySelector('#sound-mute-music').onclick = function() {
-    this.className = 'muted';
-    return contentLoader.muteMusic();
+    if (this.className === 'muted') {
+      this.className = 'un-muted';
+      return contentLoader.unmuteMusic();
+    } else {
+      this.className = 'muted';
+      return contentLoader.muteMusic();
+    }
   };
 
   document.querySelector('#sound-add-effect').onclick = function() {
