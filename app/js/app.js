@@ -2286,7 +2286,7 @@
     }
 
     NetworkManager.prototype.connect = function(ip, name, skin) {
-      this.socket = io.connect('https://' + ip);
+      this.socket = io.connect('//' + ip);
       this.socket.emit('login', [name, skin]);
       return this.listener();
     };
