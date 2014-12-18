@@ -4,7 +4,7 @@ class NetworkManager
     @playersId = []
 
   connect: (ip, name, skin) ->
-    @socket = io.connect('ws://'+ip)
+    @socket = io.connect('wss://'+ip)
     @socket.emit 'login', [name, skin]
     @listener()
 

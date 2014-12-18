@@ -2286,7 +2286,7 @@
     }
 
     NetworkManager.prototype.connect = function(ip, name, skin) {
-      this.socket = io.connect('ws://' + ip);
+      this.socket = io.connect('wss://' + ip);
       this.socket.emit('login', [name, skin]);
       return this.listener();
     };
