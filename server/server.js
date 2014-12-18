@@ -613,6 +613,7 @@
       this.io.enable('browser client etag');
       this.io.enable('browser client gzip');
       this.io.set('log level', 1);
+      this.io.set('match origin protocol', true);
       this.waitingFor = 0;
       this.responseOk = 0;
       server.listen(port);

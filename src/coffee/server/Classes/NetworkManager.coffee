@@ -9,6 +9,7 @@ class NetworkManager
     @io.enable('browser client etag')
     @io.enable('browser client gzip')
     @io.set('log level', 1)
+    @io.set('match origin protocol', true)
     @waitingFor = 0
     @responseOk = 0
     server.listen port
