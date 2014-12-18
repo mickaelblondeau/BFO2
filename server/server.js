@@ -1,5 +1,5 @@
 (function() {
-  var Block, Bonus, Bonuses, Boss, BossManager, CommandManager, CubeManager, Event, FreezeMan, Game, HomingMan, LabiMan, LevelManager, MissileMan, NetworkManager, PoingMan, RoueMan, SparkMan, Special, SpecialCubes, SquareEnum, bonusEvents, bossManager, commandManager, config, cubeManager, game, levelManager, nconf, networkManager, pjson, request, slowLoop, version,
+  var Block, Bonus, Bonuses, Boss, BossManager, CommandManager, CubeManager, Event, FreezeMan, Game, HomingMan, LabiMan, LevelManager, MissileMan, NetworkManager, PoingMan, RoueMan, SparkMan, Special, SpecialCubes, SquareEnum, bonusEvents, bossManager, commandManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1069,7 +1069,7 @@
 
   bonusEvents = ['resurection', 'bonuses', 'tp'];
 
-  Bonuses = [1, 2, 3, 4, 6, 7, 8];
+  Bonuses = [1, 2, 3, 4, 6, 7, 8, 9];
 
   Event = (function() {
     function Event() {
@@ -1505,25 +1505,7 @@
 
   })(Boss);
 
-  nconf = require('nconf');
-
-  nconf.argv().env();
-
-  nconf.file({
-    file: __dirname + '/../config.json'
-  });
-
-  nconf.defaults({
-    port: 80
-  });
-
-  request = require("request");
-
-  pjson = require('./../package.json');
-
-  version = pjson.version;
-
-  networkManager = new NetworkManager(nconf.get('port'));
+  networkManager = new NetworkManager(process.env.PORT);
 
   game = new Game();
 
@@ -1566,9 +1548,8 @@
   slowLoop = function() {
     networkManager.sendPlayerList();
     if ((cubeManager.running || bossManager.launched) && Math.random() > config.randomEventProb) {
-      new Event();
+      return new Event();
     }
-    return request(nconf.get('masterServer') + '/add.php?host=' + nconf.get('host') + '&port=' + nconf.get('port') + '&server=' + nconf.get('server') + '&players=' + game.players + '&version=' + version);
   };
 
 }).call(this);

@@ -1,20 +1,4 @@
-nconf = require 'nconf'
-
-nconf.argv().env()
-
-nconf.file {
-    file: __dirname + '/../config.json'
-}
-
-nconf.defaults {
-    port: 80
-}
-
-request = require("request")
-pjson = require('./../package.json')
-version = pjson.version
-
-networkManager = new NetworkManager nconf.get 'port'
+networkManager = new NetworkManager process.env.PORT
 
 game = new Game()
 
@@ -56,4 +40,3 @@ slowLoop = () ->
   networkManager.sendPlayerList()
   if (cubeManager.running or bossManager.launched) and Math.random() > config.randomEventProb
     new Event()
-  request nconf.get('masterServer') + '/add.php?host=' + nconf.get('host') + '&port=' + nconf.get('port') + '&server=' + nconf.get('server') + '&players=' + game.players + '&version=' + version
