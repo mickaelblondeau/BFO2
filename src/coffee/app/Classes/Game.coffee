@@ -67,12 +67,10 @@ class Game
     contentLoader.loadSound({ name:'explosion', url:'../assets/sounds/explosion.wav', type: 'effect' })
     contentLoader.loadSound({ name:'pickup', url:'../assets/sounds/pickup.wav', type: 'effect' })
 
-    contentLoader.loadSound({ name:'music1', url:'../assets/sounds/music/music.ogg', type: 'music', title: 'Rolemusic - Savage Steel Fun Club' })
-    contentLoader.loadSound({ name:'music2', url:'../assets/sounds/music/music2.ogg', type: 'music', title: 'Rolemusic - L3GO' })
-    contentLoader.loadSound({ name:'music3', url:'../assets/sounds/music/music3.ogg', type: 'music', title: 'Rolemusic - Another beek beep beer please' })
-    contentLoader.loadSound({ name:'music4', url:'../assets/sounds/music/music4.ogg', type: 'music', title: 'VVVVVV - Predestined Fate' })
-    contentLoader.loadSound({ name:'music5', url:'../assets/sounds/music/music5.ogg', type: 'music', title: 'VVVVVV - Positive Force' })
-    contentLoader.loadSound({ name:'music6', url:'../assets/sounds/music/music6.ogg', type: 'music', title: 'BBT - Watermelon' })
+    contentLoader.loadSound({ name:'music1', url:'../assets/sounds/music/liliantheme.ogg', type: 'music', title: 'Chy - Lilian Theme' })
+    contentLoader.loadSound({ name:'music2', url:'../assets/sounds/music/linkotheme.ogg', type: 'music', title: 'Chy - Linko Theme' })
+    contentLoader.loadSound({ name:'music3', url:'../assets/sounds/music/chytheme.ogg', type: 'music', title: 'Chy - Chy Theme' })
+    contentLoader.loadSound({ name:'music4', url:'../assets/sounds/music/butantheme.ogg', type: 'music', title: 'Chy - Butan Theme' })
 
     contentLoader.load()
 
