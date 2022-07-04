@@ -67,10 +67,10 @@ class Game
     contentLoader.loadSound({ name:'explosion', url:'../assets/sounds/explosion.wav', type: 'effect' })
     contentLoader.loadSound({ name:'pickup', url:'../assets/sounds/pickup.wav', type: 'effect' })
 
-    contentLoader.loadSound({ name:'music1', url:'../assets/sounds/music/liliantheme.ogg', type: 'music', title: 'Chy - Lilian Theme' })
-    contentLoader.loadSound({ name:'music2', url:'../assets/sounds/music/linkotheme.ogg', type: 'music', title: 'Chy - Linko Theme' })
-    contentLoader.loadSound({ name:'music3', url:'../assets/sounds/music/chytheme.ogg', type: 'music', title: 'Chy - Chy Theme' })
-    contentLoader.loadSound({ name:'music4', url:'../assets/sounds/music/butantheme.ogg', type: 'music', title: 'Chy - Butan Theme' })
+    contentLoader.loadSound({ name:'music1', url:'../assets/sounds/music/mysterytheme.ogg', type: 'music', title: 'Chy - Mystery Theme' })
+    contentLoader.loadSound({ name:'music2', url:'../assets/sounds/music/couragetheme.ogg', type: 'music', title: 'Chy - Courage Theme' })
+    contentLoader.loadSound({ name:'music3', url:'../assets/sounds/music/shytheme.ogg', type: 'music', title: 'Chy - Shy Theme' })
+    contentLoader.loadSound({ name:'music4', url:'../assets/sounds/music/powertheme.ogg', type: 'music', title: 'Chy - Power Theme' })
 
     contentLoader.load()
 
