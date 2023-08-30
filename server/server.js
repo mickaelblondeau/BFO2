@@ -1,5 +1,5 @@
 (function() {
-  var Block, Bonus, Bonuses, Boss, BossManager, CommandManager, CubeManager, Event, FreezeMan, Game, HomingMan, LabiMan, LevelManager, MissileMan, NetworkManager, PoingMan, RoueMan, SparkMan, Special, SpecialCubes, SquareEnum, bonusEvents, bossManager, commandManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
+  var Block, Bonus, Bonuses, Boss, BossManager, CommandManager, CubeManager, Event, FreezeMan, Game, HomingMan, LabiMan, LevelManager, MissileMan, NetworkManager, PoingMan, SparkMan, Special, SpecialCubes, SquareEnum, bonusEvents, bossManager, commandManager, config, cubeManager, game, levelManager, networkManager, slowLoop,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1198,51 +1198,6 @@
     return BossManager;
 
   })();
-
-  RoueMan = (function(_super) {
-    __extends(RoueMan, _super);
-
-    function RoueMan() {
-      RoueMan.__super__.constructor.call(this, 'roueman', 15000, this.getPattern());
-      this.id = 1;
-    }
-
-    RoueMan.prototype.getPattern = function() {
-      var attacks, options, speed, speedPerLevel;
-      speedPerLevel = 0.02;
-      speed = Math.round((0.6 + speedPerLevel * (levelManager.level + config.bossDifficulty)) * 100) / 100;
-      options = speed;
-      attacks = this.generateAttacks();
-      return [options, attacks];
-    };
-
-    RoueMan.prototype.generateAttacks = function() {
-      var attack, attacks, i, side, _i;
-      attacks = [];
-      attacks.push([0, 25]);
-      for (i = _i = 0; _i <= 6; i = ++_i) {
-        if (Math.random() > 0.5) {
-          side = 1;
-        } else {
-          side = -1;
-        }
-        if (Math.random() > 0.5) {
-          attack = 6;
-        } else {
-          attack = 4;
-        }
-        attacks.push([10 * side, 0]);
-        attacks.push([0, attack]);
-        attacks.push([-20 * side, 0]);
-        attacks.push([0, -attack]);
-        attacks.push([10 * side, 0]);
-      }
-      return attacks;
-    };
-
-    return RoueMan;
-
-  })(Boss);
 
   FreezeMan = (function(_super) {
     __extends(FreezeMan, _super);

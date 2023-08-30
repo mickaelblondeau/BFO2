@@ -81,7 +81,7 @@ contentLoader.contentsLoaded = ->
     player = new ControllablePlayer(skin)
     hud = new HUD()
 
-    networkManager.connect(window.location.host, name, skin)
+    networkManager.connect(config.host, name, skin)
 
     pidgeon = new Pidgeon()
 

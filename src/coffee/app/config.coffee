@@ -1,4 +1,5 @@
 config = {
+  host: 'bfo2.fly.dev'
   debug: false
   levelHeight: 976
   levelWidth: 704

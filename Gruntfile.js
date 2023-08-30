@@ -1,5 +1,4 @@
 module.exports = function(grunt) {
-
     grunt.initConfig({
         watch: {
             app: {
@@ -86,7 +85,7 @@ module.exports = function(grunt) {
         coffee: {
             app: {
                 files: {
-                    'app/js/app.js': ['src/tmp/app.coffee']
+                    'public/js/app.js': ['src/tmp/app.coffee']
                 }
             },
             server: {
@@ -97,12 +96,8 @@ module.exports = function(grunt) {
         },
         uglify: {
             app: {
-                src: 'app/js/app.js',
-                dest: 'app/js/app.min.js'
-            },
-            server: {
-                src: 'server/server.js',
-                dest: 'server/server.min.js'
+                src: 'public/js/app.js',
+                dest: 'public/js/app.js'
             }
         }
     });
@@ -111,5 +106,5 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-coffee');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.registerTask('default', 'watch');
+    grunt.registerTask('default', ['concat', 'coffee', 'uglify']);
 };

@@ -1,10 +1,10 @@
 {
-  "name": "chy-bfo",
+  "name": "bfo2",
   "version": "0.13.4",
   "description": "Web based multiplayer game",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Chy59/BFO2.git"
+    "url": "https://github.com/mickaelblondeau/BFO2"
   },
   "dependencies": {
     "socket.io": "~0.9.x",
@@ -16,5 +16,8 @@
     "grunt-contrib-coffee": "~0.10.x",
     "grunt-contrib-watch": "~0.6.x",
     "grunt-contrib-concat": "~0.3.x"
+  },
+  "scripts": {
+    "start": "node server/server.js"
   }
 }
