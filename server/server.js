@@ -1130,7 +1130,6 @@
       this.initBosses = ['roueman', 'freezeman', 'poingman', 'labiman', 'sparkman', 'homingman', 'missileman'];
       this.boss = this.initBosses;
       this.tmpBeatenBosses = [];
-      this.beatenBosses = [];
     }
 
     BossManager.prototype.launch = function() {
@@ -1154,6 +1153,8 @@
     BossManager.prototype.getBoss = function() {
       var boss;
       boss = this.boss[Math.floor(Math.random() * this.boss.length)];
+      console.log(this.boss);
+      console.log(boss);
       if (boss === 'roueman') {
         return new RoueMan();
       } else if (boss === 'freezeman') {
@@ -1190,7 +1191,6 @@
     };
 
     BossManager.prototype.restart = function() {
-      this.beatenBosses = [];
       this.tmpBeatenBosses = [];
       return this.boss = this.initBosses;
     };

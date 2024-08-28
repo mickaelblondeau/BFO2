@@ -4,7 +4,6 @@ class BossManager
     @initBosses = ['roueman', 'freezeman', 'poingman', 'labiman', 'sparkman', 'homingman', 'missileman']
     @boss = @initBosses
     @tmpBeatenBosses = []
-    @beatenBosses = []
 
   launch: ->
     boss = @getBoss()
@@ -21,7 +20,9 @@ class BossManager
     @resetBosses()
 
   getBoss: ->
-    boss = @boss[Math.floor(Math.random()*@boss.length)]
+    boss = @boss[Math.floor(Math.random() * @boss.length)]
+    console.log(@boss)
+    console.log(boss)
     if boss is 'roueman'
       return new RoueMan()
     else if boss is 'freezeman'
@@ -52,6 +53,5 @@ class BossManager
     @tmpBeatenBosses = []
 
   restart: ->
-    @beatenBosses = []
     @tmpBeatenBosses = []
     @boss = @initBosses

@@ -85,7 +85,8 @@ class CubeManager
           couched = false
           if skin.getAnimation() is 'couch' or skin.getAnimation() is 'couchMove'
             couched = true
-          positions.push({ x: plr.getX(), y: plr.getY(), couched: couched })
+          if plr.getY() <= stage.getY()*-1 + stage.getHeight()
+            positions.push({ x: plr.getX(), y: plr.getY(), couched: couched })
     if positions.length > 0
       rand = Math.floor((Math.random()*positions.length))
       player.shape.setX(positions[rand].x)
