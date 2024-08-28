@@ -6,6 +6,8 @@ Block Falling Online 2 is build around NodeJS
 
 make run
 
+You can use local NodeJS server by using localStorage variable "socketio_host"
+
 ## How to update javascript files
 
 make build

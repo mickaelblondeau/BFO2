@@ -93,18 +93,11 @@ module.exports = function(grunt) {
                     'server/server.js': ['src/tmp/server.coffee']
                 }
             }
-        },
-        uglify: {
-            app: {
-                src: 'public/js/app.js',
-                dest: 'public/js/app.js'
-            }
         }
     });
 
-    grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-coffee');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.registerTask('default', ['concat', 'coffee', 'uglify']);
+    grunt.registerTask('default', ['concat', 'coffee']);
 };

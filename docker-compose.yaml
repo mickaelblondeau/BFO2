@@ -1,0 +1,18 @@
+services:
+  app:
+    image: nginx:1.27.1-alpine
+    volumes:
+      - ./public:/usr/share/nginx/html
+    ports:
+      - "8080:80"
+
+  server:
+    image: node:18-slim
+    command: npm start
+    environment:
+      PORT: 80
+    working_dir: /var/www/app
+    volumes:
+      - .:/var/www/app
+    ports:
+      - "8888:80"

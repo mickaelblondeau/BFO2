@@ -1,7 +1,13 @@
-build:
-	docker build -t bfo2-build . --target=build
-	docker run --rm -v $(shell pwd):/app bfo2-build grunt
-
 run:
-	docker build -t bfo2-run . --target=run
-	docker run --rm -it -p 8080:8080 bfo2-run
+	docker-compose up -d
+	docker-compose exec server npm install
+	docker-compose exec server npm install -g grunt-cli
+
+stop:
+	docker-compose down
+
+build:
+	docker-compose exec server grunt
+
+watch:
+	docker-compose exec server grunt watch
