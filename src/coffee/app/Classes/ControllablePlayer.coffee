@@ -16,7 +16,6 @@ class ControllablePlayer extends Player
     @jumpDeceleration = config.player.jumpDeceleration
     @jumpCurrentAcceleration = config.player.jumpCurrentAcceleration
     @fallCurrentAcceleration = @fallMinAcceleration
-    @actualCollisions = []
     @cached = {}
     @moveVector = { x: 0, y: 0 }
     @reinitStats()
@@ -28,6 +27,7 @@ class ControllablePlayer extends Player
     @jumpCount = 0
     @couched = false
     @falling = true
+    @fallingTime = 0
     @grabbing = false
     @grabbed = false
     @coopJump = false
@@ -174,11 +174,12 @@ class ControllablePlayer extends Player
     @jumpCount = 0
     @fallCurrentAcceleration = @fallMinAcceleration
     @falling = false
+    @fallingTime = Date.now()
     @setVulnerable()
 
   startJump: ->
     @canJump = false
-    if !@couched and @jumpCount is 0 or (@jumpCount < @jumpMax and bonusManager.playerBonuses.doubleJumpBonus > 0)
+    if (!@couched and (@jumpCount is 0 or @fallingTime > Date.now() - config.player.jumpTime * 1000)) or (@jumpCount < @jumpMax and bonusManager.playerBonuses.doubleJumpBonus > 0)
       if @jumpCount > 0
         bonusManager.playerBonuses.doubleJumpBonus--
       if collisionManager.getPlayerCollision()
@@ -190,7 +191,7 @@ class ControllablePlayer extends Player
       @jumpStart = @shape.getY()
 
   doJump: (frameTime) ->
-    if(@jumpStart - @shape.getY() < @jumpHeight) and @jump
+    if (@jumpStart - @shape.getY() < @jumpHeight) and @jump
       collide = @testMove(0, @shape.getY() - @jumpCurrentAcceleration*frameTime)
       tmpAcceleration = @jumpCurrentAcceleration*@jumpDeceleration
       if tmpAcceleration >= @jumpMinAcceleration
@@ -200,7 +201,6 @@ class ControllablePlayer extends Player
       if collide
         @shape.setY(collide.getY() + collide.getHeight())
         @stopJump()
-      @jumpTime += frameTime
     else
       @stopJump()
 

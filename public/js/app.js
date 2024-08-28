@@ -22,6 +22,7 @@
     player: {
       jumpMax: 2,
       jumpHeight: 82,
+      jumpTime: 0.2,
       speed: 0.17,
       couchedSpeedRation: 0.5,
       fallMinAcceleration: 0.1,
@@ -1031,7 +1032,6 @@
       this.jumpDeceleration = config.player.jumpDeceleration;
       this.jumpCurrentAcceleration = config.player.jumpCurrentAcceleration;
       this.fallCurrentAcceleration = this.fallMinAcceleration;
-      this.actualCollisions = [];
       this.cached = {};
       this.moveVector = {
         x: 0,
@@ -1047,6 +1047,7 @@
       this.jumpCount = 0;
       this.couched = false;
       this.falling = true;
+      this.fallingTime = 0;
       this.grabbing = false;
       this.grabbed = false;
       this.coopJump = false;
@@ -1217,12 +1218,13 @@
       this.jumpCount = 0;
       this.fallCurrentAcceleration = this.fallMinAcceleration;
       this.falling = false;
+      this.fallingTime = Date.now();
       return this.setVulnerable();
     };
 
     ControllablePlayer.prototype.startJump = function() {
       this.canJump = false;
-      if (!this.couched && this.jumpCount === 0 || (this.jumpCount < this.jumpMax && bonusManager.playerBonuses.doubleJumpBonus > 0)) {
+      if ((!this.couched && (this.jumpCount === 0 || this.fallingTime > Date.now() - config.player.jumpTime * 1000)) || (this.jumpCount < this.jumpMax && bonusManager.playerBonuses.doubleJumpBonus > 0)) {
         if (this.jumpCount > 0) {
           bonusManager.playerBonuses.doubleJumpBonus--;
         }
@@ -1249,9 +1251,8 @@
         }
         if (collide) {
           this.shape.setY(collide.getY() + collide.getHeight());
-          this.stopJump();
+          return this.stopJump();
         }
-        return this.jumpTime += frameTime;
       } else {
         return this.stopJump();
       }
