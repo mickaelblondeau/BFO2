@@ -1127,13 +1127,12 @@
   BossManager = (function() {
     function BossManager() {
       this.launched = false;
-      this.initBosses = ['roueman', 'freezeman', 'poingman', 'labiman', 'sparkman', 'homingman', 'missileman'];
-      this.boss = this.initBosses;
-      this.tmpBeatenBosses = [];
+      this.restart();
     }
 
     BossManager.prototype.launch = function() {
       var boss;
+      console.log('launch');
       boss = this.getBoss();
       if (boss) {
         networkManager.sendBoss(boss.id, boss.options, boss.timeout);
@@ -1153,8 +1152,6 @@
     BossManager.prototype.getBoss = function() {
       var boss;
       boss = this.boss[Math.floor(Math.random() * this.boss.length)];
-      console.log(this.boss);
-      console.log(boss);
       if (boss === 'roueman') {
         return new RoueMan();
       } else if (boss === 'freezeman') {
@@ -1176,23 +1173,27 @@
 
     BossManager.prototype.updateBosses = function(boss) {
       var index;
+      console.log('updateBosses');
       this.tmpBeatenBosses.push(boss);
       index = this.boss.indexOf(boss);
       return this.boss.splice(index, 1);
     };
 
     BossManager.prototype.resetBosses = function() {
+      console.log('resetBosses');
       this.boss = this.boss.concat(this.tmpBeatenBosses);
       return this.tmpBeatenBosses = [];
     };
 
     BossManager.prototype.saveBosses = function() {
+      console.log('saveBosses');
       return this.tmpBeatenBosses = [];
     };
 
     BossManager.prototype.restart = function() {
-      this.tmpBeatenBosses = [];
-      return this.boss = this.initBosses;
+      console.log('restart');
+      this.boss = ['roueman', 'freezeman', 'poingman', 'labiman', 'sparkman', 'homingman', 'missileman'];
+      return this.tmpBeatenBosses = [];
     };
 
     return BossManager;
