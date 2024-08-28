@@ -1222,10 +1222,14 @@
       return this.setVulnerable();
     };
 
+    ControllablePlayer.prototype.canCoyoteJump = function() {
+      return this.fallingTime > Date.now() - config.player.jumpTime * 1000;
+    };
+
     ControllablePlayer.prototype.startJump = function() {
       this.canJump = false;
-      if ((!this.couched && (this.jumpCount === 0 || this.fallingTime > Date.now() - config.player.jumpTime * 1000)) || (this.jumpCount < this.jumpMax && bonusManager.playerBonuses.doubleJumpBonus > 0)) {
-        if (this.jumpCount > 0) {
+      if (!this.couched && ((this.jumpCount === 0 || this.canCoyoteJump) || (this.jumpCount < this.jumpMax && bonusManager.playerBonuses.doubleJumpBonus > 0))) {
+        if (this.jumpCount > 0 && !this.canCoyoteJump) {
           bonusManager.playerBonuses.doubleJumpBonus--;
         }
         if (collisionManager.getPlayerCollision()) {

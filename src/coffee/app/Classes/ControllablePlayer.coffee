@@ -177,10 +177,13 @@ class ControllablePlayer extends Player
     @fallingTime = Date.now()
     @setVulnerable()
 
+  canCoyoteJump: ->
+    @fallingTime > Date.now() - config.player.jumpTime * 1000
+
   startJump: ->
     @canJump = false
-    if (!@couched and (@jumpCount is 0 or @fallingTime > Date.now() - config.player.jumpTime * 1000)) or (@jumpCount < @jumpMax and bonusManager.playerBonuses.doubleJumpBonus > 0)
-      if @jumpCount > 0
+    if !@couched and ((@jumpCount is 0 or @canCoyoteJump) or (@jumpCount < @jumpMax and bonusManager.playerBonuses.doubleJumpBonus > 0))
+      if @jumpCount > 0 and !@canCoyoteJump
         bonusManager.playerBonuses.doubleJumpBonus--
       if collisionManager.getPlayerCollision()
         @coopJump = true
