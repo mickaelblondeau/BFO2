@@ -1228,8 +1228,8 @@
 
     ControllablePlayer.prototype.startJump = function() {
       this.canJump = false;
-      if (!this.couched && ((this.jumpCount === 0 || this.canCoyoteJump) || (this.jumpCount < this.jumpMax && bonusManager.playerBonuses.doubleJumpBonus > 0))) {
-        if (this.jumpCount > 0 && !this.canCoyoteJump) {
+      if (!this.couched && ((this.jumpCount === 0 || this.canCoyoteJump()) || (this.jumpCount < this.jumpMax && bonusManager.playerBonuses.doubleJumpBonus > 0))) {
+        if (this.jumpCount > 0 && !this.canCoyoteJump()) {
           bonusManager.playerBonuses.doubleJumpBonus--;
         }
         if (collisionManager.getPlayerCollision()) {

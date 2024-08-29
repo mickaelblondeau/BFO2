@@ -182,8 +182,8 @@ class ControllablePlayer extends Player
 
   startJump: ->
     @canJump = false
-    if !@couched and ((@jumpCount is 0 or @canCoyoteJump) or (@jumpCount < @jumpMax and bonusManager.playerBonuses.doubleJumpBonus > 0))
-      if @jumpCount > 0 and !@canCoyoteJump
+    if !@couched and ((@jumpCount is 0 or @canCoyoteJump()) or (@jumpCount < @jumpMax and bonusManager.playerBonuses.doubleJumpBonus > 0))
+      if @jumpCount > 0 and !@canCoyoteJump()
         bonusManager.playerBonuses.doubleJumpBonus--
       if collisionManager.getPlayerCollision()
         @coopJump = true
