@@ -9,6 +9,7 @@ config = {
     jumpMax: 2
     jumpHeight: 82
     jumpTime: 0.2
+    jumpBufferTime: 0.2
     speed: 0.17
     couchedSpeedRation: 0.5
     fallMinAcceleration: 0.1

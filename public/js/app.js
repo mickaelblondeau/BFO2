@@ -23,6 +23,7 @@
       jumpMax: 2,
       jumpHeight: 82,
       jumpTime: 0.2,
+      jumpBufferTime: 0.2,
       speed: 0.17,
       couchedSpeedRation: 0.5,
       fallMinAcceleration: 0.1,
@@ -1045,6 +1046,7 @@
       this.canJump = true;
       this.jumpStart = 0;
       this.jumpCount = 0;
+      this.jumpBufferTime = 0;
       this.couched = false;
       this.falling = true;
       this.fallingTime = 0;
@@ -1219,7 +1221,10 @@
       this.fallCurrentAcceleration = this.fallMinAcceleration;
       this.falling = false;
       this.fallingTime = Date.now();
-      return this.setVulnerable();
+      this.setVulnerable();
+      if (this.jumpBufferTime > Date.now() - config.player.jumpBufferTime * 1000) {
+        return this.startJump();
+      }
     };
 
     ControllablePlayer.prototype.canCoyoteJump = function() {
@@ -1240,6 +1245,8 @@
         this.jump = true;
         this.jumpCurrentAcceleration = this.jumpMaxAcceleration;
         return this.jumpStart = this.shape.getY();
+      } else {
+        return this.jumpBufferTime = Date.now();
       }
     };
 

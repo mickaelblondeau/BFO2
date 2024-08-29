@@ -25,6 +25,7 @@ class ControllablePlayer extends Player
     @canJump = true
     @jumpStart = 0
     @jumpCount = 0
+    @jumpBufferTime = 0
     @couched = false
     @falling = true
     @fallingTime = 0
@@ -176,6 +177,8 @@ class ControllablePlayer extends Player
     @falling = false
     @fallingTime = Date.now()
     @setVulnerable()
+    if @jumpBufferTime > Date.now() - config.player.jumpBufferTime * 1000
+      @startJump()
 
   canCoyoteJump: ->
     @fallingTime > Date.now() - config.player.jumpTime * 1000
@@ -192,6 +195,8 @@ class ControllablePlayer extends Player
       @jump = true
       @jumpCurrentAcceleration = @jumpMaxAcceleration
       @jumpStart = @shape.getY()
+    else
+      @jumpBufferTime = Date.now()
 
   doJump: (frameTime) ->
     if (@jumpStart - @shape.getY() < @jumpHeight) and @jump
